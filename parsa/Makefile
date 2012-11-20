@@ -8,7 +8,7 @@ libparsa.so: $(OBJECT)
 	gcc -shared -o $@ $(OBJECT)
 
 libparsa.a: $(OBJECT)
-	ar rcs $@ $(OBJECT)
+	ar -rcs $@ $(OBJECT)
 
 $(OBJECT): %.o: %.cpp
 %.o: CXXFLAGS = -fpic
