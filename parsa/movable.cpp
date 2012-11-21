@@ -1,5 +1,6 @@
 #include "movable.h"
 #include <cstdlib>
+#include <iostream>
 using namespace std;
 
 abstract_param::~abstract_param() // to make compiler happy
@@ -41,6 +42,7 @@ void movable::reject_move()
 {
     params[index]->restore_tweak();
     energy = prev_eng;
+    //cout << energy << " " << get_score() << endl;
 }
 
 void movable::init_stats()

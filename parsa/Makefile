@@ -1,6 +1,7 @@
 TARGET = libparsa.a
 OBJECT = annealer.o movable.o
 SOURCE = annealer.h annealer.cpp movable.h movable.cpp
+CXXFLAGS += -g
 .PHONY: all clean
 
 all: $(TARGET)
@@ -12,7 +13,7 @@ libparsa.a: $(OBJECT) $(SOURCE)
 	ar -rcs $@ $(OBJECT)
 
 $(OBJECT): %.o: %.cpp
-%.o: CXXFLAGS = -fpic
+%.o: CXXFLAGS += -fpic
 
 clean:
 	rm -f $(TARGET) $(OBJECT)
