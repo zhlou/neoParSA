@@ -11,6 +11,11 @@ tsp_reorder::tsp_reorder(tsp *from_problem)
     seed = time(NULL);
 }
 
+tsp_reorder::~tsp_reorder()
+{
+    return;
+}
+
 void tsp_reorder::generate_tweak(double theta_bar)
 {
     int c1, c2;

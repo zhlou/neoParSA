@@ -2,6 +2,11 @@
 #include <cstdlib>
 using namespace std;
 
+abstract_param::~abstract_param() // to make compiler happy
+{
+    return;
+}
+
 movable::movable()
 {
     index = -1;

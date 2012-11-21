@@ -5,6 +5,7 @@ class abstract_param {
     public: 
         virtual void generate_tweak(double theta_bar) = 0;
         virtual void restore_tweak() = 0;
+        virtual ~abstract_param(); // need this on obj w/ virtual func.
 };
 
 class movable {

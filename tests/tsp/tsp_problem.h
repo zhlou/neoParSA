@@ -8,6 +8,7 @@ class tsp_reorder: public abstract_param {
         void generate_tweak(double theta_bar);
         void restore_tweak();
         tsp_reorder(tsp *from_problem);
+        ~tsp_reorder();
     private:
         tsp *thetsp;
         unsigned seed;
