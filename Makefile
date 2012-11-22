@@ -1,5 +1,7 @@
 LIBS = parsa/libparsa.a
-.PHONY: tests $(LIBS) 
+.PHONY: all tests $(LIBS)
+
+all: $(LIBS) tests
 
 tests: $(LIBS)
 	cd $@ && $(MAKE)

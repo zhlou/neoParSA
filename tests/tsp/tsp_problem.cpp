@@ -34,6 +34,7 @@ void tsp_reorder::restore_tweak()
 double tsp_problem::get_score()
 {
     return thetsp->cost();
+	//return thetsp->calc_route();
 }
 
 tsp_problem::tsp_problem(tsp *ext_tsp)

@@ -113,8 +113,11 @@ double tsp::step(int c1, int c2)
     int n = cities.size();
     if (c1 < 0 || c1 >= n || c2 < 0 || c2 >= n)
         return -1;
-    if (c1 == c2)
-        return 0;
+    if (c1 == c2) {
+    	can_rollback = false;
+    	return 0;
+    }
+
 
     r1 = c1;
     r2 = cities[c1].next;

@@ -19,6 +19,7 @@ annealer::annealer(movable *theproblem)
 double annealer::loop()
 {
     double delta, crit, ran_n;
+    long unsigned step_cnt = 0;
     while (!frozen()) {
         delta = problem->propose_move();
         crit = exp(-s * delta);
@@ -31,14 +32,16 @@ double annealer::loop()
             reject_cnt += 1;
         }
         s *= 1.01;
+        step_cnt ++;
     }
-    cout << "Annealing stoped at s = " << s << endl;
+    cout << "Annealing stoped at s = " << s << endl
+         << "Total steps is " << step_cnt << endl;
     return problem->get_score();
 }
 
 bool annealer::frozen()
 {
-    const unsigned max_rej = 500;
+    const unsigned max_rej = 100;
     return (reject_cnt > max_rej);
 }
 
