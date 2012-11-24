@@ -1,5 +1,6 @@
 LIBS = parsa/libparsa.a
-.PHONY: all tests $(LIBS)
+DIRS = parsa tests
+.PHONY: all tests $(LIBS) clean
 
 all: $(LIBS) tests
 
@@ -8,3 +9,8 @@ tests: $(LIBS)
 
 parsa/libparsa.a:
 	cd parsa && $(MAKE)
+
+clean:
+	for dir in $(DIRS) ; do\
+		(cd $$dir && $(MAKE) clean); \
+	done
