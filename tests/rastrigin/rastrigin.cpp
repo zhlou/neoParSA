@@ -40,16 +40,22 @@ rastrigin::rastrigin (int dimension)
 {
     nparams = dimension;
     seed = time(NULL);
+    params = new abstract_param*[nparams];
     vars = new variable[nparams];
     for (int i = 0; i < nparams; i++) {
     	vars[i].init(&seed);
+    	params[i] = vars + i;
     }
 }
 
 rastrigin::~rastrigin()
 {
-	if (vars != NULL)
+	if (vars != NULL) {
 		delete []vars;
+	}
+	if (params != NULL) {
+		delete []params;
+	}
 }
 double rastrigin::get_score()
 {
