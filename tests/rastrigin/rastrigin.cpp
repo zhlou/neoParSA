@@ -54,6 +54,15 @@ rastrigin::rastrigin (int dimension)
 
 }
 
+void rastrigin::print_solution(ostream& o) const
+{
+	o << "{" << endl;
+	for (int i = 0; i < nparams; i++) {
+		o << vars[i].x << endl;
+	}
+	o << "}" << endl;
+}
+
 rastrigin::~rastrigin()
 {
 	if (vars != NULL) {

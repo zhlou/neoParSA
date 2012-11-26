@@ -2,6 +2,8 @@
 #define RASTRIGIN_H
 
 #include "movable.h"
+#include <iostream>
+using namespace std;
 
 class variable : public abstract_param {
     public:
@@ -21,6 +23,7 @@ class rastrigin : public movable {
     public:
         rastrigin (int dimension);
         double get_score();
+        void print_solution(ostream &o) const;
         ~rastrigin();
     private:
         variable *vars;
