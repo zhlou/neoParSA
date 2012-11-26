@@ -14,6 +14,7 @@ class movable {
         void accept_move();
         void reject_move();
         void init_stats();
+        void set_theta(int id, double theta);
         virtual double get_score() = 0;
         virtual ~movable();
         movable();

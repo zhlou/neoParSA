@@ -8,6 +8,13 @@ abstract_param::~abstract_param() // to make compiler happy
     return;
 }
 
+void movable::set_theta(int id, double theta)
+{
+	if (id >= 0 && id < nparams) {
+		theta_bars[id] = theta;
+	}
+}
+
 movable::movable()
 {
     index = -1;
