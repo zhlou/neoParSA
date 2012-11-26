@@ -1,8 +1,10 @@
-DIRS = tsp
-.PHONY: $(DIRS) clean
+DIRS = tsp rastrigin
+.PHONY: all clean
 
-$(DIRS):
-	cd $@ && $(MAKE)
+all: $(DIRS)
+	for dir in $(DIRS); do\
+		(cd $$dir && $(MAKE)); \
+	done
 
 clean:
 	for dir in $(DIRS); do\

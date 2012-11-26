@@ -38,14 +38,20 @@ void variable::generate_tweak(double theta_bar)
 
 rastrigin::rastrigin (int dimension)
 {
-    nparams = dimension;
+    int i;
+	nparams = dimension;
     seed = time(NULL);
     params = new abstract_param*[nparams];
     vars = new variable[nparams];
-    for (int i = 0; i < nparams; i++) {
+    for (i = 0; i < nparams; i++) {
     	vars[i].init(&seed);
     	params[i] = vars + i;
     }
+    init_stats();
+    for (i = 0; i < nparams; i++) {
+    	set_theta(i, 1.0);
+    }
+
 }
 
 rastrigin::~rastrigin()
