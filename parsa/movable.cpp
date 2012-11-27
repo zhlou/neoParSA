@@ -1,8 +1,9 @@
 #include "movable.h"
 #include <cstdlib>
 #include <iostream>
+#include <limits>
 using namespace std;
-
+static const double UNINITIALIZED = numeric_limits<double>::max() ;
 abstract_param::~abstract_param() // to make compiler happy
 {
     return;
@@ -15,14 +16,19 @@ void movable::set_theta(int id, double theta)
 	}
 }
 
-movable::movable()
+movable::movable(int np)
 {
-    index = -1;
-    theta_bars = NULL;
-    success = NULL;
-    moves = NULL;
-    nparams = 0;
-    params = NULL;
+	index = -1;
+
+	nparams = np;
+	params = NULL;
+
+	success = new long[nparams];
+	moves = new long[nparams];
+	theta_bars = new double[nparams];
+	energy = UNINITIALIZED;
+	prev_eng = energy;
+
 }
 
 double movable::propose_move()
@@ -32,6 +38,9 @@ double movable::propose_move()
     
     index ++;
     index %= nparams;
+
+    if (energy == UNINITIALIZED)
+    	energy = get_score();
 
     prev_eng = energy;
     params[index]->generate_tweak(theta_bars[index]);
@@ -52,13 +61,7 @@ void movable::reject_move()
     //cout << energy << " " << get_score() << endl;
 }
 
-void movable::init_stats()
-{
-    success = new long[nparams];
-    moves = new long[nparams];
-    theta_bars = new double[nparams];
-    energy = get_score();
-}
+
 
 movable::~movable()
 {

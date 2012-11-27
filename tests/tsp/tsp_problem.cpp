@@ -22,7 +22,7 @@ void tsp_reorder::generate_tweak(double theta_bar)
     c1 = rand_r(&seed) % ncities;
     do {
         c2 = rand_r(&seed) % ncities;
-    } while (c2 != c1);
+    } while (c2 == c1);
 
     thetsp->step(c1, c2);
 }
@@ -39,13 +39,13 @@ double tsp_problem::get_score()
 	//return thetsp->calc_route();
 }
 
-tsp_problem::tsp_problem(tsp *ext_tsp)
+tsp_problem::tsp_problem(tsp *ext_tsp) :movable(1)
 {
     thetsp = ext_tsp;
-    nparams = 1;
+
     params = new abstract_param*;
     params[0] = new tsp_reorder(thetsp);
-    init_stats();
+
 
 }
 
