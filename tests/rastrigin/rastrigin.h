@@ -7,8 +7,8 @@ using namespace std;
 
 class variable : public abstract_param {
     public:
-        static const double VAR_MAX = 5.12;
-        static const double VAR_MIN = -5.12;
+        static const double VAR_MAX;
+        static const double VAR_MIN;
         double x;
         void init(unsigned int *in_seed);
         void generate_tweak(double theta_bar);

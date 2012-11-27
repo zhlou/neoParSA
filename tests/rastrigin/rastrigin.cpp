@@ -4,10 +4,12 @@
 #include "rastrigin.h"
 
 using namespace std;
+const double variable::VAR_MAX = 5.12;
+const double variable::VAR_MIN = -5.12;
 void variable::init(unsigned int *in_seed)
 {
 	seed = in_seed;
-	x = VAR_MAX * ( (rand_r(seed)*2/RAND_MAX) - 1.0);
+	x = VAR_MAX * ( (rand_r(seed)*2.0/RAND_MAX) - 1.0);
 	is_restorable = false;
 }
 
