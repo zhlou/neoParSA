@@ -20,7 +20,9 @@ void tsp_reorder::generate_tweak(double theta_bar)
 {
     int c1, c2;
     c1 = rand_r(&seed) % ncities;
-    c2 = rand_r(&seed) % ncities;
+    do {
+        c2 = rand_r(&seed) % ncities;
+    } while (c2 != c1);
 
     thetsp->step(c1, c2);
 }
