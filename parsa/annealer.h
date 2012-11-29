@@ -2,13 +2,15 @@
 #define ANNEALER_H
 
 #include "movable.h"
+#include <libxml/parser.h>
 
 class annealer {
     public:
-        annealer(movable *theproblem);
+        annealer(movable *theproblem, xmlNode *root);
         ~annealer();
         double loop();
     private:
+        xmlNode *xmlroot;
         double s;
         bool frozen();
         unsigned reject_cnt;

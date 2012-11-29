@@ -2,17 +2,35 @@
 #include <cstdlib>
 #include <ctime>
 #include <iostream>
+#include <libxml/parser.h>
 #include "annealer.h"
 #include "movable.h"
 
 using namespace std;
 
-annealer::annealer(movable *theproblem)
+annealer::annealer(movable *theproblem, xmlNode *root)
 {
+    xmlroot = root;
+	xmlNode *section = xmlroot->children;
+	xmlChar *init_T;
     problem = theproblem;
-    s = 0.001;
+    while (section != NULL) {
+    	if (!xmlStrcmp(section->name, (xmlChar *)"annealer_input"))
+    		break;
+    	section = section->next;
+    }
+    if (section == NULL) {
+    	throw 2;
+    }
+    init_T = xmlGetProp(section, (xmlChar *)"init_T");
+    if (init_T == NULL) {
+    	throw 3;
+    }
+    s = 1.0/atof((char *)init_T);
+
     reject_cnt = 0;
     rnd_seed = time(NULL);
+
     cout << "The initial energy is "<< problem->get_score() << endl;
 }
 
