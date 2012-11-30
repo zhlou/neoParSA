@@ -1,6 +1,6 @@
 #ifndef MOVABLE_H
 #define MOVABLE_H
-
+#include <libxml/parser.h>
 class abstract_param {
     public: 
         virtual void generate_tweak(double theta_bar) = 0;
@@ -18,12 +18,14 @@ class movable {
         virtual double get_score() = 0;
         virtual ~movable();
         movable(int np);
+        movable(xmlNode *root, xmlChar *secname);
 
     protected:
         int nparams;
         abstract_param **params;
 
     private:
+        void init(int np);
         int index;
         long *success;
         long *moves;
