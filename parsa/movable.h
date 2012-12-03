@@ -23,6 +23,8 @@ class movable {
     protected:
         int nparams;
         abstract_param **params;
+        xmlNode *docroot;
+        xmlNode *section;
 
     private:
         void init(int np);

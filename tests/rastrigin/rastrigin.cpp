@@ -1,62 +1,74 @@
 #include <cmath>
 #include <cstdlib>
 #include <ctime>
+#include <libxml/tree.h>
+#include <string>
 #include "rastrigin.h"
 
 using namespace std;
-const double variable::VAR_MAX = 5.12;
-const double variable::VAR_MIN = -5.12;
-void variable::init(unsigned int *in_seed)
-{
-	seed = in_seed;
-	x = VAR_MAX * ( (rand_r(seed)*2.0/RAND_MAX) - 1.0);
-	is_restorable = false;
-}
+const double rastrigin::VAR_MAX = 5.12;
+const double rastrigin::VAR_MIN = -5.12;
 
-void variable::restore_tweak()
+rastrigin::rastrigin(int dimension) :
+		dim(dimension)
 {
-	if (is_restorable){
-		x = prev_x;
-		is_restorable = false;
+	int i;
+	seed = time(NULL);
+	vars = new double[dim];
+	for (i = 0; i < dim; i++) {
+		vars[i] = VAR_MAX * ((rand_r(&seed) * 2.0 / RAND_MAX) - 1.0);
 	}
+	docroot = NULL;
 }
 
-void variable::generate_tweak(double theta_bar)
+rastrigin::rastrigin(xmlNode *root)
 {
-    prev_x = x;
-	double uniform = rand_r(seed)*2.0/RAND_MAX - 1.0;
-    if (uniform >= 0)
-        x -= theta_bar * log(abs(uniform));
-    else
-        x += theta_bar * log(abs(uniform));
-    if (x > VAR_MAX)
-        x = VAR_MAX;
-    else if (x < VAR_MIN)
-        x = VAR_MIN;
-    is_restorable = true;
-}
+	docroot = root;
+	xmlNode *section = root->children;
+	xmlChar *prop = NULL;
+	while (section != NULL) {
+		if (!xmlStrcmp(section->name, (xmlChar *) "rastrigin"))
+			break;
+		section = section->next;
+	}
+	if (section == NULL) {
+		throw 1;
+	}
+	if ((prop = xmlGetProp(section, (xmlChar *)"dim")) != NULL) {
+		dim = atoi((char *)prop);
+		xmlFree(prop);
+		prop = NULL;
+	} else {
+		throw 2;
+	}
+	vars = new double[dim];
+	if ((prop = xmlGetProp(section, (xmlChar *)"seed")) != NULL) {
+		seed = atoi((char *)prop);
+		xmlFree(prop);
+		prop = NULL;
+	} else {
+		seed = time(NULL);
+	}
+	string str("x");
+	for (int i = 0; i < dim; i++) {
+		if ((prop = xmlGetProp(section, (xmlChar *)(str + (i+1)).c_str()))
+				!= NULL) {
+			vars[i] = strtod((char *)prop, NULL);
+			xmlFree(prop);
+			prop = NULL;
+		} else {
+			vars[i] = VAR_MAX * ((rand_r(&seed) * 2.0 / RAND_MAX) - 1.0);
+		}
 
-
-
-rastrigin::rastrigin (int dimension) : movable(dimension)
-{
-    int i;
-    seed = time(NULL);
-    params = new abstract_param*[nparams];
-    vars = new variable[nparams];
-    for (i = 0; i < nparams; i++) {
-    	vars[i].init(&seed);
-    	params[i] = vars + i;
-    	set_theta(i, 1.0);
-    }
+	}
 
 }
 
 void rastrigin::print_solution(ostream& o) const
 {
 	o << "{" << endl;
-	for (int i = 0; i < nparams; i++) {
-		o << vars[i].x << endl;
+	for (int i = 0; i < dim; i++) {
+		o << vars[i] << endl;
 	}
 	o << "}" << endl;
 }
@@ -64,20 +76,19 @@ void rastrigin::print_solution(ostream& o) const
 rastrigin::~rastrigin()
 {
 	if (vars != NULL) {
-		delete []vars;
+		delete[] vars;
 	}
-	if (params != NULL) {
-		delete []params;
-	}
+	vars = NULL;
 }
-double rastrigin::get_score()
+double rastrigin::value()
 {
-    double tot = 0;
-    for (int i = 0; i < nparams; i ++) {
-        tot += vars[i].x * vars[i].x - 10.0 * cos(2 * M_PI * vars[i].x);
-    }
-    return (10 * nparams + tot);
+	double tot = 0;
+	for (int i = 0; i < dim; i++) {
+		tot += vars[i] * vars[i] - 10.0 * cos(2 * M_PI * vars[i]);
+	}
+	return (10 * dim + tot);
 }
 
-
-
+int rastrigin::get_dimension() const {
+	return dim;
+}

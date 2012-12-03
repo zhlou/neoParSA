@@ -3,31 +3,25 @@
 
 #include "movable.h"
 #include <iostream>
+#include <libxml/parser.h>
 using namespace std;
 
-class variable : public abstract_param {
-    public:
-        static const double VAR_MAX;
-        static const double VAR_MIN;
-        double x;
-        void init(unsigned int *in_seed);
-        void generate_tweak(double theta_bar);
-        void restore_tweak();
-    private:
-        unsigned int *seed;
-        double prev_x;
-        bool is_restorable;
-};
-
-class rastrigin : public movable {
-    public:
-        rastrigin (int dimension);
-        double get_score();
-        void print_solution(ostream &o) const;
-        ~rastrigin();
-    private:
-        variable *vars;
-        unsigned int seed;
+class rastrigin
+{
+public:
+	rastrigin(int dimension);
+	rastrigin(xmlNode *root);
+	int get_dimension() const;
+	double value();
+	void print_solution(ostream &o) const;
+	~rastrigin();
+	const double VAR_MAX;
+	const double VAR_MIN;
+private:
+	xmlNode *docroot;
+	int dim;
+	double *vars;
+	unsigned int seed;
 
 };
 

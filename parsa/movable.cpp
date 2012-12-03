@@ -18,12 +18,15 @@ void movable::set_theta(int id, double theta)
 
 movable::movable(int np)
 {
+	docroot = NULL;
+	section = NULL;
 	init(np);
 }
 
 movable::movable(xmlNode *root, xmlChar *secname)
 {
-	xmlNode *section = root->children;
+	docroot = root;
+	section = docroot->children;
 	while (section != NULL) {
 		if (!xmlStrcmp(section->name, secname))
 			break;
@@ -38,11 +41,12 @@ movable::movable(xmlNode *root, xmlChar *secname)
 	}
 	init(atoi((char *)dim));
 }
-void movable::init(int np){
+void movable::init(int np)
+{
 	index = -1;
 
 	nparams = np;
-	params = NULL;
+	params = new abstract_param*[nparams];
 
 	success = new long[nparams];
 	moves = new long[nparams];
