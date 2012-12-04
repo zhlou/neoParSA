@@ -19,12 +19,13 @@ rastrigin::rastrigin(int dimension) :
 		vars[i] = VAR_MAX * ((rand_r(&seed) * 2.0 / RAND_MAX) - 1.0);
 	}
 	docroot = NULL;
+	section = NULL;
 }
 
 rastrigin::rastrigin(xmlNode *root)
 {
 	docroot = root;
-	xmlNode *section = root->children;
+	section = root->children;
 	xmlChar *prop = NULL;
 	while (section != NULL) {
 		if (!xmlStrcmp(section->name, (xmlChar *) "rastrigin"))

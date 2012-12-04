@@ -10,21 +10,21 @@
 
 #include <libxml/parser.h>
 
-class variable : public abstract_param {
-    public:
-        double x;
-        void init(unsigned int *in_seed);
-        void generate_tweak(double theta_bar);
-        void restore_tweak();
-        void set_idx(int i);
-    private:
-        unsigned int *seed;
-        double prev_x;
-        bool is_restorable;
-        int idx;
+class variable: public abstract_param
+{
+public:
+	variable(rastrigin *rst, int in_idx);
+	void generate_tweak(double theta_bar);
+	void restore_tweak();
+private:
+	rastrigin *therst;
+	unsigned int *seed;
+	double prev_x;
+	bool is_restorable;
+	int idx;
 };
 
-class rastrigin_problem : public movable
+class rastrigin_problem: public movable
 {
 public:
 	rastrigin_problem(rastrigin *rst_problem);
@@ -32,7 +32,6 @@ public:
 	~rastrigin_problem();
 private:
 	rastrigin *therst;
-	variable *vars;
 
 };
 

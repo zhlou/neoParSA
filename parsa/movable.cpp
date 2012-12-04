@@ -93,6 +93,7 @@ movable::~movable()
     delete[] success;
     delete[] moves;
     delete[] theta_bars;
+    delete[] params;
 
 }
 

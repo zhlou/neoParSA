@@ -6,44 +6,56 @@
  */
 #include "rastrigin_problem.h"
 
-
-
-void variable::init(unsigned int *in_seed)
+variable::variable(rastrigin *rst, int in_idx) :
+		therst(rst), idx(in_idx)
 {
-	seed = in_seed;
-	x = VAR_MAX * ( (rand_r(seed)*2.0/RAND_MAX) - 1.0);
+	seed = rst->get_seed();
 	is_restorable = false;
+	prev_x = 0;
 }
+
 
 void variable::restore_tweak()
 {
-	if (is_restorable){
-		x = prev_x;
+	if (is_restorable) {
+		therst->set_param(idx, prev_x);
 		is_restorable = false;
 	}
 }
 
 void variable::generate_tweak(double theta_bar)
 {
-    prev_x = x;
-	double uniform = rand_r(seed)*2.0/RAND_MAX - 1.0;
-    if (uniform >= 0)
-        x -= theta_bar * log(abs(uniform));
-    else
-        x += theta_bar * log(abs(uniform));
-    if (x > VAR_MAX)
-        x = VAR_MAX;
-    else if (x < VAR_MIN)
-        x = VAR_MIN;
-    is_restorable = true;
+	double x;
+	x = prev_x = therst->get_param(idx);
+	double uniform = rand_r(seed) * 2.0 / RAND_MAX - 1.0;
+	if (uniform >= 0)
+		x -= theta_bar * log(abs(uniform));
+	else
+		x += theta_bar * log(abs(uniform));
+	if (x > rastrigin::VAR_MAX)
+		x = rastrigin::VAR_MAX;
+	else if (x < rastrigin::VAR_MIN)
+		x = rastrigin::VAR_MIN;
+	therst->set_param(idx, x);
+	is_restorable = true;
 }
 
-rastrigin_problem::rastrigin_problem(rastrigin *rst_problem):
-		movable(rst_problem->get_dimension()),therst(rst_problem)
+rastrigin_problem::rastrigin_problem(rastrigin *rst_problem) :
+		movable(rst_problem->get_dimension()), therst(rst_problem)
 {
-	vars = new variable[nparams];
-	for (int i = 0; i < nparams; i ++) {
-		vars[i].set_idx(i);
-		params[i] = vars + i;
+	for (int i = 0; i < nparams; i++) {
+
+		params[i] = new variable(therst, i);
+	}
+}
+
+double rastrigin_problem::get_score(){
+	return therst->value();
+}
+
+rastrigin_problem::~rastrigin_problem()
+{
+	for (int i = 0; i < nparams; i++) {
+		delete params[i];
 	}
 }
