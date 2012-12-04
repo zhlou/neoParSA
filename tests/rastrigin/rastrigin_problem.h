@@ -9,6 +9,7 @@
 #define RASTRIGIN_PROBLEM_H_
 
 #include <libxml/parser.h>
+#include "rastrigin.h"
 
 class variable: public abstract_param
 {
@@ -27,7 +28,7 @@ private:
 class rastrigin_problem: public movable
 {
 public:
-	rastrigin_problem(rastrigin *rst_problem);
+	rastrigin_problem(rastrigin *rst);
 	double get_score();
 	~rastrigin_problem();
 private:

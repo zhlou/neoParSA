@@ -5,6 +5,9 @@
  *      Author: zhlou
  */
 #include "rastrigin_problem.h"
+#include "rastrigin.h"
+#include <cmath>
+#include <cstdlib>
 
 variable::variable(rastrigin *rst, int in_idx) :
 		therst(rst), idx(in_idx)

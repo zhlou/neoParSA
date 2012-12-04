@@ -3,7 +3,7 @@
 
 #include "movable.h"
 #include <iostream>
-#include <libxml/parser.h>
+#include <libxml/tree.h>
 using namespace std;
 
 class rastrigin
@@ -14,16 +14,17 @@ public:
 	int get_dimension() const;
 	double get_param(int idx) const;
 	void set_param(int idx, double val);
-	unsigned int* get_seed() const;
+	unsigned int* get_seed();
 	double value();
 	void print_solution(ostream &o) const;
+	void write_section(xmlChar *secname);
 	~rastrigin();
-	const double VAR_MAX;
-	const double VAR_MIN;
+	static const double VAR_MAX;
+	static const double VAR_MIN;
+	int dim;
 private:
 	xmlNode *docroot;
 	xmlNode *section;
-	int dim;
 	double *vars;
 	unsigned int seed;
 

@@ -8,9 +8,9 @@
 
 using namespace std;
 
-annealer::annealer(movable *theproblem, xmlNode *root)
+annealer::annealer(movable *theproblem, xmlNode *root):
+		xmlroot(root)
 {
-    xmlroot = root;
 	xmlNode *section = xmlroot->children;
 	xmlChar *init_T;
     problem = theproblem;

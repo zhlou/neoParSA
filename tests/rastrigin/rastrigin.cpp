@@ -3,6 +3,7 @@
 #include <ctime>
 #include <libxml/tree.h>
 #include <string>
+#include <sstream>
 #include "rastrigin.h"
 
 using namespace std;
@@ -35,26 +36,27 @@ rastrigin::rastrigin(xmlNode *root)
 	if (section == NULL) {
 		throw 1;
 	}
-	if ((prop = xmlGetProp(section, (xmlChar *)"dim")) != NULL) {
-		dim = atoi((char *)prop);
+	if ((prop = xmlGetProp(section, (xmlChar *) "dim")) != NULL) {
+		dim = atoi((char *) prop);
 		xmlFree(prop);
 		prop = NULL;
 	} else {
 		throw 2;
 	}
 	vars = new double[dim];
-	if ((prop = xmlGetProp(section, (xmlChar *)"seed")) != NULL) {
-		seed = atoi((char *)prop);
+	if ((prop = xmlGetProp(section, (xmlChar *) "seed")) != NULL) {
+		seed = atoi((char *) prop);
 		xmlFree(prop);
 		prop = NULL;
 	} else {
 		seed = time(NULL);
 	}
-	string str("x");
+	char *namebuf = new char[255];
 	for (int i = 0; i < dim; i++) {
-		if ((prop = xmlGetProp(section, (xmlChar *)(str + (i+1)).c_str()))
+		sprintf(namebuf, "x%d", i+1);
+		if ((prop = xmlGetProp(section, (xmlChar *)namebuf))
 				!= NULL) {
-			vars[i] = strtod((char *)prop, NULL);
+			vars[i] = strtod((char *) prop, NULL);
 			xmlFree(prop);
 			prop = NULL;
 		} else {
@@ -62,6 +64,23 @@ rastrigin::rastrigin(xmlNode *root)
 		}
 
 	}
+
+}
+
+void rastrigin::write_section(xmlChar *secname)
+{
+	xmlNode *node = xmlNewChild(docroot, NULL, secname, NULL);
+	char *namebuf = new char[255];
+	char *valbuf = new char[255];
+	sprintf(namebuf, "%d", dim);
+	xmlNewProp(node, (xmlChar *) "dim", (xmlChar *) namebuf);
+	for (int i = 0; i < dim; i++) {
+		sprintf(namebuf, "x%d", i + 1);
+		sprintf(valbuf, "%f", vars[i]);
+		xmlNewProp(node, (xmlChar *) namebuf, (xmlChar *) valbuf);
+	}
+	delete[] valbuf;
+	delete[] namebuf;
 
 }
 
@@ -90,6 +109,22 @@ double rastrigin::value()
 	return (10 * dim + tot);
 }
 
-int rastrigin::get_dimension() const {
+int rastrigin::get_dimension() const
+{
 	return dim;
+}
+
+double rastrigin::get_param(int idx) const
+{
+		return vars[idx];
+}
+
+void rastrigin::set_param(int idx, double val)
+{
+	vars[idx] = val;
+}
+
+unsigned int* rastrigin::get_seed()
+{
+	return &seed;
 }

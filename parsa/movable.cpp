@@ -18,29 +18,10 @@ void movable::set_theta(int id, double theta)
 
 movable::movable(int np)
 {
-	docroot = NULL;
-	section = NULL;
 	init(np);
 }
 
-movable::movable(xmlNode *root, xmlChar *secname)
-{
-	docroot = root;
-	section = docroot->children;
-	while (section != NULL) {
-		if (!xmlStrcmp(section->name, secname))
-			break;
-		section = section->next;
-	}
-	if (section == NULL) {
-		throw 2;
-	}
-	xmlChar *dim = xmlGetProp(section, (xmlChar *)"dim");
-	if (dim == NULL) {
-		throw 3;
-	}
-	init(atoi((char *)dim));
-}
+
 void movable::init(int np)
 {
 	index = -1;
