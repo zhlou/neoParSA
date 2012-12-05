@@ -49,6 +49,7 @@ rastrigin_problem::rastrigin_problem(rastrigin *rst_problem) :
 	for (int i = 0; i < nparams; i++) {
 
 		params[i] = new variable(therst, i);
+        set_theta(i, 1.0);
 	}
 }
 

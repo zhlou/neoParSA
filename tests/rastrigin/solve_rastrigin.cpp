@@ -19,7 +19,7 @@ int main(int argc, char **argv)
 		return 2;
 	}
 	unirandom rnd;
-	rastrigin rst(3, rnd);
+	rastrigin rst(docroot, rnd);
 	rastrigin_problem rst_problem(&rst);
 	annealer rst_anneal(&rst_problem, docroot);
 	cout << "The initial state is " << endl;
