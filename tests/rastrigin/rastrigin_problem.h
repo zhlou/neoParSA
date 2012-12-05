@@ -9,8 +9,10 @@
 #define RASTRIGIN_PROBLEM_H_
 
 #include <libxml/parser.h>
-#include "rastrigin.h"
+#include "movable.h"
 
+class rastrigin;
+class unirandom;
 class variable: public abstract_param
 {
 public:
@@ -19,10 +21,11 @@ public:
 	void restore_tweak();
 private:
 	rastrigin *therst;
-	unsigned int *seed;
+	unirandom &rnd;
 	double prev_x;
 	bool is_restorable;
 	int idx;
+
 };
 
 class rastrigin_problem: public movable

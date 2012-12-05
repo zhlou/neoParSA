@@ -2,6 +2,7 @@
 #include <libxml/parser.h>
 #include "rastrigin.h"
 #include "rastrigin_problem.h"
+#include "unirandom.h"
 #include "annealer.h"
 using namespace std;
 int main(int argc, char **argv)
@@ -17,7 +18,8 @@ int main(int argc, char **argv)
 		cerr << "Input incorrect" << endl;
 		return 2;
 	}
-	rastrigin rst(3);
+	unirandom rnd;
+	rastrigin rst(3, rnd);
 	rastrigin_problem rst_problem(&rst);
 	annealer rst_anneal(&rst_problem, docroot);
 	cout << "The initial state is " << endl;

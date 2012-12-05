@@ -5,25 +5,26 @@
 #include <string>
 #include <sstream>
 #include "rastrigin.h"
+#include "unirandom.h"
 
 using namespace std;
 const double rastrigin::VAR_MAX = 5.12;
 const double rastrigin::VAR_MIN = -5.12;
 
-rastrigin::rastrigin(int dimension) :
-		dim(dimension)
+rastrigin::rastrigin(int dimension, unirandom &in_rnd) :
+		dim(dimension), rnd(in_rnd)
 {
 	int i;
-	seed = time(NULL);
 	vars = new double[dim];
 	for (i = 0; i < dim; i++) {
-		vars[i] = VAR_MAX * ((rand_r(&seed) * 2.0 / RAND_MAX) - 1.0);
+		vars[i] = VAR_MAX * (rnd.random() *2.0 -1.0);
 	}
 	docroot = NULL;
 	section = NULL;
 }
 
-rastrigin::rastrigin(xmlNode *root)
+rastrigin::rastrigin(xmlNode *root, unirandom &in_rnd):
+		rnd(in_rnd)
 {
 	docroot = root;
 	section = root->children;
@@ -44,13 +45,6 @@ rastrigin::rastrigin(xmlNode *root)
 		throw 2;
 	}
 	vars = new double[dim];
-	if ((prop = xmlGetProp(section, (xmlChar *) "seed")) != NULL) {
-		seed = atoi((char *) prop);
-		xmlFree(prop);
-		prop = NULL;
-	} else {
-		seed = time(NULL);
-	}
 	char *namebuf = new char[255];
 	for (int i = 0; i < dim; i++) {
 		sprintf(namebuf, "x%d", i+1);
@@ -60,7 +54,7 @@ rastrigin::rastrigin(xmlNode *root)
 			xmlFree(prop);
 			prop = NULL;
 		} else {
-			vars[i] = VAR_MAX * ((rand_r(&seed) * 2.0 / RAND_MAX) - 1.0);
+			vars[i] = VAR_MAX * (2.0 * rnd.random() - 1.0);
 		}
 
 	}
@@ -124,7 +118,3 @@ void rastrigin::set_param(int idx, double val)
 	vars[idx] = val;
 }
 
-unsigned int* rastrigin::get_seed()
-{
-	return &seed;
-}

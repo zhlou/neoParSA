@@ -1,19 +1,20 @@
 #ifndef RASTRIGIN_H
 #define RASTRIGIN_H
 
-#include "movable.h"
+
 #include <iostream>
 #include <libxml/tree.h>
 using namespace std;
-
+class unirandom;
 class rastrigin
 {
 public:
-	rastrigin(int dimension);
-	rastrigin(xmlNode *root);
+	rastrigin(int dimension, unirandom &in_rnd);
+	rastrigin(xmlNode *root, unirandom &in_rnd);
 	int get_dimension() const;
 	double get_param(int idx) const;
 	void set_param(int idx, double val);
+	unirandom &rnd;
 	unsigned int* get_seed();
 	double value();
 	void print_solution(ostream &o) const;
@@ -26,7 +27,7 @@ private:
 	xmlNode *docroot;
 	xmlNode *section;
 	double *vars;
-	unsigned int seed;
+
 
 };
 

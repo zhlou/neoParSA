@@ -6,13 +6,13 @@
  */
 #include "rastrigin_problem.h"
 #include "rastrigin.h"
+#include "unirandom.h"
 #include <cmath>
 #include <cstdlib>
 
 variable::variable(rastrigin *rst, int in_idx) :
-		therst(rst), idx(in_idx)
+		therst(rst), idx(in_idx), rnd(rst->rnd)
 {
-	seed = rst->get_seed();
 	is_restorable = false;
 	prev_x = 0;
 }
@@ -30,7 +30,7 @@ void variable::generate_tweak(double theta_bar)
 {
 	double x;
 	x = prev_x = therst->get_param(idx);
-	double uniform = rand_r(seed) * 2.0 / RAND_MAX - 1.0;
+	double uniform = 2.0 * rnd.random() - 1.0;
 	if (uniform >= 0)
 		x -= theta_bar * log(abs(uniform));
 	else

@@ -1,6 +1,7 @@
 TARGET = libparsa.a
-OBJECT = annealer.o movable.o
-SOURCE = annealer.h annealer.cpp movable.h movable.cpp
+OBJECT = annealer.o movable.o unirandom.o
+SOURCE = annealer.h annealer.cpp movable.h movable.cpp \
+	unirandom.h unirandom.cpp
 CXXFLAGS += -g
 .PHONY: all clean
 
