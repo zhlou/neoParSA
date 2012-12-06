@@ -58,6 +58,7 @@ rastrigin::rastrigin(xmlNode *root, unirandom &in_rnd):
 		}
 
 	}
+	delete []namebuf;
 
 }
 

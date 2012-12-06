@@ -140,4 +140,5 @@ tsp::tsp()
     can_rollback = false;
     cost_valid = true;
     route_cost = 0.0;
+    r1 = r2 = 0; // just to avoid having uninialized variables
 }

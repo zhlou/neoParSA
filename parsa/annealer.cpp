@@ -12,7 +12,7 @@ annealer::annealer(movable *theproblem, xmlNode *root):
 		xmlroot(root)
 {
 	xmlNode *section = xmlroot->children;
-	xmlChar *init_T;
+	xmlChar *prop;
     problem = theproblem;
     while (section != NULL) {
     	if (!xmlStrcmp(section->name, (xmlChar *)"annealer_input"))
@@ -22,11 +22,19 @@ annealer::annealer(movable *theproblem, xmlNode *root):
     if (section == NULL) {
     	throw 2;
     }
-    init_T = xmlGetProp(section, (xmlChar *)"init_T");
-    if (init_T == NULL) {
+    prop = xmlGetProp(section, (xmlChar *)"init_T");
+    if (prop == NULL) {
     	throw 3;
     }
-    s = 1.0/atof((char *)init_T);
+    s = 1.0/atof((char *)prop);
+    xmlFree(prop);
+    prop = NULL;
+    prop = xmlGetProp(section, (xmlChar *)"lambda");
+    if (prop == NULL) {
+    	throw 3;
+    }
+    lambda = atof((char *)prop);
+    xmlFree(prop);
 
     reject_cnt = 0;
     rnd_seed = time(NULL);
@@ -49,14 +57,16 @@ double annealer::loop()
             problem->reject_move();
             reject_cnt += 1;
         }
-        s *= 1.0001;
         step_cnt ++;
     }
-    cout << "Annealing stoped at s = " << s << endl
+    cout << "Annealing stopped at s = " << s << endl
          << "Total steps is " << step_cnt << endl;
     return problem->get_score();
 }
-
+void annealer::cool_s()
+{
+	s *= (1 + lambda);
+}
 bool annealer::frozen()
 {
     const unsigned max_rej = 100;
