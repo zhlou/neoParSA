@@ -32,6 +32,10 @@ class movable {
         double *theta_bars;
         double energy;
         double prev_eng;
+        double move_gain;
+        long sweep;
+        int move_interval;
+        static const double theta_min;
 };
 
 

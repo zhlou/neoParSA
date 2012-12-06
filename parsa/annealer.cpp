@@ -49,7 +49,7 @@ double annealer::loop()
             problem->reject_move();
             reject_cnt += 1;
         }
-        s *= 1.01;
+        s *= 1.0001;
         step_cnt ++;
     }
     cout << "Annealing stoped at s = " << s << endl
