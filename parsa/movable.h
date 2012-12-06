@@ -25,6 +25,7 @@ class movable {
 
     private:
         void init(int np);
+        void move_control();
         int index;
         long *success;
         long *moves;

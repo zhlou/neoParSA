@@ -78,3 +78,12 @@ movable::~movable()
 
 }
 
+void movable::move_control()
+{
+	for (int i = 0; i < nparams; i++){
+		double acc_ratio = (double)success[i] / (double)moves[i];
+		theta_bars[i] += 3.0 * (acc_ratio - 0.44);
+		success[i] = 0;
+		moves[i] = 0;
+	}
+}
