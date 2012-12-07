@@ -7,14 +7,13 @@ class annealer {
     public:
         annealer(movable *theproblem, xmlNode *root);
         virtual ~annealer();
-        double loop();
+        virtual double loop();
     protected:
         xmlNode *xmlroot;
         xmlNode *xmlsection;
         double s;
         double lambda;
-        virtual bool frozen();
-        virtual void cool_s();
+        bool move();
         unsigned reject_cnt;
         unsigned rnd_seed;
         movable *problem;
