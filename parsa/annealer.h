@@ -10,6 +10,7 @@ class annealer {
         double loop();
     protected:
         xmlNode *xmlroot;
+        xmlNode *xmlsection;
         double s;
         double lambda;
         virtual bool frozen();

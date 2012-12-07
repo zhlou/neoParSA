@@ -21,6 +21,8 @@ protected:
 	void cool_s();
 	bool frozen();
 	MPI_Comm comm;
+        int nsize;
+        int rank;
 private:
 
 };
