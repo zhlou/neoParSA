@@ -9,72 +9,72 @@
 using namespace std;
 
 annealer::annealer(movable *theproblem, xmlNode *root) :
-        xmlroot(root)
+		xmlroot(root)
 {
-    xmlsection = xmlroot->children;
-    xmlChar *prop;
-    problem = theproblem;
-    while (xmlsection != NULL) {
-        if (!xmlStrcmp(xmlsection->name, (xmlChar *) "annealer_input"))
-            break;
-        xmlsection = xmlsection->next;
-    }
-    if (xmlsection == NULL) {
-        throw 2;
-    }
-    prop = xmlGetProp(xmlsection, (xmlChar *) "init_T");
-    if (prop == NULL) {
-        throw 3;
-    }
-    s = 1.0 / atof((char *) prop);
-    xmlFree(prop);
-    prop = NULL;
-    prop = xmlGetProp(xmlsection, (xmlChar *) "lambda");
-    if (prop == NULL) {
-        throw 3;
-    }
-    lambda = atof((char *) prop);
-    xmlFree(prop);
+	xmlsection = xmlroot->children;
+	xmlChar *prop;
+	problem = theproblem;
+	while (xmlsection != NULL) {
+		if (!xmlStrcmp(xmlsection->name, (xmlChar *) "annealer_input"))
+			break;
+		xmlsection = xmlsection->next;
+	}
+	if (xmlsection == NULL) {
+		throw 2;
+	}
+	prop = xmlGetProp(xmlsection, (xmlChar *) "init_T");
+	if (prop == NULL) {
+		throw 3;
+	}
+	s = 1.0 / atof((char *) prop);
+	xmlFree(prop);
+	prop = NULL;
+	prop = xmlGetProp(xmlsection, (xmlChar *) "lambda");
+	if (prop == NULL) {
+		throw 3;
+	}
+	lambda = atof((char *) prop);
+	xmlFree(prop);
 
-    reject_cnt = 0;
-    rnd_seed = time(NULL);
+	reject_cnt = 0;
+	rnd_seed = time(NULL);
 
-    cout << "The initial energy is " << problem->get_score() << endl;
+	cout << "The initial energy is " << problem->get_score() << endl;
 }
 
 double annealer::loop()
 {
-    const unsigned max_rej = 100;
-    long unsigned step_cnt = 0;
-    while (reject_cnt < max_rej) {
-        if (move())
-            reject_cnt = 0;
-        else
-            reject_cnt += 1;
+	const unsigned max_rej = 100;
+	long unsigned step_cnt = 0;
+	while (reject_cnt < max_rej) {
+		if (move()!= 0.)
+			reject_cnt = 0;
+		else
+			reject_cnt += 1;
 
-        s *= (1 + lambda);
-        step_cnt++;
-    }
-    cout << "Annealing stopped at s = " << s << endl << "Total steps is "
-            << step_cnt << endl;
-    return problem->get_score();
+		s *= (1 + lambda);
+		step_cnt++;
+	}
+	cout << "Annealing stopped at s = " << s << endl << "Total steps is "
+			<< step_cnt << endl;
+	return problem->get_score();
 }
 
 // Generate a move at current s. Return true if move has
 // been accepted. False otherwise.
-bool annealer::move()
+double annealer::move()
 {
-    double delta, crit, ran_n;
-    delta = problem->propose_move();
-     crit = exp(-s * delta);
-     ran_n = (double) rand_r(&rnd_seed) / RAND_MAX;
-     if ((delta <= 0.0) || crit > ran_n) {
-         problem->accept_move();
-         return true;
-     } else {
-         problem->reject_move();
-         return false;
-     }
+	double delta, crit, ran_n;
+	delta = problem->propose_move();
+	crit = exp(-s * delta);
+	ran_n = (double) rand_r(&rnd_seed) / RAND_MAX;
+	if ((delta <= 0.0) || crit > ran_n) {
+		problem->accept_move();
+		return delta;
+	} else {
+		problem->reject_move();
+		return 0.;
+	}
 }
 
 annealer::~annealer()

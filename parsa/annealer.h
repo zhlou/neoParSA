@@ -13,7 +13,7 @@ class annealer {
         xmlNode *xmlsection;
         double s;
         double lambda;
-        bool move();
+        double move();
         unsigned reject_cnt;
         unsigned rnd_seed;
         movable *problem;
