@@ -11,7 +11,7 @@
 #include <libxml/tree.h>
 #include "annealer.h"
 
-class plsa: public annealer
+class plsa: public lam
 {
 public:
     plsa(movable *theproblem, xmlNode *root, MPI_Comm thecomm);
@@ -23,9 +23,6 @@ protected:
     MPI_Comm comm;
     int nsize;
     int rank;
-private:
-    int proc_tau;
-
 };
 
 #endif /* PLSA_H_ */
