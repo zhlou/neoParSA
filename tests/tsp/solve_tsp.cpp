@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <libxml/parser.h>
-#include "annealer.h"
+#include "simpleAnnealer.h"
 #include "movable.h"
 #include "tsp.h"
 #include "tsp_problem.h"
@@ -25,7 +25,7 @@ int main(int argc, char **argv)
     }
     tsp_problem test_problem(&test_tsp);
     test_tsp.print_route(cout);
-    annealer tsp_anneal(&test_problem, root);
+    simpleAnnealer tsp_anneal(&test_problem, root);
     cout << "The finial energy is "<<tsp_anneal.loop()<< endl;
     cout << "The energy cached is "<< test_tsp.cost() << endl;
     cout << "The real energy is " << test_tsp.calc_route()<<endl;

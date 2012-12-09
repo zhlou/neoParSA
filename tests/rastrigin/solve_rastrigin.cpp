@@ -3,7 +3,7 @@
 #include "rastrigin.h"
 #include "rastrigin_problem.h"
 #include "unirandom.h"
-#include "annealer.h"
+#include "simpleAnnealer.h"
 using namespace std;
 int main(int argc, char **argv)
 {
@@ -21,7 +21,7 @@ int main(int argc, char **argv)
 	unirandom rnd;
 	rastrigin rst(docroot, rnd);
 	rastrigin_problem rst_problem(&rst);
-	annealer rst_anneal(&rst_problem, docroot);
+	simpleAnnealer rst_anneal(&rst_problem, docroot);
 	cout << "The initial state is " << endl;
 	rst.print_solution(cout);
 	cout << "The fininal energy is " << rst_anneal.loop() << endl;
