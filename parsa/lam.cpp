@@ -10,8 +10,10 @@
 lam::lam(movable *theproblem, xmlNode *root) :
         annealer(theproblem, root)
 {
-    // TODO Auto-generated constructor stub
-    proc_tau = 100; // for now
+    proc_tau = 100; // TODO for now. should be an input from xml later
+    acc_ratio = 0.;
+    accept = 0;
+    nvari = 0.;
 
 }
 
@@ -19,7 +21,7 @@ lam::~lam()
 {
     // TODO Auto-generated destructor stub
 }
-
+/*
 double lam::loop()
 {
     long unsigned step_cnt = 0;
@@ -37,4 +39,24 @@ double lam::loop()
     }
 
     return problem->get_score();
+}
+*/
+
+bool lam::frozen()
+{
+}
+
+void lam::updateStats(bool is_accept, double delta)
+{
+    if (is_accept)
+        accept ++;
+    nvari += delta * delta;
+    if (step_cnt % proc_tau == 0) {
+
+    }
+
+}
+
+void lam::cool_s()
+{
 }
