@@ -17,9 +17,11 @@ public:
     virtual ~simpleAnnealer();
 protected:
     unsigned reject_cnt;
-    void updateStats(bool accept, double delta);
+    void updateStep(bool accept, double delta);
     bool frozen();
     void cool_s();
+    bool inSegment();
+    void updateSegment();
 };
 
 #endif /* SIMPLEANNEALER_H_ */

@@ -19,7 +19,7 @@ simpleAnnealer::~simpleAnnealer()
     // TODO Auto-generated destructor stub
 }
 
-void simpleAnnealer::updateStats(bool accept, double delta)
+void simpleAnnealer::updateStep(bool accept, double delta)
 {
     if (accept)
         reject_cnt = 0;
@@ -36,4 +36,13 @@ bool simpleAnnealer::frozen()
 void simpleAnnealer::cool_s()
 {
     s *= (1 + lambda);
+}
+
+bool simpleAnnealer::inSegment()
+{
+    return false;
+}
+
+void simpleAnnealer::updateSegment()
+{
 }

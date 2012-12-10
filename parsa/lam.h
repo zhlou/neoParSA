@@ -19,12 +19,15 @@ public:
 protected:
     int proc_tau;
     double acc_ratio;
-    double nvari; //tau * sigma ^2, the sum of energy difference squared within proc_tau
+    double vari;
+    double mean;
     int accept;
     bool frozen();
-    void updateStats(bool accept, double delta);
+    void updateStep(bool accept, double delta);
     void cool_s();
-    virtual void updateEstimates();
+    void resetStats();
+    bool inSegment();
+    void updateSegment();
 
 
 };
