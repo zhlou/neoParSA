@@ -19,7 +19,7 @@ protected:
     unsigned reject_cnt;
     void updateStep(bool accept, double delta);
     bool frozen();
-    void cool_s();
+    void updateS();
     bool inSegment();
     void updateSegment();
 };

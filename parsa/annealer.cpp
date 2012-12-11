@@ -61,7 +61,7 @@ double annealer::loop()
                 problem->reject_move();
                 updateStep(false, 0.);
             }
-            cool_s();
+            updateS();
             step_cnt++;
         } while (inSegment());
         updateSegment();

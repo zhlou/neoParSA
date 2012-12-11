@@ -18,7 +18,7 @@ public:
 protected:
     virtual void updateStep(bool accept, double delta) = 0;
     virtual bool frozen() = 0;
-    virtual void cool_s() = 0;
+    virtual void updateS() = 0;
     virtual bool inSegment() = 0;
     virtual void updateSegment() = 0;
     xmlNode *xmlroot;

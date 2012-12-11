@@ -21,13 +21,21 @@ protected:
     double acc_ratio;
     double vari;
     double mean;
-    int accept;
+    int success;
     bool frozen();
     void updateStep(bool accept, double delta);
-    void cool_s();
-    void resetStats();
+    void updateS();
     bool inSegment();
     void updateSegment();
+    void resetSegmentStats();
+    void resetLam();
+    void updateLam();
+    // below are lam parameters
+    double w_a, w_b;
+    double usx, usy, usxx, usxy, usyy, usum;
+    double vsx, vsy, vsxx, vsxy, vsyy, vsum;
+    double estimate_mean;
+    double estimate_sd;
 
 
 };

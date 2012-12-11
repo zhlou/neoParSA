@@ -33,7 +33,7 @@ bool simpleAnnealer::frozen()
     return (reject_cnt >= max_rej);
 }
 
-void simpleAnnealer::cool_s()
+void simpleAnnealer::updateS()
 {
     s *= (1 + lambda);
 }

@@ -18,7 +18,7 @@ public:
     double loop();
     ~plsa();
 protected:
-    void cool_s();
+    void updateS();
     bool frozen();
     MPI_Comm comm;
     int nsize;
