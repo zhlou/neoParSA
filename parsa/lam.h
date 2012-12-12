@@ -10,7 +10,6 @@
 
 #include "annealer.h"
 #include "invLinearFit.h"
-#include <mpi.h>
 
 class lam: public annealer
 {
@@ -24,6 +23,10 @@ protected:
     double mean;
     int success;
     bool frozen();
+    double freeze_crit;
+    double old_energy;
+    int freeze_cnt;
+    int cnt_crit;
     void updateStep(bool accept, double delta);
     void updateS();
     bool inSegment();
@@ -33,8 +36,6 @@ protected:
     void updateLam();
     // below are lam parameters
     invLinearFit *fit_mean, *fit_sd;
-    double estimate_mean;
-    double estimate_sd;
     double alpha;
 
 

@@ -15,6 +15,10 @@ lam::lam(movable *theproblem, xmlNode *root) :
     proc_tau = 100; // TODO for now. should be an input from xml later
     fit_mean = new invLinearFit(0.995);
     fit_sd = new invLinearFit(0.99);
+    freeze_crit = 0.0001;
+    old_energy = energy;
+    freeze_cnt = 0;
+    cnt_crit = 3;
     resetSegmentStats();
 }
 
@@ -46,19 +50,28 @@ lam::~lam()
 
 bool lam::frozen()
 {
-    return false; //TODO need to add frozen condition
+    if (abs(energy - old_energy) < freeze_crit)
+        freeze_cnt ++;
+    else
+        freeze_cnt = 0;
+    old_energy = energy;
+    return (freeze_cnt >= cnt_crit);
 }
 
 void lam::updateStep(bool is_accept, double delta)
 {
     if (is_accept)
         success++;
+    double estimate_mean = fit_mean->getEstimate(s);
     vari += energy - estimate_mean;
     mean += energy;
 }
 
 void lam::updateS()
 {
+    double estimate_sd = fit_sd->getEstimate(s);
+    double d = s * estimate_sd;
+    s += lambda * alpha / (d * d * estimate_sd);
 }
 
 void lam::resetSegmentStats()
