@@ -13,14 +13,15 @@ lam::lam(movable *theproblem, xmlNode *root) :
         annealer(theproblem, root)
 {
     proc_tau = 100; // TODO for now. should be an input from xml later
-    w_a = 0.995;
-    w_b = 0.99;
+    fit_mean = new invLinearFit(0.995);
+    fit_sd = new invLinearFit(0.99);
     resetSegmentStats();
 }
 
 lam::~lam()
 {
-    // TODO Auto-generated destructor stub
+    delete fit_mean;
+    delete fit_sd;
 }
 /*
  double lam::loop()
@@ -82,57 +83,19 @@ void lam::updateSegment()
     mean /= proc_tau;
     vari /= proc_tau;
     acc_ratio = (double)success / proc_tau;
+    updateLam();
 }
 
 void lam::resetLam()
 {
-    usx = 0.;
-    usy = 0.;
-    usxx = 0.;
-    usxy = 0.;
-    usyy = 0.;
-    usum = 0.;
-
-    vsx = 0.;
-    vsy = 0.;
-    vsxx = 0.;
-    vsxy = 0.;
-    vsyy = 0.;
-    vsum = 0.;
-
+    fit_mean->reset();
+    fit_sd->reset();
 }
 
 void lam::updateLam()
 {
-    double d = 1.0/mean;
-    usx *= w_a;
-    usy *= w_a;
-    usxx *= w_a;
-    usxy *= w_a;
-    usyy *= w_a;
-    usum *= w_a;
-
-    usyy += d*d;
-    usxy += s*d;
-    usy += d;
-    usx += s;
-    usxx += s*s;
-    usum += 1.0;
-
-    d = 1.0 / sqrt(vari);
-    vsx *= w_b;
-    vsy *= w_b;
-    vsxx *= w_b;
-    vsxy *= w_b;
-    vsyy *= w_b;
-    vsum *= w_b;
-
-    vsyy += d*d;
-    vsxy += s*d;
-    vsy += d;
-    vsx += s;
-    vsxx += s*s;
-    vsum += 1.0;
-
-
+    fit_mean->update(1.0/mean, s);
+    fit_sd->update(1.0/sqrt(vari),s);
+    double d = (1.0 - acc_ratio) / (2.0 - acc_ratio);
+    alpha = 4.0 * acc_ratio * d * d;
 }

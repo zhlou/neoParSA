@@ -9,6 +9,7 @@
 #define LAM_H_
 
 #include "annealer.h"
+#include "invLinearFit.h"
 #include <mpi.h>
 
 class lam: public annealer
@@ -31,11 +32,10 @@ protected:
     void resetLam();
     void updateLam();
     // below are lam parameters
-    double w_a, w_b;
-    double usx, usy, usxx, usxy, usyy, usum;
-    double vsx, vsy, vsxx, vsxy, vsyy, vsum;
+    invLinearFit *fit_mean, *fit_sd;
     double estimate_mean;
     double estimate_sd;
+    double alpha;
 
 
 };
