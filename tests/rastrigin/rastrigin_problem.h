@@ -31,7 +31,7 @@ private:
 class rastrigin_problem: public movable
 {
 public:
-	rastrigin_problem(rastrigin *rst);
+	rastrigin_problem(rastrigin *rst, xmlNode *root=NULL);
 	double get_score();
 	~rastrigin_problem();
 private:

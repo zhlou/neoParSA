@@ -43,8 +43,8 @@ void variable::generate_tweak(double theta_bar)
 	is_restorable = true;
 }
 
-rastrigin_problem::rastrigin_problem(rastrigin *rst_problem) :
-		movable(rst_problem->get_dimension()), therst(rst_problem)
+rastrigin_problem::rastrigin_problem(rastrigin *rst_problem, xmlNode *root) :
+		movable(rst_problem->get_dimension(), root), therst(rst_problem)
 {
 	for (int i = 0; i < nparams; i++) {
 

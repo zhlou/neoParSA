@@ -17,7 +17,7 @@ class movable {
         void set_theta(int id, double theta);
         virtual double get_score() = 0;
         virtual ~movable();
-        movable(int np);
+        movable(int np, xmlNode *root=NULL);
 
     protected:
         int nparams;
