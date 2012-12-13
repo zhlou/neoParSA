@@ -16,11 +16,12 @@ public:
     virtual ~annealer();
     double loop();
 protected:
-    virtual void updateStep(bool accept, double delta) = 0;
+    virtual void updateStep(bool accept) = 0;
     virtual bool frozen() = 0;
     virtual void updateS() = 0;
     virtual bool inSegment() = 0;
     virtual void updateSegment() = 0;
+    bool move();
     xmlNode *xmlroot;
     xmlNode *xmlsection;
     double s;

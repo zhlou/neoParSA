@@ -17,7 +17,7 @@ public:
     virtual ~simpleAnnealer();
 protected:
     unsigned reject_cnt;
-    void updateStep(bool accept, double delta);
+    void updateStep(bool accept);
     bool frozen();
     void updateS();
     bool inSegment();

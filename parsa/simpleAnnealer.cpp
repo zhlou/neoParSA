@@ -19,7 +19,7 @@ simpleAnnealer::~simpleAnnealer()
     // TODO Auto-generated destructor stub
 }
 
-void simpleAnnealer::updateStep(bool accept, double delta)
+void simpleAnnealer::updateStep(bool accept)
 {
     if (accept)
         reject_cnt = 0;

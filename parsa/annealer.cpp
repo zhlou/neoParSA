@@ -46,21 +46,9 @@ annealer::annealer(movable *theproblem, xmlNode *root) :
 
 double annealer::loop()
 {
-    double delta, crit, ran_n;
-
     while (!frozen()) {
         do {
-            delta = problem->propose_move();
-            crit = exp(-s * delta);
-            ran_n = (double) rand_r(&rnd_seed) / RAND_MAX;
-            if ((delta <= 0.0) || crit > ran_n) {
-                problem->accept_move();
-                energy += delta;
-                updateStep(true, delta);
-            } else {
-                problem->reject_move();
-                updateStep(false, 0.);
-            }
+            updateStep(move());
             updateS();
             step_cnt++;
         } while (inSegment());
@@ -70,6 +58,22 @@ double annealer::loop()
     cout << "Annealing stopped at s = " << s << endl << "Total steps is "
             << step_cnt << endl;
     return problem->get_score();
+}
+
+bool annealer::move()
+{
+    double delta, crit, ran_n;
+    delta = problem->propose_move();
+    crit = exp(-s * delta);
+    ran_n = (double) rand_r(&rnd_seed) / RAND_MAX;
+    if ((delta <= 0.0) || crit > ran_n) {
+        problem->accept_move();
+        energy += delta;
+        return true;
+    } else {
+        problem->reject_move();
+        return false;
+    }
 }
 
 annealer::~annealer()

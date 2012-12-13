@@ -22,12 +22,13 @@ protected:
     double vari;
     double mean;
     int success;
+    int init_loop;
     bool frozen();
     double freeze_crit;
     double old_energy;
     int freeze_cnt;
     int cnt_crit;
-    void updateStep(bool accept, double delta);
+    void updateStep(bool accept);
     void updateS();
     bool inSegment();
     void updateSegment();

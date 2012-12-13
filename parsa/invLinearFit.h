@@ -11,7 +11,7 @@
 class invLinearFit
 {
 public:
-    invLinearFit(double w);
+    invLinearFit(double w, double d0, double s0, double inA);
     virtual ~invLinearFit();
     void reset();
     void update(double d, double s);

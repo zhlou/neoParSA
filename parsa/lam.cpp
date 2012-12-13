@@ -13,13 +13,28 @@ lam::lam(movable *theproblem, xmlNode *root) :
         annealer(theproblem, root)
 {
     proc_tau = 100; // TODO for now. should be an input from xml later
-    fit_mean = new invLinearFit(0.995);
-    fit_sd = new invLinearFit(0.99);
+    init_loop = 1000;
+    resetSegmentStats();
+    for (int i = 0; i < init_loop; i++) {
+        if (move())
+            success ++;
+        mean += energy;
+        vari += energy * energy;
+    }
+    mean /= (double)init_loop;
+    vari = vari / (double)init_loop - mean * mean;
+    double sd = sqrt(vari);
+    fit_mean = new invLinearFit(0.995, mean, s, vari/(mean * mean));
+    fit_sd = new invLinearFit(0.99, sd, s, sd/mean);
+    acc_ratio = (double)success / (double)init_loop;
+    double d = (1.0 - acc_ratio) / (2.0 - acc_ratio);
+    alpha = 4.0 * acc_ratio * d * d;
+    resetSegmentStats();
     freeze_crit = 0.0001;
     old_energy = energy;
     freeze_cnt = 0;
     cnt_crit = 3;
-    resetSegmentStats();
+
 }
 
 lam::~lam()
@@ -58,13 +73,14 @@ bool lam::frozen()
     return (freeze_cnt >= cnt_crit);
 }
 
-void lam::updateStep(bool is_accept, double delta)
+void lam::updateStep(bool is_accept)
 {
     if (is_accept)
         success++;
     double estimate_mean = fit_mean->getEstimate(s);
-    vari += energy - estimate_mean;
+    double d = energy - estimate_mean;
     mean += energy;
+    vari += d * d;
 }
 
 void lam::updateS()
@@ -97,6 +113,7 @@ void lam::updateSegment()
     vari /= proc_tau;
     acc_ratio = (double)success / proc_tau;
     updateLam();
+    resetSegmentStats();
 }
 
 void lam::resetLam()
