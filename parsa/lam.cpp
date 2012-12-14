@@ -6,12 +6,20 @@
  */
 
 #include "lam.h"
+#include "utils.h"
 #include <cmath>
 using namespace std;
 
 lam::lam(movable *theproblem, xmlNode *root) :
         annealer(theproblem, root)
 {
+    xmlNode *section = getSectionByName(root, "lam");
+    if (section == NULL)
+        throw runtime_error(string("Error: fail to find section lam"));
+    proc_tau = getPropInt(section, "tau");
+    init_loop = getPropInt(section, "init_loop");
+
+
     proc_tau = 100; // TODO for now. should be an input from xml later
     init_loop = 1000;
     resetSegmentStats();
