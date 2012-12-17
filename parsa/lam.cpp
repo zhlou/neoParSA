@@ -7,6 +7,8 @@
 
 #include "lam.h"
 #include "utils.h"
+#include <string>
+#include <stdexcept>
 #include <cmath>
 using namespace std;
 
@@ -21,10 +23,11 @@ lam::lam(movable *theproblem, xmlNode *root) :
     double memlength_mean = getPropDouble(section, "memLength_mean");
     double memlength_sd = getPropDouble(section, "memLength_mean");
     freeze_crit = getPropDouble(section, "criterion");
+    cnt_crit = getPropInt(section, "freeze_cnt");
+    freeze_cnt = 0;
 
 
-    proc_tau = 100; // TODO for now. should be an input from xml later
-    init_loop = 1000;
+
     resetSegmentStats();
     for (int i = 0; i < init_loop; i++) {
         if (move())
@@ -35,17 +38,19 @@ lam::lam(movable *theproblem, xmlNode *root) :
     mean /= (double)init_loop;
     vari = vari / (double)init_loop - mean * mean;
     double sd = sqrt(vari);
-    fit_mean = new invLinearFit(0.995, mean, s, vari/(mean * mean));
-    fit_sd = new invLinearFit(0.99, sd, s, sd/mean);
+    double w_mean = 1.0 - proc_tau / (memlength_mean / lambda);
+    if (w_mean < 0.)
+        w_mean = 0.;
+    double w_sd = 1.0 - proc_tau / (memlength_sd / lambda);
+    if (w_sd < 0.)
+        w_sd = 0.;
+    fit_mean = new invLinearFit(w_mean, mean, s, vari/(mean * mean));
+    fit_sd = new invLinearFit(w_sd, sd, s, sd/mean);
     acc_ratio = (double)success / (double)init_loop;
     double d = (1.0 - acc_ratio) / (2.0 - acc_ratio);
     alpha = 4.0 * acc_ratio * d * d;
     resetSegmentStats();
-    freeze_crit = 0.0001;
     old_energy = energy;
-    freeze_cnt = 0;
-    cnt_crit = 3;
-
 }
 
 lam::~lam()

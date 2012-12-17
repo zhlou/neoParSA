@@ -18,7 +18,7 @@ double getPropDouble(xmlNode* section, char* name)
     prop = xmlGetProp(section, (xmlChar *)name);
     if (prop == NULL)
         throw runtime_error(string("Error: fail to find property ")
-                +name+" in xml section "+section->name);
+                +name+" in xml section "+(char *)(section->name));
     double val = strtod((char *)prop, NULL);
     xmlFree(prop);
     return val;
@@ -30,7 +30,7 @@ int getPropInt(xmlNode* section, char* name)
     prop = xmlGetProp(section, (xmlChar *)name);
     if (prop == NULL)
         throw runtime_error(string("Error: fail to find property ")
-                +name+" in xml section "+section->name);
+                +name+" in xml section "+(char *)(section->name));
     int val = atoi((char *)prop);
     xmlFree(prop);
     return val;
