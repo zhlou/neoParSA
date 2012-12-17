@@ -18,6 +18,9 @@ lam::lam(movable *theproblem, xmlNode *root) :
         throw runtime_error(string("Error: fail to find section lam"));
     proc_tau = getPropInt(section, "tau");
     init_loop = getPropInt(section, "init_loop");
+    double memlength_mean = getPropDouble(section, "memLength_mean");
+    double memlength_sd = getPropDouble(section, "memLength_mean");
+    freeze_crit = getPropDouble(section, "criterion");
 
 
     proc_tau = 100; // TODO for now. should be an input from xml later

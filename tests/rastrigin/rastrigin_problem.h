@@ -9,6 +9,7 @@
 #define RASTRIGIN_PROBLEM_H_
 
 #include <libxml/parser.h>
+#include <cstdlib>
 #include "movable.h"
 
 class rastrigin;
