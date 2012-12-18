@@ -19,38 +19,22 @@ lam::lam(movable *theproblem, xmlNode *root) :
     if (section == NULL)
         throw runtime_error(string("Error: fail to find section lam"));
     proc_tau = getPropInt(section, "tau");
-    init_loop = getPropInt(section, "init_loop");
+
     double memlength_mean = getPropDouble(section, "memLength_mean");
     double memlength_sd = getPropDouble(section, "memLength_mean");
+    w_mean = 1.0 - proc_tau / (memlength_mean / lambda);
+    if (w_mean < 0.)
+        w_mean = 0.;
+    w_sd = 1.0 - proc_tau / (memlength_sd / lambda);
+    if (w_sd < 0.)
+        w_sd = 0.;
     freeze_crit = getPropDouble(section, "criterion");
     cnt_crit = getPropInt(section, "freeze_cnt");
     freeze_cnt = 0;
-
-
+    fit_mean = NULL;
+    fit_sd = NULL;
 
     resetSegmentStats();
-    for (int i = 0; i < init_loop; i++) {
-        if (move())
-            success ++;
-        mean += energy;
-        vari += energy * energy;
-    }
-    mean /= (double)init_loop;
-    vari = vari / (double)init_loop - mean * mean;
-    double sd = sqrt(vari);
-    double w_mean = 1.0 - proc_tau / (memlength_mean / lambda);
-    if (w_mean < 0.)
-        w_mean = 0.;
-    double w_sd = 1.0 - proc_tau / (memlength_sd / lambda);
-    if (w_sd < 0.)
-        w_sd = 0.;
-    fit_mean = new invLinearFit(w_mean, mean, s, vari/(mean * mean));
-    fit_sd = new invLinearFit(w_sd, sd, s, sd/mean);
-    acc_ratio = (double)success / (double)init_loop;
-    double d = (1.0 - acc_ratio) / (2.0 - acc_ratio);
-    alpha = 4.0 * acc_ratio * d * d;
-    resetSegmentStats();
-    old_energy = energy;
 }
 
 lam::~lam()
@@ -82,7 +66,7 @@ lam::~lam()
 bool lam::frozen()
 {
     if (abs(energy - old_energy) < freeze_crit)
-        freeze_cnt ++;
+        freeze_cnt++;
     else
         freeze_cnt = 0;
     old_energy = energy;
@@ -127,7 +111,7 @@ void lam::updateSegment()
 {
     mean /= proc_tau;
     vari /= proc_tau;
-    acc_ratio = (double)success / proc_tau;
+    acc_ratio = (double) success / proc_tau;
     updateLam();
     resetSegmentStats();
 }
@@ -138,10 +122,33 @@ void lam::resetLam()
     fit_sd->reset();
 }
 
+void lam::initStats()
+{
+    mean /= (double) init_loop;
+    vari = vari / (double) init_loop - mean * mean;
+    double sd = sqrt(vari);
+
+    fit_mean = new invLinearFit(w_mean, mean, s, vari / (mean * mean));
+    fit_sd = new invLinearFit(w_sd, sd, s, sd / mean);
+    acc_ratio = (double) success / (double) init_loop;
+    double d = (1.0 - acc_ratio) / (2.0 - acc_ratio);
+    alpha = 4.0 * acc_ratio * d * d;
+    resetSegmentStats();
+    old_energy = energy;
+}
+
+void lam::updateInitStep(bool accept)
+{
+    if (accept)
+        success++;
+    mean += energy;
+    vari += energy * energy;
+}
+
 void lam::updateLam()
 {
-    fit_mean->update(1.0/mean, s);
-    fit_sd->update(1.0/sqrt(vari),s);
+    fit_mean->update(1.0 / mean, s);
+    fit_sd->update(1.0 / sqrt(vari), s);
     double d = (1.0 - acc_ratio) / (2.0 - acc_ratio);
     alpha = 4.0 * acc_ratio * d * d;
 }

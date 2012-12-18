@@ -46,3 +46,8 @@ bool simpleAnnealer::inSegment()
 void simpleAnnealer::updateSegment()
 {
 }
+
+void simpleAnnealer::initStats()
+{
+    reject_cnt = 0;
+}

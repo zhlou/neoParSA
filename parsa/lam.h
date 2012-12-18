@@ -22,22 +22,27 @@ protected:
     double vari;
     double mean;
     int success;
-    int init_loop;
-    bool frozen();
+
+
     double freeze_crit;
     double old_energy;
     int freeze_cnt;
     int cnt_crit;
+    bool frozen();
     void updateStep(bool accept);
     void updateS();
     bool inSegment();
     void updateSegment();
+    void initStats();
+    void updateInitStep(bool accept);
     void resetSegmentStats();
     void resetLam();
     void updateLam();
     // below are lam parameters
     invLinearFit *fit_mean, *fit_sd;
     double alpha;
+    double w_mean;
+    double w_sd;
 
 
 };

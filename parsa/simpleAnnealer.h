@@ -22,6 +22,7 @@ protected:
     void updateS();
     bool inSegment();
     void updateSegment();
+    void initStats();
 };
 
 #endif /* SIMPLEANNEALER_H_ */

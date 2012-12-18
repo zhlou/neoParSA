@@ -5,36 +5,23 @@
 #include <libxml/parser.h>
 #include "annealer.h"
 #include "movable.h"
+#include "utils.h"
+#include <stdexcept>
 
 using namespace std;
 
 annealer::annealer(movable *theproblem, xmlNode *root) :
-        xmlroot(root)
+        problem(theproblem), xmlroot(root)
 {
-    xmlsection = xmlroot->children;
-    xmlChar *prop;
-    problem = theproblem;
-    while (xmlsection != NULL) {
-        if (!xmlStrcmp(xmlsection->name, (xmlChar *) "annealer_input"))
-            break;
-        xmlsection = xmlsection->next;
-    }
+    xmlsection = getSectionByName(root, "annealer_input");
+
     if (xmlsection == NULL) {
-        throw 2;
+        throw runtime_error(string("Error: fail to find section annealer_input"));
     }
-    prop = xmlGetProp(xmlsection, (xmlChar *) "init_T");
-    if (prop == NULL) {
-        throw 3;
-    }
-    s = 1.0 / atof((char *) prop);
-    xmlFree(prop);
-    prop = NULL;
-    prop = xmlGetProp(xmlsection, (xmlChar *) "lambda");
-    if (prop == NULL) {
-        throw 3;
-    }
-    lambda = atof((char *) prop);
-    xmlFree(prop);
+    s = 1.0 / getPropDouble(xmlsection, "init_T");
+    lambda = getPropDouble(xmlsection, "lambda");
+    init_loop = getPropInt(xmlsection, "init_loop");
+    is_init = false;
 
     step_cnt = 0;
 
@@ -46,6 +33,8 @@ annealer::annealer(movable *theproblem, xmlNode *root) :
 
 double annealer::loop()
 {
+    if (!is_init)
+        init();
     while (!frozen()) {
         do {
             updateStep(move());
@@ -58,6 +47,21 @@ double annealer::loop()
     cout << "Annealing stopped at s = " << s << endl << "Total steps is "
             << step_cnt << endl;
     return problem->get_score();
+}
+
+double annealer::init()
+{
+    for (int i = 0; i < init_loop; i ++) {
+        updateInitStep(move());
+    }
+    initStats();
+    is_init = true;
+    return problem->get_score();
+}
+
+inline void annealer::updateInitStep(bool accept)
+{
+    updateStep(accept);
 }
 
 bool annealer::move()

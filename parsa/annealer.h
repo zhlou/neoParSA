@@ -15,8 +15,11 @@ public:
     annealer(movable *theproblem, xmlNode *root);
     virtual ~annealer();
     double loop();
+    double init();
 protected:
+    virtual void updateInitStep(bool accept);
     virtual void updateStep(bool accept) = 0;
+    virtual void initStats() = 0;
     virtual bool frozen() = 0;
     virtual void updateS() = 0;
     virtual bool inSegment() = 0;
@@ -30,6 +33,8 @@ protected:
     unsigned rnd_seed;
     movable *problem;
     double energy;
+    int init_loop;
+    bool is_init;
 };
 
 #endif
