@@ -13,6 +13,7 @@ plsa::~plsa()
 
 }
 
+/*
 double plsa::loop()
 {
     long unsigned step_cnt = 0;
@@ -30,4 +31,11 @@ double plsa::loop()
     }
 
     return problem->get_score();
+}
+ */
+
+void plsa::updateSegment()
+{
+    lam::updateSegment();
+
 }

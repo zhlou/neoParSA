@@ -13,6 +13,9 @@ class PStats
 {
 public:
     PStats(MPI_Comm thecomm);
+    void CommSegment(double mean, double vari, invLinearFit *fit_mean,
+            invLinearFit *fit_sd);
+
     virtual ~PStats();
 };
 
