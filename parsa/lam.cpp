@@ -113,7 +113,7 @@ void lam::updateSegment()
     vari /= proc_tau;
     acc_ratio = (double) success / proc_tau;
     updateLam();
-    resetSegmentStats();
+//    resetSegmentStats();
 }
 
 void lam::resetLam()

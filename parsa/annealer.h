@@ -15,7 +15,7 @@ public:
     annealer(movable *theproblem, xmlNode *root);
     virtual ~annealer();
     double loop();
-    double init();
+    double initMoves();
 protected:
     virtual void updateInitStep(bool accept);
     virtual void updateStep(bool accept) = 0;
@@ -24,6 +24,7 @@ protected:
     virtual void updateS() = 0;
     virtual bool inSegment() = 0;
     virtual void updateSegment() = 0;
+    virtual void resetSegmentStats();
     bool move();
     xmlNode *xmlroot;
     xmlNode *xmlsection;

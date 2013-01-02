@@ -34,8 +34,9 @@ annealer::annealer(movable *theproblem, xmlNode *root) :
 double annealer::loop()
 {
     if (!is_init)
-        init();
+        initMoves();
     while (!frozen()) {
+        resetSegmentStats();
         do {
             updateStep(move());
             updateS();
@@ -49,7 +50,7 @@ double annealer::loop()
     return problem->get_score();
 }
 
-double annealer::init()
+double annealer::initMoves()
 {
     for (int i = 0; i < init_loop; i ++) {
         updateInitStep(move());
@@ -62,6 +63,10 @@ double annealer::init()
 inline void annealer::updateInitStep(bool accept)
 {
     updateStep(accept);
+}
+
+void annealer::resetSegmentStats()
+{
 }
 
 bool annealer::move()
