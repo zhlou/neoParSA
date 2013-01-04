@@ -12,11 +12,16 @@
 class PStats
 {
 public:
-    PStats(MPI_Comm thecomm);
+    PStats(MPI_Comm thecomm, int in_nnodes, int in_rank);
     void CommSegment(double mean, double vari, invLinearFit *fit_mean,
             invLinearFit *fit_sd);
+    bool CommCheckFrozen(int freeze_cnt);
 
     virtual ~PStats();
+private:
+    MPI_Comm comm;
+    int nnodes;
+    int rank;
 };
 
 #endif /* PSTATS_H_ */

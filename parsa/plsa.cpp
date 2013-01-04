@@ -1,11 +1,11 @@
 #include "plsa.h"
 #include "annealer.h"
 
-plsa::plsa(movable* theproblem, xmlNode* root, MPI_Comm thecomm) :
-        lam(theproblem, root), comm(thecomm)
+plsa::plsa(movable* theproblem, xmlNode* root, MPI_Comm thecomm, int in_nnodes,
+        int in_rank) :
+        lam(theproblem, root), comm(thecomm), nnodes(in_nnodes), rank(in_rank),
+        StatsComm(thecomm, in_nnodes, in_rank)
 {
-    MPI_Comm_size(comm, &nsize);
-    MPI_Comm_rank(comm, &rank);
 }
 
 plsa::~plsa()
@@ -37,5 +37,7 @@ double plsa::loop()
 void plsa::updateSegment()
 {
     lam::updateSegment();
+    StatsComm.CommSegment(mean, vari, fit_mean, fit_sd);
+
 
 }
