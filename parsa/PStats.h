@@ -19,9 +19,20 @@ public:
 
     virtual ~PStats();
 private:
+    struct StatData
+    {
+        double s;
+        double mean;
+        double vari;
+        double energy;
+        long success;
+        long moves;
+    };
     MPI_Comm comm;
     int nnodes;
     int rank;
+    StatData l_stat, *local_stat_buf;
+    MPI_Win stat_win;
 };
 
 #endif /* PSTATS_H_ */

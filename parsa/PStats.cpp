@@ -6,11 +6,24 @@
  */
 
 #include "PStats.h"
+#include <mpi.h>
 
-PStats::PStats()
+PStats::PStats(MPI_Comm thecomm, int in_nnodes, int in_rank) :
+    comm(thecomm), nnodes(in_nnodes), rank(in_rank)
 {
-    // TODO Auto-generated constructor stub
+    local_stat_buf = new StatData[nnodes];
+    l_stat.s=-1;
+    MPI_Win_create(&l_stat, sizeof(StatData), sizeof(StatData), MPI_INFO_NULL,
+            comm, &stat_win);
+}
 
+void PStats::CommSegment(double mean, double vari, invLinearFit* fit_mean,
+        invLinearFit* fit_sd)
+{
+}
+
+bool PStats::CommCheckFrozen(int freeze_cnt)
+{
 }
 
 PStats::~PStats()
