@@ -8,27 +8,29 @@
 #ifndef PSTATS_H_
 #define PSTATS_H_
 #include <mpi.h>
+#include "invLinearFit.h"
 
 class PStats
 {
 public:
     PStats(MPI_Comm thecomm, int in_nnodes, int in_rank);
-    void CommSegment(double mean, double vari, invLinearFit *fit_mean,
-            invLinearFit *fit_sd);
+    void CommSegment(double mean, double vari, long success, long steps,
+            invLinearFit *fit_mean, invLinearFit *fit_sd);
     bool CommCheckFrozen(int freeze_cnt);
 
     virtual ~PStats();
 private:
     struct StatData
     {
-        double s;
+ //       double s;
         double mean;
         double vari;
-        double energy;
+//        double energy;
         long success;
         long moves;
     };
     MPI_Comm comm;
+    MPI_Group group;
     int nnodes;
     int rank;
     StatData l_stat, *local_stat_buf;

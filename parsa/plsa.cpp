@@ -37,7 +37,5 @@ double plsa::loop()
 void plsa::updateSegment()
 {
     lam::updateSegment();
-    StatsComm.CommSegment(mean, vari, fit_mean, fit_sd);
-
-
+    StatsComm.CommSegment(mean, vari, success, proc_tau, fit_mean, fit_sd);
 }
