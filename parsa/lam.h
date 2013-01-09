@@ -36,6 +36,7 @@ protected:
     void initStats();
     void updateInitStep(bool accept);
     void resetSegmentStats();
+    void collectStats();
     void resetLam();
     void updateLam();
     // below are lam parameters

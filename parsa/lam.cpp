@@ -109,9 +109,9 @@ bool lam::inSegment()
 
 void lam::updateSegment()
 {
-    mean /= proc_tau;
-    vari /= proc_tau;
-    acc_ratio = (double) success / proc_tau;
+    collectStats();
+    fit_mean->fullUpdate(1.0 / mean, s);
+    fit_sd->fullUpdate(1.0 / sqrt(vari), s);
     updateLam();
 //    resetSegmentStats();
 }
@@ -145,10 +145,16 @@ void lam::updateInitStep(bool accept)
     vari += energy * energy;
 }
 
+void lam::collectStats()
+{
+    mean /= proc_tau;
+    vari /= proc_tau;
+    acc_ratio = (double) success / proc_tau;
+}
+
 void lam::updateLam()
 {
-    fit_mean->update(1.0 / mean, s);
-    fit_sd->update(1.0 / sqrt(vari), s);
+
     double d = (1.0 - acc_ratio) / (2.0 - acc_ratio);
     alpha = 4.0 * acc_ratio * d * d;
 }

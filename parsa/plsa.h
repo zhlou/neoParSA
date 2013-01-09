@@ -10,7 +10,6 @@
 #include <mpi.h>
 #include <libxml/tree.h>
 #include "annealer.h"
-#include "PStats.h"
 
 class plsa: public lam
 {
@@ -19,12 +18,25 @@ public:
             int in_rank);
     ~plsa();
 protected:
+    struct StatData {
+        double s;
+        double mean;
+        double sd;
+        double energy;
+        long success;
+        //long moves;
+    };
     //void updateS();
     void initStats();
     void updateSegment();
     bool frozen();
-    PStats StatsComm;
+    void CommSegment();
+    bool CommCheckFrozen();
+    StatData l_stat, *local_stat_buf;
+    MPI_Win stat_win;
+    MPI_Group group;
     MPI_Comm comm;
+
     int nnodes;
     int rank;
 };

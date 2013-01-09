@@ -14,7 +14,10 @@ public:
     invLinearFit(double w, double d0, double s0, double inA);
     virtual ~invLinearFit();
     void reset();
-    void update(double d, double s);
+    void fullUpdate(double d, double s);
+    void decay();
+    void partialUpdate(double p_weight, double d, double s);
+    void finishUpdate();
     double getEstimate(double s);
 private:
     double weight;

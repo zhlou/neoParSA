@@ -36,7 +36,15 @@ void invLinearFit::reset()
     B = 1.;
 }
 
-void invLinearFit::update(double d, double s)
+void invLinearFit::fullUpdate(double d, double s)
+{
+    decay();
+    partialUpdate(1.0, d, s);
+    finishUpdate();
+
+}
+
+void invLinearFit::decay()
 {
     usx *= weight;
     usy *= weight;
@@ -44,14 +52,20 @@ void invLinearFit::update(double d, double s)
     usxy *= weight;
     usyy *= weight;
     usum *= weight;
+}
 
-    usyy += d*d;
-    usxy += s*d;
-    usy += d;
-    usx += s;
-    usxx += s*s;
-    usum += 1.0;
+void invLinearFit::partialUpdate(double p_weight, double d, double s)
+{
+    usyy += p_weight*d*d;
+    usxy += p_weight*s*d;
+    usy += p_weight*d;
+    usx += p_weight*s;
+    usxx += p_weight*s*s;
+    usum += p_weight;
+}
 
+void invLinearFit::finishUpdate()
+{
     A = (usum * usxy - usx * usy) / (usum * usxx - usx * usx);
     B = (usy - A * usx) / usum;
 }
