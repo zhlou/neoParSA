@@ -1,9 +1,9 @@
 TARGET = libparsa.a
 OBJECT = annealer.o movable.o unirandom.o simpleAnnealer.o invLinearFit.o\
-	lam.o utils.o
+	lam.o utils.o plsa.o
 SOURCE = annealer.h annealer.cpp movable.h movable.cpp \
 	unirandom.h unirandom.cpp invLinearFit.cpp invLinearFit.h\
-	lam.h lam.cpp utils.h utils.cpp
+	lam.h lam.cpp utils.h utils.cpp plsa.h plsa.cpp
 CXXFLAGS += -g
 .PHONY: all clean
 
@@ -14,6 +14,9 @@ all: $(TARGET)
 
 libparsa.a: $(OBJECT) $(SOURCE)
 	ar -rcs $@ $(OBJECT)
+
+plsa.o: plsa.cpp plsa.h
+	mpic++ $(CXXFLAGS) -fpic -c plsa.cpp
 
 $(OBJECT): %.o: %.cpp
 %.o: CXXFLAGS += -fpic

@@ -9,7 +9,7 @@
 #define PLSA_H_
 #include <mpi.h>
 #include <libxml/tree.h>
-#include "annealer.h"
+#include "lam.h"
 
 class plsa: public lam
 {
@@ -21,17 +21,21 @@ protected:
     struct StatData {
         double s;
         double mean;
-        double sd;
+        double var;
         double energy;
         long success;
         //long moves;
     };
     //void updateS();
-    void initStats();
+    //void initStats();
     void updateSegment();
     bool frozen();
+    void collectInitStats();
     void CommSegment();
     bool CommCheckFrozen();
+    void PackNCommStats(bool UseSD = true);
+//    void initEstimators();
+
     StatData l_stat, *local_stat_buf;
     MPI_Win stat_win;
     MPI_Group group;

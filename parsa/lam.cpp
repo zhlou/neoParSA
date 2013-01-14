@@ -11,25 +11,27 @@
 #include <stdexcept>
 #include <cmath>
 using namespace std;
+// in newer compilers, string constants cast to char * will generate
+// warning messages unless done explicitly.
 
 lam::lam(movable *theproblem, xmlNode *root) :
         annealer(theproblem, root)
 {
-    xmlNode *section = getSectionByName(root, "lam");
+    xmlNode *section = getSectionByName(root, (char *)"lam");
     if (section == NULL)
         throw runtime_error(string("Error: fail to find section lam"));
-    proc_tau = getPropInt(section, "tau");
+    proc_tau = getPropInt(section, (char *)"tau");
 
-    double memlength_mean = getPropDouble(section, "memLength_mean");
-    double memlength_sd = getPropDouble(section, "memLength_mean");
+    double memlength_mean = getPropDouble(section, (char *)"memLength_mean");
+    double memlength_sd = getPropDouble(section, (char *)"memLength_mean");
     w_mean = 1.0 - proc_tau / (memlength_mean / lambda);
     if (w_mean < 0.)
         w_mean = 0.;
     w_sd = 1.0 - proc_tau / (memlength_sd / lambda);
     if (w_sd < 0.)
         w_sd = 0.;
-    freeze_crit = getPropDouble(section, "criterion");
-    cnt_crit = getPropInt(section, "freeze_cnt");
+    freeze_crit = getPropDouble(section, (char *)"criterion");
+    cnt_crit = getPropInt(section, (char *)"freeze_cnt");
     freeze_cnt = 0;
     fit_mean = NULL;
     fit_sd = NULL;
@@ -124,8 +126,8 @@ void lam::resetLam()
 
 void lam::initStats()
 {
-    mean /= (double) init_loop;
-    vari = vari / (double) init_loop - mean * mean;
+    collectInitStats();
+
     double sd = sqrt(vari);
 
     fit_mean = new invLinearFit(w_mean, mean, s, vari / (mean * mean));
@@ -150,6 +152,12 @@ void lam::collectStats()
     mean /= proc_tau;
     vari /= proc_tau;
     acc_ratio = (double) success / proc_tau;
+}
+
+void lam::collectInitStats()
+{
+    mean /= (double) init_loop;
+    vari = vari / (double) init_loop - mean * mean;
 }
 
 void lam::updateLam()
