@@ -33,21 +33,7 @@ annealer::annealer(movable *theproblem, xmlNode *root) :
 
 double annealer::loop()
 {
-    if (!is_init)
-        initMoves();
-    while (!frozen()) {
-        resetSegmentStats();
-        do {
-            updateStep(move());
-            updateS();
-            step_cnt++;
-        } while (inSegment());
-        updateSegment();
 
-    }
-    cout << "Annealing stopped at s = " << s << endl << "Total steps is "
-            << step_cnt << endl;
-    return problem->get_score();
 }
 
 double annealer::initMoves()

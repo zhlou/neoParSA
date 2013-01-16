@@ -9,6 +9,7 @@ class movable;
  * The simple implemenation with exponential cooling and rejection conting
  * frozen condition is now a separate simpleAnnealer class.
  */
+template <class Schedule, class Move>
 class annealer
 {
 public:
@@ -17,6 +18,8 @@ public:
     double loop();
     double initMoves();
 protected:
+    Schedule cooling;
+    Move control;
     virtual void updateInitStep(bool accept);
     virtual void updateStep(bool accept) = 0;
     virtual void initStats() = 0;
@@ -37,5 +40,7 @@ protected:
     int init_loop;
     bool is_init;
 };
+
+#include "annealer.hpp"
 
 #endif
