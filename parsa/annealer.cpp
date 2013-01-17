@@ -38,12 +38,7 @@ double annealer::loop()
 
 double annealer::initMoves()
 {
-    for (int i = 0; i < init_loop; i ++) {
-        updateInitStep(move());
-    }
-    initStats();
-    is_init = true;
-    return problem->get_score();
+
 }
 
 inline void annealer::updateInitStep(bool accept)
@@ -57,18 +52,7 @@ void annealer::resetSegmentStats()
 
 bool annealer::move()
 {
-    double delta, crit, ran_n;
-    delta = problem->propose_move();
-    crit = exp(-s * delta);
-    ran_n = (double) rand_r(&rnd_seed) / RAND_MAX;
-    if ((delta <= 0.0) || crit > ran_n) {
-        problem->accept_move();
-        energy += delta;
-        return true;
-    } else {
-        problem->reject_move();
-        return false;
-    }
+
 }
 
 annealer::~annealer()
