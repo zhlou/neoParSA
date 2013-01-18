@@ -9,20 +9,28 @@
 #define SIMPLEANNEALER_H_
 
 #include "annealer.h"
+#include <libxml/tree.h>
 
-class simpleAnnealer: public annealer
+class simpleSchedule
 {
 public:
-    simpleAnnealer(movable *theproblem, xmlNode *root);
-    virtual ~simpleAnnealer();
-protected:
-    unsigned reject_cnt;
-    void updateStep(bool accept);
+    simpleSchedule(movable *theproblem, xmlNode *root);
+    virtual ~simpleSchedule();
+    void initStats();
+    double getInitS();
+    int getInitLoop();
+    void updateInitStep(bool accept, double energy);
     bool frozen();
-    void updateS();
+    void resetSegmentStats();
+    void updateStep(bool accept, double energy);
+    double updateS(double s);
     bool inSegment();
     void updateSegment();
-    void initStats();
+private:
+    unsigned reject_cnt;
+    double lambda;
+    int init_loop;
+    double init_S;
 };
 
 #endif /* SIMPLEANNEALER_H_ */

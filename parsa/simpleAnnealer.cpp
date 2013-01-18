@@ -6,20 +6,31 @@
  */
 
 #include "simpleAnnealer.h"
+#include <exception>
 
-simpleAnnealer::simpleAnnealer(movable *theproblem, xmlNode *root) :
+using namespace std;
+
+simpleSchedule::simpleSchedule(movable *theproblem, xmlNode *root) :
         annealer(theproblem, root)
 {
+    xmlNode *xmlsection = getSectionByName(root, "annealer_input");
+
+    if (xmlsection == NULL) {
+        throw runtime_error(string("Error: fail to find section annealer_input"));
+    }
+    init_S = 1.0 / getPropDouble(xmlsection, "init_T");
+    lambda = getPropDouble(xmlsection, "lambda");
+    init_loop = getPropInt(xmlsection, "init_loop");
     reject_cnt = 0;
 
 }
 
-simpleAnnealer::~simpleAnnealer()
+simpleSchedule::~simpleSchedule()
 {
     // TODO Auto-generated destructor stub
 }
 
-void simpleAnnealer::updateStep(bool accept)
+void simpleSchedule::updateStep(bool accept, double)
 {
     if (accept)
         reject_cnt = 0;
@@ -27,27 +38,46 @@ void simpleAnnealer::updateStep(bool accept)
         reject_cnt ++;
 }
 
-bool simpleAnnealer::frozen()
+inline void simpleSchedule::updateInitStep(bool, double)
+{
+
+}
+
+bool simpleSchedule::frozen()
 {
     const unsigned max_rej = 100;
     return (reject_cnt >= max_rej);
 }
 
-void simpleAnnealer::updateS()
+double simpleSchedule::updateS(double s)
 {
-    s *= (1 + lambda);
+    return s * (1 + lambda);
 }
 
-bool simpleAnnealer::inSegment()
+bool simpleSchedule::inSegment()
 {
     return false;
 }
 
-void simpleAnnealer::updateSegment()
+inline double simpleSchedule::getInitS()
+{
+    return init_S;
+}
+
+inline int simpleSchedule::getInitLoop()
+{
+    return init_loop;
+}
+
+void simpleSchedule::resetSegmentStats()
 {
 }
 
-void simpleAnnealer::initStats()
+void simpleSchedule::updateSegment()
+{
+}
+
+void simpleSchedule::initStats()
 {
     reject_cnt = 0;
 }

@@ -25,7 +25,7 @@ int main(int argc, char **argv)
     }
     tsp_problem test_problem(&test_tsp);
     test_tsp.print_route(cout);
-    simpleAnnealer tsp_anneal(&test_problem, root);
+    simpleSchedule tsp_anneal(&test_problem, root);
     cout << "The finial energy is "<<tsp_anneal.loop()<< endl;
     cout << "The energy cached is "<< test_tsp.cost() << endl;
     cout << "The real energy is " << test_tsp.calc_route()<<endl;

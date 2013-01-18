@@ -36,7 +36,7 @@ template<class Schedule, class Move>
 double annealer<Schedule, Move>::initMoves()
 {
     bool accepted;
-    for (int i = 0; i < cooling.get_init_loop(); i++) {
+    for (int i = 0; i < cooling.getInitLoop(); i++) {
         accepted = step();
         cooling.updateInitStep(accepted, energy);
     }
@@ -50,7 +50,7 @@ template<class Schedule, class Move>
 annealer<Schedule, Move>::annealer(Schedule& in_cool, Move& in_move) :
 cooling(in_cool), move(in_move)
 {
-    s = cooling.get_init_s();
+    s = cooling.getInitS();
     is_init = false;
     step_cnt = 0;
     rnd_seed = time(NULL);

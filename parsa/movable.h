@@ -8,6 +8,7 @@ class abstract_param {
         virtual ~abstract_param(); // need this on obj w/ virtual func.
 };
 
+template <class Problem>
 class movable {
     public:
         double propose_move();
@@ -21,6 +22,7 @@ class movable {
 
     protected:
         int nparams;
+        Problem &problem;
         abstract_param **params;
 
     private:

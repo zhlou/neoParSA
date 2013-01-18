@@ -13,8 +13,8 @@ class movable;
  * class Schedule
  * {
  * public:
- *      double get_init_s();
- *      int get_init_loop();
+ *      double getInitS();
+ *      int getInitLoop();
  *      void updateInitStep(bool accept, double energy);
  *      void initStats();
  *      bool frozen();
@@ -37,7 +37,7 @@ class movable;
  *      double propose(); // returns the difference of energies
  *      void accept();
  *      void reject();
- * }
+ * };
  */
 template <class Schedule, class Move>
 class annealer
