@@ -14,7 +14,7 @@
 class simpleSchedule
 {
 public:
-    simpleSchedule(movable *theproblem, xmlNode *root);
+    simpleSchedule(xmlNode *root);
     virtual ~simpleSchedule();
     void initStats();
     double getInitS();

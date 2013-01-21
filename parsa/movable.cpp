@@ -22,35 +22,7 @@ void movable::set_theta(int id, double theta)
 movable::movable(int np, xmlNode *root)
 {
     init(np);
-    xmlNode *section = NULL;
-    if (root != NULL) {
-        section = root->children;
-        while (section != NULL) {
-            if (!xmlStrcmp(section->name, (xmlChar *)"move"))
-                break;
-            section = section->next;
-        }
 
-    }
-    if (section == NULL) {
-        move_gain = 0.03;
-        move_interval = 100;
-    } else {
-        xmlChar *prop = NULL;
-        if ((prop = xmlGetProp(section, (xmlChar *)"gain")) != NULL) {
-            move_gain = strtod((char *)prop, NULL);
-            xmlFree(prop);
-            prop = NULL;
-        } else
-            move_gain = 0.03;
-        if ((prop = xmlGetProp(section, (xmlChar *)"interval")) != NULL) {
-            move_interval = atoi((char *)prop);
-            xmlFree(prop);
-            prop = NULL;
-        } else
-            move_interval = 100;
-
-    }
 }
 
 void movable::init(int np)

@@ -2,7 +2,7 @@
 #define ANNEALER_H
 
 #include <libxml/parser.h>
-class movable;
+//class movable;
 /*
  * This is the abstract annealer template. All the actual functionalities
  * come from Schedule and Move class.
@@ -50,9 +50,9 @@ public:
 protected:
     Schedule &cooling;
     Move &move;
-    virtual void updateInitStep(bool accept);
+    //virtual void updateInitStep(bool accept);
     //virtual void updateStep(bool accept) = 0;
-    virtual void initStats() = 0;
+    //virtual void initStats() = 0;
     //virtual bool frozen() = 0;
     //virtual void updateS() = 0;
     //virtual bool inSegment() = 0;

@@ -1,9 +1,12 @@
 TARGET = libparsa.a
-OBJECT = annealer.o movable.o unirandom.o simpleAnnealer.o invLinearFit.o\
+#OBJECT = annealer.o movable.o unirandom.o simpleAnnealer.o invLinearFit.o\
 	lam.o utils.o plsa.o
-SOURCE = annealer.h annealer.cpp movable.h movable.cpp \
+#SOURCE = annealer.h annealer.cpp movable.h movable.cpp \
 	unirandom.h unirandom.cpp invLinearFit.cpp invLinearFit.h\
 	lam.h lam.cpp utils.h utils.cpp plsa.h plsa.cpp
+OBJECT = simpleAnnealer.o utils.o
+SOURCE = annealer.h annealer.hpp feedbackMove.h feedbackMove.hpp\
+	simpleAnnealer.h simpleAnnealer.cpp utils.h utils.cpp
 CXXFLAGS += -g
 .PHONY: all clean
 

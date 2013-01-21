@@ -3,12 +3,11 @@
  *
  *  Created on: Jan 16, 2013
  *      Author: zhlou
+ *  The implementation of the annealer template
  */
 
-#ifndef ANNEALER_HPP_
-#define ANNEALER_HPP_
-
 #include <iostream>
+#include <cmath>
 
 template<class Schedule, class Move>
 double annealer<Schedule, Move>::loop()
@@ -62,7 +61,7 @@ bool annealer<Schedule, Move>::step()
 {
     double delta, crit, ran_n;
     delta = move.propose();
-    crit = exp(-s * delta);
+    crit = std::exp(-s * delta);
     ran_n = (double) rand_r(&rnd_seed) / RAND_MAX;
     if ((delta <= 0.0) || crit > ran_n) {
         move.accept();
@@ -73,4 +72,3 @@ bool annealer<Schedule, Move>::step()
         return false;
     }
 }
-#endif /* ANNEALER_HPP_ */
