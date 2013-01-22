@@ -4,6 +4,7 @@
 #include <libxml/tree.h>
 #include <string>
 #include <sstream>
+#include <stdexcept>
 #include "rastrigin.h"
 #include "unirandom.h"
 
@@ -21,6 +22,10 @@ rastrigin::rastrigin(int dimension, unirandom &in_rnd) :
 	}
 	docroot = NULL;
 	section = NULL;
+	prev_x = 0; // to make the compiler happy
+	prev_idx = -1;
+	can_rollback = false;
+
 }
 
 rastrigin::rastrigin(xmlNode *root, unirandom &in_rnd):
@@ -60,6 +65,9 @@ rastrigin::rastrigin(xmlNode *root, unirandom &in_rnd):
 	}
 	delete []namebuf;
 
+    prev_x = 0; // to make the compiler happy
+    prev_idx = -1;
+    can_rollback = false;
 }
 
 void rastrigin::write_section(xmlChar *secname)
@@ -88,6 +96,32 @@ void rastrigin::print_solution(ostream& o) const
 	o << "}" << endl;
 }
 
+void rastrigin::generateMove(int idx, double theta_bar)
+{
+    double x;
+    x = prev_x = vars[idx];
+    double uniform = 2.0 * rnd.random() - 1.0;
+    if (uniform >= 0)
+        x -= theta_bar * log(abs(uniform));
+    else
+        x += theta_bar * log(abs(uniform));
+    if (x > rastrigin::VAR_MAX)
+        x = rastrigin::VAR_MAX;
+    else if (x < rastrigin::VAR_MIN)
+        x = rastrigin::VAR_MIN;
+    vars[idx] = x;
+    can_rollback = true;
+    prev_idx = idx;
+}
+
+void rastrigin::restoreMove(int idx)
+{
+    if ((idx != prev_idx) || (!can_rollback))
+        throw runtime_error("Rastrigin: Cannot roll back!");
+    vars[idx] = prev_x;
+    can_rollback = false;
+}
+
 rastrigin::~rastrigin()
 {
 	if (vars != NULL) {
@@ -95,7 +129,7 @@ rastrigin::~rastrigin()
 	}
 	vars = NULL;
 }
-double rastrigin::value()
+double rastrigin::get_score()
 {
 	double tot = 0;
 	for (int i = 0; i < dim; i++) {
@@ -104,14 +138,14 @@ double rastrigin::value()
 	return (10 * dim + tot);
 }
 
-int rastrigin::get_dimension() const
+int rastrigin::getDimension() const
 {
 	return dim;
 }
 
 double rastrigin::get_param(int idx) const
 {
-		return vars[idx];
+    return vars[idx];
 }
 
 void rastrigin::set_param(int idx, double val)

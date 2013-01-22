@@ -1,5 +1,7 @@
 #include "tsp.h"
 #include <cassert>
+#include <ctime>
+#include <cstdlib>
 #include <iostream>
 #include <cmath>
 
@@ -25,12 +27,12 @@ double dist(const city &c1, const city &c2)
 
 void tsp::add_city(city the_city)
 {
-    int n = cities.size();
-    if (n > 0)
-        cities.back().next = n;
+    if (ncities > 0)
+        cities.back().next = ncities;
     cities.push_back(the_city);
     can_rollback = false;
     cost_valid = false;
+    ncities = cities.size();
 
 }
 
@@ -76,7 +78,7 @@ double tsp::calc_route()
     return cost;
 }
 
-double tsp::cost()
+double tsp::get_score()
 {
     if (cost_valid)
         return route_cost;
@@ -135,10 +137,34 @@ double tsp::roll_back()
     return swap(r1, r2);
 }
 
+int tsp::getDimension()
+{
+    return 1;
+}
+
+void tsp::generateMove(int, double)
+{
+    int c1, c2;
+    int ncities = cities.size();
+    c1 = rand_r(&seed) % ncities;
+    do {
+        c2 = rand_r(&seed) % ncities;
+    } while (c2 == c1);
+
+    step(c1, c2);
+}
+
+void tsp::restoreMove(int)
+{
+    roll_back();
+}
+
 tsp::tsp()
 {
     can_rollback = false;
     cost_valid = true;
     route_cost = 0.0;
     r1 = r2 = 0; // just to avoid having uninialized variables
+    seed = time(NULL);
+    ncities = cities.size();
 }

@@ -11,12 +11,14 @@ class rastrigin
 public:
 	rastrigin(int dimension, unirandom &in_rnd);
 	rastrigin(xmlNode *root, unirandom &in_rnd);
-	int get_dimension() const;
+	int getDimension() const;
 	double get_param(int idx) const;
 	void set_param(int idx, double val);
 	unirandom &rnd;
 	unsigned int* get_seed();
-	double value();
+	double get_score();
+	void generateMove(int idx, double theta_bar);
+	void restoreMove(int idx);
 	void print_solution(ostream &o) const;
 	void write_section(xmlChar *secname);
 	~rastrigin();
@@ -27,6 +29,9 @@ private:
 	xmlNode *docroot;
 	xmlNode *section;
 	double *vars;
+	double prev_x;
+	int prev_idx;
+	bool can_rollback;
 
 
 };

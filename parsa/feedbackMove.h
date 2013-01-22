@@ -1,12 +1,14 @@
 #ifndef MOVABLE_H
 #define MOVABLE_H
 #include <libxml/parser.h>
+/*
 class abstract_param {
     public: 
         virtual void generate_tweak(double theta_bar) = 0;
         virtual void restore_tweak() = 0;
         virtual ~abstract_param(); // need this on obj w/ virtual func.
 };
+*/
 
 /*
  * This is the feedback move control template. It features perturbation of

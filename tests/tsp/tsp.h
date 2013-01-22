@@ -29,13 +29,18 @@ class tsp {
         double route_cost;
         int r1, r2;
         double swap(int c1, int c2);
+        unsigned seed;
+        int ncities;
     public:
         void print_array(ostream &) const;
         void print_route(ostream &) const;
         void add_city(city);
         int get_ncities() const;
         double calc_route();
-        double cost();
+        int getDimension();
+        void generateMove(int, double);
+        void restoreMove(int);
+        double get_score();
         double step(int c1, int c2);
         double roll_back();
         tsp();

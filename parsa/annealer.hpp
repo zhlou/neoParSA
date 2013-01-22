@@ -57,6 +57,11 @@ cooling(in_cool), move(in_move)
 }
 
 template<class Schedule, class Move>
+annealer<Schedule, Move>::~annealer()
+{
+}
+
+template<class Schedule, class Move>
 bool annealer<Schedule, Move>::step()
 {
     double delta, crit, ran_n;

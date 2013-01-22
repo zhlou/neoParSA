@@ -2,9 +2,10 @@
 #include <fstream>
 #include <libxml/parser.h>
 #include "simpleAnnealer.h"
-#include "movable.h"
+#include "annealer.h"
+#include "feedbackMove.h"
 #include "tsp.h"
-#include "tsp_problem.h"
+
 
 using namespace std;
 
@@ -23,11 +24,16 @@ int main(int argc, char **argv)
         ifile >> x >> y;
         test_tsp.add_city(city(x,y));
     }
-    tsp_problem test_problem(&test_tsp);
+    feedbackMove<tsp> tsp_problem(test_tsp, root);
+    simpleSchedule schedule(root);
+    annealer<simpleSchedule, feedbackMove<tsp> > tsp_anneal(schedule, tsp_problem);
+
+
+    //tsp_problem test_problem(&test_tsp);
     test_tsp.print_route(cout);
-    simpleSchedule tsp_anneal(&test_problem, root);
+    //simpleSchedule tsp_anneal(&test_problem, root);
     cout << "The finial energy is "<<tsp_anneal.loop()<< endl;
-    cout << "The energy cached is "<< test_tsp.cost() << endl;
+    cout << "The energy cached is "<< test_tsp.get_score() << endl;
     cout << "The real energy is " << test_tsp.calc_route()<<endl;
 
     test_tsp.print_route(cout);

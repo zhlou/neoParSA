@@ -38,7 +38,7 @@ void simpleSchedule::updateStep(bool accept, double)
         reject_cnt ++;
 }
 
-inline void simpleSchedule::updateInitStep(bool, double)
+void simpleSchedule::updateInitStep(bool, double)
 {
 
 }
@@ -59,12 +59,12 @@ bool simpleSchedule::inSegment()
     return false;
 }
 
-inline double simpleSchedule::getInitS()
+double simpleSchedule::getInitS()
 {
     return init_S;
 }
 
-inline int simpleSchedule::getInitLoop()
+int simpleSchedule::getInitLoop()
 {
     return init_loop;
 }

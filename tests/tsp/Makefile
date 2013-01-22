@@ -2,7 +2,7 @@ CXXFLAGS += -I../../parsa -g
 LDLIBS += -L../../parsa -lparsa
 LIBPARSA = ../../parsa/libparsa.a
 TARGET = solve_tsp test
-OBJECT = tsp.o tsp_problem.o solve_tsp.o
+OBJECT = tsp.o solve_tsp.o
 .PHONY: all clean
 
 all: $(TARGET)

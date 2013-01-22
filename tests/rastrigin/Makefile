@@ -2,7 +2,7 @@ CXXFLAGS += -I../../parsa -g
 LDLIBS += -L../../parsa -lparsa
 LIBPARSA = ../../parsa/libparsa.a
 TARGET = solve_rst test_rst
-OBJECT = rastrigin.o solve_rastrigin.o rastrigin_problem.o
+OBJECT = rastrigin.o solve_rastrigin.o
 .PHONY: all clean
 
 all: $(TARGET)
