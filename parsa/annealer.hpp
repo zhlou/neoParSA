@@ -15,17 +15,17 @@ double annealer<Schedule, Move>::loop()
     if (!is_init)
         initMoves();
     bool accepted;
-    while (!cooling.frozen()) {
+     do { // while not frozen
         cooling.resetSegmentStats();
-        do {
+        do { // while in segment
             accepted = step();
             cooling.updateStep(accepted, energy);
             s = cooling.updateS(s);
             step_cnt++;
         } while (cooling.inSegment());
         cooling.updateSegment();
+    }while (!cooling.frozen());
 
-    }
     std::cout << "Annealing stopped at s = " << s << std::endl
             << "Total steps is " << step_cnt << std::endl;
     return move.get_score();

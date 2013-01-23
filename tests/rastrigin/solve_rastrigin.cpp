@@ -2,11 +2,11 @@
 #include <libxml/parser.h>
 #include "rastrigin.h"
 #include "annealer.h"
-#include "simpleAnnealer.h"
+//#include "simpleAnnealer.h"
 #include "feedbackMove.h"
 //#include "rastrigin_problem.h"
 #include "unirandom.h"
-//#include "lam.h"
+#include "lam.h"
 using namespace std;
 int main(int argc, char **argv)
 {
@@ -24,8 +24,8 @@ int main(int argc, char **argv)
 	unirandom rnd;
 	rastrigin rst(docroot, rnd);
 	feedbackMove<rastrigin> rst_problem(rst, docroot);
-	simpleSchedule schedule(docroot);
-	annealer<simpleSchedule, feedbackMove<rastrigin> >
+	lam schedule(docroot);
+	annealer<lam, feedbackMove<rastrigin> >
 	        rst_anneal(schedule, rst_problem);
 	//rastrigin_problem rst_problem(&rst, docroot);
 	//lam rst_anneal(&rst_problem, docroot);

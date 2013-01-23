@@ -10,14 +10,26 @@
 #include <string>
 #include <stdexcept>
 #include <cmath>
+#include <limits>
 using namespace std;
+
+const double lam::UNINITIALIZED = numeric_limits<double>::max();
+
 // in newer compilers, string constants cast to char * will generate
 // warning messages unless done explicitly.
 
-lam::lam(movable *theproblem, xmlNode *root) :
-        annealer(theproblem, root)
+lam::lam(xmlNode *root)
 {
-    xmlNode *section = getSectionByName(root, (char *)"lam");
+    xmlNode *section = getSectionByName(root, (char *)"annealer_input");
+
+    if (section == NULL) {
+        throw runtime_error(string("Error: fail to find section annealer_input"));
+    }
+    init_S = 1.0 / getPropDouble(section, (char *)"init_T");
+    lambda = getPropDouble(section, (char *)"lambda");
+    init_loop = getPropInt(section, (char *)"init_loop");
+
+    section = getSectionByName(root, (char *)"lam");
     if (section == NULL)
         throw runtime_error(string("Error: fail to find section lam"));
     proc_tau = getPropInt(section, (char *)"tau");
@@ -36,7 +48,15 @@ lam::lam(movable *theproblem, xmlNode *root) :
     fit_mean = NULL;
     fit_sd = NULL;
 
-    resetSegmentStats();
+    old_energy = energy = UNINITIALIZED;
+    alpha = UNINITIALIZED;
+    s = init_S;
+    step_cnt = 0;
+    acc_ratio = 0.;
+    success = 0;
+    vari = 0.;
+    mean = 0.;
+    //resetSegmentStats();
 }
 
 lam::~lam()
@@ -71,25 +91,28 @@ bool lam::frozen()
         freeze_cnt++;
     else
         freeze_cnt = 0;
-    old_energy = energy;
+
     return (freeze_cnt >= cnt_crit);
 }
 
-void lam::updateStep(bool is_accept)
+void lam::updateStep(bool accept, double in_energy)
 {
-    if (is_accept)
-        success++;
+    energy = in_energy;
+    ++ step_cnt;
+    if (accept)
+        ++ success;
     double estimate_mean = fit_mean->getEstimate(s);
     double d = energy - estimate_mean;
     mean += energy;
     vari += d * d;
 }
 
-void lam::updateS()
+double lam::updateS(double)
 {
     double estimate_sd = fit_sd->getEstimate(s);
     double d = s * estimate_sd;
     s += lambda * alpha / (d * d * estimate_sd);
+    return s;
 }
 
 void lam::resetSegmentStats()
@@ -98,6 +121,7 @@ void lam::resetSegmentStats()
     success = 0;
     vari = 0.;
     mean = 0.;
+    old_energy = energy;
 }
 
 bool lam::inSegment()
@@ -135,12 +159,13 @@ void lam::initStats()
     acc_ratio = (double) success / (double) init_loop;
     double d = (1.0 - acc_ratio) / (2.0 - acc_ratio);
     alpha = 4.0 * acc_ratio * d * d;
-    resetSegmentStats();
-    old_energy = energy;
+    //resetSegmentStats(); // we don't need this since it is called automatically
+                           // before every segment
 }
 
-void lam::updateInitStep(bool accept)
+void lam::updateInitStep(bool accept, double in_energy)
 {
+    energy = in_energy;
     if (accept)
         success++;
     mean += energy;
@@ -158,6 +183,16 @@ void lam::collectInitStats()
 {
     mean /= (double) init_loop;
     vari = vari / (double) init_loop - mean * mean;
+}
+
+double lam::getInitS()
+{
+    return init_S;
+}
+
+int lam::getInitLoop()
+{
+    return init_loop;
 }
 
 void lam::updateLam()
