@@ -5,7 +5,7 @@
  *      Author: zhlou
  */
 
-#include "simpleAnnealer.h"
+#include "simpleScheduler.h"
 #include "utils.h"
 #include <stdexcept>
 

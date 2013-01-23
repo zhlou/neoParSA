@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <libxml/parser.h>
-#include "simpleAnnealer.h"
+#include "simpleScheduler.h"
 #include "annealer.h"
 #include "feedbackMove.h"
 #include "tsp.h"

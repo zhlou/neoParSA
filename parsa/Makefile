@@ -4,9 +4,9 @@ TARGET = libparsa.a
 #SOURCE = annealer.h annealer.cpp movable.h movable.cpp \
 	unirandom.h unirandom.cpp invLinearFit.cpp invLinearFit.h\
 	lam.h lam.cpp utils.h utils.cpp plsa.h plsa.cpp
-OBJECT = simpleAnnealer.o utils.o unirandom.o lam.o invLinearFit.o
+OBJECT = simpleScheduler.o utils.o unirandom.o lam.o invLinearFit.o
 SOURCE = annealer.h annealer.hpp feedbackMove.h feedbackMove.hpp\
-	simpleAnnealer.h simpleAnnealer.cpp utils.h utils.cpp \
+	simpleScheduler.h simpleScheduler.cpp utils.h utils.cpp \
 	unirandom.h unirandom.cpp lam.cpp lam.h invLinearFit.h invLinearFit.cpp
 CXXFLAGS += -g
 .PHONY: all clean
