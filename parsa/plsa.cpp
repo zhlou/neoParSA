@@ -3,9 +3,9 @@
 using namespace std;
 
 
-plsa::plsa(movable* theproblem, xmlNode* root, MPI_Comm thecomm, int in_nnodes,
+plsa::plsa(xmlNode* root, MPI_Comm thecomm, int in_nnodes,
         int in_rank) :
-        lam(theproblem, root), comm(thecomm), nnodes(in_nnodes), rank(in_rank)
+        lam(root), comm(thecomm), nnodes(in_nnodes), rank(in_rank)
 {
     local_stat_buf = new StatData[nnodes];
     l_stat.s = -1;

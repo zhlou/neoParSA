@@ -25,7 +25,7 @@ public:
     void updateStep(bool accept, double energy);
     double updateS(double s);
     bool inSegment();
-    void updateSegment();
+    virtual void updateSegment();
 
 protected:
     int proc_tau;

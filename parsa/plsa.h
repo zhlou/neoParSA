@@ -14,7 +14,7 @@
 class plsa: public lam
 {
 public:
-    plsa(movable *theproblem, xmlNode *root, MPI_Comm thecomm, int in_nnodes,
+    plsa(xmlNode *root, MPI_Comm thecomm, int in_nnodes,
             int in_rank);
     ~plsa();
 protected:
