@@ -61,8 +61,10 @@ lam::lam(xmlNode *root)
 
 lam::~lam()
 {
-    delete fit_mean;
-    delete fit_sd;
+    if (fit_mean != NULL)
+        delete fit_mean;
+    if (fit_sd != NULL)
+        delete fit_sd;
 }
 /*
  double lam::loop()
@@ -133,11 +135,16 @@ bool lam::inSegment()
     }
 }
 
+void lam::updateEstimators()
+{
+    fit_mean->fullUpdate(1.0 / mean, s);
+    fit_sd->fullUpdate(1.0 / sqrt(vari), s);
+}
+
 void lam::updateSegment()
 {
     collectStats();
-    fit_mean->fullUpdate(1.0 / mean, s);
-    fit_sd->fullUpdate(1.0 / sqrt(vari), s);
+    updateEstimators();
     updateLam();
 //    resetSegmentStats();
 }

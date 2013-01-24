@@ -42,12 +42,16 @@ plsa::~plsa()
  }
  */
 
-void plsa::updateSegment()
+
+
+bool plsa::frozen()
 {
-    collectStats();
-    CommSegment();
-    updateLam();
 }
+
+bool plsa::CommCheckFrozen()
+{
+}
+
 /*
 void plsa::initStats()
 {
@@ -85,7 +89,7 @@ void plsa::PackNCommStats(bool UseSD)
     MPI_Win_wait(stat_win);
 }
 
-void plsa::CommSegment()
+void plsa::updateEstimators()
 {
     PackNCommStats();
     // local_stat_buf is not ready for reading until all the communications are

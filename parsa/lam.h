@@ -19,13 +19,13 @@ public:
     double getInitS();
     int getInitLoop();
     void initStats();
-    bool frozen();
+    virtual bool frozen();
     void updateInitStep(bool accept, double energy);
     void resetSegmentStats();
     void updateStep(bool accept, double energy);
     double updateS(double s);
     bool inSegment();
-    virtual void updateSegment();
+    void updateSegment();
 
 protected:
     int proc_tau;
@@ -49,6 +49,8 @@ protected:
     virtual void collectInitStats();
     void resetLam();
     void updateLam();
+    virtual void updateEstimators();
+
     // below are lam parameters
     invLinearFit *fit_mean, *fit_sd;
     double alpha;

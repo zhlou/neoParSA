@@ -28,10 +28,9 @@ protected:
     };
     //void updateS();
     //void initStats();
-    void updateSegment();
     bool frozen();
     void collectInitStats();
-    void CommSegment();
+    void updateEstimators();
     bool CommCheckFrozen();
     void PackNCommStats(bool UseSD = true);
 //    void initEstimators();
