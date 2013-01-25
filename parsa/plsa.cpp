@@ -8,7 +8,7 @@ plsa::plsa(xmlNode* root, MPI_Comm thecomm, int in_nnodes,
         lam(root), comm(thecomm), nnodes(in_nnodes), rank(in_rank)
 {
     local_stat_buf = new StatData[nnodes];
-    l_stat.s = -1;
+    //l_stat.s = -1;
     lambda *= (double)nnodes;
     MPI_Win_create(&l_stat, sizeof(StatData), sizeof(StatData), MPI_INFO_NULL,
             comm, &stat_win);
@@ -44,7 +44,7 @@ plsa::~plsa()
 
 
 
-bool plsa::frozen()
+bool plsa::frozen(aState state)
 {
 }
 
@@ -67,7 +67,7 @@ void plsa::initStats()
 void plsa::PackNCommStats(bool UseSD)
 {
     //pack statistics
-    l_stat.s = s;
+    //l_stat.s = s;
     l_stat.mean = mean;
     if (UseSD)
         l_stat.var = sqrt(vari);
@@ -75,7 +75,7 @@ void plsa::PackNCommStats(bool UseSD)
         l_stat.var = vari;
     l_stat.success = success;
     //l_stat.moves = proc_tau;
-    l_stat.energy = energy;
+    //l_stat.energy = energy;
     local_stat_buf[rank] = l_stat;
     MPI_Win_post(group, 0, stat_win);
     MPI_Win_start(group, 0, stat_win);
@@ -89,7 +89,7 @@ void plsa::PackNCommStats(bool UseSD)
     MPI_Win_wait(stat_win);
 }
 
-void plsa::updateEstimators()
+void plsa::updateEstimators(double s)
 {
     PackNCommStats();
     // local_stat_buf is not ready for reading until all the communications are
@@ -107,7 +107,7 @@ void plsa::updateEstimators()
     acc_ratio = (double) success / (double)(nnodes * proc_tau);
 }
 
-void plsa::collectInitStats()
+void plsa::collectInitStats(unsigned long init_loop)
 {
     PackNCommStats(false);
     mean = 0;

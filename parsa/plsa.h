@@ -17,20 +17,20 @@ public:
     plsa(xmlNode *root, MPI_Comm thecomm, int in_nnodes,
             int in_rank);
     ~plsa();
+    bool frozen(aState state);
 protected:
     struct StatData {
-        double s;
+        //double s;
         double mean;
         double var;
-        double energy;
+        //double energy;
         long success;
         //long moves;
     };
     //void updateS();
     //void initStats();
-    bool frozen();
-    void collectInitStats();
-    void updateEstimators();
+    void collectInitStats(unsigned long init_loop);
+    void updateEstimators(double s);
     bool CommCheckFrozen();
     void PackNCommStats(bool UseSD = true);
 //    void initEstimators();
