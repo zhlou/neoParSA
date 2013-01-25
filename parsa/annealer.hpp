@@ -9,6 +9,7 @@
 #include <iostream>
 #include <cmath>
 #include <stdexcept>
+#include "utils.h"
 
 using namespace std;
 
@@ -18,19 +19,20 @@ double annealer<Schedule, Move, Random>::loop()
     if (!is_init)
         initMoves();
     bool accepted;
+    state.step_cnt = 0;
     do { // while not frozen
         cooling.resetSegmentStats();
         do { // while in segment
             accepted = step();
-            cooling.updateStep(accepted, energy);
-            s = cooling.updateS(s);
-            step_cnt++;
-        } while (cooling.inSegment());
-        cooling.updateSegment();
-    } while (!cooling.frozen());
+            cooling.updateStep(accepted, state);
+            state.s = cooling.updateS(state);
+            ++ (state.step_cnt);
+        } while (cooling.inSegment(state));
+        cooling.updateSegment(state);
+    } while (!cooling.frozen(state));
 
-    std::cout << "Annealing stopped at s = " << s << std::endl
-            << "Total steps is " << step_cnt << std::endl;
+    std::cout << "Annealing stopped at s = " << state.s << std::endl
+            << "Total steps is " << state.step_cnt << std::endl;
     return move.get_score();
 }
 
@@ -38,11 +40,11 @@ template<class Schedule, class Move, class Random>
 double annealer<Schedule, Move, Random>::initMoves()
 {
     bool accepted;
-    for (int i = 0; i < initLoop; i++) {
+    for (state.step_cnt = 0; state.step_cnt < initLoop; state.step_cnt++) {
         accepted = step();
-        cooling.updateInitStep(accepted, energy);
+        cooling.updateInitStep(accepted, state);
     }
-    cooling.initStats();
+    cooling.initStats(state);
     is_init = true;
     return move.get_score();
 
@@ -56,17 +58,18 @@ annealer<Schedule, Move, Random>::annealer(Schedule& in_cool, Move& in_move,
         Random &in_rand, xmlNode *root) :
         cooling(in_cool), move(in_move), rand(in_rand), xmlroot(root)
 {
-    xmlNode *xmlsection = getSectionByName(root, (char *)"annealer_input");
+    xmlNode *xmlsection = getSectionByName(root, (char *) "annealer_input");
 
     if (xmlsection == NULL) {
-        throw runtime_error(string("Error: fail to find section annealer_input"));
+        throw runtime_error(
+                string("Error: fail to find section annealer_input"));
     }
-    initS = 1.0 / getPropDouble(xmlsection, (char *)"init_T");
-    initLoop = getPropInt(xmlsection, (char *)"init_loop");
-    s = initS;
+    initS = 1.0 / getPropDouble(xmlsection, (char *) "init_T");
+    initLoop = getPropInt(xmlsection, (char *) "init_loop");
+    state.s = initS;
     is_init = false;
-    step_cnt = 0;
-    energy = move.get_score();
+    state.step_cnt = 0;
+    state.energy = move.get_score();
 }
 
 template<class Schedule, class Move, class Random>
@@ -79,11 +82,11 @@ bool annealer<Schedule, Move, Random>::step()
 {
     double delta, crit, ran_n;
     delta = move.propose();
-    crit = std::exp(-s * delta);
+    crit = std::exp(-state.s * delta);
     ran_n = rand.random();
     if ((delta <= 0.0) || crit > ran_n) {
         move.accept();
-        energy += delta;
+        state.energy += delta;
         return true;
     } else {
         move.reject();

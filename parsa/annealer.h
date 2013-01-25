@@ -2,6 +2,7 @@
 #define ANNEALER_H
 
 #include <libxml/parser.h>
+#include "aState.h"
 //class movable;
 /*
  * This is the abstract annealer template. All the actual functionalities
@@ -51,6 +52,7 @@ protected:
     Schedule &cooling;
     Move &move;
     Random &rand;
+    aState state;
     //virtual void updateInitStep(bool accept);
     //virtual void updateStep(bool accept) = 0;
     //virtual void initStats() = 0;
@@ -62,15 +64,15 @@ protected:
     bool step();
     xmlNode *xmlroot;
     //xmlNode *xmlsection;
-    double s;
+    //double s;
     //double lambda;
-    long unsigned step_cnt;
+    //long unsigned step_cnt;
     int initLoop;
     double initS;
 
     //unsigned rnd_seed;
     //movable *problem;
-    double energy;
+    //double energy;
     //int init_loop;
     bool is_init;
 };

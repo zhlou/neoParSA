@@ -9,6 +9,7 @@
 #define SIMPLEANNEALER_H_
 
 #include "annealer.h"
+#include "aState.h"
 #include <libxml/tree.h>
 
 class simpleSchedule
@@ -16,21 +17,21 @@ class simpleSchedule
 public:
     simpleSchedule(xmlNode *root);
     virtual ~simpleSchedule();
-    void initStats();
-    double getInitS();
-    int getInitLoop();
-    void updateInitStep(bool accept, double energy);
-    bool frozen();
+    void initStats(aState state);
+    //double getInitS();
+    //int getInitLoop();
+    void updateInitStep(bool accept, aState state);
+    bool frozen(aState state);
     void resetSegmentStats();
-    void updateStep(bool accept, double energy);
-    double updateS(double s);
-    bool inSegment();
-    void updateSegment();
+    void updateStep(bool accept, aState state);
+    double updateS(aState state);
+    bool inSegment(aState state);
+    void updateSegment(aState state);
 private:
     unsigned reject_cnt;
     double lambda;
-    int init_loop;
-    double init_S;
+    //int init_loop;
+    //double init_S;
 };
 
 #endif /* SIMPLEANNEALER_H_ */

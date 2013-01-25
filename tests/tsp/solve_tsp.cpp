@@ -5,36 +5,36 @@
 #include "annealer.h"
 #include "feedbackMove.h"
 #include "tsp.h"
-
+#include "unirandom.h"
 
 using namespace std;
 
 int main(int argc, char **argv)
 {
-	const char *xmlfile = "tsp.xml";
-	xmlDoc *doc = xmlParseFile(xmlfile);
-	xmlNode *root = xmlDocGetRootElement(doc);
+    const char *xmlfile = "tsp.xml";
+    xmlDoc *doc = xmlParseFile(xmlfile);
+    xmlNode *root = xmlDocGetRootElement(doc);
     tsp test_tsp;
     ifstream ifile("input.dat");
     if (!ifile)
         return -1;
-    double x,y;
-    while(!ifile.eof())
-    {
+    double x, y;
+    while (!ifile.eof()) {
         ifile >> x >> y;
-        test_tsp.add_city(city(x,y));
+        test_tsp.add_city(city(x, y));
     }
+    unirandom rnd;
     feedbackMove<tsp> tsp_problem(test_tsp, root);
     simpleSchedule schedule(root);
-    annealer<simpleSchedule, feedbackMove<tsp> > tsp_anneal(schedule, tsp_problem);
-
+    annealer<simpleSchedule, feedbackMove<tsp>, unirandom> tsp_anneal(schedule,
+            tsp_problem, rnd, root);
 
     //tsp_problem test_problem(&test_tsp);
     test_tsp.print_route(cout);
     //simpleSchedule tsp_anneal(&test_problem, root);
-    cout << "The finial energy is "<<tsp_anneal.loop()<< endl;
-    cout << "The energy cached is "<< test_tsp.get_score() << endl;
-    cout << "The real energy is " << test_tsp.calc_route()<<endl;
+    cout << "The finial energy is " << tsp_anneal.loop() << endl;
+    cout << "The energy cached is " << test_tsp.get_score() << endl;
+    cout << "The real energy is " << test_tsp.calc_route() << endl;
 
     test_tsp.print_route(cout);
     return 0;

@@ -8,24 +8,26 @@
 #ifndef LAM_H_
 #define LAM_H_
 
-#include "annealer.h"
+//#include "annealer.h"
+#include "aState.h"
 #include "invLinearFit.h"
+#include <libxml/tree.h>
 
 class lam
 {
 public:
     lam(xmlNode *root);
     virtual ~lam();
-    double getInitS();
-    int getInitLoop();
-    void initStats();
-    virtual bool frozen();
-    void updateInitStep(bool accept, double energy);
+    //double getInitS();
+    //int getInitLoop();
+    virtual bool frozen(aState state);
+    void updateInitStep(bool accept, aState state);
+    void initStats(aState state);
     void resetSegmentStats();
-    void updateStep(bool accept, double energy);
-    double updateS(double s);
-    bool inSegment();
-    void updateSegment();
+    void updateStep(bool accept, aState state);
+    double updateS(aState state);
+    bool inSegment(aState state);
+    void updateSegment(aState state);
 
 protected:
     int proc_tau;
@@ -36,8 +38,8 @@ protected:
 
 
     double freeze_crit;
-    double energy;
-    double s;
+    //double energy;
+    //double s;
     double old_energy;
     int freeze_cnt;
     int cnt_crit;
@@ -46,10 +48,10 @@ protected:
 
 
     void collectStats();
-    virtual void collectInitStats();
+    virtual void collectInitStats(unsigned long init_loop);
     void resetLam();
     void updateLam();
-    virtual void updateEstimators();
+    virtual void updateEstimators(double s);
 
     // below are lam parameters
     invLinearFit *fit_mean, *fit_sd;
@@ -59,9 +61,9 @@ protected:
 
 private:
     double lambda;
-    int init_loop;
-    double init_S;
-    long step_cnt;
+    //int init_loop;
+    //double init_S;
+    //long step_cnt;
 
 };
 

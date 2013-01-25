@@ -25,9 +25,9 @@ lam::lam(xmlNode *root)
     if (section == NULL) {
         throw runtime_error(string("Error: fail to find section annealer_input"));
     }
-    init_S = 1.0 / getPropDouble(section, (char *)"init_T");
     lambda = getPropDouble(section, (char *)"lambda");
-    init_loop = getPropInt(section, (char *)"init_loop");
+    //init_S = 1.0 / getPropDouble(section, (char *)"init_T");
+    //init_loop = getPropInt(section, (char *)"init_loop");
 
     section = getSectionByName(root, (char *)"lam");
     if (section == NULL)
@@ -48,10 +48,10 @@ lam::lam(xmlNode *root)
     fit_mean = NULL;
     fit_sd = NULL;
 
-    old_energy = energy = UNINITIALIZED;
+    old_energy = UNINITIALIZED;
     alpha = UNINITIALIZED;
-    s = init_S;
-    step_cnt = 0;
+    //s = init_S;
+    //step_cnt = 0;
     acc_ratio = 0.;
     success = 0;
     vari = 0.;
@@ -87,34 +87,33 @@ lam::~lam()
  }
  */
 
-bool lam::frozen()
+bool lam::frozen(aState state)
 {
-    if (abs(energy - old_energy) < freeze_crit)
+    if (abs(state.energy - old_energy) < freeze_crit)
         freeze_cnt++;
     else
         freeze_cnt = 0;
+    old_energy = state.energy;
 
     return (freeze_cnt >= cnt_crit);
 }
 
-void lam::updateStep(bool accept, double in_energy)
+void lam::updateStep(bool accept, aState state)
 {
-    energy = in_energy;
-    ++ step_cnt;
+    //++ step_cnt;
     if (accept)
         ++ success;
-    double estimate_mean = fit_mean->getEstimate(s);
-    double d = energy - estimate_mean;
-    mean += energy;
+    double estimate_mean = fit_mean->getEstimate(state.s);
+    double d = state.energy - estimate_mean;
+    mean += state.energy;
     vari += d * d;
 }
 
-double lam::updateS(double)
+double lam::updateS(aState state)
 {
-    double estimate_sd = fit_sd->getEstimate(s);
-    double d = s * estimate_sd;
-    s += lambda * alpha / (d * d * estimate_sd);
-    return s;
+    double estimate_sd = fit_sd->getEstimate(state.s);
+    double d = state.s * estimate_sd;
+    return state.s + lambda * alpha / (d * d * estimate_sd);
 }
 
 void lam::resetSegmentStats()
@@ -123,28 +122,28 @@ void lam::resetSegmentStats()
     success = 0;
     vari = 0.;
     mean = 0.;
-    old_energy = energy;
+    //old_energy = energy;
 }
 
-bool lam::inSegment()
+bool lam::inSegment(aState state)
 {
-    if ((step_cnt % proc_tau) == 0) {
+    if ((state.step_cnt % proc_tau) == 0) {
         return false;
     } else {
         return true;
     }
 }
 
-void lam::updateEstimators()
+void lam::updateEstimators(double s)
 {
     fit_mean->fullUpdate(1.0 / mean, s);
     fit_sd->fullUpdate(1.0 / sqrt(vari), s);
 }
 
-void lam::updateSegment()
+void lam::updateSegment(aState state)
 {
     collectStats();
-    updateEstimators();
+    updateEstimators(state.s);
     updateLam();
 //    resetSegmentStats();
 }
@@ -155,28 +154,28 @@ void lam::resetLam()
     fit_sd->reset();
 }
 
-void lam::initStats()
+void lam::initStats(aState state)
 {
-    collectInitStats();
+    collectInitStats(state.step_cnt);
 
     double sd = sqrt(vari);
 
-    fit_mean = new invLinearFit(w_mean, mean, s, vari / (mean * mean));
-    fit_sd = new invLinearFit(w_sd, sd, s, sd / mean);
-    acc_ratio = (double) success / (double) init_loop;
+    fit_mean = new invLinearFit(w_mean, mean, state.s, vari / (mean * mean));
+    fit_sd = new invLinearFit(w_sd, sd, state.s, sd / mean);
+    acc_ratio = (double) success / (double) state.step_cnt;
     double d = (1.0 - acc_ratio) / (2.0 - acc_ratio);
     alpha = 4.0 * acc_ratio * d * d;
+    old_energy = state.energy;
     //resetSegmentStats(); // we don't need this since it is called automatically
                            // before every segment
 }
 
-void lam::updateInitStep(bool accept, double in_energy)
+void lam::updateInitStep(bool accept, aState state)
 {
-    energy = in_energy;
     if (accept)
         success++;
-    mean += energy;
-    vari += energy * energy;
+    mean += state.energy;
+    vari += state.energy * state.energy;
 }
 
 void lam::collectStats()
@@ -186,12 +185,13 @@ void lam::collectStats()
     acc_ratio = (double) success / proc_tau;
 }
 
-void lam::collectInitStats()
+void lam::collectInitStats(unsigned long init_loop)
 {
     mean /= (double) init_loop;
     vari = vari / (double) init_loop - mean * mean;
 }
 
+/*
 double lam::getInitS()
 {
     return init_S;
@@ -201,6 +201,7 @@ int lam::getInitLoop()
 {
     return init_loop;
 }
+*/
 
 void lam::updateLam()
 {

@@ -25,8 +25,8 @@ int main(int argc, char **argv)
 	rastrigin rst(docroot, rnd);
 	feedbackMove<rastrigin> rst_problem(rst, docroot);
 	lam schedule(docroot);
-	annealer<lam, feedbackMove<rastrigin> >
-	        rst_anneal(schedule, rst_problem);
+	annealer<lam, feedbackMove<rastrigin>, unirandom >
+	        rst_anneal(schedule, rst_problem, rnd, docroot);
 	//rastrigin_problem rst_problem(&rst, docroot);
 	//lam rst_anneal(&rst_problem, docroot);
 	cout << "The initial state is " << endl;
