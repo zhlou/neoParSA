@@ -8,14 +8,17 @@
 
 #include <iostream>
 #include <cmath>
+#include <stdexcept>
 
-template<class Schedule, class Move>
-double annealer<Schedule, Move>::loop()
+using namespace std;
+
+template<class Schedule, class Move, class Random>
+double annealer<Schedule, Move, Random>::loop()
 {
     if (!is_init)
         initMoves();
     bool accepted;
-     do { // while not frozen
+    do { // while not frozen
         cooling.resetSegmentStats();
         do { // while in segment
             accepted = step();
@@ -24,18 +27,18 @@ double annealer<Schedule, Move>::loop()
             step_cnt++;
         } while (cooling.inSegment());
         cooling.updateSegment();
-    }while (!cooling.frozen());
+    } while (!cooling.frozen());
 
     std::cout << "Annealing stopped at s = " << s << std::endl
             << "Total steps is " << step_cnt << std::endl;
     return move.get_score();
 }
 
-template<class Schedule, class Move>
-double annealer<Schedule, Move>::initMoves()
+template<class Schedule, class Move, class Random>
+double annealer<Schedule, Move, Random>::initMoves()
 {
     bool accepted;
-    for (int i = 0; i < cooling.getInitLoop(); i++) {
+    for (int i = 0; i < initLoop; i++) {
         accepted = step();
         cooling.updateInitStep(accepted, energy);
     }
@@ -45,29 +48,39 @@ double annealer<Schedule, Move>::initMoves()
 
 }
 
-template<class Schedule, class Move>
-annealer<Schedule, Move>::annealer(Schedule& in_cool, Move& in_move) :
-cooling(in_cool), move(in_move)
+/*
+ * When the constructor is called, all other parts should already be set up.
+ */
+template<class Schedule, class Move, class Random>
+annealer<Schedule, Move, Random>::annealer(Schedule& in_cool, Move& in_move,
+        Random &in_rand, xmlNode *root) :
+        cooling(in_cool), move(in_move), rand(in_rand), xmlroot(root)
 {
-    s = cooling.getInitS();
+    xmlNode *xmlsection = getSectionByName(root, (char *)"annealer_input");
+
+    if (xmlsection == NULL) {
+        throw runtime_error(string("Error: fail to find section annealer_input"));
+    }
+    initS = 1.0 / getPropDouble(xmlsection, (char *)"init_T");
+    initLoop = getPropInt(xmlsection, (char *)"init_loop");
+    s = initS;
     is_init = false;
     step_cnt = 0;
-    rnd_seed = time(NULL);
     energy = move.get_score();
 }
 
-template<class Schedule, class Move>
-annealer<Schedule, Move>::~annealer()
+template<class Schedule, class Move, class Random>
+annealer<Schedule, Move, Random>::~annealer()
 {
 }
 
-template<class Schedule, class Move>
-bool annealer<Schedule, Move>::step()
+template<class Schedule, class Move, class Random>
+bool annealer<Schedule, Move, Random>::step()
 {
     double delta, crit, ran_n;
     delta = move.propose();
     crit = std::exp(-s * delta);
-    ran_n = (double) rand_r(&rnd_seed) / RAND_MAX;
+    ran_n = rand.random();
     if ((delta <= 0.0) || crit > ran_n) {
         move.accept();
         energy += delta;

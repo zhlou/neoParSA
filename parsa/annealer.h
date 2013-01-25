@@ -39,17 +39,18 @@
  *      void reject();
  * };
  */
-template <class Schedule, class Move>
+template <class Schedule, class Move, class Random>
 class annealer
 {
 public:
-    annealer(Schedule &in_cool, Move &in_move);
+    annealer(Schedule &in_cool, Move &in_move, Random &in_rand, xmlNode *root);
     virtual ~annealer();
     double loop();
     double initMoves();
 protected:
     Schedule &cooling;
     Move &move;
+    Random &rand;
     //virtual void updateInitStep(bool accept);
     //virtual void updateStep(bool accept) = 0;
     //virtual void initStats() = 0;
@@ -59,12 +60,15 @@ protected:
     //virtual void updateSegment() = 0;
     //virtual void resetSegmentStats();
     bool step();
-    //xmlNode *xmlroot;
+    xmlNode *xmlroot;
     //xmlNode *xmlsection;
     double s;
     //double lambda;
     long unsigned step_cnt;
-    unsigned rnd_seed;
+    int initLoop;
+    double initS;
+
+    //unsigned rnd_seed;
     //movable *problem;
     double energy;
     //int init_loop;
