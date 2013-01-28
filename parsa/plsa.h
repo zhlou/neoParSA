@@ -17,7 +17,7 @@ public:
     plsa(xmlNode *root, MPI_Comm thecomm, int in_nnodes,
             int in_rank);
     ~plsa();
-    bool frozen(aState state);
+    //bool frozen(aState state);
 protected:
     struct StatData {
         //double s;
@@ -31,7 +31,8 @@ protected:
     //void initStats();
     void collectInitStats(unsigned long init_loop);
     void updateEstimators(double s);
-    bool CommCheckFrozen();
+    bool global_frozen();
+
     void PackNCommStats(bool UseSD = true);
 //    void initEstimators();
 

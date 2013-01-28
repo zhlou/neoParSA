@@ -20,7 +20,7 @@ public:
     virtual ~lam();
     //double getInitS();
     //int getInitLoop();
-    virtual bool frozen(aState state);
+    bool frozen(const aState state);
     void updateInitStep(bool accept, aState state);
     void initStats(aState state);
     void resetSegmentStats();
@@ -52,6 +52,8 @@ protected:
     void resetLam();
     void updateLam();
     virtual void updateEstimators(double s);
+    void local_frozen(const aState& state);
+    virtual bool global_frozen();
 
     // below are lam parameters
     invLinearFit *fit_mean, *fit_sd;

@@ -66,6 +66,18 @@ lam::~lam()
     if (fit_sd != NULL)
         delete fit_sd;
 }
+
+void lam::local_frozen(const aState& state)
+{
+    if (abs(state.energy - old_energy) < freeze_crit)
+        freeze_cnt++;
+    else
+        freeze_cnt = 0;
+
+    old_energy = state.energy;
+
+}
+
 /*
  double lam::loop()
  {
@@ -89,13 +101,9 @@ lam::~lam()
 
 bool lam::frozen(aState state)
 {
-    if (abs(state.energy - old_energy) < freeze_crit)
-        freeze_cnt++;
-    else
-        freeze_cnt = 0;
-    old_energy = state.energy;
+    local_frozen(state);
+    return global_frozen();
 
-    return (freeze_cnt >= cnt_crit);
 }
 
 void lam::updateStep(bool accept, aState state)
@@ -208,4 +216,9 @@ void lam::updateLam()
 
     double d = (1.0 - acc_ratio) / (2.0 - acc_ratio);
     alpha = 4.0 * acc_ratio * d * d;
+}
+
+bool lam::global_frozen()
+{
+    return (freeze_cnt >= cnt_crit);
 }

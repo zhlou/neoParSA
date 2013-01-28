@@ -21,6 +21,14 @@ plsa::~plsa()
     delete[] local_stat_buf;
 }
 
+bool plsa::global_frozen()
+{
+    int local_freeze = (freeze_cnt >= cnt_crit);
+    int global_flag;
+    MPI_Allreduce(&local_freeze, &global_flag, 1, MPI_INT, MPI_SUM, comm);
+    return (bool)global_flag;
+}
+
 /*
  double plsa::loop()
  {
@@ -44,13 +52,6 @@ plsa::~plsa()
 
 
 
-bool plsa::frozen(aState state)
-{
-}
-
-bool plsa::CommCheckFrozen()
-{
-}
 
 /*
 void plsa::initStats()
