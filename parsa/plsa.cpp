@@ -29,38 +29,6 @@ bool plsa::global_frozen()
     return (bool)global_flag;
 }
 
-/*
- double plsa::loop()
- {
- long unsigned step_cnt = 0;
- int accept = 0, i;
- double delta, vari;
- while (!frozen()) {
- accept = 0;
- vari = 0.;
- for (i = 0; i < proc_tau; i++) {
- if ((delta = move()) != 0.)
- accept ++;
-
- }
-
- }
-
- return problem->get_score();
- }
- */
-
-
-
-
-/*
-void plsa::initStats()
-{
-    collectInitStats();
-    initEstimators();
-
-}
-*/
 
 /* This method takes a boolean to decide the content of l_stat.var
  * True (default) for using standard deviation or square root of the value

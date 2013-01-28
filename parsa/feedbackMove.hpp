@@ -71,8 +71,11 @@ double feedbackMove<Problem>::propose()
     index %= nparams;
     if (index == 0) {
         ++sweep;
-        if (sweep % move_interval == 0)
+        if (sweep % move_interval == 0) {
+            collectMoveStats();
             move_control();
+        }
+
     }
 
     prev_energy = energy;
@@ -101,6 +104,12 @@ void feedbackMove<Problem>::reject()
 {
     problem.restoreMove(index);
     energy = prev_energy;
+}
+
+template<class Problem>
+void feedbackMove<Problem>::collectMoveStats()
+{
+    // Do nothing in base class.
 }
 
 template<class Problem>
