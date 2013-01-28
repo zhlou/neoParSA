@@ -60,9 +60,10 @@ protected:
     double alpha;
     double w_mean;
     double w_sd;
+    double lambda;
 
 private:
-    double lambda;
+
     //int init_loop;
     //double init_S;
     //long step_cnt;

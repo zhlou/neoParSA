@@ -16,6 +16,8 @@ parallelFBMove<Problem>::parallelFBMove(Problem& in_problem, xmlNode* root,
 template<class Problem>
 void parallelFBMove<Problem>::collectMoveStats()
 {
-    MPI_Allreduce(MPI_IN_PLACE, success, nparams, MPI_LONG, MPI_SUM, comm);
-    MPI_Allreduce(MPI_IN_PLACE, moves, nparams, MPI_LONG, MPI_SUM, comm);
+    MPI_Allreduce(MPI_IN_PLACE, feedbackMove<Problem>::success,
+            feedbackMove<Problem>::nparams, MPI_LONG, MPI_SUM, comm);
+    MPI_Allreduce(MPI_IN_PLACE, feedbackMove<Problem>::moves,
+            feedbackMove<Problem>::nparams, MPI_LONG, MPI_SUM, comm);
 }

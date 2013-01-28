@@ -14,7 +14,7 @@ template<class Problem>
 class parallelFBMove: public feedbackMove<Problem>
 {
 public:
-    parallelFBMove(Problem &in_problem, xmlNode *root = NULL, MPI_Comm thecomm,
+    parallelFBMove(Problem &in_problem, xmlNode *root, MPI_Comm thecomm,
             int in_nnodes, int in_rank);
 protected:
     void collectMoveStats();
