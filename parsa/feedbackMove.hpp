@@ -7,11 +7,11 @@
 #include <limits>
 using namespace std;
 
-template<class Problem>
-const double feedbackMove<Problem>::theta_min = 0.;
+template<class Problem, class Debug>
+const double feedbackMove<Problem, Debug>::theta_min = 0.;
 
-template<class Problem>
-feedbackMove<Problem>::feedbackMove(Problem& in_problem, xmlNode* root) :
+template<class Problem, class Debug>
+feedbackMove<Problem, Debug>::feedbackMove(Problem& in_problem, xmlNode* root) :
         problem(in_problem)
 {
     nparams = problem.getDimension();
@@ -58,14 +58,14 @@ feedbackMove<Problem>::feedbackMove(Problem& in_problem, xmlNode* root) :
     }
 }
 
-template<class Problem>
-inline double feedbackMove<Problem>::get_score()
+template<class Problem, class Debug>
+inline double feedbackMove<Problem, Debug>::get_score()
 {
     return energy;
 }
 
-template<class Problem>
-double feedbackMove<Problem>::propose()
+template<class Problem, class Debug>
+double feedbackMove<Problem, Debug>::propose()
 {
     index++;
     index %= nparams;
@@ -85,47 +85,47 @@ double feedbackMove<Problem>::propose()
     return (energy - prev_energy);
 }
 
-template<class Problem>
-void feedbackMove<Problem>::accept()
+template<class Problem, class Debug>
+void feedbackMove<Problem, Debug>::accept()
 {
     ++ success[index];
 }
 
-template<class Problem>
-feedbackMove<Problem>::~feedbackMove()
+template<class Problem, class Debug>
+feedbackMove<Problem, Debug>::~feedbackMove()
 {
     delete[] success;
     delete[] moves;
     delete[] theta_bars;
 }
 
-template<class Problem>
-void feedbackMove<Problem>::reject()
+template<class Problem, class Debug>
+void feedbackMove<Problem, Debug>::reject()
 {
     problem.restoreMove(index);
     energy = prev_energy;
 }
 
-template<class Problem>
-void feedbackMove<Problem>::collectMoveStats()
+template<class Problem, class Debug>
+void feedbackMove<Problem, Debug>::collectMoveStats()
 {
     // Do nothing in base class.
 }
 
-template<class Problem>
-void feedbackMove<Problem>::move_control()
+template<class Problem, class Debug>
+void feedbackMove<Problem, Debug>::move_control()
 {
     for (int i = 0; i < nparams; ++i) {
         double acc_ratio = (double) success[i] / (double) moves[i];
         double x = log(theta_bars[i]);
-        cout << i << "\t" << acc_ratio;
+        Debug::debugOut << i << "\t" << acc_ratio;
         x += move_gain * (acc_ratio - 0.44);
         theta_bars[i] = exp(x);
         if (theta_bars[i] < theta_min)
             theta_bars[i] = theta_min;
-        cout << "\t" << theta_bars[i];
+        Debug::debugOut << "\t" << theta_bars[i];
         success[i] = 0;
         moves[i] = 0;
     }
-    cout << endl;
+    Debug::debugOut << endl;
 }

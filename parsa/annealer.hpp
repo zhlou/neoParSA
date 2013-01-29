@@ -22,6 +22,7 @@ double annealer<Schedule, Move, Random>::loop()
     state.step_cnt = 0;
     do { // while not frozen
         cooling.resetSegmentStats();
+        cout << state.step_cnt << " " << state.s << endl;
         do { // while in segment
             accepted = step();
             cooling.updateStep(accepted, state);

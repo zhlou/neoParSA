@@ -11,6 +11,7 @@
 #include <stdexcept>
 #include <cmath>
 #include <limits>
+#include <iostream>
 using namespace std;
 
 const double lam::UNINITIALIZED = numeric_limits<double>::max();
@@ -168,12 +169,15 @@ void lam::initStats(aState state)
 
     double sd = sqrt(vari);
 
+
     fit_mean = new invLinearFit(w_mean, mean, state.s, vari / (mean * mean));
     fit_sd = new invLinearFit(w_sd, sd, state.s, sd / mean);
-    acc_ratio = (double) success / (double) state.step_cnt;
+
     double d = (1.0 - acc_ratio) / (2.0 - acc_ratio);
     alpha = 4.0 * acc_ratio * d * d;
     old_energy = state.energy;
+    cout << state.step_cnt << ": " << mean << "\t" << sd << "\t" << alpha
+            <<endl;
     //resetSegmentStats(); // we don't need this since it is called automatically
                            // before every segment
 }
@@ -197,6 +201,7 @@ void lam::collectInitStats(unsigned long init_loop)
 {
     mean /= (double) init_loop;
     vari = vari / (double) init_loop - mean * mean;
+    acc_ratio = (double) success / (double) init_loop;
 }
 
 /*

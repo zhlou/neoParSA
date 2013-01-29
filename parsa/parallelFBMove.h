@@ -10,12 +10,13 @@
 
 #include "feedbackMove.h"
 
-template<class Problem>
-class parallelFBMove: public feedbackMove<Problem>
+template<class Problem, class Debug>
+class parallelFBMove: public feedbackMove<Problem, Debug>
 {
 public:
     parallelFBMove(Problem &in_problem, xmlNode *root, MPI_Comm thecomm,
             int in_nnodes, int in_rank);
+    int getWinner();
 protected:
     void collectMoveStats();
 private:

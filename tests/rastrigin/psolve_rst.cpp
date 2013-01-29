@@ -15,6 +15,7 @@
 #include "parallelFBMove.h"
 #include "unirandom.h"
 #include "plsa.h"
+#include "debugOut.h"
 using namespace std;
 int main(int argc, char **argv)
 {
@@ -34,15 +35,15 @@ int main(int argc, char **argv)
         cerr << "Input incorrect" << endl;
         return 2;
     }
-    unirandom rnd;
+    unirandom rnd(rank);
     rastrigin rst(docroot, rnd);
-    parallelFBMove<rastrigin> rst_problem(rst, docroot, MPI_COMM_WORLD,
+    parallelFBMove<rastrigin, debugIGNORE> rst_problem(rst, docroot, MPI_COMM_WORLD,
             size, rank);
     plsa *pschedule = new plsa(docroot, MPI_COMM_WORLD, size, rank);
 
     //feedbackMove<rastrigin> rst_problem(rst, docroot);
     //lam schedule(docroot);
-    annealer<plsa, parallelFBMove<rastrigin>, unirandom >
+    annealer<plsa, parallelFBMove<rastrigin, debugIGNORE>, unirandom >
             rst_anneal(*pschedule, rst_problem, rnd, docroot);
     cout << "The initial state is " << endl;
     rst.print_solution(cout);

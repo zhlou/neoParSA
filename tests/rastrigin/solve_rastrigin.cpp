@@ -7,6 +7,7 @@
 //#include "rastrigin_problem.h"
 #include "unirandom.h"
 #include "lam.h"
+#include "debugOut.h"
 using namespace std;
 int main(int argc, char **argv)
 {
@@ -23,9 +24,9 @@ int main(int argc, char **argv)
 	}
 	unirandom rnd;
 	rastrigin rst(docroot, rnd);
-	feedbackMove<rastrigin> rst_problem(rst, docroot);
+	feedbackMove<rastrigin, debugIGNORE> rst_problem(rst, docroot);
 	lam schedule(docroot);
-	annealer<lam, feedbackMove<rastrigin>, unirandom >
+	annealer<lam, feedbackMove<rastrigin, debugIGNORE>, unirandom >
 	        rst_anneal(schedule, rst_problem, rnd, docroot);
 	//rastrigin_problem rst_problem(&rst, docroot);
 	//lam rst_anneal(&rst_problem, docroot);

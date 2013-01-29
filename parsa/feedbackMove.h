@@ -20,8 +20,9 @@
  * };
  *
  */
-template <class Problem>
-class feedbackMove{
+template <class Problem, class Debug>
+class feedbackMove : public Debug
+{
 public:
     feedbackMove(Problem &in_problem, xmlNode *root=NULL);
     virtual ~feedbackMove();

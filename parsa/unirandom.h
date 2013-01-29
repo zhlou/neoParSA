@@ -17,7 +17,7 @@ class unirandom
 {
 public:
 	unirandom();
-	unirandom(unsigned int in_seed);
+	unirandom(unsigned int disp);
 	unirandom(xmlNode *section);
 	double random();
 private:

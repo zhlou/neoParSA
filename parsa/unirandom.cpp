@@ -18,9 +18,9 @@ unirandom::unirandom()
 
 }
 
-unirandom::unirandom(unsigned int in_seed)
+unirandom::unirandom(unsigned int disp)
 {
-	seed = in_seed;
+	seed = time(NULL) + disp;
 }
 
 unirandom::unirandom(xmlNode* section)
