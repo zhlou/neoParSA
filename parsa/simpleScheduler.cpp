@@ -54,32 +54,9 @@ double simpleSchedule::updateS(aState state)
     return state.s * (1 + lambda);
 }
 
-bool simpleSchedule::inSegment(aState)
-{
-    return false;
-}
-
-/*
-double simpleSchedule::getInitS()
-{
-    return init_S;
-}
-
-int simpleSchedule::getInitLoop()
-{
-    return init_loop;
-}
-*/
-
-void simpleSchedule::resetSegmentStats()
-{
-}
-
-void simpleSchedule::updateSegment(aState)
-{
-}
 
 void simpleSchedule::initStats(aState)
 {
     reject_cnt = 0;
 }
+

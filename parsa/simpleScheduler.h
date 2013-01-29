@@ -22,11 +22,12 @@ public:
     //int getInitLoop();
     void updateInitStep(bool accept, aState state);
     bool frozen(aState state);
-    void resetSegmentStats();
+    void resetSegmentStats(){};
     void updateStep(bool accept, aState state);
     double updateS(aState state);
-    bool inSegment(aState state);
-    void updateSegment(aState state);
+    bool inSegment(aState state) {return false;}
+    void updateSegment(aState state) {};
+    bool needMix(){return false;}
 private:
     unsigned reject_cnt;
     double lambda;

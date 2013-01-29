@@ -107,12 +107,6 @@ void feedbackMove<Problem, Debug>::reject()
 }
 
 template<class Problem, class Debug>
-void feedbackMove<Problem, Debug>::collectMoveStats()
-{
-    // Do nothing in base class.
-}
-
-template<class Problem, class Debug>
 void feedbackMove<Problem, Debug>::move_control()
 {
     for (int i = 0; i < nparams; ++i) {

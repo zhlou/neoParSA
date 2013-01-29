@@ -26,8 +26,9 @@ public:
     void resetSegmentStats();
     void updateStep(bool accept, aState state);
     double updateS(aState state);
-    bool inSegment(aState state);
+    bool inSegment(aState state){return !((state.step_cnt % proc_tau) == 0);}
     void updateSegment(aState state);
+    virtual bool needMix(){return false;}
 
 protected:
     int proc_tau;

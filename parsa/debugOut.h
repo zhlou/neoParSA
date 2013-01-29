@@ -21,7 +21,7 @@ public:
     typedef CoutType& (*StandardEndLine)(CoutType&);
 
     // define an operator<< to take in std::endl
-    ignore& operator<<(StandardEndLine);
+    ignore& operator<<(StandardEndLine) {return *this;}
 
 };
 //template<class T>

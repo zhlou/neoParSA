@@ -30,11 +30,12 @@ public:
     double propose();
     void accept();
     void reject();
+    virtual void doMix(){}; // do nothing in base class
 
 protected:
     int nparams;
     Problem &problem;
-    virtual void collectMoveStats();
+    virtual void collectMoveStats(){}; // do nothing in base class
     void move_control();
     long *success;
     long *moves;

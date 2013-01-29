@@ -9,11 +9,11 @@
 #include "debugOut.h"
 
 
-
-ignore& ignore::operator <<(StandardEndLine char_traits)
-{
-    return *this;
-}
+//
+//ignore& ignore::operator <<(StandardEndLine char_traits)
+//{
+//    return *this;
+//}
 
 ignore debugIGNORE::debugOut;
 ostream &debugSTD::debugOut = cout;

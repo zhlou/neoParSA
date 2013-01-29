@@ -134,15 +134,6 @@ void lam::resetSegmentStats()
     //old_energy = energy;
 }
 
-bool lam::inSegment(aState state)
-{
-    if ((state.step_cnt % proc_tau) == 0) {
-        return false;
-    } else {
-        return true;
-    }
-}
-
 void lam::updateEstimators(double s)
 {
     fit_mean->fullUpdate(1.0 / mean, s);

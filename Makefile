@@ -1,7 +1,7 @@
 LIBS = parsa/libparsa.a
 DIRS = parsa tests
-export CXXFLAGS += `xml2-config --cflags`
-export LDLIBS += `xml2-config --libs`
+export CXXFLAGS += `xml2-config --cflags` -pg
+export LDLIBS += `xml2-config --libs` -pg
 .PHONY: all tests $(LIBS) clean
 
 all: $(LIBS) tests
