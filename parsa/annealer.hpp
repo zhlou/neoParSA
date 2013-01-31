@@ -31,7 +31,7 @@ double annealer<Schedule, Move, Random>::loop()
         } while (cooling.inSegment(state));
         cooling.updateSegment(state);
         if (cooling.needMix())
-            move.doMix();
+            move.doMix(state);
     } while (!cooling.frozen(state));
 
     std::cout << "Annealing stopped at s = " << state.s << std::endl

@@ -18,6 +18,7 @@ plsa::plsa(xmlNode* root, MPI_Comm thecomm, int in_nnodes,
 plsa::~plsa()
 {
     MPI_Win_free(&stat_win);
+    MPI_Group_free(&group);
     delete[] local_stat_buf;
 }
 

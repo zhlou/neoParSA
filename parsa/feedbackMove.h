@@ -1,6 +1,7 @@
 #ifndef MOVABLE_H
 #define MOVABLE_H
 #include <libxml/parser.h>
+#include "aState.h"
 
 /*
  * This is the feedback move control template. It features perturbation of
@@ -30,7 +31,7 @@ public:
     double propose();
     void accept();
     void reject();
-    virtual void doMix(){}; // do nothing in base class
+    virtual void doMix(aState &){}; // do nothing in base class
 
 protected:
     int nparams;
