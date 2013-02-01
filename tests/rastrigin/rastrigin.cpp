@@ -138,11 +138,6 @@ double rastrigin::get_score()
 	return (10 * dim + tot);
 }
 
-int rastrigin::getDimension() const
-{
-	return dim;
-}
-
 double rastrigin::get_param(int idx) const
 {
     return vars[idx];
@@ -153,3 +148,12 @@ void rastrigin::set_param(int idx, double val)
 	vars[idx] = val;
 }
 
+void rastrigin::serialize(void* buf) const
+{
+    memcpy(buf, vars, sizeof(double) * dim);
+}
+
+void rastrigin::deserialize(void const *buf)
+{
+    memcpy(vars, buf, sizeof(double) * dim);
+}

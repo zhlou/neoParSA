@@ -11,11 +11,11 @@ class rastrigin
 public:
 	rastrigin(int dimension, unirandom &in_rnd);
 	rastrigin(xmlNode *root, unirandom &in_rnd);
-	int getDimension() const;
+	int getDimension() const {return dim;};
 	double get_param(int idx) const;
 	void set_param(int idx, double val);
 	unirandom &rnd;
-	unsigned int* get_seed();
+	//unsigned int* get_seed();
 	double get_score();
 	void generateMove(int idx, double theta_bar);
 	void restoreMove(int idx);
@@ -24,10 +24,14 @@ public:
 	~rastrigin();
 	static const double VAR_MAX;
 	static const double VAR_MIN;
-	int dim;
+
+	int getStateSize() const {return sizeof(double)*dim;};
+	void serialize(void *buf) const;
+	void deserialize(void const *buf);
 private:
 	xmlNode *docroot;
 	xmlNode *section;
+    int dim;
 	double *vars;
 	double prev_x;
 	int prev_idx;

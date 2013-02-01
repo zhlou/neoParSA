@@ -12,6 +12,14 @@
 #include "unirandom.h"
 #include <libxml/tree.h>
 
+/*
+ * In addition to the requirements listed in feedbackMove.h, using adaptMix
+ * requires the Problem class additional interfaces
+ * int getStateSize(); // returns the byte count of the state
+ * void serialize(void *buf); // serialize its state to buf
+ * void deserialize(void *buf); // inflate buf to a new state. calculation
+ *                              // of new score is not required here.
+ */
 
 template <class Problem>
 class adaptMix

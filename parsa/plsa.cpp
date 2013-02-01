@@ -3,22 +3,19 @@
 using namespace std;
 
 
-plsa::plsa(xmlNode* root, MPI_Comm thecomm, int in_nnodes,
-        int in_rank) :
-        lam(root), comm(thecomm), nnodes(in_nnodes), rank(in_rank)
+plsa::plsa(xmlNode* root, const MPIState &mpiState) :
+        lam(root), mpi(mpiState)
 {
-    local_stat_buf = new StatData[nnodes];
+    local_stat_buf = new StatData[mpi.nnodes];
     //l_stat.s = -1;
-    lambda *= (double)nnodes;
+    lambda *= (double)mpi.nnodes;
     MPI_Win_create(&l_stat, sizeof(StatData), sizeof(StatData), MPI_INFO_NULL,
-            comm, &stat_win);
-    MPI_Comm_group(comm, &group);
+            mpi.comm, &stat_win);
 }
 
 plsa::~plsa()
 {
     MPI_Win_free(&stat_win);
-    MPI_Group_free(&group);
     delete[] local_stat_buf;
 }
 
@@ -26,7 +23,7 @@ bool plsa::global_frozen()
 {
     int local_freeze = (freeze_cnt >= cnt_crit);
     int global_flag;
-    MPI_Allreduce(&local_freeze, &global_flag, 1, MPI_INT, MPI_SUM, comm);
+    MPI_Allreduce(&local_freeze, &global_flag, 1, MPI_INT, MPI_SUM, mpi.comm);
     return (bool)global_flag;
 }
 
@@ -46,11 +43,11 @@ void plsa::PackNCommStats(bool UseSD)
     l_stat.success = success;
     //l_stat.moves = proc_tau;
     //l_stat.energy = energy;
-    local_stat_buf[rank] = l_stat;
-    MPI_Win_post(group, 0, stat_win);
-    MPI_Win_start(group, 0, stat_win);
-    for (int j = 0; j < nnodes; ++j) {
-        if (j != rank) {
+    local_stat_buf[mpi.rank] = l_stat;
+    MPI_Win_post(mpi.group, 0, stat_win);
+    MPI_Win_start(mpi.group, 0, stat_win);
+    for (int j = 0; j < mpi.nnodes; ++j) {
+        if (j != mpi.rank) {
             MPI_Get(local_stat_buf + j, sizeof(StatData), MPI_BYTE, j, 0,
                     sizeof(StatData), MPI_BYTE, stat_win);
         }
@@ -64,17 +61,17 @@ void plsa::updateEstimators(double s)
     PackNCommStats();
     // local_stat_buf is not ready for reading until all the communications are
     // finished. So two separate loops are necessary.
-    double w_m = 1.0 / (double)nnodes;
+    double w_m = 1.0 / (double)mpi.nnodes;
     fit_mean->decay();
     fit_sd->decay();
-    for (int i = 0; i < nnodes; ++i) {
+    for (int i = 0; i < mpi.nnodes; ++i) {
         fit_mean->partialUpdate(w_m, s, local_stat_buf[i].mean);
         fit_sd->partialUpdate(w_m, s, local_stat_buf[i].var);
         success += local_stat_buf[i].success;
     }
     fit_mean->finishUpdate();
     fit_sd->finishUpdate();
-    acc_ratio = (double) success / (double)(nnodes * proc_tau);
+    acc_ratio = (double) success / (double)(mpi.nnodes * proc_tau);
 }
 
 void plsa::collectInitStats(unsigned long init_loop)
@@ -83,12 +80,12 @@ void plsa::collectInitStats(unsigned long init_loop)
     mean = 0;
     vari = 0;
     success = 0;
-    for (int i = 0; i < nnodes; ++i) {
+    for (int i = 0; i < mpi.nnodes; ++i) {
         mean += local_stat_buf[i].mean;
         vari += local_stat_buf[i].var;
         success += local_stat_buf[i].success;
     }
-    double total_moves = (double)nnodes * init_loop;
+    double total_moves = (double)mpi.nnodes * init_loop;
     acc_ratio = (double) success / total_moves;
     mean /= total_moves;
     vari = vari / total_moves - mean * mean;

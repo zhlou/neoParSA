@@ -10,12 +10,12 @@
 #include <mpi.h>
 #include <libxml/tree.h>
 #include "lam.h"
+#include "MPIState.h"
 
 class plsa: public lam
 {
 public:
-    plsa(xmlNode *root, MPI_Comm thecomm, int in_nnodes,
-            int in_rank);
+    plsa(xmlNode *root, const MPIState &mpiState);
     ~plsa();
     //bool frozen(aState state);
 protected:
@@ -38,11 +38,9 @@ protected:
 
     StatData l_stat, *local_stat_buf;
     MPI_Win stat_win;
-    MPI_Group group;
-    MPI_Comm comm;
 
-    int nnodes;
-    int rank;
+    const MPIState &mpi;
+
 };
 
 #endif /* PLSA_H_ */
