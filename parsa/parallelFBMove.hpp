@@ -9,7 +9,7 @@ template<class Problem, class Debug, template<class > class PopBased>
 parallelFBMove<Problem, Debug, PopBased>::parallelFBMove(Problem& in_problem,
         xmlNode* root, const MPIState &mpiState) :
         feedbackMove<Problem, Debug>(in_problem, root), mpi(mpiState),
-        pop(in_problem, mpiState)
+        pop(in_problem, mpiState, root)
 {
 }
 
@@ -22,15 +22,16 @@ int parallelFBMove<Problem, Debug, PopBased>::getWinner()
         int rank;
     } doubleint;
     doubleint.energy = feedbackMove<Problem, Debug>::energy;
-    doubleint.rank = rank;
+    doubleint.rank = mpi.rank;
     MPI_Allreduce(MPI_IN_PLACE, &doubleint, 1, MPI_DOUBLE_INT, MPI_MINLOC,
             mpi.comm);
     return doubleint.rank;
 }
 
 template<class Problem, class Debug, template<class > class PopBased>
-void parallelFBMove<Problem, Debug, PopBased>::DoMix(aState &state)
+void parallelFBMove<Problem, Debug, PopBased>::doMix(aState &state)
 {
+    //cout << "Run adapt mix" << endl;
     feedbackMove<Problem, Debug>::energy = pop.Mix(state);
 }
 

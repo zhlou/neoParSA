@@ -16,6 +16,7 @@
 #include "unirandom.h"
 #include "plsa.h"
 #include "debugOut.h"
+#include "adaptMix.h"
 using namespace std;
 int main(int argc, char **argv)
 {

@@ -40,12 +40,13 @@ protected:
     void move_control();
     long *success;
     long *moves;
+    double energy;
 private:
     int index;
 
     double *theta_bars;
     double prev_energy;
-    double energy;
+
     double move_gain;
     long sweep;
     int move_interval;

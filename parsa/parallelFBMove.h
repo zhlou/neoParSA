@@ -19,7 +19,7 @@ public:
     parallelFBMove(Problem &in_problem, xmlNode *root, const MPIState &mpiState);
     ~parallelFBMove();
     int getWinner();
-    void DoMix(aState &state);
+    void doMix(aState &state);
 protected:
     void collectMoveStats();
 private:

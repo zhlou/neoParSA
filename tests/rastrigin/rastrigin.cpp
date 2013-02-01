@@ -7,6 +7,7 @@
 #include <stdexcept>
 #include "rastrigin.h"
 #include "unirandom.h"
+#include <string.h>
 
 using namespace std;
 const double rastrigin::VAR_MAX = 5.12;

@@ -22,7 +22,7 @@ double annealer<Schedule, Move, Random>::loop()
     state.step_cnt = 0;
     do { // while not frozen
         cooling.resetSegmentStats();
-        cout << state.step_cnt << " " << state.s << endl;
+        //cout << state.step_cnt << " " << state.s << endl;
         do { // while in segment
             accepted = step();
             cooling.updateStep(accepted, state);
@@ -30,8 +30,8 @@ double annealer<Schedule, Move, Random>::loop()
             ++ (state.step_cnt);
         } while (cooling.inSegment(state));
         cooling.updateSegment(state);
-        if (cooling.needMix())
-            move.doMix(state);
+
+        move.doMix(state);
     } while (!cooling.frozen(state));
 
     std::cout << "Annealing stopped at s = " << state.s << std::endl
