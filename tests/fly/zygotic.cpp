@@ -248,3 +248,459 @@ zygotic::~zygotic()
     // TODO free D
 }
 
+/*** p_deriv: This is the DvdtOrig, the original derivative function; ******
+ *            implements the equations  as published in Reinitz & Sharp    *
+ *            (1995), Mech Dev 49, 133-58 plus different g(u) functions    *
+ *            as used by Yousong Wang in spring 2002.                      *
+ ***************************************************************************/
+void zygotic::p_deriv(double* v, double t, double* vdot, int n)
+{
+    double vinput1 = 0;
+    int m; /* number of nuclei */
+    int ap; /* nuclear index on AP axis [0,1,...,m-1] */
+    int i, j; /* local loop counters */
+    int k; /* index of gene k in a specific nucleus */
+    int base, base1; /* index of first gene in a specific nucleus */
+    int *l_rule; /* for autonomous implementation */
+#ifdef ALPHA_DU
+    int incx = 1; /* increment step size for vsqrt input array */
+    int incy = 1; /* increment step size for vsqrt output array */
+#endif
+
+    // The following 3 static variables have been added dvdt_ prefix and
+    // become (non-static) member of zygotic
+    //static int dvdt_num_nucs = 0; /* store the number of nucs for next step */
+    //static int dvdt_bcd_index = 0; /* the *next* array in bicoid struct for bcd */
+    //static DArrPtr dvdt_bcd; /* pointer to appropriate bicoid struct */
+    double *v_ext; /* array to hold the external input
+     concentrations at time t */
+
+    /* get D parameters and bicoid gradient according to cleavage cycle */
+
+    m = n / defs.ngenes; /* m is the number of nuclei */
+    if (m != dvdt_num_nucs) { /* time-varying quantities only vary by ccycle */
+        TheMaternal.GetD(t, lparm.d, defs.diff_schedule, D);
+        /* get diff coefficients, according to diff schedule */
+        if (dvdt_num_nucs > m) /* started a new iteration in score */
+            dvdt_bcd_index = 0; /* -> start all over again! */
+        dvdt_num_nucs = m; /* store # of nucs for next step */
+        dvdt_bcd = TheMaternal.GetBicoid(t, genindex); /* get bicoid gradient */
+        if (dvdt_bcd.size != dvdt_num_nucs)
+            error("DvdtOrig: %d nuclei don't match Bicoid!", dvdt_num_nucs);
+        dvdt_bcd_index++; /* store index for next bicoid gradient */
+    }
+
+    l_rule = (int *) calloc(defs.ngenes, sizeof(int));
+    for (i = 0; i < defs.ngenes; i++)
+        l_rule[i] = !(TheMaternal.Theta(t));
+
+    /* Here we retrieve the external input concentrations into v_ext */
+    /* 01/13/10 Manu: If there are no external inputs, don't
+     * allocate v_ext or populate it with external input
+     * concentrations */
+
+    if (defs.egenes > 0) {
+        v_ext = (double *) calloc(m * defs.egenes, sizeof(double));
+        ExternalInputs(t, t, v_ext, m * defs.egenes);
+    }
+
+    /* This is how it works (by JR):
+
+     ap      nucleus position on ap axis
+     base    index of first gene (0) in current nucleus
+     k       index of gene k in current nucleus
+
+     Protein synthesis terms are calculated according to g(u)
+
+     First we do loop for vinput contributions; vinput contains
+     the u that goes into g(u)
+
+     Then we do a separate loop or vector func for sqrt or exp
+
+     Then we do vdot contributions (R and lambda part)
+
+     Then we do the spatial part (Ds); we do a special case for
+     each end
+
+     Note, however, that before the real loop, we have to do a
+     special case for when rhere is one nuc, hence no diffusion
+
+     These loops look a little funky 'cause we don't want any
+     divides'                                                       */
+
+    /* 01/13/10 Manu: If there are no external inputs, the for
+     * loops for updating vinput1 with external input terms
+     * are never entered */
+
+    /***************************************************************************
+     *                                                                         *
+     *        g(u) = 1/2 * ( u / sqrt(1 + u^2) + 1)                            *
+     *                                                                         *
+     ***************************************************************************/
+    if (gofu == Sqrt) {
+
+        for (base = 0, base1 = 0, ap = 0; base < n;
+                base += defs.ngenes, base1 += defs.egenes, ap++) {
+            for (i = base; i < base + defs.ngenes; i++) {
+
+                k = i - base;
+
+                vinput1 = lparm.h[k];
+                vinput1 += lparm.m[k] * dvdt_bcd.array[ap]; /* ap is nuclear index */
+
+                for (j = 0; j < defs.egenes; j++)
+                    vinput1 += lparm.E[(k * defs.egenes) + j]
+                            * v_ext[base1 + j];
+
+                for (j = 0; j < defs.ngenes; j++)
+                    vinput1 += lparm.T[(k * defs.ngenes) + j] * v[base + j];
+
+                bot2[i] = 1 + vinput1 * vinput1;
+                vinput[i] = vinput1;
+            }
+        }
+
+        /* now calculate sqrt(1+u2); store it in bot[] */
+#ifdef ALPHA_DU
+        vsqrt_(bot2,&incx,bot,&incy,&n); /* superfast DEC vector function */
+#else
+        for (i = 0; i < n; i++) /* slow traditional style sqrt */
+            bot[i] = sqrt(bot2[i]);
+#endif
+        /* next loop does the rest of the equation (R, Ds and lambdas) */
+        /* store result in vdot[] */
+
+        if (n == defs.ngenes) { /* first part: one nuc, no diffusion */
+
+            register double vdot1, g1;
+
+            for (base = 0; base < n; base += defs.ngenes) {
+                for (i = base; i < base + defs.ngenes; i++) {
+
+                    k = i - base;
+                    vdot1 = -lparm.lambda[k] * v[i];
+                    g1 = 1 + vinput[i] / bot[i];
+                    vdot1 += l_rule[k] * lparm.R[k] * 0.5 * g1;
+                    vdot[i] = vdot1;
+                }
+            }
+
+        } else { /* then for multiple nuclei -> diffusion */
+
+            register double vdot1, g1;
+
+            for (i = 0; i < defs.ngenes; i++) { /* first anterior-most nucleus */
+                k = i;
+                vdot1 = -lparm.lambda[k] * v[i];
+                g1 = 1 + vinput[i] / bot[i];
+                vdot1 += l_rule[k] * lparm.R[k] * 0.5 * g1;
+                vdot1 += D[i] * (v[i + defs.ngenes] - v[i]);
+                vdot[i] = vdot1;
+            }
+            /* then middle nuclei */
+            for (base = defs.ngenes; base < n - defs.ngenes; base +=
+                    defs.ngenes) {
+                for (i = base; i < base + defs.ngenes; i++) {
+                    k = i - base;
+                    vdot1 = -lparm.lambda[k] * v[i];
+                    g1 = 1 + vinput[i] / bot[i];
+                    vdot1 += l_rule[k] * lparm.R[k] * 0.5 * g1;
+                    vdot1 += D[k]
+                            * ((v[i - defs.ngenes] - v[i])
+                                    + (v[i + defs.ngenes] - v[i]));
+                    vdot[i] = vdot1;
+                }
+            }
+            /* last: posterior-most nucleus */
+            for (i = base; i < base + defs.ngenes; i++) {
+                k = i - base;
+                vdot1 = -lparm.lambda[k] * v[i];
+                g1 = 1 + vinput[i] / bot[i];
+                vdot1 += l_rule[k] * lparm.R[k] * 0.5 * g1;
+                vdot1 += D[k] * (v[i - defs.ngenes] - v[i]);
+                vdot[i] = vdot1;
+            }
+        }
+
+        /***************************************************************************
+         *                                                                         *
+         *        g(u) = 1/2 * (tanh(u) + 1) )                                     *
+         *                                                                         *
+         ***************************************************************************/
+
+    } else if (gofu == Tanh) {
+
+        for (base = 0, base1 = 0, ap = 0; base < n;
+                base += defs.ngenes, base1 += defs.egenes, ap++) {
+            for (i = base; i < base + defs.ngenes; i++) {
+
+                k = i - base;
+
+                vinput1 = lparm.h[k];
+                vinput1 += lparm.m[k] * dvdt_bcd.array[ap]; /* ap is nuclear index */
+
+                for (j = 0; j < defs.egenes; j++)
+                    vinput1 += lparm.E[(k * defs.egenes) + j]
+                            * v_ext[base1 + j];
+
+                for (j = 0; j < defs.ngenes; j++)
+                    vinput1 += lparm.T[(k * defs.ngenes) + j] * v[base + j];
+
+                vinput[i] = vinput1;
+            }
+        }
+
+        /* next loop does the rest of the equation (R, Ds and lambdas) */
+        /* store result in vdot[] */
+
+        if (n == defs.ngenes) { /* first part: one nuc, no diffusion */
+
+            register double vdot1, g1;
+
+            for (base = 0; base < n; base += defs.ngenes) {
+                for (i = base; i < base + defs.ngenes; i++) {
+
+                    k = i - base;
+                    vdot1 = -lparm.lambda[k] * v[i];
+                    g1 = tanh(vinput[i]) + 1;
+                    vdot1 += l_rule[k] * lparm.R[k] * 0.5 * g1;
+                    vdot[i] = vdot1;
+                }
+            }
+
+        } else { /* then for multiple nuclei -> diffusion */
+
+            register double vdot1, g1;
+
+            for (i = 0; i < defs.ngenes; i++) { /* first anterior-most nucleus */
+                k = i;
+                vdot1 = -lparm.lambda[k] * v[i];
+                g1 = tanh(vinput[i]) + 1;
+                vdot1 += l_rule[k] * lparm.R[k] * 0.5 * g1;
+                vdot1 += D[i] * (v[i + defs.ngenes] - v[i]);
+                vdot[i] = vdot1;
+            }
+            /* then middle nuclei */
+            for (base = defs.ngenes; base < n - defs.ngenes; base +=
+                    defs.ngenes) {
+                for (i = base; i < base + defs.ngenes; i++) {
+                    k = i - base;
+                    vdot1 = -lparm.lambda[k] * v[i];
+                    g1 = tanh(vinput[i]) + 1;
+                    vdot1 += l_rule[k] * lparm.R[k] * 0.5 * g1;
+                    vdot1 += D[k]
+                            * ((v[i - defs.ngenes] - v[i])
+                                    + (v[i + defs.ngenes] - v[i]));
+                    vdot[i] = vdot1;
+                }
+            }
+            /* last: posterior-most nucleus */
+            for (i = base; i < base + defs.ngenes; i++) {
+                k = i - base;
+                vdot1 = -lparm.lambda[k] * v[i];
+                g1 = tanh(vinput[i]) + 1;
+                vdot1 += l_rule[k] * lparm.R[k] * 0.5 * g1;
+                vdot1 += D[k] * (v[i - defs.ngenes] - v[i]);
+                vdot[i] = vdot1;
+            }
+        }
+
+        /***************************************************************************
+         *                                                                         *
+         *        g(u) = 1 / (1 + exp(-2u))                                        *
+         *                                                                         *
+         ***************************************************************************/
+
+    } else if (gofu == Exp) {
+
+        for (base = 0, base1 = 0, ap = 0; base < n;
+                base += defs.ngenes, base1 += defs.egenes, ap++) {
+            for (i = base; i < base + defs.ngenes; i++) {
+
+                k = i - base;
+
+                vinput1 = lparm.h[k];
+                vinput1 += lparm.m[k] * dvdt_bcd.array[ap]; /* ap is nuclear index */
+
+                for (j = 0; j < defs.egenes; j++)
+                    vinput1 += lparm.E[(k * defs.egenes) + j]
+                            * v_ext[base1 + j];
+
+                for (j = 0; j < defs.ngenes; j++)
+                    vinput1 += lparm.T[(k * defs.ngenes) + j] * v[base + j];
+
+                vinput[i] = -2.0 * vinput1;
+            }
+        }
+
+        /* now calculate exp(-u); store it in bot[] */
+#ifdef ALPHA_DU
+        vexp_(vinput,&incx,bot,&incy,&n); /* superfast DEC vector function */
+#else
+        for (i = 0; i < n; i++) /* slow traditional style exp */
+            bot[i] = exp(vinput[i]);
+#endif
+
+        /* next loop does the rest of the equation (R, Ds and lambdas) */
+        /* store result in vdot[] */
+
+        if (n == defs.ngenes) { /* first part: one nuc, no diffusion */
+
+            register double vdot1, g1;
+
+            for (base = 0; base < n; base += defs.ngenes) {
+                for (i = base; i < base + defs.ngenes; i++) {
+
+                    k = i - base;
+                    vdot1 = -lparm.lambda[k] * v[i];
+                    g1 = 1 / (1 + bot[i]);
+                    vdot1 += l_rule[k] * lparm.R[k] * g1;
+                    vdot[i] = vdot1;
+                }
+            }
+
+        } else { /* then for multiple nuclei -> diffusion */
+
+            register double vdot1, g1;
+
+            for (i = 0; i < defs.ngenes; i++) { /* first anterior-most nucleus */
+                k = i;
+                vdot1 = -lparm.lambda[k] * v[i];
+                g1 = 1 / (1 + bot[i]);
+                vdot1 += l_rule[k] * lparm.R[k] * g1;
+                vdot1 += D[i] * (v[i + defs.ngenes] - v[i]);
+                vdot[i] = vdot1;
+            }
+            /* then middle nuclei */
+            for (base = defs.ngenes; base < n - defs.ngenes; base +=
+                    defs.ngenes) {
+                for (i = base; i < base + defs.ngenes; i++) {
+                    k = i - base;
+                    vdot1 = -lparm.lambda[k] * v[i];
+                    g1 = 1 / (1 + bot[i]);
+                    vdot1 += l_rule[k] * lparm.R[k] * g1;
+                    vdot1 += D[k]
+                            * ((v[i - defs.ngenes] - v[i])
+                                    + (v[i + defs.ngenes] - v[i]));
+                    vdot[i] = vdot1;
+                }
+            }
+            /* last: posterior-most nucleus */
+            for (i = base; i < base + defs.ngenes; i++) {
+                k = i - base;
+                vdot1 = -lparm.lambda[k] * v[i];
+                g1 = 1 / (1 + bot[i]);
+                vdot1 += l_rule[k] * lparm.R[k] * g1;
+                vdot1 += D[k] * (v[i - defs.ngenes] - v[i]);
+                vdot[i] = vdot1;
+            }
+        }
+
+        /***************************************************************************
+         *                                                                         *
+         *        g(u) = 0 if u<0, 1 if u>=0 (Heaviside function)                  *
+         *                                                                         *
+         *        this makes the model quasi boolean and the equations locally     *
+         *        linear for both u>0 and u<0                                      *
+         ***************************************************************************/
+
+    } else if (gofu == Hvs) {
+
+        for (base = 0, base1 = 0, ap = 0; base < n;
+                base += defs.ngenes, base1 += defs.egenes, ap++) {
+            for (i = base; i < base + defs.ngenes; i++) {
+
+                k = i - base;
+
+                vinput1 = lparm.h[k];
+                vinput1 += lparm.m[k] * dvdt_bcd.array[ap]; /* ap is nuclear index */
+
+                for (j = 0; j < defs.egenes; j++)
+                    vinput1 += lparm.E[(k * defs.egenes) + j]
+                            * v_ext[base1 + j];
+
+                for (j = 0; j < defs.ngenes; j++)
+                    vinput1 += lparm.T[(k * defs.ngenes) + j] * v[base + j];
+                vinput[i] = vinput1;
+            }
+        }
+
+        /* next loop does the rest of the equation (R, Ds and lambdas) */
+        /* store result in vdot[] */
+
+        if (n == defs.ngenes) { /* first part: one nuc, no diffusion */
+
+            register double vdot1, g1;
+
+            for (base = 0; base < n; base += defs.ngenes) {
+                for (i = base; i < base + defs.ngenes; i++) {
+
+                    k = i - base;
+                    vdot1 = -lparm.lambda[k] * v[i];
+                    if (vinput[i] >= 0.)
+                        g1 = 1.;
+                    else
+                        g1 = 0.;
+                    vdot1 += l_rule[k] * lparm.R[k] * g1;
+                    vdot[i] = vdot1;
+                }
+            }
+
+        } else { /* then for multiple nuclei -> diffusion */
+
+            register double vdot1, g1;
+
+            for (i = 0; i < defs.ngenes; i++) { /* first anterior-most nucleus */
+                k = i;
+                vdot1 = -lparm.lambda[k] * v[i];
+                if (vinput[i] >= 0.)
+                    g1 = 1.;
+                else
+                    g1 = 0.;
+                vdot1 += l_rule[k] * lparm.R[k] * g1;
+                vdot1 += D[i] * (v[i + defs.ngenes] - v[i]);
+                vdot[i] = vdot1;
+            }
+            /* then middle nuclei */
+            for (base = defs.ngenes; base < n - defs.ngenes; base +=
+                    defs.ngenes) {
+                for (i = base; i < base + defs.ngenes; i++) {
+                    k = i - base;
+                    vdot1 = -lparm.lambda[k] * v[i];
+                    if (vinput[i] >= 0.)
+                        g1 = 1.;
+                    else
+                        g1 = 0.;
+                    vdot1 += l_rule[k] * lparm.R[k] * g1;
+                    vdot1 += D[k]
+                            * ((v[i - defs.ngenes] - v[i])
+                                    + (v[i + defs.ngenes] - v[i]));
+                    vdot[i] = vdot1;
+                }
+            }
+            /* last: posterior-most nucleus */
+            for (i = base; i < base + defs.ngenes; i++) {
+                k = i - base;
+                vdot1 = -lparm.lambda[k] * v[i];
+                if (vinput[i] >= 0.)
+                    g1 = 1.;
+                else
+                    g1 = 0.;
+                vdot1 += l_rule[k] * lparm.R[k] * g1;
+                vdot1 += D[k] * (v[i - defs.ngenes] - v[i]);
+                vdot[i] = vdot1;
+            }
+        }
+
+    } else
+        error("DvdtOrig: unknown g(u)");
+
+    /* during mitosis only diffusion and decay happen */
+
+    free(l_rule);
+
+    if (defs.egenes > 0)
+        free(v_ext);
+
+    return;
+}

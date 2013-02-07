@@ -5,10 +5,56 @@
  *      Author: zhlou
  */
 
+#include "maternal.h"
 #include "flyUtils.h"
 #include <cstdio>
 
 using namespace std;
+
+const double maternal::old_divtimes[3] = { 52.0, 28.0, 12.0 };
+
+const double maternal::divtimes1[1] = { 21.1 };
+const double maternal::divtimes2[2] = { 33.5, 12.4 };
+const double maternal::divtimes3[3] = { 43.0, 21.9, 9.5 };
+const double maternal::divtimes4[4] = { 50.8, 29.7, 17.3, 7.8 };
+
+/* division durations */
+
+const double maternal::old_div_duration[3] = { 4.0, 4.0, 4.0 };
+
+const double maternal::div_duration1[1] = { 5.1 };
+const double maternal::div_duration2[2] = { 5.1, 3.3 };
+const double maternal::div_duration3[3] = { 5.1, 3.3, 3.0 };
+const double maternal::div_duration4[4] = { 5.1, 3.3, 3.0, 3.3 };
+
+/* gastrulation times */
+
+const double maternal::old_gast_time = 88.;
+
+const double maternal::gast_time0 = 50.;
+const double maternal::gast_time1 = 71.1;
+const double maternal::gast_time2 = 83.5;
+const double maternal::gast_time3 = 93.;
+const double maternal::gast_time4 = 100.8;
+
+/* full division times: including t<0 */
+
+const double maternal::full_divtimes0[TOTAL_DIVS] = { 0.0, -21.1, -33.5, -43.0,
+        -51.8, -57.8 };
+const double maternal::full_divtimes1[TOTAL_DIVS] = { 21.1, 0.0, -12.4, -21.9,
+        -30.7, -36.7 };
+const double maternal::full_divtimes2[TOTAL_DIVS] = { 33.5, 12.4, 0.0, -9.5,
+        -18.3, -24.3 };
+const double maternal::full_divtimes3[TOTAL_DIVS] = { 43.0, 21.9, 9.5, 0.0,
+        -8.8, -14.8 };
+const double maternal::full_divtimes4[TOTAL_DIVS] = { 50.8, 29.7, 17.3, 7.8,
+        -1.0, -7.0 };
+
+/* division durations */
+
+double maternal::full_div_durations[TOTAL_DIVS] =
+        { 5.1, 3.3, 3.0, 3.3, 3.0, 3.0 };
+
 
 /*** ParseLineage: takes lineage number as input and returns the cleavage **
  *                 cycle the nucleus belongs to.                           *
@@ -54,6 +100,9 @@ maternal::maternal(FILE* fp)
     InitBicoid(fp);
     InitBias(fp);
     InitNNucs();
+    // TODO: init olddivstyle
+    InitGetD();
+    InitTheta();
 }
 
 maternal::~maternal()
@@ -579,4 +628,216 @@ NArrPtr maternal::List2Bias(Dlist* inlist)
     }
 
     return bias;
+}
+
+void maternal::InitGetD() // set pointer to the right division table
+{
+    if (olddivstyle) {
+        if (defs.ndivs != 3)
+            error("GetD: only 3 cell divisions allowed for oldstyle (-o)");
+        getD_table = (double *) old_divtimes;
+    } else if (defs.ndivs == 0) {
+    } /* no need for table, if there are no cell divs */
+    else if (defs.ndivs == 1)
+        getD_table = (double *) divtimes1;
+    else if (defs.ndivs == 2)
+        getD_table = (double *) divtimes2;
+    else if (defs.ndivs == 3)
+        getD_table = (double *) divtimes3;
+    else if (defs.ndivs == 4)
+        getD_table = (double *) divtimes4;
+    else
+        error("GetD: can't handle %d cell divisions!", defs.ndivs);
+}
+
+DArrPtr maternal::GetBicoid(double time, int genindex)
+{
+    int             i;
+    unsigned int    ccycle;
+
+    if ( genindex < 0 || genindex >= nalleles )
+      error("GetBicoid: invalid genotype index %d", genindex);
+
+    ccycle = GetCCycle(time);
+
+    for (i=0; i <= bcdtype[genindex].ptr.bicoid.size; i++)
+      if ( ccycle == bcdtype[genindex].ptr.bicoid.array[i].ccycle )
+        return bcdtype[genindex].ptr.bicoid.array[i].gradient;
+
+    error("GetBicoid: no bicoid gradient for ccycle %d", ccycle);
+
+    return bcdtype[genindex].ptr.bicoid.array[i].gradient;
+                                         /* just to make the compiler happy! */
+}
+
+/*** GetD: returns diffusion parameters D according to the diff. params. ***
+ *         in the data file and the diffusion schedule used                *
+ *   NOTE: Caller must allocate D_tab                                      *
+ ***************************************************************************/
+// table has been moved to maternal class, and its initialization become
+// init_GetD
+void maternal::GetD(double t, double* d, char diff_schedule, double* D_tab)
+{
+
+    int i; /* loop counter */
+    double gast; /* gastrulation time */
+    double cutoff; /* cutoff time */
+    double lscale = 1; /* scaling factor */
+
+    /* first time GetD is called: set pointer to the right division table
+     * now in InitGetD */
+
+    /* this loop takes lscale square for each cell division, i.e. the earlier  *
+     * we are the bigger lscale (and the smaller the D's that we return        */
+
+    for (i = 0; i < defs.ndivs; i++)
+        if (t < getD_table[i])
+            lscale *= 2;
+
+    /* diffusion schedule A: all Ds always the same */
+
+    if (diff_schedule == 'A')
+        for (i = 0; i < defs.ngenes; i++)
+            D_tab[i] = d[0];
+
+    /* diffusion schedule B: all genes have different D's that depend on in-   *
+     * verse l-square                                                          */
+
+    else if (diff_schedule == 'B')
+        for (i = 0; i < defs.ngenes; i++)
+            D_tab[i] = d[i] / (lscale * lscale);
+
+    /* diffusion schedule C: all genes have the same D that depends on inverse *
+     * l-square                                                                */
+
+    else if (diff_schedule == 'C')
+        for (i = 0; i < defs.ngenes; i++)
+            D_tab[i] = d[0] / (lscale * lscale);
+
+    /* diffusion schedule D: all genes have different D's which don't change   *
+     * over time                                                               */
+
+    else if (diff_schedule == 'D')
+        for (i = 0; i < defs.ngenes; i++)
+            D_tab[i] = d[i];
+
+    /* diffusion schedule E: used cutoff at gast-12 otherwise just like B */
+
+    else if (diff_schedule == 'E') {
+        if (olddivstyle) {
+            if (defs.ndivs != 3)
+                error("GetD: only 3 cell divisions allowed for oldstyle (-o)");
+            gast = old_gast_time;
+        } else if (defs.ndivs == 0)
+            gast = gast_time0;
+        else if (defs.ndivs == 1)
+            gast = gast_time1;
+        else if (defs.ndivs == 2)
+            gast = gast_time2;
+        else if (defs.ndivs == 3)
+            gast = gast_time3;
+        else if (defs.ndivs == 4)
+            gast = gast_time4;
+        else
+            error("GetD: can't handle %d cell divisions!", defs.ndivs);
+
+        cutoff = gast - 12.0; /* This value probably wrong; see Merrill88 */
+        for (i = 0; i < defs.ngenes; i++)
+            D_tab[i] = (t < cutoff) ? d[i] / (lscale * lscale) : 0.;
+
+        /* any other diffusion schedule: error! */
+
+    } else
+        error("GetD: no code for schedule %c!", diff_schedule);
+}
+/*** GetCCycle: returns cleavage cycle number for a given time *************
+ ***************************************************************************/
+unsigned int maternal::GetCCycle(double time)
+{
+    int i; /* loop counter */
+    double *table; /* local copy of divtimes table */
+
+    /* assign 'table' to the appropriate division schedule */
+
+    if (olddivstyle) {
+        if (defs.ndivs != 3)
+            error("GetCCycle: only 3 cell divisions allowed for oldstyle (-o)");
+        table = (double *) old_divtimes;
+    } else if (defs.ndivs == 0)
+        return 14; /* if defs.ndivs == 0: we're always in cycle 14 */
+    else if (defs.ndivs == 1)
+        table = (double *) divtimes1;
+    else if (defs.ndivs == 2)
+        table = (double *) divtimes2;
+    else if (defs.ndivs == 3)
+        table = (double *) divtimes3;
+    else if (defs.ndivs == 4)
+        table = (double *) divtimes4;
+    else
+        error("GetCCycle: can't handle %d cell divisions!", defs.ndivs);
+
+    /* evaluate number of cell cycle for current time; note that for the exact *
+     * time of cell division, we'll return the number of the previous cell cy- *
+     * cyle                                                                    */
+
+    for (i = 0; i < defs.ndivs; i++)
+        if (time > table[i])
+            return 14 - i;
+
+    return 14 - (i++);
+}
+
+void maternal::InitTheta()
+{
+    // These 2 static variables have become member variables
+    //static double *theta_dt; /* pointer to division time table */
+    //static double *theta_dd; /* pointer to division duration table */
+    if (olddivstyle) {
+        /* get pointers to division time table */
+        theta_dt = (double*) (old_divtimes); /* and division duration table */
+        theta_dd = (double*) (old_div_duration);
+    } else {
+        if (defs.ndivs == 0) {
+            theta_dt = (double*) (full_divtimes0);
+            theta_dd = (double*) (full_div_durations);
+        } else if (defs.ndivs == 1) {
+            theta_dt = (double*) (full_divtimes1);
+            theta_dd = (double*) (full_div_durations);
+        } else if (defs.ndivs == 2) {
+            theta_dt = (double*) (full_divtimes2);
+            theta_dd = (double*) (full_div_durations);
+        } else if (defs.ndivs == 3) {
+            theta_dt = (double*) (full_divtimes3);
+            theta_dd = (double*) (full_div_durations);
+        } else if (defs.ndivs == 4) {
+            theta_dt = (double*) (full_divtimes4);
+            theta_dd = (double*) (full_div_durations);
+        } else
+            error("Theta: can't handle %d cell divisions!", defs.ndivs);
+    }
+}
+
+int maternal::Theta(double time)
+{
+    int i;
+
+    // These 2 static variables have become member variables
+    //static double *theta_dt; /* pointer to division time table */
+    //static double *theta_dd; /* pointer to division duration table */
+
+
+
+
+
+    /* checks if we're in a mitosis; we need the 10*DBL_EPSILON kludge for gcc *
+     * on Linux which can't handle truncation errors very well                 */
+
+    for (i = 0; i < TOTAL_DIVS; i++) {
+        /*      printf("Thetatime=%.16f,[%.16f,%.16f]\n",time,(*(theta_dt+i) - *(theta_dd+i) + HALF_EPSILON), (*(theta_dt+i) + HALF_EPSILON)); */
+        if ((time <= (*(theta_dt + i) + HALF_EPSILON))
+                && (time >= (*(theta_dt + i) - *(theta_dd + i) + HALF_EPSILON)))
+            return MITOSIS;
+    }
+
+    return INTERPHASE;
 }

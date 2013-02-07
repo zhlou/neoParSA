@@ -9,8 +9,25 @@
 #define MATERNAL_H_
 
 #include "DataLists.h"
+#include <cfloat>
 #include <cstdio>
 using namespace std;
+
+/* DBL_EPSILON is about 2 x 10^-16. so BIG_EPSILON is ~10^-11 min. */
+
+#define      EPSILON     (DBL_EPSILON * 1000.)
+                                  /* This assumes all times < 100. min. !! */
+
+#ifdef       FLOAT_EVERYTHING
+#undef       EPSILON
+#define      EPSILON     (FLT_EPSILON * 100.)             /* see above */
+#endif
+
+#define      BIG_EPSILON (EPSILON * 1000.)
+#define      HALF_EPSILON (EPSILON * .5)
+
+#define INTERPHASE              0
+#define MITOSIS                 1
 
 /* this is the problem at hand */
 struct TheProblem
@@ -95,11 +112,49 @@ struct GenoType {
 };
 
 
-
+#define TOTAL_DIVS 6
 
 class maternal
 {
 private:
+    static const double old_divtimes[3];
+
+    static const double divtimes1[1];
+    static const double divtimes2[2];
+    static const double divtimes3[3];
+    static const double divtimes4[4];
+
+    /* division durations */
+
+    static const double old_div_duration[3];
+
+    static const double div_duration1[1];
+    static const double div_duration2[2];
+    static const double div_duration3[3];
+    static const double div_duration4[4];
+
+    /* gastrulation times */
+
+    static const double old_gast_time;
+
+    static const double gast_time0;
+    static const double gast_time1;
+    static const double gast_time2;
+    static const double gast_time3;
+    static const double gast_time4;
+
+    /* full division times: including t<0 */
+
+    static const double full_divtimes0[TOTAL_DIVS];
+    static const double full_divtimes1[TOTAL_DIVS];
+    static const double full_divtimes2[TOTAL_DIVS];
+    static const double full_divtimes3[TOTAL_DIVS];
+    static const double full_divtimes4[TOTAL_DIVS];
+
+    /* division durations */
+
+    static const double full_div_durations[TOTAL_DIVS];
+
     TheProblem defs;
     Slist *genotypes;
     int nalleles;  /* number of alleles (genotypes) in data */
@@ -127,10 +182,11 @@ private:
     GenoType *bt; /* bias times for each genotype */
 
     int bt_init_flag = 0; /* flag for BTtable */
-    //int d_flag = 0; /* flag for first call to GetD */
+    //int d_flag = 0; // we don't need this anymore /* flag for first call to GetD */
     //int rule_flag = 0; /* flag for first call to GetRule */
     //int theta_flag = 0; /* flag for first call to Theta*/
 
+    int    olddivstyle;         /* flag: old or new division times? */
 
     void ReadTheProblem(FILE *fp);
     Slist *ReadGenotypes(FILE *fp);
@@ -142,10 +198,39 @@ private:
     BArrPtr List2Bicoid(Blist *inlist);
     NArrPtr List2Bias(Dlist *inlist);
 
+    double *getD_table; //double *table in old GetD
+    void InitGetD(); // initialize getD_table
+    void InitTheta();
+
+    double *theta_dt; /* pointer to division time table */
+    double *theta_dd; /* pointer to division duration table */
+
 public:
     maternal(FILE *fp);
     ~maternal();
     const TheProblem& getProblem() const {return defs;}
+
+    /*** FUNCTIONS THAT RETURN INFO ABOUT THE EMBRYO **************************/
+
+    /*** GetBicoid: returns a bicoid gradients (in form of a DArrPtr) for a ****
+     *              specific time and genotype.                                *
+     ***************************************************************************/
+    DArrPtr GetBicoid(double time, int genindex);
+
+    /*** GetD: returns diffusion parameters D according to the diff. params. ***
+     *         in the data file and the diffusion schedule used                *
+     *   NOTE: Caller must allocate D_tab                                      *
+     ***************************************************************************/
+    void GetD(double t, double *d, char diff_schedule, double *D_tab);
+
+    /*** GetCCycle: returns cleavage cycle number for a given time *************
+     ***************************************************************************/
+    unsigned int GetCCycle(double time);
+
+    /*** Theta: Returns the value of theta(t) in the autonomous ***
+     *            version of the equations                        *
+     **************************************************************/
+    int Theta(double time)
 };
 
 #endif /* MATERNAL_H_ */
