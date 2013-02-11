@@ -670,6 +670,26 @@ DArrPtr maternal::GetBicoid(double time, int genindex)
                                          /* just to make the compiler happy! */
 }
 
+/*** GetBias: This function returns bias values for a given time and *******
+ *            genotype.                                                    *
+ ***************************************************************************/
+
+
+DArrPtr maternal::GetBias(double time, int genindex)
+{
+  int      i;
+
+  if ( genindex < 0 || genindex >= nalleles )
+    error("GetBias: invalid genotype index %d", genindex);
+
+  for(i=0; i < biastype[genindex].ptr.bias.size; i++) {
+    if (biastype[genindex].ptr.bias.array[i].time == time)
+      break;
+  }
+
+  return biastype[genindex].ptr.bias.array[i].state;
+}
+
 /*** GetD: returns diffusion parameters D according to the diff. params. ***
  *         in the data file and the diffusion schedule used                *
  *   NOTE: Caller must allocate D_tab                                      *
@@ -840,4 +860,239 @@ int maternal::Theta(double time)
     }
 
     return INTERPHASE;
+}
+
+int maternal::GetNNucs(double t)
+{
+    int      i;                                              /* loop counter */
+    double   *table;                         /* local copy of divtimes table */
+
+  /* assign 'table' to the appropriate division schedule */
+
+    if ( olddivstyle ) {
+      if ( defs.ndivs != 3 )
+        error("GetNNucs: only 3 cell divisions allowed for oldstyle (-o)");
+      table = (double *)old_divtimes;
+    } else
+      if ( defs.ndivs == 0 )
+        return nnucs[0];
+      else if ( defs.ndivs == 1 )
+        table = (double *)divtimes1;
+      else if ( defs.ndivs == 2 )
+        table = (double *)divtimes2;
+      else if ( defs.ndivs == 3 )
+        table = (double *)divtimes3;
+      else if ( defs.ndivs == 4 )
+        table = (double *)divtimes4;
+      else
+        error("GetNNucs: can't handle %d cell divisions!", defs.ndivs);
+
+  /* evaluate nnucs for current time; note that for the *exact* time of cell *
+   * division, we'll return the number of nuclei before the division has ac- *
+   * tually occurred                                                         */
+
+    for (i=0; i<defs.ndivs; i++)
+      if ( t>table[i] )
+        return nnucs[i];
+
+    return nnucs[i];
+}
+
+/*** GetGastTime: returns time of gastrulation depending on ndivs and ******
+ *                olddivstyle; returns 0 in case of an error; if a custom  *
+ *                gastrulation time is chosen with -S, it will be returned *
+ *                only if it's bigger than the normal gastrulation time    *
+ ***************************************************************************/
+double maternal::GetGastTime(void)
+{
+    if (olddivstyle) {
+        if (defs.ndivs != 3)
+            error("GetDurations: only 3 cell divisions allowed for oldstyle (-o)");
+
+        if (custom_gast > old_gast_time)
+            return custom_gast;
+        else
+            return old_gast_time;
+
+    } else
+
+    if (defs.ndivs == 0)
+
+        if (custom_gast > gast_time0)
+            return custom_gast;
+        else
+            return gast_time0;
+
+    else if (defs.ndivs == 1)
+
+        if (custom_gast > gast_time1)
+            return custom_gast;
+        else
+            return gast_time1;
+
+    else if (defs.ndivs == 2)
+
+        if (custom_gast > gast_time2)
+            return custom_gast;
+        else
+            return gast_time2;
+
+    else if (defs.ndivs == 3)
+
+        if (custom_gast > gast_time3)
+            return custom_gast;
+        else
+            return gast_time3;
+
+    else if (defs.ndivs == 4)
+
+        if (custom_gast > gast_time4)
+            return custom_gast;
+        else
+            return gast_time4;
+
+    else
+        error("GetGastTime: can't handle %d cell divisions!", defs.ndivs);
+
+    return 0;
+}
+
+/*** GetBTimes: returns a sized array of times for which there is bias *****
+ ***************************************************************************/
+
+DArrPtr maternal::GetBTimes(char *genotype)
+{
+    int index;                                               /* loop counter */
+
+    for(index=0; index<nalleles; index++)
+        if ( !(strcmp(biastype[index].genotype, genotype)) )
+            break;
+
+    /* if no explicit bias times for this genotype -> use wt bias times */
+
+    if ( index == nalleles )
+        index = 0;
+
+    /* check if we actually have biastimes at all or otherwise -> error! */
+
+    if ( bt_init_flag )
+        return bt[index].ptr.times;
+    else
+        error("GetBTimes: called without initialized BTs");
+
+    return bt[index].ptr.times;
+    /* just to make the compiler happy */
+}
+
+/*** GetDivtable: returns times of cell divisions depending on ndivs and ***
+ *                olddivstyle; returns NULL in case of an error            *
+ ***************************************************************************/
+
+double *maternal::GetDivtable(void)
+{
+    if ( olddivstyle ) {
+        if ( defs.ndivs != 3 )
+            error("GetDivtable: only 3 cell divisions allowed for oldstyle (-o)");
+        return (double *)old_divtimes;
+    } else
+        if ( defs.ndivs == 0 )
+            return NULL;                           /* return error if ndivs == 0 */
+        else if ( defs.ndivs == 1 )
+            return (double *)divtimes1;
+        else if ( defs.ndivs == 2 )
+            return (double *)divtimes2;
+        else if ( defs.ndivs == 3 )
+            return (double *)divtimes3;
+        else if ( defs.ndivs == 4 )
+            return (double *)divtimes4;
+        else
+            error
+            ("GetDivtable: can't handle %d cell divisions!", defs.ndivs);
+
+    return NULL;
+}
+
+/*** GetDurations: returns pointer to durations of cell divisions de- ******
+ *                 pending on ndivs and olddivstyle; returns NULL in case  *
+ *                 of an error                                             *
+ ***************************************************************************/
+
+double *maternal::GetDurations(void)
+{
+  if ( olddivstyle ) {
+    if ( defs.ndivs != 3 )
+      error("GetDurations: only 3 cell divisions allowed for oldstyle (-o)");
+    return (double *)old_div_duration;
+  } else
+    if ( defs.ndivs == 0 )
+      return NULL;                           /* return error if ndivs == 0 */
+    else if ( defs.ndivs == 1 )
+      return (double *)div_duration1;
+    else if ( defs.ndivs == 2 )
+      return (double *)div_duration2;
+    else if ( defs.ndivs == 3 )
+      return (double *)div_duration3;
+    else if ( defs.ndivs == 4 )
+      return (double *)div_duration4;
+    else
+      error("GetDurations: can't handle %d cell divisions!", defs.ndivs);
+
+  return NULL;
+}
+
+/*** GetRule: returns the appropriate rule for a given time; used by the ***
+ *            derivative function                                          *
+ ***************************************************************************/
+
+int maternal::GetRule(double time)
+{
+  int i;
+
+  static double *dt;                     /* pointer to division time table */
+  static double *dd;                 /* pointer to division duration table */
+
+
+
+/* the following block of code are implemented like this (instead of       */
+/* calling GetDivtable or GetDurations) to save function calls and increa- */
+/* se performance (GetRule is called from within the inner loop)           */
+
+
+  if ( !rule_flag ) {                                 /* only do this once */
+    if ( olddivstyle ) {            /* get pointers to division time table */
+      dt=(double *)old_divtimes;            /* and division duration table */
+      dd=(double *)old_div_duration;
+    } else {
+      if ( defs.ndivs == 0 ) {
+    return INTERPHASE;                /* no cell division? no MITOSIS! */
+      } else if ( defs.ndivs == 1 ) {
+    dt=(double *)divtimes1;
+    dd=(double *)div_duration1;
+      } else if ( defs.ndivs == 2 ) {
+    dt=(double *)divtimes2;
+    dd=(double *)div_duration2;
+      } else if ( defs.ndivs == 3 ) {
+    dt=(double *)divtimes3;
+    dd=(double *)div_duration3;
+      } else if ( defs.ndivs == 4 ) {
+    dt=(double *)divtimes4;
+    dd=(double *)div_duration4;
+      } else
+    error("GetRule: can't handle %d cell divisions!", defs.ndivs);
+    }
+    rule_flag=1;
+  }
+
+/* checks if we're in a mitosis; we need the 10*DBL_EPSILON kludge for gcc *
+ * on Linux which can't handle truncation errors very well                 */
+
+  for(i=0; i<defs.ndivs; i++)
+  {
+/*      printf("GetRuletime=%.16f,[%.16f,%.16f]\n",time,(*(dt+i) - *(dd+i) + HALF_EPSILON), (*(dt+i) + HALF_EPSILON)); */
+    if ((time <= (*(dt+i) + HALF_EPSILON))
+    && (time >= (*(dt+i) - *(dd+i) + HALF_EPSILON)))
+      return MITOSIS;
+  }
+
+  return INTERPHASE;
 }

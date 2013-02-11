@@ -159,6 +159,7 @@ private:
     Slist *genotypes;
     int nalleles;  /* number of alleles (genotypes) in data */
     double maxconc;     /* max prot conc: 12 (old-), 255 (newstyle) */
+    double custom_gast = 0;                  /* custom gastrulation time set by -S */
 
     /* following is number of nucs in each cleavage cycle, reverse order */
     int *nnucs;
@@ -183,7 +184,7 @@ private:
 
     int bt_init_flag = 0; /* flag for BTtable */
     //int d_flag = 0; // we don't need this anymore /* flag for first call to GetD */
-    //int rule_flag = 0; /* flag for first call to GetRule */
+    int rule_flag = 0; /* flag for first call to GetRule */
     //int theta_flag = 0; /* flag for first call to Theta*/
 
     int    olddivstyle;         /* flag: old or new division times? */
@@ -217,20 +218,56 @@ public:
      ***************************************************************************/
     DArrPtr GetBicoid(double time, int genindex);
 
+    /*** GetBias: This function returns bias values for a given time and *******
+     *            genotype.                                                    *
+     ***************************************************************************/
+    DArrPtr      GetBias(double time, int genindex);
+
+    /*** GetCCycle: returns cleavage cycle number for a given time *************
+     ***************************************************************************/
+    unsigned int GetCCycle(double time);
+
     /*** GetD: returns diffusion parameters D according to the diff. params. ***
      *         in the data file and the diffusion schedule used                *
      *   NOTE: Caller must allocate D_tab                                      *
      ***************************************************************************/
     void GetD(double t, double *d, char diff_schedule, double *D_tab);
 
-    /*** GetCCycle: returns cleavage cycle number for a given time *************
+    /*** GetRule: returns the appropriate rule for a given time; used by the ***
+     *            derivative function                                          *
      ***************************************************************************/
-    unsigned int GetCCycle(double time);
+    int          GetRule(double time);
 
     /*** Theta: Returns the value of theta(t) in the autonomous ***
      *            version of the equations                        *
      **************************************************************/
-    int Theta(double time)
+    int Theta(double time);
+
+    /*** GetNNucs: reads number of nuclei for a given time *********************
+     ***************************************************************************/
+    int GetNNucs(double t);
+
+    /*** GetGastTime: returns time of gastrulation depending on ndivs and ******
+     *                olddivstyle; returns 0 in case of an error; if a custom  *
+     *                gastrulation time is chosen with -S, it will be returned *
+     *                only if it's bigger than the normal gastrulation time    *
+     ***************************************************************************/
+    double GetGastTime(void);
+
+    /*** GetBTimes: returns a sized array of times for which there is bias *****
+     ***************************************************************************/
+    DArrPtr GetBTimes(char *genotype);
+
+    /*** GetDivtable: returns times of cell divisions depending on ndivs and ***
+     *                olddivstyle; returns NULL in case of an error            *
+     ***************************************************************************/
+    double *GetDivtable(void);
+
+    /*** GetDurations: returns pointer to durations of cell divisions de- ******
+     *                 pending on ndivs and olddivstyle; returns NULL in case  *
+     *                 of an error                                             *
+     ***************************************************************************/
+    double *GetDurations(void);
 };
 
 #endif /* MATERNAL_H_ */
