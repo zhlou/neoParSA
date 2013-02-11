@@ -184,6 +184,11 @@ private:
 
     void SetRule(int r) { rule = r; }
 
+    /*** FreeMutant: frees mutated parameter struct ****************************
+     ***************************************************************************/
+
+    void FreeMutant(void);
+
 public:
     zygotic(maternal &in_maternal, FILE *fp, char *parm_section);
     virtual ~zygotic();
@@ -191,12 +196,11 @@ public:
     // This is the DvdtOrig
     virtual void p_deriv(double *v, double t, double *vdot, int n);
 
-    // TODO implement me This is the JacobnOrig
     virtual void p_jacobn(double t, double *v, double *dfdt, double **jac, int n);
 
     // TODO implement me This is the DvdtDelay
     virtual void d_deriv(double *v, double **vd, double t, double *vdot, int n);
-    // TODO add mutate
+
 
     /*** GetMutParameters: same as above but returns the mutated copy of the ***
      *                     parameter struct; important for writing guts        *

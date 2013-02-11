@@ -235,7 +235,9 @@ public:
     ~SoDe();
     void ps(double *vin, double *vout, double tin, double tout,
             double stephint, double accuracy, int n, FILE *slog);
+    void SetHistoryInterp(InterpObject interp_info);
 private:
+    InterpObject hist_interp_object;
     EqParms *lp;
     double maxdel, mindel;
     int    numdel;  /* delay parameters used by DCERk32, y_delayed */

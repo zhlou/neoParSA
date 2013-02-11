@@ -8,6 +8,7 @@
 #include "zygotic.h"
 #include <cstdio>
 #include <cfloat>
+#include <typeinfo>
 using namespace std;
 
 static const double EPSILON = DBL_EPSILON * 1000.;
@@ -253,13 +254,15 @@ EqParms zygotic::ReadParameters(FILE* fp, char* section_title)
     return l_parm;
 }
 
+
+
 zygotic::~zygotic()
 {
+    free(D);
+    free(vinput);
+    free(bot2);
+    free(bot);
     // TODO free parm
-    // TODO free bot
-    // TODO free bot2
-    // TODO free vinput
-    // TODO free D
 }
 
 /*** THE FOLLOWING FUNCTIONS ARE FOR HANDLING TLIST, a linked list used to *
@@ -858,6 +861,291 @@ void zygotic::p_deriv(double* v, double t, double* vdot, int n)
     return;
 }
 
+/*** JACOBIAN FUNCTION(S) **************************************************/
+
+/*** JacobnOrig: Jacobian function for the DvdtOrig model; calculates the **
+ *               Jacobian matrix (matrix of partial derivatives) for the   *
+ *               equations at a give time t; input concentrations come in  *
+ *               v (of size n), the Jacobian is returned in jac; note that *
+ *               all dfdt's are zero in our case since our equations are   *
+ *               autonomous (i.e. have no explicit t in them)              *
+ ***************************************************************************
+ *                                                                         *
+ * The Equation: dv/dx = Rg(u) + D() + lambda()                            *
+ *                                                                         *
+ * The Jacobian: (in this example: nnucs = 3, ngenes = 3                   *
+ *                                                                         *
+ *                        i = 1       i = 2        i = 3                   *
+ *         b =          1   2   3   1   2   3    1   2   3                 *
+ *                                                                         *
+ *         a = 1      X11 Y12 Y13  D1   0   0    0   0   0                 *
+ * i = 1   a = 2      Y21 X22 Y23   0  D2   0    0   0   0                 *
+ *         a = 3      Y31 Y32 X33   0   0  D3    0   0   0                 *
+ *                                                                         *
+ *         a = 1       D1   0   0 X11 Y12 Y13   D1   0   0                 *
+ * i = 2   a = 2        0  D2   0 Y21 X22 Y23    0  D2   0                 *
+ *         a = 3        0   0  D3 Y31 Y32 X33    0   0  D3                 *
+ *                                                                         *
+ *         a = 1        0   0   0  D1   0   0  X11 Y12 Y13                 *
+ * i = 3   a = 2        0   0   0   0  D2   0  Y21 X22 Y23                 *
+ *         a = 3        0   0   0   0   0   0  Y31 Y32 Y33                 *
+ *                                                                         *
+ * Where:  Xab = Rg'(u) - 2D{a} - lambda{a}                                *
+ *         Yab = Rg'(u)                                                    *
+ *         Da  = D{a}                                                      *
+ *                                                                         *
+ ***************************************************************************/
+
+void zygotic::p_jacobn(double t, double *v, double *dfdt, double **jac, int n)
+{
+  int        m;                                        /* number of nuclei */
+  int        ap;                 /* nuclear index on AP axis [0,1,...,m-1] */
+  int        i, j;                                  /* local loop counters */
+  int        k, kk;               /* index of gene k in a specific nucleus */
+  int        base;            /* indices of 1st gene in a specific nucleus */
+#ifdef ALPHA_DU
+  int        incx = 1;        /* increment step size for vsqrt input array */
+  int        incy = 1;       /* increment step size for vsqrt output array */
+#endif
+
+  static int num_nucs  = 0;      /* store the number of nucs for next step */
+  static int bcd_index = 0;   /* the *next* array in bicoid struct for bcd */
+  static DArrPtr bcd;              /* pointer to appropriate bicoid struct */
+
+
+/* get D parameters and bicoid gradient according to cleavage cycle */
+
+  m = n / defs.ngenes;                        /* m is the number of nuclei */
+  if (m != num_nucs) {      /* time-varying quantities only vary by ccycle */
+    TheMaternal.GetD(t, lparm.d, defs.diff_schedule, D);
+                      /* get diff coefficients, according to diff schedule */
+    if (num_nucs > m)                  /* started a new iteration in score */
+      bcd_index = 0;                           /* -> start all over again! */
+    num_nucs = m;                         /* store # of nucs for next step */
+    bcd = TheMaternal.GetBicoid(t, genindex);                   /* get bicoid gradient */
+    if( bcd.size != num_nucs)
+     error("JacobnOrig: %d nuclei don't match Bicoid!", num_nucs);
+    bcd_index++;                   /* store index for next bicoid gradient */
+  }
+
+/*** INTERPHASE rule *******************************************************/
+
+  if (rule == INTERPHASE) {
+
+    register double vinput1 = 0;                    /* used to calculate u */
+    register double gdot1, vdot1;     /* used to calculate Xab's and Yab's */
+
+
+/***************************************************************************
+ *                                                                         *
+ *  g(u)  = 1/2 * ( u / sqrt(1 + u^2) + 1)                                 *
+ *  g'(u) = 1/2 * ( 1 / ((1 + u^2)^3/2)) * T{ab}                           *
+ *                                                                         *
+ ***************************************************************************/
+
+    if ( gofu == Sqrt ) {
+
+/* this looks confusing, but it's actually quite simple: the two loops be- *
+ * low are in reality just one that loops over the first dimension of the  *
+ * Jacobian (size n) 'nuclear block' by 'nuclear block' (the i's in the    *
+ * long introductory comment above); ap keeps track of the nucleus number, *
+ * k keeps track of which gene we're dealing with; bot2 saves 1+u^2        */
+
+      for (base=0, ap=0; base<n ; base+=defs.ngenes, ap++) {
+    for (i=base; i < base+defs.ngenes; i++) {
+
+      k = i - base;
+
+      vinput1  = lparm.h[k];
+      vinput1 += lparm.m[k] * bcd.array[ap];
+
+      for(j=0; j < defs.ngenes; j++)
+        vinput1 += lparm.T[(k*defs.ngenes)+j] * v[base + j];
+
+      bot2[i] = 1 + vinput1 * vinput1;
+    }
+      }
+
+/* now calculate sqrt(1+u^2); store it in bot[] */
+
+#ifdef ALPHA_DU
+      vsqrt_(bot2,&incx,bot,&incy,&n);    /* superfast DEC vector function */
+#else
+      for(i=0; i < n; i++)                  /* slow traditional style sqrt */
+    bot[i] = sqrt(bot2[i]);
+#endif
+
+/* resume loop after vector sqrt above; we finish calculating g'(u) and    *
+ * place D's in the diagonal of the off-diagonal blocks (cf diagram above) */
+
+      for (base=0; base < n; base+=defs.ngenes) {
+    for (i=base; i < base+defs.ngenes; i++) {
+
+      k = i - base;
+
+      gdot1  = 1 / (bot[i] * bot2[i]);
+      gdot1 *= lparm.R[k] * 0.5;
+
+      for (j=base; j < base+defs.ngenes; j++) {
+
+        kk = j - base;
+
+        vdot1 = lparm.T[(k*defs.ngenes)+kk] * gdot1;
+        if ( k == kk ) {
+          if ( n > defs.ngenes )
+        if ( base > 0 && base < n-defs.ngenes )
+          vdot1 -= 2. * D[k];
+        else
+          vdot1 -= D[k];
+          vdot1 -= lparm.lambda[k];
+        }
+        jac[i][j] = vdot1;
+
+      }
+
+      if ( base > 0 )
+        jac[i][i-defs.ngenes] = D[k];
+
+      if ( base < n-defs.ngenes )
+        jac[i][i+defs.ngenes] = D[k];
+
+    }
+      }
+
+/***************************************************************************
+ *                                                                         *
+ * g(u)  = 1/2 * (tanh(u) + 1) )  or  g(u)  = 1 / ( 1 + e^(-2u))           *
+ * g'(u) = Sech(u)^2 /2           or  g'(u) = 2e^(-2u) / (1 + e^(-2u))^2   *
+ *                                                                         *
+ ***************************************************************************
+ *                                                                         *
+ * These are actually the same function in different guises; we implement  *
+ * Exp below since it's faster                                             *
+ *                                                                         *
+ ***************************************************************************/
+
+    } else if ( (gofu == Tanh) || (gofu == Exp) ) {
+
+/* this looks confusing, but it's actually quite simple: the two loops be- *
+ * low are in reality just one that loops over the first dimension of the  *
+ * Jacobian (size n) 'nuclear block' by 'nuclear block' (the i's in the    *
+ * long introductory comment above); ap keeps track of the nucleus number, *
+ * k keeps track of which gene we're dealing with; bot2 saves 1+u^2        */
+
+      for (base=0, ap=0; base<n ; base+=defs.ngenes, ap++) {
+    for (i=base; i < base+defs.ngenes; i++) {
+
+      k = i - base;
+
+      vinput1  = lparm.h[k];
+      vinput1 += lparm.m[k] * bcd.array[ap];
+
+      for(j=0; j < defs.ngenes; j++)
+        vinput1 += lparm.T[(k*defs.ngenes)+j] * v[base + j];
+
+      bot[i] = -2.0 * vinput1;
+    }
+      }
+
+/* now calculate exp(-u); store it in bot[] */
+#ifdef ALPHA_DU
+      vexp_(bot,&incx,bot2,&incy,&n);   /* superfast DEC vector function */
+#else
+      for (i=0; i<n; i++)                    /* slow traditional style exp */
+    bot2[i] = exp(bot[i]);
+#endif
+
+/* resume loop after vector exp above; we finish calculating g'(u) and     *
+ * place D's in the diagonal of the off-diagonal blocks (cf diagram above) */
+
+      for (base=0; base < n; base+=defs.ngenes) {
+    for (i=base; i < base+defs.ngenes; i++) {
+
+      k = i - base;
+
+      gdot1  = 2. * bot2[i];
+      gdot1 /= (1. + bot2[i]) * (1. + bot2[i]);
+      gdot1 *= lparm.R[k];
+
+      for (j=base; j < base+defs.ngenes; j++) {
+
+        kk = j - base;
+
+        vdot1 = lparm.T[(k*defs.ngenes)+kk] * gdot1;
+        if ( k == kk ) {
+          if ( n > defs.ngenes )
+        if ( base > 0 && base < n-defs.ngenes )
+          vdot1 -= 2. * D[k];
+        else
+          vdot1 -= D[k];
+          vdot1 -= lparm.lambda[k];
+        }
+        jac[i][j] = vdot1;
+
+      }
+
+      if ( base > 0 )
+        jac[i][i-defs.ngenes] = D[k];
+
+      if ( base < n-defs.ngenes )
+        jac[i][i+defs.ngenes] = D[k];
+
+    }
+      }
+
+/*** semi-implicit solvers are NOT allowed with heaviside g(u) *************/
+
+    } else if ( gofu == Hvs ) {
+      error("JacobnOrig: can't use semi-implicit solver on heaviside g(u)!");
+
+    } else {
+      error("JacobnOrig: unknown g(u) function!\n");
+    }
+
+/* during mitosis only diffusion and decay happen */
+
+  } else if (rule == MITOSIS) {
+
+    register double vdot1;
+
+       for (base=0; base < n; base+=defs.ngenes) {
+    for (i=base; i < base+defs.ngenes; i++) {
+      k = i - base;
+
+      for (j=base; j < base+defs.ngenes; j++) {
+        kk = j - base;
+
+        if ( k == kk ) {
+          vdot1  = -lparm.lambda[k];
+          if ( n < defs.ngenes )
+        if ( base > 0 && base < n-defs.ngenes )
+          vdot1 -= 2. * D[k];
+        else
+          vdot1 -= D[k];
+        } else
+          vdot1 = 0.;
+
+        jac[i][j] = vdot1;
+
+      }
+
+      if ( base > 0 )
+        jac[i][i-defs.ngenes] = D[k];
+
+      if ( base < n-defs.ngenes )
+        jac[i][i+defs.ngenes] = D[k];
+
+    }
+      }
+
+  } else
+    error("JacobnOrig: Bad rule %i sent to JacobnOrig", rule);
+
+  return;
+
+}
+
+
 /*** FreeSolution: frees memory of the solution structure created by *******
  *                 Blastoderm() or gut functions                           *
  ***************************************************************************/
@@ -996,7 +1284,20 @@ EqParms zygotic::CopyParm(EqParms orig_parm)
   return l_parm;
 }
 
-
+/*** FreeMutant: frees mutated parameter struct ****************************
+ ***************************************************************************/
+void zygotic::FreeMutant(void)
+{
+  free(lparm.R);
+  free(lparm.T);
+  if (defs.egenes > 0)
+      free(lparm.E);
+  free(lparm.m);
+  free(lparm.h);
+  free(lparm.d);
+  free(lparm.lambda);
+  free(lparm.tau);
+}
 
 /*** Blastoderm: runs embryo model and returns an array of concentration ***
  *               arrays for each requested time (given by TabTimes) using  *
@@ -1008,7 +1309,6 @@ EqParms zygotic::CopyParm(EqParms orig_parm)
  *               and times for which we have data and ends with the time   *
  *               of gastrulation.                                          *
  ***************************************************************************/
-
 NArrPtr zygotic::Blastoderm(int in_genindex, char *genotype,
                         InterpObject hist_interrp,
                         InterpObject extinp_interrp, DArrPtr tabtimes,
@@ -1056,7 +1356,7 @@ NArrPtr zygotic::Blastoderm(int in_genindex, char *genotype,
 
   genindex = in_genindex;
 
-  InitDelaySolver();
+
   SetHistoryInterp(hist_interrp);
 
   if (defs.egenes > 0)
@@ -1285,7 +1585,7 @@ NArrPtr zygotic::Blastoderm(int in_genindex, char *genotype,
 
     else if ( what2do[i] & DIVIDE ) {
 
-      lin = GetStartLin(solution.array[i+1].time);
+      lin = TheMaternal.GetStartLin(solution.array[i+1].time);
       for (j=0; j < solution.array[i].state.size; j++) {
 
     k  = j % defs.ngenes;     /* k: index of gene k in current nucleus */

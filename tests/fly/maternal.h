@@ -26,8 +26,8 @@ using namespace std;
 #define      BIG_EPSILON (EPSILON * 1000.)
 #define      HALF_EPSILON (EPSILON * .5)
 
-#define INTERPHASE              0
-#define MITOSIS                 1
+const int INTERPHASE = 0;
+const int MITOSIS = 1;
 
 /* this is the problem at hand */
 struct TheProblem
@@ -268,6 +268,11 @@ public:
      *                 of an error                                             *
      ***************************************************************************/
     double *GetDurations(void);
+
+    /*** GetStartLin: returns the lineage number of the most anterior nucleus **
+     *                for a given time                                         *
+     ***************************************************************************/
+    int GetStartLin(double t);
 };
 
 #endif /* MATERNAL_H_ */

@@ -3838,3 +3838,15 @@ double ech, double *d1, double *d2, double *d3, double *d4, int n)
         return;
 
 }
+
+void SoDe::SetHistoryInterp(InterpObject interp_info)
+{
+
+    hist_interp_object.fact_discons     = interp_info.fact_discons;
+    hist_interp_object.fact_discons_size= interp_info.fact_discons_size;
+    hist_interp_object.func             = interp_info.func;
+    hist_interp_object.slope            = interp_info.slope;
+    hist_interp_object.maxsize          = interp_info.maxsize;
+    hist_interp_object.maxtime          = interp_info.maxtime;
+
+}
