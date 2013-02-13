@@ -235,9 +235,11 @@ public:
     ~SoDe();
     void ps(double *vin, double *vout, double tin, double tout,
             double stephint, double accuracy, int n, FILE *slog);
+    void resetSolver();
     void SetHistoryInterp(InterpObject interp_info);
+    void SetExternalInputInterp(InterpObject interp_info);
 private:
-    InterpObject hist_interp_object;
+    InterpObject hist_interp_object, extinp_interp_object;
     EqParms *lp;
     double maxdel, mindel;
     int    numdel;  /* delay parameters used by DCERk32, y_delayed */
@@ -253,6 +255,8 @@ private:
     double **derivv3;
     double **derivv4;
     double **vdonne;
+
+    double *fact_discons, fact_discons_size;
     /*** DCERk3(2): propagates v[0] (of size n) according to tarray  by  **
     the Runge-Kutta 3(2) pair with continuous extension storing the      **
     result in vatt. Initial conditions are specified in vatt[0],         **
@@ -267,6 +271,9 @@ private:
     double *Construct_Discont_Array(double range, double *taus, int n,
                                     double *starts, int sn, int *disc_size);
     void CE(double t, double *vans, double tbegin, double *v_at_tbegin,
-            double ech, double *d1, double *d2, double *d3, double *d4, int n)
+            double ech, double *d1, double *d2, double *d3, double *d4, int n);
+    void History(double t, double t_size, double *yd, int n);
+    void SoDe::ExternalInputs(double t, double t_size, double *yd, int n);
+    void SoDe::DivideHistory(double t1, double t2);
 };
 #endif /* SOLVERS_H_ */

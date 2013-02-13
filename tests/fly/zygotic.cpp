@@ -455,10 +455,15 @@ void zygotic::p_deriv(double* v, double t, double* vdot, int n)
      * allocate v_ext or populate it with external input
      * concentrations */
 
-    if (defs.egenes > 0) {
-        v_ext = (double *) calloc(m * defs.egenes, sizeof(double));
-        ExternalInputs(t, t, v_ext, m * defs.egenes);
+    SoDe *delay_solver = NULL;
+    if (typeid(*solve) == typeid(SoDe)){
+        delay_solver = dynamic_cast<SoDe *>(solve);
+        if (defs.egenes > 0) {
+            v_ext = (double *) calloc(m * defs.egenes, sizeof(double));
+            delay_solver->ExternalInputs(t, t, v_ext, m * defs.egenes);
+        }
     }
+
 
     /* This is how it works (by JR):
 
@@ -1342,6 +1347,9 @@ NArrPtr zygotic::Blastoderm(int in_genindex, char *genotype,
 
   TList            *entries    = NULL;   /* temp linked list for times and */
   TList            *current;                         /* ops for the solver */
+  SoDe *delay_solver = NULL;
+  if (typeid(*solve) == typeid(SoDe))
+      delay_solver = dynamic_cast<SoDe *>(solve);
 
 
 
@@ -1357,12 +1365,12 @@ NArrPtr zygotic::Blastoderm(int in_genindex, char *genotype,
   genindex = in_genindex;
 
 
-  SetHistoryInterp(hist_interrp);
 
-  if (defs.egenes > 0)
-      SetExternalInputInterp(extinp_interrp);
-
-  SetFactDiscons();
+  if (delay_solver) {
+      if (defs.egenes > 0)
+            delay_solver->SetExternalInputInterp(extinp_interrp);
+      delay_solver->SetHistoryInterp(hist_interrp);
+  }
 
 /* Blastoderm() first checks if tabtimes has the same size as in the pre-  *
  * vious run (remembered by the static oldtimes array) and if all tab ti-  *
@@ -1613,12 +1621,14 @@ NArrPtr zygotic::Blastoderm(int in_genindex, char *genotype,
 
 /* Divide the history of the delay solver */
 
-      DivideHistory(solution.array[i].time, solution.array[i+1].time);
+      if (delay_solver)
+          delay_solver->DivideHistory(solution.array[i].time,
+                                      solution.array[i + 1].time);
 
       if ( debug )
-    fprintf(slog, "Blastoderm: nuclear division %d -> %d nuclei.\n",
-        solution.array[i].state.size / defs.ngenes,
-        solution.array[i+1].state.size / defs.ngenes);
+          fprintf(slog, "Blastoderm: nuclear division %d -> %d nuclei.\n",
+                  solution.array[i].state.size / defs.ngenes,
+                  solution.array[i+1].state.size / defs.ngenes);
 
     }
 
@@ -1667,8 +1677,137 @@ not lead to incorrect rules being used at the end-points */
  * and return the result                                                   */
 
   FreeMutant();
-  FreeFactDiscons();
-  FreeDelaySolver();
+  if (delay_solver)
+      delay_solver->resetSolver();
   return solution;
 
 }
+
+void zygotic::Go_Forward(double *output, double *input, int output_ind, int
+input_ind, int num_genes)
+{
+
+    double *y;
+    int output_lin, input_lin, size, newsize;
+    int k, ap, i, j, ii;
+
+    output_lin = TheMaternal.Index2StartLin(output_ind);
+    newsize = TheMaternal.Index2NNuc(output_ind)*num_genes;
+
+/*  printf("output lineage start, indices:%d, %d, %d\n",output_lin,output_ind,input_ind);*/
+
+    if (output_ind < input_ind - 1)
+    {
+        size = TheMaternal.Index2NNuc(output_ind+1)*num_genes;
+        y = (double *) calloc(size, sizeof(double));
+/*      printf("Passing on to another fwd with targets %d %d %d\n",size,output_ind+1,input_ind);*/
+        Go_Forward(y,input,output_ind+1,input_ind,num_genes);
+    } else if  (output_ind == input_ind - 1)
+    {
+        size = TheMaternal.Index2NNuc(input_ind)*num_genes;
+        y = (double *) calloc(size, sizeof(double));
+/*      printf("Goin' to do the tranfer:%d %d\n",size,newsize);*/
+        y = memcpy(y,input,size*sizeof(double));
+    } else if (output_ind == input_ind) {
+        output = memcpy(output,input,newsize*sizeof(double));
+        return;
+    }
+    else error("You are trying to go from nnucs %d to %d!",
+               TheMaternal.Index2NNuc(input_ind),
+               TheMaternal.Index2NNuc(output_ind));
+
+
+      for (j=0; j < size; j++) {
+
+    k  = j % num_genes;     /* k: index of gene k in current nucleus */
+    ap = j / num_genes;      /* ap: rel. nucleus position on AP axis */
+
+/* evaluate ii: index of anterior daughter nucleus */
+
+    if ( output_lin % 2 )
+      ii = 2 * ap * num_genes + k - num_genes;
+    else
+      ii = 2 * ap * num_genes + k;
+
+/* skip the first most anterior daughter nucleus in case output_lin is odd */
+
+        if ( ii >= 0 )
+      output[ii] = y[j];
+
+/* the second daughter only exists if it is still within the region */
+
+    if ( ii + num_genes < newsize )
+      output[ii+num_genes] =  y[j];
+      }
+
+    free(y);
+
+    return;
+}
+
+
+void zygotic::Go_Backward(double *output, double *input, int output_ind, int
+input_ind, int num_genes)
+{
+
+    double *y;
+    int output_lin, input_lin, size, newsize;
+    int k, ap, i, j, ii;
+
+    output_lin = TheMaternal.Index2StartLin(output_ind);
+    input_lin  = TheMaternal.Index2StartLin(input_ind);
+    newsize = TheMaternal.Index2NNuc(output_ind)*num_genes;
+
+/*  printf("output lineage start, indices:%d, %d, %d\n",output_lin,output_ind,input_ind);*/
+
+    if (output_ind > input_ind + 1)
+    {
+        size = TheMaternal.Index2NNuc(output_ind-1)*num_genes;
+        y = (double *) calloc(size, sizeof(double));
+/*      printf("Passing on to another bkd with targets %d %d %d\n",size,output_ind-1,input_ind);*/
+        Go_Backward(y,input,output_ind-1,input_ind,num_genes);
+        input_lin  = TheMaternal.Index2StartLin(output_ind-1);
+    } else if  (output_ind == input_ind + 1 )
+    {
+        size = TheMaternal.Index2NNuc(input_ind)*num_genes;
+        y = (double *) calloc(size, sizeof(double));
+/*      printf("Goin' to do the tranfer\n");*/
+        memcpy(y,input,size*sizeof(double));
+    } else if (output_ind == input_ind){
+        memcpy(output,input,newsize*sizeof(double));
+        return;
+    }
+    else error("You are trying to go from nnucs %d to %d!",
+               TheMaternal.Index2NNuc(input_ind),
+               TheMaternal.Index2NNuc(output_ind));
+
+      for (j=0; j < newsize; j++) {
+
+    k  = j % num_genes;     /* k: index of gene k in current nucleus */
+    ap = j / num_genes;      /* ap: rel. nucleus position on AP axis */
+
+/* evaluate ii: index of anterior daughter nucleus */
+
+    if ( input_lin % 2 )
+      ii = 2 * ap * num_genes + k - num_genes;
+    else
+      ii = 2 * ap * num_genes + k;
+
+/* skip the first most anterior daughter nucleus in case output_lin is odd */
+
+    if (ii < 0)
+        output[j] = y[ii + num_genes];
+
+    if (( ii >= 0 ) && (ii + num_genes < size))
+        output[j] = .5*(y[ii] + y[ii+num_genes]);
+
+    if (ii + num_genes >= size)
+        output[j] = y[ii];
+
+      }
+
+    free(y);
+
+    return;
+}
+

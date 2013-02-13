@@ -163,12 +163,12 @@ private:
 
     /* following is number of nucs in each cleavage cycle, reverse order */
     int *nnucs;
-    //int *full_nnucs = NULL;
+    int *full_nnucs = NULL; // TODO: init this in score
 
     /* following contains lineage numbers at which nuclei at each ccycle start */
     int *lin_start;
-    //int *full_lin_start = NULL;
-    //int full_ccycles;
+    int *full_lin_start = NULL; // TODO: init this
+    int full_ccycles; // TODO: init this in score
 
 
     /* The following two store bicoid gradients and bias static to maternal.c  */
@@ -245,18 +245,18 @@ public:
 
     /*** GetNNucs: reads number of nuclei for a given time *********************
      ***************************************************************************/
-    int GetNNucs(double t);
+    int GetNNucs(double t) const;
 
     /*** GetGastTime: returns time of gastrulation depending on ndivs and ******
      *                olddivstyle; returns 0 in case of an error; if a custom  *
      *                gastrulation time is chosen with -S, it will be returned *
      *                only if it's bigger than the normal gastrulation time    *
      ***************************************************************************/
-    double GetGastTime(void);
+    double GetGastTime(void) const;
 
     /*** GetBTimes: returns a sized array of times for which there is bias *****
      ***************************************************************************/
-    DArrPtr GetBTimes(char *genotype);
+    DArrPtr GetBTimes(char *genotype) const;
 
     /*** GetDivtable: returns times of cell divisions depending on ndivs and ***
      *                olddivstyle; returns NULL in case of an error            *
@@ -273,6 +273,15 @@ public:
      *                for a given time                                         *
      ***************************************************************************/
     int GetStartLin(double t);
+
+    /*** GetStartLinIndex: returns the index of the lineage array for a given **
+     *                     time                                                *
+     ***************************************************************************/
+    int GetStartLinIndex(double t);
+
+    int Index2StartLin(int index) {return full_lin_start[index];}
+    int Index2NNuc(int index){ return full_nnucs[index]; }
 };
+
 
 #endif /* MATERNAL_H_ */

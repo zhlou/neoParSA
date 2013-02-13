@@ -862,7 +862,7 @@ int maternal::Theta(double time)
     return INTERPHASE;
 }
 
-int maternal::GetNNucs(double t)
+int maternal::GetNNucs(double t) const
 {
     int      i;                                              /* loop counter */
     double   *table;                         /* local copy of divtimes table */
@@ -903,7 +903,7 @@ int maternal::GetNNucs(double t)
  *                gastrulation time is chosen with -S, it will be returned *
  *                only if it's bigger than the normal gastrulation time    *
  ***************************************************************************/
-double maternal::GetGastTime(void)
+double maternal::GetGastTime(void) const
 {
     if (olddivstyle) {
         if (defs.ndivs != 3)
@@ -960,7 +960,7 @@ double maternal::GetGastTime(void)
 /*** GetBTimes: returns a sized array of times for which there is bias *****
  ***************************************************************************/
 
-DArrPtr maternal::GetBTimes(char *genotype)
+DArrPtr maternal::GetBTimes(char *genotype) const
 {
     int index;                                               /* loop counter */
 
@@ -1135,4 +1135,40 @@ int maternal::GetStartLin(double t)
       return lin_start[i];
 
   return lin_start[i];
+}
+
+int maternal::GetStartLinIndex(double t)
+{
+  int      i;                                              /* loop counter */
+  double   *table;                         /* local copy of divtimes table */
+
+/* assign 'table' to the appropriate division schedule */
+
+  if ( olddivstyle ) {
+    if ( defs.ndivs != 3 )
+      error("GetStartLin: only 3 cell divisions allowed for oldstyle (-o)");
+    table = (double *)old_divtimes;
+  } else
+    if ( defs.ndivs == 0 )
+      table = (double *)full_divtimes0;
+    else if ( defs.ndivs == 1 )
+      table = (double *)full_divtimes1;
+    else if ( defs.ndivs == 2 )
+      table = (double *)full_divtimes2;
+    else if ( defs.ndivs == 3 )
+      table = (double *)full_divtimes3;
+    else if ( defs.ndivs == 4 )
+      table = (double *)full_divtimes4;
+    else
+      error("GetStartLin: can't handle %d cell divisions!", defs.ndivs);
+
+/* evaluate lineage number of most anterior nucleus for current time; note *
+ * that for the *exact* time of cell division, we'll return the lineage    *
+ * number of the most anterior nucleus of the previous cell cycle          */
+
+  for (i=0; i<full_ccycles-1; i++)
+    if ( t > table[i]+HALF_EPSILON )
+      return i;
+
+  return i;
 }

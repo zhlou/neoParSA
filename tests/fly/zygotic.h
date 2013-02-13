@@ -189,7 +189,15 @@ private:
 
     void FreeMutant(void);
 
+    // The following two are called by delay solver via wrapper
+    // I need to find a better place to put them.
+    void Go_Forward(double *output, double *input, int output_ind,
+                    int input_ind, int num_genes);
+    void Go_Backward(double *output, double *input, int output_ind,
+                     int input_ind, int num_genes);
+
 public:
+
     zygotic(maternal &in_maternal, FILE *fp, char *parm_section);
     virtual ~zygotic();
 
@@ -221,6 +229,23 @@ public:
                        InterpObject hist_interrp,
                        InterpObject extinp_interrp, DArrPtr tabtimes,
                        double stephint, double accuracy, FILE *slog);
+    int get_ngenes() const {return defs.ngenes;}
+    int get_egenes() const {return defs.egenes;}
+    int get_NNucs(double t) const {return TheMaternal.GetNNucs(t);}
+
+    void Go_Forward_wrapper(double *output, double *input, double t_size,
+                            double maxtime, int num_genes)
+    {
+        Go_Forward(output, input, TheMaternal.GetStartLinIndex(t_size),
+                   TheMaternal.GetStartLinIndex(maxtime), num_genes);
+
+    }
+    void Go_Backward_wrapper(double *output, double *input, double t_size,
+                             double maxtime, int num_genes)
+    {
+        Go_Backward(output, input, TheMaternal.GetStartLinIndex(t_size),
+                    TheMaternal.GetStartLinIndex(maxtime), num_genes);
+    }
 };
 
 #endif /* ZYGOTIC_H_ */

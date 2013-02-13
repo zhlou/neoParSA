@@ -2930,7 +2930,46 @@ SoDe::SoDe(const zygotic &in_zy, int in_debug) :
 SoDe::~SoDe()
 {
     int j;
+    free(fact_discons);
 
+    for (j=0; j<=gridpos;j++)
+    {
+        if (derivv1 && derivv1[j])
+            free(derivv1[j]);
+        if (derivv2 && derivv2[j])
+            free(derivv2[j]);
+        if (derivv3 && derivv3[j])
+            free(derivv3[j]);
+        if (derivv4 && derivv4[j])
+            free(derivv4[j]);
+        if (vdonne && vdonne[j])
+            free(vdonne[j]);
+    }
+
+    if (derivv1)
+        free(derivv1);
+    if (derivv2)
+        free(derivv2);
+    if (derivv3)
+        free(derivv3);
+    if (derivv4)
+        free(derivv4);
+    if (vdonne)
+        free(vdonne);
+    if (tdone)
+        free(tdone);
+    derivv1 = NULL;
+    derivv2 = NULL;
+    derivv3 = NULL;
+    derivv4 = NULL;
+    tdone = NULL;
+    vdonne = NULL;
+}
+
+void SoDe::resetSolver()
+{
+    int j;
+    // This is not thread safe!! Do more check before port to OpenMP
     for (j=0; j<=gridpos;j++)
     {
         free(derivv1[j]);
@@ -2946,6 +2985,13 @@ SoDe::~SoDe()
     free(derivv4);
     free(vdonne);
     free(tdone);
+
+    derivv1 = NULL;
+    derivv2 = NULL;
+    derivv3 = NULL;
+    derivv4 = NULL;
+    tdone = NULL;
+    vdonne = NULL;
 }
 
 void SoDe::ps(double *vin, double *vout, double tin, double tout,
@@ -2955,14 +3001,12 @@ void SoDe::ps(double *vin, double *vout, double tin, double tout,
     int i, j;
 
 
-    double *shift_discs, *fact_discons;
+    double *shift_discs;
     double *discon_array;
-    int num_discons, fact_discons_size;
+    int num_discons;
 
     double **vees, *tees;
 
-
-    fact_discons = GetFactDiscons(&fact_discons_size);
 
     /*  printf("%d %f %f\n",fact_discons_size,fact_discons[0],fact_discons[2]);*/
 
@@ -3848,5 +3892,190 @@ void SoDe::SetHistoryInterp(InterpObject interp_info)
     hist_interp_object.slope            = interp_info.slope;
     hist_interp_object.maxsize          = interp_info.maxsize;
     hist_interp_object.maxtime          = interp_info.maxtime;
+
+    int i;
+
+    fact_discons_size = hist_interp_object.fact_discons_size +
+                                extinp_interp_object.fact_discons_size;
+
+    fact_discons = (double *) calloc(fact_discons_size,
+                                                sizeof(double));
+
+    for (i = 0; i < hist_interp_object.fact_discons_size; i++)
+        fact_discons[i] = hist_interp_object.fact_discons[i];
+
+    for (i = 0; i < extinp_interp_object.fact_discons_size; i++)
+        fact_discons[i+hist_interp_object.fact_discons_size]
+                            = extinp_interp_object.fact_discons[i];
+
+    qsort((void *) fact_discons, fact_discons_size,
+            sizeof(double),(int (*) (const void*,const void*)) compare);
+
+}
+
+void SoDe::SetExternalInputInterp(InterpObject interp_info)
+{
+
+    extinp_interp_object.fact_discons   = interp_info.fact_discons;
+    extinp_interp_object.fact_discons_size= interp_info.fact_discons_size;
+    extinp_interp_object.func               = interp_info.func;
+    extinp_interp_object.slope              = interp_info.slope;
+    extinp_interp_object.maxsize            = interp_info.maxsize;
+    extinp_interp_object.maxtime            = interp_info.maxtime;
+
+}
+
+void SoDe::History(double t, double t_size, double *yd, int n)
+{
+
+    int j,k;
+    double *blug;
+    double t_interp, t_diff;
+
+/*  printf("Going from %d to %d, time:%f time for size:%f\n",maxsize,n,t,t_size);*/
+
+    blug = (double *) calloc(hist_interp_object.maxsize,
+                                                sizeof(double));
+
+    k = -1;
+    do {
+            k++;
+
+    } while ( (k < hist_interp_object.slope.size ) &&
+                        (t > hist_interp_object.slope.array[k].time));
+    if (k == 0)
+        t_interp = hist_interp_object.slope.array[k].time;
+    else {
+
+        k--;
+        t_interp = t;
+
+    }
+
+    t_diff = t_interp - hist_interp_object.slope.array[k].time;
+
+    for (j=0; j < hist_interp_object.maxsize; j++)
+    {
+
+        blug[j] = hist_interp_object.func.array[k].state.array[j]
+                    + hist_interp_object.slope.array[k].state.array[j]
+                    *t_diff;
+
+    }
+
+    if (n >= hist_interp_object.maxsize)
+        zygote.Go_Forward_wrapper(yd, blug, t_size, hist_interp_object.maxtime,
+                                  zygote.get_ngenes());
+    else
+        zygote.Go_Backward_wrapper(yd, blug, t_size, hist_interp_object.maxtime,
+                                   zygote.get_ngenes());
+    free(blug);
+
+    return;
+}
+
+void SoDe::ExternalInputs(double t, double t_size, double *yd, int n)
+{
+
+    int j,k;
+    double *blug;
+    double t_interp, t_diff;
+
+/*  printf("Going from %d to %d, time:%f time for size:%f\n",maxsize,n,t,t_size);*/
+
+    blug = (double *) calloc(extinp_interp_object.maxsize,
+                                                sizeof(double));
+
+    k = -1;
+    do {
+            k++;
+
+    } while ( (k < extinp_interp_object.slope.size ) &&
+                        (t > extinp_interp_object.slope.array[k].time));
+    if (k == 0)
+        t_interp = extinp_interp_object.slope.array[k].time;
+    else {
+
+        k--;
+        t_interp = t;
+
+    }
+
+    t_diff = t_interp - extinp_interp_object.slope.array[k].time;
+
+    for (j=0; j < extinp_interp_object.maxsize; j++)
+    {
+
+        blug[j] = extinp_interp_object.func.array[k].state.array[j]
+                + extinp_interp_object.slope.array[k].state.array[j]
+                *t_diff;
+
+    }
+
+    if (n >= extinp_interp_object.maxsize)
+        zygote.Go_Forward_wrapper(yd, blug, t_size,
+                                  extinp_interp_object.maxtime,
+                                  zygote.get_egenes());
+    else
+        zygote.Go_Backward_wrapper(yd, blug, t_size,
+                                   extinp_interp_object.maxtime,
+                                   zygote.get_egenes());
+    free(blug);
+
+    return;
+}
+
+void SoDe::DivideHistory(double t1, double t2)
+{
+
+    double *blug;
+    int i,size;
+
+    if ((size = zygote.get_NNucs(t2) * zygote.get_ngenes())
+            > zygote.get_NNucs(t1) * zygote.get_ngenes())
+        for (i=0; i <= gridpos; i++)
+        {
+
+            blug = (double *) calloc(size, sizeof(double));
+
+            zygote.Go_Forward_wrapper(blug, vdonne[i], t2, t1,
+                                      zygote.get_ngenes());
+
+            free(vdonne[i]);
+            vdonne[i] = blug;
+
+            blug = (double *) calloc(size, sizeof(double));
+
+            zygote.Go_Forward_wrapper(blug, derivv1[i], t2, t1,
+                                      zygote.get_ngenes());
+
+            free(derivv1[i]);
+            derivv1[i] = blug;
+
+            blug = (double *) calloc(size, sizeof(double));
+
+            zygote.Go_Forward_wrapper(blug, derivv2[i], t2, t1,
+                                      zygote.get_ngenes());
+
+            free(derivv2[i]);
+            derivv2[i] = blug;
+
+            blug = (double *) calloc(size, sizeof(double));
+
+            zygote.Go_Forward_wrapper(blug, derivv3[i], t2, t1,
+                                      zygote.get_ngenes());
+
+            free(derivv3[i]);
+            derivv3[i] = blug;
+
+            blug = (double *) calloc(size, sizeof(double));
+
+            zygote.Go_Forward_wrapper(blug, derivv4[i], t2, t1,
+                                      zygote.get_ngenes());
+
+            free(derivv4[i]);
+            derivv4[i] = blug;
+
+        }
 
 }
