@@ -70,3 +70,4 @@ int          count_Slist    (Slist *start);
 
 const int IGNORE = -1;
 Dlist *ReadData(FILE *fp , char *section, int *ndp, int ngenes);
+Dlist *ReadInterpData(FILE *fp , char *section, int num_genes, int *ndp);

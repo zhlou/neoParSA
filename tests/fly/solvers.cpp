@@ -2903,6 +2903,7 @@ void BaDe::lubksb(double **a, int n, int *indx, double *b) {
 SoDe::SoDe(const zygotic &in_zy, int in_debug) :
         solver(in_zy, in_debug)
 {
+    TheMaternal = zygote.get_Maternal();
     gridpos = -1;
     gridstart = 0;
     tdone = NULL;
@@ -3964,11 +3965,13 @@ void SoDe::History(double t, double t_size, double *yd, int n)
     }
 
     if (n >= hist_interp_object.maxsize)
-        zygote.Go_Forward_wrapper(yd, blug, t_size, hist_interp_object.maxtime,
-                                  zygote.get_ngenes());
+        Go_Forward(yd, blug, TheMaternal.GetStartLinIndex(t_size),
+                   TheMaternal.GetStartLinIndex(hist_interp_object.maxtime),
+                   TheMaternal.defs.ngenes);
     else
-        zygote.Go_Backward_wrapper(yd, blug, t_size, hist_interp_object.maxtime,
-                                   zygote.get_ngenes());
+        Go_Backward(yd, blug, TheMaternal.GetStartLinIndex(t_size),
+                    TheMaternal.GetStartLinIndex(hist_interp_object.maxtime),
+                    TheMaternal.defs.ngenes);
     free(blug);
 
     return;
@@ -4013,13 +4016,13 @@ void SoDe::ExternalInputs(double t, double t_size, double *yd, int n)
     }
 
     if (n >= extinp_interp_object.maxsize)
-        zygote.Go_Forward_wrapper(yd, blug, t_size,
-                                  extinp_interp_object.maxtime,
-                                  zygote.get_egenes());
+        Go_Forward(yd, blug, TheMaternal.GetStartLinIndex(t_size),
+                   TheMaternal.GetStartLinIndex(extinp_interp_object.maxtime),
+                   TheMaternal.defs.egenes);
     else
-        zygote.Go_Backward_wrapper(yd, blug, t_size,
-                                   extinp_interp_object.maxtime,
-                                   zygote.get_egenes());
+        Go_Backward(yd, blug, TheMaternal.GetStartLinIndex(t_size),
+                    TheMaternal.GetStartLinIndex(extinp_interp_object.maxtime),
+                    TheMaternal.defs.egenes);
     free(blug);
 
     return;
@@ -4038,40 +4041,45 @@ void SoDe::DivideHistory(double t1, double t2)
 
             blug = (double *) calloc(size, sizeof(double));
 
-            zygote.Go_Forward_wrapper(blug, vdonne[i], t2, t1,
-                                      zygote.get_ngenes());
+            Go_Forward(blug, vdonne[i], TheMaternal.GetStartLinIndex(t2),
+                       TheMaternal.GetStartLinIndex(t1),
+                       TheMaternal.defs.ngenes);
 
             free(vdonne[i]);
             vdonne[i] = blug;
 
             blug = (double *) calloc(size, sizeof(double));
 
-            zygote.Go_Forward_wrapper(blug, derivv1[i], t2, t1,
-                                      zygote.get_ngenes());
+            Go_Forward(blug, derivv1[i], TheMaternal.GetStartLinIndex(t2),
+                       TheMaternal.GetStartLinIndex(t1),
+                       TheMaternal.defs.ngenes);
 
             free(derivv1[i]);
             derivv1[i] = blug;
 
             blug = (double *) calloc(size, sizeof(double));
 
-            zygote.Go_Forward_wrapper(blug, derivv2[i], t2, t1,
-                                      zygote.get_ngenes());
+            Go_Forward(blug, derivv2[i], TheMaternal.GetStartLinIndex(t2),
+                       TheMaternal.GetStartLinIndex(t1),
+                       TheMaternal.defs.ngenes);
 
             free(derivv2[i]);
             derivv2[i] = blug;
 
             blug = (double *) calloc(size, sizeof(double));
 
-            zygote.Go_Forward_wrapper(blug, derivv3[i], t2, t1,
-                                      zygote.get_ngenes());
+            Go_Forward(blug, derivv3[i], TheMaternal.GetStartLinIndex(t2),
+                       TheMaternal.GetStartLinIndex(t1),
+                       TheMaternal.defs.ngenes);
 
             free(derivv3[i]);
             derivv3[i] = blug;
 
             blug = (double *) calloc(size, sizeof(double));
 
-            zygote.Go_Forward_wrapper(blug, derivv4[i], t2, t1,
-                                      zygote.get_ngenes());
+            Go_Forward(blug, derivv4[i], TheMaternal.GetStartLinIndex(t2),
+                       TheMaternal.GetStartLinIndex(t1),
+                       TheMaternal.defs.ngenes);
 
             free(derivv4[i]);
             derivv4[i] = blug;
@@ -4079,3 +4087,132 @@ void SoDe::DivideHistory(double t1, double t2)
         }
 
 }
+
+void SoDe::Go_Forward(double *output, double *input, int output_ind, int
+input_ind, int num_genes)
+{
+
+    double *y;
+    int output_lin, input_lin, size, newsize;
+    int k, ap, i, j, ii;
+
+    output_lin = TheMaternal.Index2StartLin(output_ind);
+    newsize = TheMaternal.Index2NNuc(output_ind)*num_genes;
+
+/*  printf("output lineage start, indices:%d, %d, %d\n",output_lin,output_ind,input_ind);*/
+
+    if (output_ind < input_ind - 1)
+    {
+        size = TheMaternal.Index2NNuc(output_ind+1)*num_genes;
+        y = (double *) calloc(size, sizeof(double));
+/*      printf("Passing on to another fwd with targets %d %d %d\n",size,output_ind+1,input_ind);*/
+        Go_Forward(y,input,output_ind+1,input_ind,num_genes);
+    } else if  (output_ind == input_ind - 1)
+    {
+        size = TheMaternal.Index2NNuc(input_ind)*num_genes;
+        y = (double *) calloc(size, sizeof(double));
+/*      printf("Goin' to do the tranfer:%d %d\n",size,newsize);*/
+        y = memcpy(y,input,size*sizeof(double));
+    } else if (output_ind == input_ind) {
+        output = memcpy(output,input,newsize*sizeof(double));
+        return;
+    }
+    else error("You are trying to go from nnucs %d to %d!",
+               TheMaternal.Index2NNuc(input_ind),
+               TheMaternal.Index2NNuc(output_ind));
+
+
+      for (j=0; j < size; j++) {
+
+    k  = j % num_genes;     /* k: index of gene k in current nucleus */
+    ap = j / num_genes;      /* ap: rel. nucleus position on AP axis */
+
+/* evaluate ii: index of anterior daughter nucleus */
+
+    if ( output_lin % 2 )
+      ii = 2 * ap * num_genes + k - num_genes;
+    else
+      ii = 2 * ap * num_genes + k;
+
+/* skip the first most anterior daughter nucleus in case output_lin is odd */
+
+        if ( ii >= 0 )
+      output[ii] = y[j];
+
+/* the second daughter only exists if it is still within the region */
+
+    if ( ii + num_genes < newsize )
+      output[ii+num_genes] =  y[j];
+      }
+
+    free(y);
+
+    return;
+}
+
+
+void SoDe::Go_Backward(double *output, double *input, int output_ind, int
+input_ind, int num_genes)
+{
+
+    double *y;
+    int output_lin, input_lin, size, newsize;
+    int k, ap, i, j, ii;
+
+    output_lin = TheMaternal.Index2StartLin(output_ind);
+    input_lin  = TheMaternal.Index2StartLin(input_ind);
+    newsize = TheMaternal.Index2NNuc(output_ind)*num_genes;
+
+/*  printf("output lineage start, indices:%d, %d, %d\n",output_lin,output_ind,input_ind);*/
+
+    if (output_ind > input_ind + 1)
+    {
+        size = TheMaternal.Index2NNuc(output_ind-1)*num_genes;
+        y = (double *) calloc(size, sizeof(double));
+/*      printf("Passing on to another bkd with targets %d %d %d\n",size,output_ind-1,input_ind);*/
+        Go_Backward(y,input,output_ind-1,input_ind,num_genes);
+        input_lin  = TheMaternal.Index2StartLin(output_ind-1);
+    } else if  (output_ind == input_ind + 1 )
+    {
+        size = TheMaternal.Index2NNuc(input_ind)*num_genes;
+        y = (double *) calloc(size, sizeof(double));
+/*      printf("Goin' to do the tranfer\n");*/
+        memcpy(y,input,size*sizeof(double));
+    } else if (output_ind == input_ind){
+        memcpy(output,input,newsize*sizeof(double));
+        return;
+    }
+    else error("You are trying to go from nnucs %d to %d!",
+               TheMaternal.Index2NNuc(input_ind),
+               TheMaternal.Index2NNuc(output_ind));
+
+      for (j=0; j < newsize; j++) {
+
+    k  = j % num_genes;     /* k: index of gene k in current nucleus */
+    ap = j / num_genes;      /* ap: rel. nucleus position on AP axis */
+
+/* evaluate ii: index of anterior daughter nucleus */
+
+    if ( input_lin % 2 )
+      ii = 2 * ap * num_genes + k - num_genes;
+    else
+      ii = 2 * ap * num_genes + k;
+
+/* skip the first most anterior daughter nucleus in case output_lin is odd */
+
+    if (ii < 0)
+        output[j] = y[ii + num_genes];
+
+    if (( ii >= 0 ) && (ii + num_genes < size))
+        output[j] = .5*(y[ii] + y[ii+num_genes]);
+
+    if (ii + num_genes >= size)
+        output[j] = y[ii];
+
+      }
+
+    free(y);
+
+    return;
+}
+
