@@ -1671,6 +1671,40 @@ not lead to incorrect rules being used at the end-points */
 
 }
 
+/*** PrintBlastoderm: writes the output of the model to a stream specified *
+ *                    by the fp file pointer; the table is a solution of   *
+ *                    the model as returned by Blastoderm(), the id speci- *
+ *                    fies the title of the output and ndigits specifies   *
+ *                    the floating point precision of the concentrations   *
+ *                    to be printed                                        *
+ ***************************************************************************/
+void zygotic::PrintBlastoderm(FILE *fp, NArrPtr table, char *id, int ndigits,
+                     int columns)
+{
+    int                i, j, k;                       /* local loop counters */
+    int                lineage;                /* lineage number for nucleus */
+
+    /* print title (id) */
+
+    fprintf(fp, "$%s\n", id);
+
+    /* print table with correct lineage numbers (obtained from maternal.c) */
+
+    for (i=0; i < table.size; i++) {
+        for(j=0; j < (table.array[i].state.size/columns); j++) {
+            lineage = TheMaternal.GetStartLin(table.array[i].time) + j;
+            fprintf(fp, "%5d %9.3f", lineage, table.array[i].time);
+            for (k=0; k < columns; k++)
+                fprintf(fp, " %*.*f", ndigits+5, ndigits,
+                        table.array[i].state.array[k+(j*columns)]);
+            fprintf(fp, "\n");
+        }
+        fprintf(fp, "\n");
+    }
+    fprintf(fp,"$$\n");
+    fflush(fp);
+}
+
 void zygotic::d_deriv(double *v, double **vd, double t, double *vdot, int n)
 {
     double vinput1 = 0;

@@ -9,8 +9,12 @@
 #define SCORING_H_
 
 #include <cstdio>
+#include <limits>
+#include "flyData.h"
 using namespace std;
 
+const double FORBIDDEN_MOVE = numeric_limits<double>::max();
+const int MAX_PRECISION = 16;
 /*** STRUCTURES ************************************************************/
 
 /* range struct for limits and such */
@@ -73,7 +77,9 @@ private:
     zygotic &Zygote;
     maternal &TheMaternal;
     TheProblem &defs;
+    int nalleles;
     SoDe *delay_solver;
+    int debug;
     GenoType *facttype; /* array of structs that hold facts for each genotype */
     GenoType *tt; /* tt holds the times for which there's  */
                   /* data (one array for each genotype)    */
@@ -121,10 +127,46 @@ private:
     void DoInterp(DataTable *interp_dat, InterpObject *interp_res,
                   int num_genes);
     void GetInterp(FILE *fp, char *title, int num_genes,
-                   DataTable **interp_tables)
+                   DataTable **interp_tables);
+
+    /*** GetPenalty: calculates penalty from static limits, vmax and mmax ******
+     *   CAUTION:    InitPenalty must be called first!                         *
+     ***************************************************************************/
+    double GetPenalty(void);
+
+    /*** Eval: scores the summed squared differences between equation solution *
+     *         and data. Because the times for states written to the Solution  *
+     *         structure are read out of the data file itself, we do not check *
+     *         for consistency of times in this function---all times with data *
+     *         will be in the table, but the table may also contain additional *
+     *         times.                                                          *
+     ***************************************************************************/
+    double Eval(NArrPtr Solution, int gindex);
+
+    /*** GutEval: this is the same as Eval, i.e it calculates the summed squa- *
+     *            red differences between equation solution and data, with the *
+     *            addition that individual squared differences between data-   *
+     *            points are written to STDOUT in the unfold output format     *
+     ***************************************************************************/
+
+    double GutEval(NArrPtr Solution, int gindex);
 public:
-    scoring(FILE *fp, zygotic &zy, double step, double acc, FILE *slog, char *infile);
+    scoring(FILE *fp, zygotic &zy, double step, double acc, FILE *slog,
+            char *infile, int in_debug);
     ~scoring();
+
+    /*** Score: as the name says, score runs the simulation, gets a solution ***
+     *          and then compares it to the data using the Eval least squares  *
+     *          function                                                       *
+     *   NOTE:  both InitZygote and InitScoring have to be called first!       *
+     ***************************************************************************/
+
+    double Score(void)
+    void SetGuts (int gutflag, int ndigits)
+    {
+        gutparms.flag = gutflag;
+        gutparms.ndigits = ndigits;
+    }
 };
 
 #endif /* SCORING_H_ */

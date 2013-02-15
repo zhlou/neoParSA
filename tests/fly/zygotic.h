@@ -38,18 +38,6 @@ typedef enum GFunc {
   Hvs
 } GFunc;
 
-struct InterpObject {
-
-
-    double              *fact_discons;
-    int                 fact_discons_size;
-    NArrPtr             func;
-    NArrPtr             slope;
-    int                 maxsize;
-    double              maxtime;
-
-
-};
 
 
 /*** A GLOBAL **************************************************************/
@@ -223,10 +211,15 @@ public:
                        InterpObject hist_interrp,
                        InterpObject extinp_interrp, DArrPtr tabtimes,
                        double stephint, double accuracy, FILE *slog);
+
+    void PrintBlastoderm(FILE *fp, NArrPtr table, char *id,
+                 int ndigits, int columns);
+
     maternal &get_Maternal() const {return TheMaternal;}
     int get_ngenes() const {return defs.ngenes;}
     int get_egenes() const {return defs.egenes;}
     int get_NNucs(double t) const {return TheMaternal.GetNNucs(t);}
+    EqParms *GetParameters(void) {return &parm;}
     SoDe *get_delay_solver () const
     {
         return (typeid(*solve) == typeid(SoDe)) ? dynamic_cast<SoDe *>(solve) :

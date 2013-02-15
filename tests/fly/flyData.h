@@ -8,9 +8,10 @@
 #ifndef FLYDATA_H_
 #define FLYDATA_H_
 
+#include <cfloat>
 /* DBL_EPSILON is about 2 x 10^-16. so BIG_EPSILON is ~10^-11 min. */
 
-#define      EPSILON     (DBL_EPSILON * 1000.)
+#define      EPSILON     (std::DBL_EPSILON * 1000.)
                                   /* This assumes all times < 100. min. !! */
 
 #ifdef       FLOAT_EVERYTHING
@@ -96,7 +97,23 @@ struct GenoType {
   DataPtr          ptr;
 };
 
+struct InterpObject {
+
+
+    double              *fact_discons;
+    int                 fact_discons_size;
+    NArrPtr             func;
+    NArrPtr             slope;
+    int                 maxsize;
+    double              maxtime;
+
+
+};
+
+
 void FreeSolution(NArrPtr *solution);
 void FreeFacts(DataTable *D);
-
+int descend(const int *x, const int *y);
+NArrPtr Dat2NArrPtr(DataTable *table, int *maxind);
+NArrPtr ConvertAnswer(NArrPtr answer, DArrPtr tabtimes);
 #endif /* FLYDATA_H_ */

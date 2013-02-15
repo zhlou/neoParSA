@@ -8,15 +8,17 @@
 #include <gsl/gsl_spline.h>
 #include "scoring.h"
 
+
 scoring::scoring(FILE *fp, zygotic &zy, double step, double acc, FILE *slog,
-                 char *infile) :
+                 char *infile, int in_debug) :
                  Zygote(zy), stepsize(step), accuracy(acc), slogptr(slog),
-                 filename(infile)
+                 filename(infile), debug(in_debug)
 {
 
     TheMaternal = Zygote.get_Maternal();
     defs = TheMaternal.getProblem();
     delay_solver = Zygote.get_delay_solver();
+    gutparms.flag = false;
 
     // InitFacts
     int               i, j;                               /* local loop counter */
@@ -25,7 +27,7 @@ scoring::scoring(FILE *fp, zygotic &zy, double step, double acc, FILE *slog,
 
     Slist             *s_current;                      /* types from data file */
 
-    int nalleles = TheMaternal.GetNAlleles();
+    nalleles = TheMaternal.GetNAlleles();
     if ( !(facttype=(GenoType *)calloc(nalleles,
                                        sizeof(GenoType))) )
       error("InitFacts: could not allocate facttype struct");
@@ -703,7 +705,7 @@ void scoring::InitHistory(FILE *fp)
         DoInterp(*temp_table, polations+i, defs.ngenes);
         FreeFacts(*temp_table);
 
-        theta_discons = Get_Theta_Discons(&theta_discons_size);
+        theta_discons = TheMaternal.Get_Theta_Discons(&theta_discons_size);
 
 
         (polations+i)->fact_discons = (double *) realloc((polations+i)->fact_discons,
@@ -716,9 +718,9 @@ void scoring::InitHistory(FILE *fp)
         free(theta_discons);
 
         if ( defs.ndivs > 0 ) {
-            if ( !(temp_divtable = GetDivtable()) )
+            if ( !(temp_divtable = TheMaternal.GetDivtable()) )
                 error("InitHistory: error getting temp_divtable");
-            if ( !(temp_durations = GetDurations()) )
+            if ( !(temp_durations = TheMaternal.GetDurations()) )
                 error("Inithistory: error getting division temp_durations");
 
             for (ii=0; ii<defs.ndivs; ii++) {
@@ -741,7 +743,7 @@ void scoring::InitHistory(FILE *fp)
 
         qsort((void *) (polations+i)->fact_discons,
                 (polations+i)->fact_discons_size,
-                sizeof(double),(int (*) (void*,void*)) compare);
+                sizeof(double),(int (*) (const void*,const void*)) compare);
 
     }
 
@@ -767,8 +769,7 @@ void scoring::GetInterp(FILE *fp, char *title, int num_genes,
         error("SetFacts: no facts section for history for"
                                                     "delay solver");
 
-    *interp_tables = List2Interp(list_dat, num_genes);
-    InitFullNNucs();
+    *interp_tables = TheMaternal.List2Interp(list_dat, num_genes);
 
     free_Dlist(list_dat);
 
@@ -944,4 +945,376 @@ num_genes)
     FreeSolution(&Nptrfacts);
 
     return;
+}
+
+/*** REAL SCORING CODE HERE ************************************************/
+
+
+/*** Score: as the name says, score runs the simulation, gets a solution ***
+ *          and then compares it to the data using the Eval least squares  *
+ *          function                                                       *
+ *   NOTE:  both InitZygote and InitScoring have to be called first!       *
+ ***************************************************************************/
+
+double scoring::Score(void)
+{
+    int        i, j, ii;                              /* local loop counters */
+    FILE       *fp;                                          /* file pointer */
+
+    char       *debugfile;                             /* name of debug file */
+
+    NArrPtr    answer;                /* stores the Solution from Blastoderm */
+
+    EqParms    *parm;             /* local copy of parameters for comparison */
+    /* to limits */
+
+    double     chisq   = 0;                    /* summed squared differences */
+    double     penalty = 0;                          /* variable for penalty */
+
+
+    /* debugging mode: need debugging file name */
+
+    if ( debug )
+        debugfile = (char *)calloc(MAX_RECORD, sizeof(char));
+
+    parm = Zygote.GetParameters();                 /* get parameters from zygotic.c */
+
+    /* The following will be called after parms are tweaked, hence it must     *
+     * check signs. If it appears cleaner, sign checking could be done by the  *
+     * tweaker                                                                 */
+
+    for ( ii=0; ii < defs.ngenes; ii++) { /* NOTE: parm is a global EqParms  */
+        /* struct declared in zygotic.h    */
+        if (parm->R[ii] < 0)
+            parm->R[ii] = -parm->R[ii];       /* Rs and lambdas should ALWAYS be */
+        /* greater than zero. So this just */
+        if (parm->lambda[ii] < 0)           /* makes sure of that, I guess     */
+            parm->lambda[ii] = -parm->lambda[ii];
+    }
+
+    /* The following fors and ifs check the searchspace in such a way as to    *
+     * return after as few calculations as possible                            */
+
+    for(i=0; i < defs.ngenes; i++) {
+        if( parm->R[i] > limits->Rlim[i]->upper)
+            return(FORBIDDEN_MOVE);
+        if( parm->R[i] < limits->Rlim[i]->lower)
+            return(FORBIDDEN_MOVE);
+        if( parm->lambda[i] > limits->lambdalim[i]->upper)
+            return(FORBIDDEN_MOVE);
+        if( parm->lambda[i] < limits->lambdalim[i]->lower)
+            return(FORBIDDEN_MOVE);
+        if( parm->tau[i] > limits->taulim[i]->upper)
+            return(FORBIDDEN_MOVE);
+        if( parm->tau[i] < limits->taulim[i]->lower)
+            return(FORBIDDEN_MOVE);
+    }
+
+    if( (defs.diff_schedule == 'A') || (defs.diff_schedule == 'C' ) ) {
+        if( parm->d[0] > limits->dlim[0]->upper)
+            return(FORBIDDEN_MOVE);
+        if( parm->d[0] < limits->dlim[0]->lower)
+            return(FORBIDDEN_MOVE);
+    }
+    else {
+        for(i=0; i < defs.ngenes; i++){
+            if( parm->d[i] > limits->dlim[i]->upper)
+                return(FORBIDDEN_MOVE);
+            if( parm->d[i] < limits->dlim[i]->lower)
+                return(FORBIDDEN_MOVE);
+        }
+    }
+
+    /* Penalty stuff below */
+    /* If you're using limits on contributors to u, check'em here */
+
+    if( limits->pen_vec == NULL ) {
+        for(i=0; i<defs.ngenes; i++) {
+            for(j=0; j<defs.ngenes; j++) {
+                if (parm->T[(i * defs.ngenes) + j] >
+                limits->Tlim[(i * defs.ngenes) + j]->upper)
+                    return(FORBIDDEN_MOVE);
+                if (parm->T[(i * defs.ngenes) + j] <
+                        limits->Tlim[(i * defs.ngenes) + j]->lower)
+                    return(FORBIDDEN_MOVE);
+            }
+
+            /* 01/13/10 Manu: This loop is never entered if there are no
+             * external inputs */
+
+            for(j=0; j<defs.egenes; j++) {
+                if (parm->E[(i * defs.egenes) + j] >
+                limits->Elim[(i * defs.egenes) + j]->upper)
+                    return(FORBIDDEN_MOVE);
+                if (parm->E[(i * defs.egenes) + j] <
+                        limits->Elim[(i * defs.egenes) + j]->lower)
+                    return(FORBIDDEN_MOVE);
+            }
+
+            if (parm->m[i] > limits->mlim[i]->upper)
+                return(FORBIDDEN_MOVE);
+            if (parm->m[i] < limits->mlim[i]->lower)
+                return(FORBIDDEN_MOVE);
+
+            if (parm->h[i] > limits->hlim[i]->upper)
+                return(FORBIDDEN_MOVE);
+            if (parm->h[i] < limits->hlim[i]->lower)
+                return(FORBIDDEN_MOVE);
+        }
+
+        /* if you're going to calculate penalty on u, do it here */
+        /* following lines calculate exp of sum of squares penalty function */
+
+    } else {
+        penalty = GetPenalty();
+        if ( penalty == FORBIDDEN_MOVE )
+            return FORBIDDEN_MOVE;
+        chisq += penalty;
+    }
+
+    /* this loop runs the model and sums squared differences for all genotypes */
+
+    InterpObject dummy_polations; // to make Blastoderm happy
+    for ( i=0; i<nalleles; i++) {
+        if (delay_solver)
+            answer = Zygote.Blastoderm(i, facttype[i].genotype, polations[i],
+                                       extinp_polations[i],tt[i].ptr.times,
+                                       stepsize, accuracy, slogptr);
+        else
+            answer = Zygote.Blastoderm(i, facttype[i].genotype, dummy_polations,
+                                       dummy_polations,tt[i].ptr.times,
+                                       stepsize, accuracy, slogptr);
+        if ( debug ) {
+            sprintf(debugfile, "%s.%s.pout", filename, facttype[i].genotype);
+            fp = fopen(debugfile, "w");
+            if( !fp ) {
+                perror("printscore");
+                exit(1);
+            }
+            Zygote.PrintBlastoderm(fp, answer, "debug_output", MAX_PRECISION,
+                            defs.ngenes);
+            fclose(fp);
+        }
+
+        if (gutparms.flag)
+            chisq += GutEval(answer, i);
+        else {
+            chisq += Eval(answer, i);
+            /*    printf("Genotype %d: %f\n",i,chisq);*/
+        }
+    }
+
+    if ( debug )
+        free( debugfile );
+
+    return chisq;
+}
+
+/*** GetPenalty: calculates penalty from static limits, vmax and mmax ******
+ *   CAUTION:    InitPenalty must be called first!                         *
+ ***************************************************************************/
+
+double scoring::GetPenalty(void)
+{
+  int           i, j;                                /* local loop counter */
+  double        argument = 0;    /* variable for penalty function argument */
+  double        penalty  = 0;                      /* holds penalty result */
+
+  EqParms       *parm;                            /* local copy of eqparms */
+
+  double        Lambda;                                  /* penalty Lambda */
+  double        mmax;                            /* mmax in penalty vector */
+  double        *vmax;          /* pointer to vmax array in penalty vector */
+
+  static int    donethis = 0;         /* KLUDGE: only print this info once */
+
+  if ( limits->pen_vec == NULL )
+    return -1;
+
+  Lambda = *((limits->pen_vec));  /* Lambda: first entry in penalty vector */
+  mmax   = *((limits->pen_vec) + 1);               /* locate mmax and vmax */
+  vmax   =   (limits->pen_vec) + 2;
+
+/* print debugging info */
+
+  if ( debug && !donethis ) {
+    printf("Penalty:\n\n");
+    printf("Lambda:    %10.8f\n", Lambda);
+    printf("mmax:    %6.2f\n", mmax);
+    for ( i=0; i<defs.ngenes; i++ )
+      printf("vmax[%d]: %6.2f\n", i, vmax[i]);
+    for ( i=0; i<defs.egenes; i++ )
+      printf("vmax[%d]: %6.2f\n", i+defs.ngenes, vmax[i+defs.ngenes]);
+    printf("\n");
+  }
+
+/* calculate penalty */
+
+  parm = Zygote.GetParameters();
+
+  for( i=0; i < defs.ngenes; i++) {
+    for(j=0; j < defs.ngenes; j++)
+      argument += (parm->T[(i*defs.ngenes)+j]*vmax[j])
+    * (parm->T[(i*defs.ngenes)+j]*vmax[j]);
+
+    for(j=0; j < defs.egenes; j++)
+      argument += (parm->E[(i*defs.egenes)+j]*vmax[j+defs.ngenes])
+    * (parm->E[(i*defs.egenes)+j]*vmax[j+defs.ngenes]);
+
+    argument += (parm->m[i] * mmax) * (parm->m[i] * mmax);
+    argument += parm->h[i] * parm->h[i];
+  }
+
+/* e was 2.718281828 in old code---doubt it matters!! */
+/* 88.7228391 is the maximum save value to use with exp (see man exp) */
+
+  if ( (Lambda * argument) > 88.7228391 )
+    return FORBIDDEN_MOVE;
+  else
+    penalty = (exp( Lambda * argument ) - 2.718281828459045);
+
+  if(penalty <= 0)
+    penalty = 0;
+
+  donethis = 1;
+
+  return penalty;
+
+}
+
+/*** Eval: scores the summed squared differences between equation solution *
+ *         and data. Because the times for states written to the Solution  *
+ *         structure are read out of the data file itself, we do not check *
+ *         for consistency of times in this function---all times with data *
+ *         will be in the table, but the table may also contain additional *
+ *         times.                                                          *
+ ***************************************************************************/
+
+double scoring::Eval(NArrPtr Solution, int gindex)
+{
+    DataTable    fact_tab;      /* stores a copy of the Facts (from GenoTab) */
+    DataPoint    point;           /* used to extract an element of DataTable */
+
+    int          tindex;                       /* index for facts timepoints */
+    int          sindex;                    /* index for Solution timepoints */
+    int          vindex;                        /* index for facts datapoint */
+
+    double       time;                      /* time for each facts timepoint */
+    double       difference;      /* diff btw data and model (per datapoint) */
+    double       *v;                   /* ptr to solution for each timepoint */
+    double       chisq = 0;                /* the final score to be returned */
+
+    FILE *score;
+
+
+    /* extablish a pointer to the appropriate facts section in GenoTab */
+
+    fact_tab = *(facttype[gindex].ptr.facts);
+    sindex   = 0;
+
+    /* the following loop adds all squared differences for the whole Solution */
+
+    for (tindex=0; tindex < fact_tab.size; tindex++) {
+        time = fact_tab.record[tindex].time;
+
+        /* new time step to be compared? -> get the Solution for this time */
+
+        while( fabs(time - Solution.array[sindex].time) >= BIG_EPSILON )
+            sindex++;
+
+        v = Solution.array[sindex].state.array;
+
+        /* this loop steps through the Solution for a specific timepoint and       */
+        /* evaluates the squared diffs                                             */
+
+        for (vindex=0; vindex < fact_tab.record[tindex].size; vindex++) {
+            point = fact_tab.record[tindex].array[vindex];
+            difference = point.conc - v[point.index];
+            chisq += difference * difference;
+        }
+    }
+
+    return chisq;                                              /* that's it! */
+}
+
+/*** GutEval: this is the same as Eval, i.e it calculates the summed squa- *
+ *            red differences between equation solution and data, with the *
+ *            addition that individual squared differences between data-   *
+ *            points are written to STDOUT in the unfold output format     *
+ ***************************************************************************/
+
+double scoring::GutEval(NArrPtr Solution, int gindex)
+{
+    int          i, j;                                      /* loop counters */
+
+    DataTable    fact_tab;      /* stores a copy of the Facts (from GenoTab) */
+    DataPoint    point;           /* used to extract an element of DataTable */
+    NArrPtr      gut;         /* individual square root diff for a datapoint */
+    NArrPtr      outgut;                             /* output gut structure */
+
+    int          tindex;                       /* index for facts timepoints */
+    int          sindex;                    /* index for Solution timepoints */
+    int          vindex;                        /* index for facts datapoint */
+
+    double       time;                      /* time for each facts timepoint */
+    double       difference;      /* diff btw data and model (per datapoint) */
+    double       *v;                   /* ptr to solution for each timepoint */
+    double       chisq = 0;                /* the final score to be returned */
+    char         gen_print[MAX_RECORD];   /* for PrintBlastoderm */
+
+    /* extablish a pointer to the appropriate facts section in GenoTab */
+
+    fact_tab = *(facttype[gindex].ptr.facts);
+    sindex   = 0;
+    gen_print[0] = (char) 48+gindex;
+
+    /* initialize the gut structure */
+
+    gut.array = (NucState *)calloc(Solution.size, sizeof(NucState));
+    gut.size  = Solution.size;
+    for (i=0; i<gut.size; i++) {
+        gut.array[i].time        = Solution.array[i].time;
+        gut.array[i].state.size  = Solution.array[i].state.size;
+        gut.array[i].state.array =
+                (double *)calloc(gut.array[i].state.size, sizeof(double));
+        for (j=0; j < gut.array[i].state.size; j++)
+            gut.array[i].state.array[j] = -1.0;
+    }
+
+    /* the following loop adds all squared differences for the whole Solution */
+
+    for (tindex=0; tindex<fact_tab.size; tindex++) {
+        time = fact_tab.record[tindex].time;
+
+        /* new time step to be compared? -> get the Solution for this time */
+
+        while( fabs(time - Solution.array[sindex].time) >= BIG_EPSILON )
+            sindex++;
+
+        v = Solution.array[sindex].state.array;
+
+        /* this loop steps through the Solution for a specific time point and      */
+        /* evaluates the squared diffs; additionally it stores individual squared  */
+        /* diffs in the guts array                                                 */
+
+        for(vindex=0; vindex < fact_tab.record[tindex].size; vindex++) {
+            point = fact_tab.record[tindex].array[vindex];
+            difference = point.conc - v[point.index];
+            chisq += difference * difference;
+            gut.array[sindex].state.array[point.index] = difference * difference;
+        }
+    }
+
+    /* strip gut struct of cell division times and print it to stdout */
+
+    outgut = ConvertAnswer(gut, tt[gindex].ptr.times);
+    Zygote.PrintBlastoderm(stdout, outgut, strcat(gen_print, " genotype\n"),
+                           gutparms.ndigits, defs.ngenes);
+
+    /* release the guts struct */
+
+    FreeSolution(&gut);
+    free(gut.array);
+
+    return chisq;                                              /* that's it! */
 }

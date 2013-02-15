@@ -8,7 +8,7 @@
 #ifndef SOLVERS_H_
 #define SOLVERS_H_
 
-class zygotic;
+#include "zygotic.h"
 
 class solver
 {

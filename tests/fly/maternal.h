@@ -80,12 +80,12 @@ private:
 
     /* following is number of nucs in each cleavage cycle, reverse order */
     int *nnucs;
-    int *full_nnucs = NULL; // TODO: init this in score
+    int *full_nnucs = NULL;
 
     /* following contains lineage numbers at which nuclei at each ccycle start */
     int *lin_start;
-    int *full_lin_start = NULL; // TODO: init this
-    int full_ccycles; // TODO: init this in score
+    int *full_lin_start = NULL;
+    int full_ccycles;
 
 
     /* The following two store bicoid gradients and bias static to maternal.c  */
@@ -202,6 +202,8 @@ public:
     int Index2NNuc(int index){ return full_nnucs[index]; }
     int GetNAlleles() const {return nalleles;}
     Slist *GetGenotypes() const {return genotypes;}
+    double *Get_Theta_Discons(int *theta_discon_size);
+    DataTable *List2Interp(Dlist *inlist, int num_genes);
 };
 
 

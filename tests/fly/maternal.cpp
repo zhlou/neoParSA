@@ -506,6 +506,9 @@ BArrPtr maternal::List2Bicoid(Blist* inlist)
     if (!(lin_start = (int *) calloc(defs.ndivs + 1, sizeof(int))))
         error("List2Bicoid: could not allocate lin_start array");
 
+
+
+
     /*** for loop: step through linked list and copies values into an array    *
      *             of BcdGrads; there's one BcdGrad for each cleavage cycle;   *
      *             each BcdGrad has: - ccycle (the cleavage cycle number)      *
@@ -554,10 +557,38 @@ BArrPtr maternal::List2Bicoid(Blist* inlist)
 
         }
 
+
         /* in any case: read concentration into gradient array */
 
         bicoid.array[bicoid.size - 1].gradient.array[i] = current->conc;
         i++;
+    }
+
+    // InitFullNNucs & part of List2Interp stuff here
+    if ( !(full_lin_start = (int *)calloc(defs.ndivs+1, sizeof(int))) )
+        error("List2Interp: could not allocate full_lin_start array");
+
+    full_ccycles =  defs.ndivs + 1;
+
+
+    if ( !(full_nnucs = (int *)calloc(full_ccycles, sizeof(int))) )
+      error("InitFullNNucs: could not allocate full_nnucs array");
+
+    n = defs.nnucs;
+
+  /* below we have to take into account two cases: a) most anterior lineage  *
+   * number is odd-numbered -> always add a nucleus to the earlier cycle or  *
+   * b) most anterior lineage number is even-numbered: just add an additio-  *
+   * nal nucleus if last nucleus is odd-numbered (see also exhaustive com-   *
+   * ments about this at the DIVIDE rule in Blastoderm() in integrate.c)     */
+
+    for(i=0; i < full_ccycles; i++) {
+        full_lin_start[i] = lin_start[i];
+        full_nnucs[i] = n;
+        if ( full_lin_start[i] % 2 )
+            n = n/2 + 1;
+        else
+            n = (n % 2) ? n/2 + 1 : n/2;
     }
 
     return bicoid;
@@ -1171,4 +1202,140 @@ int maternal::GetStartLinIndex(double t)
       return i;
 
   return i;
+}
+
+double *maternal::Get_Theta_Discons(int *theta_discon_size)
+{
+
+    int s,i,j;
+    double *dt,*dd,*disc_array;
+
+    s = (TOTAL_DIVS - defs.ndivs);
+    disc_array = (double *) calloc(2*s, sizeof(double));
+
+    if ( defs.ndivs == 0 ) {
+        dt=(double *)full_divtimes0;
+        dd=(double *)full_div_durations;
+      } else if ( defs.ndivs == 1 ) {
+        dt=(double *)full_divtimes1;
+        dd=(double *)full_div_durations;
+      } else if ( defs.ndivs == 2 ) {
+        dt=(double *)full_divtimes2;
+        dd=(double *)full_div_durations;
+      } else if ( defs.ndivs == 3 ) {
+        dt=(double *)full_divtimes3;
+        dd=(double *)full_div_durations;
+      } else if ( defs.ndivs == 4 ) {
+        dt=(double *)full_divtimes4;
+        dd=(double *)full_div_durations;
+      } else
+        error("Get_Theta_Discons: can't handle %d cell divisions!", defs.ndivs);
+
+    for (i=0,j=0;i<s;i++,j+=2) {
+        *(disc_array+j) = dt[defs.ndivs+i];
+        *(disc_array+j+1) = dt[defs.ndivs+i] -
+        dd[defs.ndivs+i];
+    }
+
+    *theta_discon_size = 2*s;
+    return disc_array;
+}
+
+DataTable *maternal::List2Interp(Dlist *inlist, int num_genes)
+{
+
+
+  int       i = 0;
+  int       j;                                      /* local loop counters */
+
+  double    now = -999999999.;            /* assigns data to specific time */
+
+  Dlist     *current;                    /* holds current element of Dlist */
+
+  DataTable *D;                                 /* local copy of DataTable */
+
+
+
+  D = (DataTable *)malloc(sizeof(DataTable));
+                                         /* Initialize DataTable structure */
+  D->size = 0;
+  D->record = NULL;
+
+/*** for loop: steps through linked list and transfers facts into Data-    *
+ *             Records, one for each time step                             *
+ ***************************************************************************/
+
+  for (current=inlist; current; current=current->next) {
+
+    if ( current->d[0] != now ) {             /* a new time point: allocate */
+      now = current->d[0];                             /* the time is now! */
+      D->size++;                           /* one DataRecord for each time */
+      D->record =                                   /* allocate DataRecord */
+    (DataRecord *)realloc(D->record,D->size*sizeof(DataRecord));
+
+      D->record[D->size-1].time = now;          /* next three lines define */
+      D->record[D->size-1].size = 0;                /* DataRecord for each */
+      D->record[D->size-1].array = NULL;                      /* time step */
+      i = 0;
+    }
+
+    for(j=1; j <= num_genes; j++) {     /* always: read concs into array */
+    D->record[D->size-1].size++;            /* one more in this record */
+    D->record[D->size-1].array =       /* reallocate memory for array! */
+      realloc(D->record[D->size-1].array,
+          D->record[D->size-1].size * sizeof(DataPoint));
+
+/* the following two lines assign concentration value and index ************/
+
+    D->record[D->size-1].array[D->record[D->size-1].size-1].conc =
+      current->d[j];
+    D->record[D->size-1].array[D->record[D->size-1].size-1].index = i;
+
+      i++;
+
+    }
+
+/* initialize lin_start: this array is later used by Blastoderm and such   */
+
+    if (ParseLineage(full_lin_start[full_ccycles - 1]) !=
+            ParseLineage(current->lineage)  ) {
+        full_ccycles++;
+
+        if ( !(full_lin_start = (int *)realloc(full_lin_start,
+                                            full_ccycles*sizeof(int))) )
+            error("List2Interp: could not allocate full_lin_start array");
+
+        full_lin_start[full_ccycles-1] = current->lineage;
+
+    }
+
+  }
+
+    qsort((void *) full_lin_start, full_ccycles, sizeof(int),(int (*)
+    (const void*,const void*)) descend);
+
+/*  for (i=0; i < full_ccycles; i++)
+    printf("History lineages before removing dups %d\n", full_lin_start[i]);*/
+
+/* Now lets remove duplicates */
+
+    i = 0;
+
+    while (i < full_ccycles-1 )
+    {
+        if (full_lin_start[i] == full_lin_start[i+1])
+        {
+            memmove((full_lin_start+i),(full_lin_start+i+1),
+                                (full_ccycles-i-1)*sizeof(int));
+/*          printf("Shifted %d elements to %d\n",full_ccycles-i-1,i);*/
+            full_ccycles--;
+            i--;
+        }
+
+    i++;
+    full_lin_start = (int *) realloc(full_lin_start,
+                                    full_ccycles*sizeof(int));
+    }
+
+  return D;
 }
