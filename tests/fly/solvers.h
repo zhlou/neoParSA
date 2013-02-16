@@ -283,4 +283,7 @@ private:
 
 
 };
+
+solver *SolverFactory(const zygotic &zygote, int debug,
+                      const char *name="Rk4");
 #endif /* SOLVERS_H_ */

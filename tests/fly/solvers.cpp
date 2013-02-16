@@ -4216,3 +4216,35 @@ input_ind, int num_genes)
     return;
 }
 
+solver *SolverFactory(const zygotic &zygote, int debug, const char *name)
+{
+    if (!(strcmp(name, "a")) || !(strcmp(name, "Adams")))
+        return new Adams(zygote, debug);
+    else if (!(strcmp(name, "bd")) || !(strcmp(name, "BaDe")))
+        return new BaDe(zygote, debug);
+    else if (!(strcmp(name, "bs")) || !(strcmp(name, "BuSt")))
+        return new BuSt(zygote, debug);
+    else if (!(strcmp(name, "e")) || !(strcmp(name, "Euler")))
+        return new Euler(zygote, debug);
+    else if (!(strcmp(name, "h")) || !(strcmp(name, "Heun")))
+        return new Heun(zygote, debug);
+    else if (!(strcmp(name, "mi")) || !(strcmp(name, "m"))
+             || !(strcmp(name, "Milne")))
+        return new Milne(zygote, debug);
+    else if (!(strcmp(name, "me")) || !(strcmp(name, "Meuler")))
+        return new Meuler(zygote, debug);
+    else if (!(strcmp(name, "r4")) || !(strcmp(name, "r"))
+             || !(strcmp(name, "Rk4")))
+        return new Rk4(zygote, debug);
+    else if (!(strcmp(name, "r2")) || ! (strcmp(name, "Rk2")))
+        return new Rk2(zygote, debug);
+    else if (!(strcmp(name, "rck")) || !(strcmp(name, "Rkck")))
+        return new Rkck(zygote, debug);
+    else if (!(strcmp(name, "rf")) || !(strcmp(name, "Rkf")))
+        return new Rkf(zygote, debug);
+    else if (!(strcmp(name, "sd")) || !(strcmp(name, "SoDe")))
+        return new SoDe(zygote, debug);
+    else
+        return NULL;
+
+}
