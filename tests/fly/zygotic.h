@@ -74,7 +74,7 @@ private:
     int rule; /* propagation rule for DvdtOrig */
     int genindex; /* genotype index, needed by DvdtOrig */ // TODO: init me
     /* for getting bicoid from maternal.c */
-    EqParms ReadParameters(FILE *fp, char *section_title);
+    EqParms ReadParameters(FILE *fp, const char *section_title);
 
     // old static varibles used in p_deriv
     int dvdt_num_nucs = 0; /* store the number of nucs for next step */
@@ -180,7 +180,8 @@ private:
 
 public:
 
-    zygotic(maternal &in_maternal, FILE *fp, char *parm_section);
+    zygotic(maternal &in_maternal, FILE *fp, const char *parm_section,
+            int debug, const char *solver_name);
     virtual ~zygotic();
 
     // This is the DvdtOrig

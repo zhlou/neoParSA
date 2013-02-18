@@ -13,7 +13,7 @@ const int MAX_ARGS = 25;
 
 void error(const char *format, ...);
 void warning(const char *format, ...);
-FILE *FindSection(FILE *fp, char *section);
+FILE *FindSection(FILE *fp, const char *section);
 
 
 #endif /* FLYUTILS_H_ */

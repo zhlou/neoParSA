@@ -22,15 +22,17 @@ const int zygotic::DIVIDE = 4;
 const int zygotic::PROPAGATE = 8;
 const int zygotic::MITOTATE = 16;
 
-zygotic::zygotic(maternal& in_maternal, FILE *fp, char* parm_section) :
-        TheMaternal(in_maternal), defs(in_maternal.getProblem())
+zygotic::zygotic(maternal& in_maternal, FILE *fp, const char* parm_section,
+                 int in_debug, const char *solver_name) :
+        TheMaternal(in_maternal), defs(in_maternal.getProblem()),
+        debug(in_debug)
 {
     parm = ReadParameters(fp, parm_section);
     D = (double *) calloc(defs.ngenes, sizeof(double));
     vinput = (double *) calloc(defs.ngenes * defs.nnucs, sizeof(double));
     bot2 = (double *) calloc(defs.ngenes * defs.nnucs, sizeof(double));
     bot = (double *) calloc(defs.ngenes * defs.nnucs, sizeof(double));
-    solve = NULL;
+    solve = SolverFactory(*this, debug, solver_name);
 
 }
 
@@ -41,7 +43,7 @@ zygotic::zygotic(maternal& in_maternal, FILE *fp, char* parm_section) :
  *                  by the section_title argument and does the conversion  *
  *                  of protein half lives into lambda parameters.          *
  ***************************************************************************/
-EqParms zygotic::ReadParameters(FILE* fp, char* section_title)
+EqParms zygotic::ReadParameters(FILE* fp, const char* section_title)
 {
     EqParms l_parm; /* local copy of EqParm struct */
     double *tempparm, *tempparm1; /* temporary array to read parms */

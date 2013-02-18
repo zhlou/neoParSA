@@ -174,7 +174,7 @@ protected:
 class BuSt : public StepSolver
 {
 public:
-    Bust(const zygotic &in_zy, int in_debug) : solver(in_zy, in_debug) {};
+    BuSt(const zygotic &in_zy, int in_debug) : solver(in_zy, in_debug) {};
     void ps(double *vin, double *vout, double tin, double tout,
             double stephint, double accuracy, int n, FILE *slog);
 private:

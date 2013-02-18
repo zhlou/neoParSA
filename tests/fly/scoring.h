@@ -152,7 +152,7 @@ private:
     double GutEval(NArrPtr Solution, int gindex);
 public:
     scoring(FILE *fp, zygotic &zy, double step, double acc, FILE *slog,
-            char *infile, int in_debug);
+            const char *infile, int in_debug);
     ~scoring();
 
     /*** Score: as the name says, score runs the simulation, gets a solution ***

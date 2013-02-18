@@ -10,7 +10,7 @@
 
 
 scoring::scoring(FILE *fp, zygotic &zy, double step, double acc, FILE *slog,
-                 char *infile, int in_debug) :
+                 const char *infile, int in_debug) :
                  Zygote(zy), stepsize(step), accuracy(acc), slogptr(slog),
                  filename(infile), debug(in_debug)
 {

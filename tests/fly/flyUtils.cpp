@@ -12,7 +12,7 @@
 
 using namespace std;
 
-FILE* FindSection(FILE* fp, char* input_section)
+FILE* FindSection(FILE* fp, const char* input_section)
 {
     int c; /* input happens character by character */
     int nsought; /* holds length of section title */
