@@ -44,12 +44,31 @@ struct fly_params
 
 };
 
-class fly
+class fly // This class implements the interfaces and has old translate stuff
 {
 private:
+    /* Tweak struct is for tweaking individual parameters or not; each pointer *
+     * below points to an array of ints which represent each paramter          *
+     * 1 means tweak, 0 means leave it alone                                   *
+     * see ../doc/dataformatX.X for further details on the tweak section       */
+
+    struct Tweak {
+        int *Rtweak; /* which Rs to be tweaked */
+        int *Ttweak; /* which Ts to be tweaked */
+        int *Etweak; /* which Es to be tweaked */
+        int *mtweak; /* which ms to be tweaked */
+        int *htweak; /* which hs to be tweaked */
+        int *dtweak; /* which ds to be tweaked */
+        int *lambdatweak; /* which lambdas to be tweaked */
+        int *tautweak; /* which taus to be tweaked */
+    };
+
     maternal *TheMaternal;
     zygotic *zygote;
     scoring *score;
+    TheProblem &defs;
+
+    Tweak tweak; /* tells the annealer which parameters to tweak */
 public:
     fly(const fly_params &params);
 
