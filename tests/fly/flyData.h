@@ -25,6 +25,9 @@
 const int INTERPHASE = 0;
 const int MITOSIS = 1;
 
+const int MAX_RECORD = 256;
+const int MAX_ARGS = 25;
+
 
 
 /* general struct used for sized array of doubles */
@@ -116,4 +119,9 @@ void FreeFacts(DataTable *D);
 int descend(const int *x, const int *y);
 NArrPtr Dat2NArrPtr(DataTable *table, int *maxind);
 NArrPtr ConvertAnswer(NArrPtr answer, DArrPtr tabtimes);
+
+void error(const char *format, ...);
+void warning(const char *format, ...);
+FILE *FindSection(FILE *fp, const char *section);
+
 #endif /* FLYDATA_H_ */
