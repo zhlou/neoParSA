@@ -6,9 +6,6 @@
  */
 
 #include "fly.h"
-#include "maternal.h"
-#include "zygotic.h"
-#include "scoring.h"
 
 fly_params::fly_params() : // initialize default parameters
         section_title("eqparms"), solver_name("Rk4")
@@ -26,16 +23,14 @@ fly_params::fly_params() : // initialize default parameters
     debug = 0;
 }
 
-fly::fly(const fly_params &params) {
-    TheMaternal = new maternal(params.infile);
-    defs = TheMaternal->getProblem();
-    zygote = new zygotic(*TheMaternal, params.infile,
-                         params.section_title.c_str(), params.debug,
-                         params.solver_name.c_str());
-    score = new scoring(params.infile, *zygote, params.stepsize,
-                        params.accuracy,params.slog, params.infile_name.c_str(),
-                        params.debug);
-
+fly::fly(const fly_params &params) :
+        TheMaternal(params.infile), defs(TheMaternal.getProblem()),
+        zygote(TheMaternal, params.infile, params.section_title.c_str(), params.debug,
+               params.solver_name.c_str()),
+        score(params.infile, *zygote, params.gutflag, params.gutndigits, params.stepsize,
+              params.accuracy,params.slog, params.infile_name.c_str(),
+              params.debug)
+{
     // read tweak
 
     int *temptweak, *temptweak1; /* temporary arrays to read tweaks */

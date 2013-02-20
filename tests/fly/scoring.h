@@ -151,7 +151,7 @@ private:
 
     double GutEval(NArrPtr Solution, int gindex);
 public:
-    scoring(FILE *fp, zygotic &zy, double step, double acc, FILE *slog,
+    scoring(FILE *fp, zygotic &zy, int flags, int ndigits, double step, double acc, FILE *slog,
             const char *infile, int in_debug);
     ~scoring();
 

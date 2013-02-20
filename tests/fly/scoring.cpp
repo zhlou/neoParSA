@@ -9,7 +9,7 @@
 #include "scoring.h"
 
 
-scoring::scoring(FILE *fp, zygotic &zy, double step, double acc, FILE *slog,
+scoring::scoring(FILE *fp, zygotic &zy, int flags, int ndigits, double step, double acc, FILE *slog,
                  const char *infile, int in_debug) :
                  Zygote(zy), stepsize(step), accuracy(acc), slogptr(slog),
                  filename(infile), debug(in_debug)
@@ -18,7 +18,8 @@ scoring::scoring(FILE *fp, zygotic &zy, double step, double acc, FILE *slog,
     TheMaternal = Zygote.get_Maternal();
     defs = TheMaternal.getProblem();
     delay_solver = Zygote.get_delay_solver();
-    gutparms.flag = false;
+    gutparms.flag = flags;
+    gutparms.ndigits = ndigits;
 
     // InitFacts
     int               i, j;                               /* local loop counter */

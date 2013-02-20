@@ -8,13 +8,13 @@
 #ifndef FLY_H_
 #define FLY_H_
 
+#include "maternal.h"
+#include "zygotic.h"
+#include "scoring.h"
+
 #include <string>
 
 using namespace std;
-
-class maternal;
-class zygotic;
-class scoring;
 
 struct fly_params
 {
@@ -63,10 +63,10 @@ private:
         int *tautweak; /* which taus to be tweaked */
     };
 
-    maternal *TheMaternal;
-    zygotic *zygote;
-    scoring *score;
-    TheProblem &defs;
+    maternal TheMaternal;
+    zygotic zygote;
+    scoring score;
+    const TheProblem &defs;
 
     Tweak tweak; /* tells the annealer which parameters to tweak */
 public:

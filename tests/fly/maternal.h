@@ -126,7 +126,7 @@ private:
 public:
     maternal(FILE *fp);
     ~maternal();
-    TheProblem& getProblem() const {return defs;}
+    const TheProblem& getProblem() const {return defs;}
 
     Blist *ReadBicoid(FILE *fp, char *section); // scoring needs this
 
