@@ -21,30 +21,30 @@ const double lam::UNINITIALIZED = numeric_limits<double>::max();
 
 lam::lam(xmlNode *root)
 {
-    xmlNode *section = getSectionByName(root, (char *)"annealer_input");
+    xmlNode *section = getSectionByName(root, "annealer_input");
 
     if (section == NULL) {
         throw runtime_error(string("Error: fail to find section annealer_input"));
     }
-    lambda = getPropDouble(section, (char *)"lambda");
-    //init_S = 1.0 / getPropDouble(section, (char *)"init_T");
-    //init_loop = getPropInt(section, (char *)"init_loop");
+    lambda = getPropDouble(section, "lambda");
+    //init_S = 1.0 / getPropDouble(section, "init_T");
+    //init_loop = getPropInt(section, "init_loop");
 
-    section = getSectionByName(root, (char *)"lam");
+    section = getSectionByName(root, "lam");
     if (section == NULL)
         throw runtime_error(string("Error: fail to find section lam"));
-    proc_tau = getPropInt(section, (char *)"tau");
+    proc_tau = getPropInt(section, "tau");
 
-    double memlength_mean = getPropDouble(section, (char *)"memLength_mean");
-    double memlength_sd = getPropDouble(section, (char *)"memLength_mean");
+    double memlength_mean = getPropDouble(section, "memLength_mean");
+    double memlength_sd = getPropDouble(section, "memLength_mean");
     w_mean = 1.0 - proc_tau / (memlength_mean / lambda);
     if (w_mean < 0.)
         w_mean = 0.;
     w_sd = 1.0 - proc_tau / (memlength_sd / lambda);
     if (w_sd < 0.)
         w_sd = 0.;
-    freeze_crit = getPropDouble(section, (char *)"criterion");
-    cnt_crit = getPropInt(section, (char *)"freeze_cnt");
+    freeze_crit = getPropDouble(section, "criterion");
+    cnt_crit = getPropInt(section, "freeze_cnt");
     freeze_cnt = 0;
     fit_mean = NULL;
     fit_sd = NULL;

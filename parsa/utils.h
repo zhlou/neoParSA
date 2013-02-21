@@ -8,9 +8,9 @@
 #ifndef UTILS_H_
 #define UTILS_H_
 #include <libxml/tree.h>
-double getPropDouble(xmlNode *section, char *name);
-int getPropInt(xmlNode *section, char *name);
-xmlNode *getSectionByName(xmlNode *root, char *name);
+double getPropDouble(xmlNode *section, const char *name);
+int getPropInt(xmlNode *section, const char *name);
+xmlNode *getSectionByName(xmlNode *root, const char *name);
 
 
 #endif /* UTILS_H_ */

@@ -13,8 +13,8 @@ adaptMix<Problem>::adaptMix(Problem& in_problem, const MPIState& mpiState,
         xmlNode *docroot) :
         problem(in_problem), mpi(mpiState), rnd(mpi.rank), root(docroot)
 {
-    xmlNode *section = getSectionByName(root, (char *) "mix");
-    adaptCoef = getPropDouble(section, (char *)"adaptcoef");
+    xmlNode *section = getSectionByName(root, "mix");
+    adaptCoef = getPropDouble(section, "adaptcoef");
 
     energy_tab = new double[mpi.nnodes];
     prob_tab = new double[mpi.nnodes];

@@ -4,32 +4,138 @@
  *  Created on: Feb 18, 2013
  *      Author: zhlou
  */
-
+#include <stdexcept>
 #include "fly.h"
 
-fly_params::fly_params() : // initialize default parameters
-        section_title("eqparms"), solver_name("Rk4")
+using namespace std;
+
+fly_params readFlyParams(xmlNode *docroot)
 {
-    ndigits = 12;
-    gutndigits = 6;
-    penaltyflag = 0;
-    rmsflag = 1;
-    gutflag = 0;
-    stepsize = 1.;
-    accuracy = 0.001;
-    infile = NULL;
-    dumpptr = NULL;
-    slog = NULL;
-    debug = 0;
+    static const double MAX_STEPSIZE = 100.8;
+    fly_params params;
+
+    // put defaults on
+    params.section_title = string("eqparms");
+    params.solver_name = string("Rk4");
+    params.ndigits = 12;
+    params.gutndigits = 6;
+    // params.penaltyflag = 0;
+    // params.rmsflag = 1;
+    params.GofU = Sqrt;
+    params.gutflag = 0;
+    params.stepsize = 1.;
+    params.accuracy = 0.001;
+    params.infile = NULL;
+    params.dumpptr = NULL;
+    params.slog = NULL;
+    params.debug = 0;
+
+    // now start to read from xml
+    xmlNode *section = docroot->children;
+    while (section != NULL) {
+        if(!xmlStrcmp(section->name,(const xmlChar *)"fly"))
+            break;
+        section = section->next;
+    }
+    if (section == NULL)
+        throw runtime_error("No fly section specified");
+
+    // infile must be specified
+    xmlChar *prop = NULL;
+    prop = xmlGetProp(section, (const xmlChar *)"infile");
+    if (prop == NULL)
+        throw runtime_error("No input file specified");
+    params.infile_name = (char *)prop;
+    xmlFree(prop);
+    prop = NULL;
+    params.infile = fopen(params.infile_name.c_str(), "r");
+    if (params.infile == NULL)
+        throw runtime_error(string("Unable to open file ")+params.infile_name);
+
+
+    // rest of the parameters are optional
+    prop = xmlGetProp(section, (const xmlChar *)"solver");
+    if (prop != NULL) {
+        params.solver_name = (char *)prop;
+        xmlFree(prop);
+        prop = NULL;
+    }
+    prop = xmlGetProp(section, (const xmlChar *)"ndigits");
+    if (prop != NULL) {
+        params.ndigits = atoi((char *)prop);
+        xmlFree(prop);
+        prop = NULL;
+        if (params.ndigits < 0)
+            throw runtime_error("ndigits: what exactly would a negative precision be???");
+        params.gutndigits = params.ndigits;
+    }
+    prop = xmlGetProp(section, (const xmlChar *)"gutflag");
+    if (prop != NULL) {
+        params.gutflag = atoi((char *)prop);
+        xmlFree(prop);
+        prop = NULL;
+    }
+    prop = xmlGetProp(section, (const xmlChar *)"debug");
+    if (prop != NULL) {
+        params.debug = atoi((char *)prop);
+        xmlFree(prop);
+        prop = NULL;
+    }
+    prop = xmlGetProp(section, (const xmlChar *)"gofu");
+    if (prop != NULL) {
+        // The C++ string *copies* the prop data to the string structure. So
+        // prop can be freed immediately. Since the string is declared here,
+        // the memory space it allocated will be freed as soon as the code
+        // leaves this if branch.
+        string in_gofu((char *)prop);
+        xmlFree(prop);
+        prop = NULL;
+        if (in_gofu == "Sqrt")
+            params.GofU = Sqrt;
+        else if (in_gofu == "Tanh")
+            params.GofU = Tanh;
+        else if (in_gofu == "Exp")
+            params.GofU = Exp;
+        else if (in_gofu == "Hvs")
+            params.GofU = Hvs;
+        else
+            throw runtime_error(string("Unrecognized GofU: ") + in_gofu);
+    }
+    prop = xmlGetProp(section, (const xmlChar *)"stepsize");
+    if (prop != NULL) {
+        params.stepsize = strtod((char *)prop, NULL);
+        xmlFree(prop);
+        prop = NULL;
+        if (params.stepsize <= 0)
+            throw runtime_error("stepsize is too small");
+        if (params.stepsize > MAX_STEPSIZE)
+            throw runtime_error("stepsize is too big");
+    }
+    prop = xmlGetProp(section, (const xmlChar *)"accuracy");
+    if (prop != NULL) {
+        params.accuracy = strtod((char *)prop, NULL);
+        xmlFree(prop);
+        prop = NULL;
+        if (params.stepsize <= 0)
+            throw runtime_error("accuracy is too small");
+    }
+    prop = xmlGetProp(section, (const xmlChar *)"section");
+    if (prop != NULL) {
+        params.section_title = (char *)prop;
+        xmlFree(prop);
+        prop = NULL;
+    }
+    return params;
 }
 
 fly::fly(const fly_params &params) :
-        TheMaternal(params.infile), defs(TheMaternal.getProblem()),
-        zygote(TheMaternal, params.infile, params.section_title.c_str(), params.debug,
-               params.solver_name.c_str()),
-        score(params.infile, *zygote, params.gutflag, params.gutndigits, params.stepsize,
-              params.accuracy,params.slog, params.infile_name.c_str(),
-              params.debug)
+        TheMaternal(params.infile),
+        defs(TheMaternal.getProblem()),
+        zygote(TheMaternal, params.infile, params.section_title.c_str(),
+               params.debug, params.solver_name.c_str()),
+        score(params.infile, *zygote, params.gutflag, params.gutndigits,
+              params.stepsize, params.accuracy, params.slog,
+              params.infile_name.c_str(), params.debug)
 {
     // read tweak
 

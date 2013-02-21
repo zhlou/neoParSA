@@ -12,7 +12,7 @@
 using namespace std;
 
 
-double getPropDouble(xmlNode* section, char* name)
+double getPropDouble(xmlNode* section, const char* name)
 {
     xmlChar *prop = NULL;
     prop = xmlGetProp(section, (xmlChar *)name);
@@ -24,10 +24,10 @@ double getPropDouble(xmlNode* section, char* name)
     return val;
 }
 
-int getPropInt(xmlNode* section, char* name)
+int getPropInt(xmlNode* section, const char* name)
 {
     xmlChar *prop = NULL;
-    prop = xmlGetProp(section, (xmlChar *)name);
+    prop = xmlGetProp(section, (const xmlChar *)name);
     if (prop == NULL)
         throw runtime_error(string("Error: fail to find property ")
                 +name+" in xml section "+(char *)(section->name));
@@ -36,11 +36,11 @@ int getPropInt(xmlNode* section, char* name)
     return val;
 }
 
-xmlNode* getSectionByName(xmlNode* root, char* name)
+xmlNode* getSectionByName(xmlNode* root, const char* name)
 {
     xmlNode *section = root->children;
     while (section != NULL) {
-        if(!xmlStrcmp(section->name,(xmlChar *)name))
+        if(!xmlStrcmp(section->name,(const xmlChar *)name))
             break;
         section = section->next;
     }

@@ -61,14 +61,14 @@ annealer<Schedule, Move, Random>::annealer(Schedule& in_cool, Move& in_move,
         Random &in_rand, xmlNode *root) :
         cooling(in_cool), move(in_move), rand(in_rand), xmlroot(root)
 {
-    xmlNode *xmlsection = getSectionByName(root, (char *) "annealer_input");
+    xmlNode *xmlsection = getSectionByName(root, "annealer_input");
 
     if (xmlsection == NULL) {
         throw runtime_error(
                 string("Error: fail to find section annealer_input"));
     }
-    initS = 1.0 / getPropDouble(xmlsection, (char *) "init_T");
-    initLoop = getPropInt(xmlsection, (char *) "init_loop");
+    initS = 1.0 / getPropDouble(xmlsection, "init_T");
+    initLoop = getPropInt(xmlsection, "init_loop");
     state.s = initS;
     is_init = false;
     state.step_cnt = 0;

@@ -13,12 +13,12 @@
 #include "scoring.h"
 
 #include <string>
+#include <libxml/tree.h>
 
 using namespace std;
 
 struct fly_params
 {
-    fly_params(); // initialize parameters to defaults
     FILE          *infile;                     /* pointer to input data file */
 
     FILE          *dumpptr;          /* pointer for dumping raw model output */
@@ -29,9 +29,10 @@ struct fly_params
 
     int           ndigits;     /* precision of output, default = 12 */
     int           gutndigits;      /* precision for gut output, def = 6 */
-    int           penaltyflag;              /* flag for printing penalty */
-    int           rmsflag;     /* flag for printing root mean square */
+    //int           penaltyflag;              /* flag for printing penalty */
+    // int           rmsflag;     /* flag for printing root mean square */
     int           gutflag;         /* flag for root square diff guts */
+    GFunc GofU;
 
     double        stepsize;                   /* stepsize for solver */
     double        accuracy;                /* accuracy for solver */
@@ -43,6 +44,9 @@ struct fly_params
 
 
 };
+
+// set default parameters and read from xml for any parameters that get override
+fly_params readFlyParams(xmlNode *docroot);
 
 class fly // This class implements the interfaces and has old translate stuff
 {

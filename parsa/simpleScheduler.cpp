@@ -13,14 +13,14 @@ using namespace std;
 
 simpleSchedule::simpleSchedule(xmlNode *root)
 {
-    xmlNode *xmlsection = getSectionByName(root, (char *)"annealer_input");
+    xmlNode *xmlsection = getSectionByName(root, "annealer_input");
 
     if (xmlsection == NULL) {
         throw runtime_error(string("Error: fail to find section annealer_input"));
     }
-    //init_S = 1.0 / getPropDouble(xmlsection, (char *)"init_T");
-    lambda = getPropDouble(xmlsection, (char *)"lambda");
-    //init_loop = getPropInt(xmlsection, (char *)"init_loop");
+    //init_S = 1.0 / getPropDouble(xmlsection, "init_T");
+    lambda = getPropDouble(xmlsection, "lambda");
+    //init_loop = getPropInt(xmlsection, "init_loop");
     reject_cnt = 0;
 
 }

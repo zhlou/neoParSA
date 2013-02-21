@@ -31,12 +31,12 @@ struct EqParms
 /* This is the g(u)-function enum which describes the different types of   *
  * g(u) functions we can use in derivative functions                       */
 
-typedef enum GFunc {
+enum  GFunc{
   Sqrt,
   Tanh,
   Exp,
   Hvs
-} GFunc;
+};
 
 
 
