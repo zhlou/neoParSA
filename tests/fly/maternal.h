@@ -124,7 +124,7 @@ private:
     double *theta_dd; /* pointer to division duration table */
 
 public:
-    maternal(FILE *fp);
+    maternal(FILE *fp, int divstyle);
     ~maternal();
     const TheProblem& getProblem() const {return defs;}
 

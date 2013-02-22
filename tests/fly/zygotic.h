@@ -10,6 +10,7 @@
 #include <cstdio>
 using namespace std;
 
+class solver;
 class SoDe;
 class maternal;
 struct TheProblem;
@@ -72,7 +73,7 @@ private:
     /* two local copies for propagation rule and genotype number */
 
     int rule; /* propagation rule for DvdtOrig */
-    int genindex; /* genotype index, needed by DvdtOrig */ // TODO: init me
+    int genindex; /* genotype index, needed by DvdtOrig */ // it is set in blastoderm
     /* for getting bicoid from maternal.c */
     EqParms ReadParameters(FILE *fp, const char *section_title);
 
@@ -128,7 +129,7 @@ private:
     void FreeTList(TList *first);
 
 
-    solver *solve; // TODO: add a method to generate actual solver
+    solver *solve;
 
     /* Mutator functions */
 
@@ -181,7 +182,7 @@ private:
 public:
 
     zygotic(maternal &in_maternal, FILE *fp, const char *parm_section,
-            int debug, const char *solver_name);
+            GFunc in_gofu, int debug, const char *solver_name);
     virtual ~zygotic();
 
     // This is the DvdtOrig
@@ -189,7 +190,7 @@ public:
 
     virtual void p_jacobn(double t, double *v, double *dfdt, double **jac, int n);
 
-    // TODO implement me This is the DvdtDelay
+    // This is the DvdtDelay
     virtual void d_deriv(double *v, double **vd, double t, double *vdot, int n);
 
 

@@ -19,6 +19,7 @@ fly_params readFlyParams(xmlNode *docroot)
     params.solver_name = string("Rk4");
     params.ndigits = 12;
     params.gutndigits = 6;
+    params.olddivstyle = 0;
     // params.penaltyflag = 0;
     // params.rmsflag = 1;
     params.GofU = Sqrt;
@@ -75,11 +76,21 @@ fly_params readFlyParams(xmlNode *docroot)
         xmlFree(prop);
         prop = NULL;
     }
+    prop = xmlGetProp(section, (const xmlChar *)"olddivstyle");
+    if (prop != NULL) {
+        params.olddivstyle = atoi((char *)prop);
+        xmlFree(prop);
+        prop = NULL;
+    }
     prop = xmlGetProp(section, (const xmlChar *)"debug");
     if (prop != NULL) {
         params.debug = atoi((char *)prop);
         xmlFree(prop);
         prop = NULL;
+        if (params. debug) {
+            string slogfile(infile_name + ".slog");
+            params.slog = fopen(slogfile.c_str(), "w");
+        }
     }
     prop = xmlGetProp(section, (const xmlChar *)"gofu");
     if (prop != NULL) {
@@ -129,10 +140,10 @@ fly_params readFlyParams(xmlNode *docroot)
 }
 
 fly::fly(const fly_params &params) :
-        TheMaternal(params.infile),
+        TheMaternal(params.infile, params.olddivstyle),
         defs(TheMaternal.getProblem()),
         zygote(TheMaternal, params.infile, params.section_title.c_str(),
-               params.debug, params.solver_name.c_str()),
+               params.GofU, params.debug, params.solver_name.c_str()),
         score(params.infile, *zygote, params.gutflag, params.gutndigits,
               params.stepsize, params.accuracy, params.slog,
               params.infile_name.c_str(), params.debug)
@@ -334,4 +345,9 @@ fly::fly(const fly_params &params) :
             free(fmt1[i]);
         free(fmt1);
     }
+}
+
+double fly::get_score()
+{
+    return score.Score();
 }

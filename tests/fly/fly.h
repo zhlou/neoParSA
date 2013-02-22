@@ -32,6 +32,7 @@ struct fly_params
     //int           penaltyflag;              /* flag for printing penalty */
     // int           rmsflag;     /* flag for printing root mean square */
     int           gutflag;         /* flag for root square diff guts */
+    int olddivstyle;
     GFunc GofU;
 
     double        stepsize;                   /* stepsize for solver */
@@ -73,9 +74,14 @@ private:
     const TheProblem &defs;
 
     Tweak tweak; /* tells the annealer which parameters to tweak */
+
 public:
     fly(const fly_params &params);
-
+    int getDimension(); // returns the dimension of the problem
+    double get_score(); // returns the energy (score) of the problem
+    void generateMove(int index, double theta_bar);
+    // make the perturbation on parameter index with theta_bar
+    void restoreMove(int index);
 };
 
 #endif /* FLY_H_ */

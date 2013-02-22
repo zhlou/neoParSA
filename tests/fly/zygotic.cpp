@@ -23,9 +23,9 @@ const int zygotic::PROPAGATE = 8;
 const int zygotic::MITOTATE = 16;
 
 zygotic::zygotic(maternal& in_maternal, FILE *fp, const char* parm_section,
-                 int in_debug, const char *solver_name) :
+                 GFunc in_gofu, int in_debug, const char *solver_name) :
         TheMaternal(in_maternal), defs(in_maternal.getProblem()),
-        debug(in_debug)
+        gofu(in_gofu), debug(in_debug)
 {
     parm = ReadParameters(fp, parm_section);
     D = (double *) calloc(defs.ngenes, sizeof(double));
@@ -265,6 +265,15 @@ zygotic::~zygotic()
     free(vinput);
     free(bot2);
     free(bot);
+    free(parm.R);
+    free(parm.T);
+    if (defs.egenes > 0)
+        free(parm.E);
+    free(parm.m);
+    free(parm.h);
+    free(parm.d);
+    free(parm.lambda);
+    free(parm.tau);
     // TODO free parm
 }
 

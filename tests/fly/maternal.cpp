@@ -92,7 +92,7 @@ unsigned int ParseLineage(unsigned int lin)
     return 0; /* just to make the compiler happy! */
 }
 
-maternal::maternal(FILE* fp)
+maternal::maternal(FILE* fp, int divstyle) : olddivstyle(divstyle)
 {
     ReadTheProblem(fp);
     genotypes = ReadGenotypes(fp);
@@ -100,16 +100,41 @@ maternal::maternal(FILE* fp)
     InitBicoid(fp);
     InitBias(fp);
     InitNNucs();
-    // TODO: init olddivstyle
     InitGetD();
     InitTheta();
 }
 
 maternal::~maternal()
 {
-    // TODO: free biastype
-    // TODO: free lin_start
-    // TODO: free bcdtype
+    free(lin_start);
+    free(full_lin_start);
+    free(nnucs);
+    free(full_nnucs);
+    free(defs.gene_ids);
+    free(defs.egene_ids);
+    int i, j;
+    for (i = 0; i < nalleles; ++i) {
+        // free bcdtype & biastype
+        free(bcdtype[i].genotype);
+         for (j = 0; j < bcdtype[i].ptr.bicoid.size; ++j) {
+            // next version, this HAS to have a built in destructor
+            free(bcdtype[i].ptr.bicoid.array[j].gradient.array);
+        }
+        free(bcdtype[i].ptr.bicoid.array);
+
+        free(biastype[i].genotype);
+        for (j = 0; j < biastype[i].ptr.bias.size; ++j) {
+            free(biastype[i].ptr.bias.array[j].state.array);
+        }
+        free(biastype[i].ptr.bias.array);
+
+        free(bt[i].genotype);
+        free(bt[i].ptr.times.array);
+
+    }
+    free(bcdtype);
+    free(biastype);
+    free(bt);
     free_Slist(genotypes);
 }
 
