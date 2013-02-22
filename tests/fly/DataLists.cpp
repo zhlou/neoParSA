@@ -7,7 +7,10 @@
 
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
+#include <cctype>
 #include "DataLists.h"
+#include "flyData.h"
 using namespace std;
 
 /* FOLLOWING FUNCTIONS ARE UTILITY FUNCTIONS FOR DIFFERENT LINKED LISTS ****

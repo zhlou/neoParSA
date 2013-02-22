@@ -8,12 +8,16 @@
 #ifndef SOLVERS_H_
 #define SOLVERS_H_
 
-#include "zygotic.h"
+#include <cstdio>
+#include "flyData.h"
+using namespace std;
+
+class zygotic;
 
 class solver
 {
 public:
-    solver(const zygotic &in_zy, int in_debug) : zygote(in_zy), debug(in_debug) {};
+    solver(zygotic &in_zy, int in_debug) : zygote(in_zy), debug(in_debug) {};
     virtual ~solver() = 0;
     virtual void ps(double *, double *, double, double, double, double, int,
             FILE *) = 0;
@@ -29,7 +33,7 @@ class Euler : public solver
 public:
     // for newer compilers support c++11, we can simply use
     // using solver::solver;
-    Euler(const zygotic &in_zy, int in_debug) : solver(in_zy, in_debug) {};
+    Euler(zygotic &in_zy, int in_debug) : solver(in_zy, in_debug) {};
     void ps(double *vin, double *vout, double tin, double tout,
             double stephint, double accuracy, int n, FILE *slog);
 };
@@ -41,7 +45,7 @@ public:
 class Meuler : public solver
 {
 public:
-    Meuler(const zygotic &in_zy, int in_debug) : solver(in_zy, in_debug) {};
+    Meuler(zygotic &in_zy, int in_debug) : solver(in_zy, in_debug) {};
     void ps(double *vin, double *vout, double tin, double tout,
             double stephint, double accuracy, int n, FILE *slog);
 };
@@ -52,7 +56,7 @@ public:
 class Heun : public solver
 {
 public:
-    Heun(const zygotic &in_zy, int in_debug) : solver(in_zy, in_debug) {};
+    Heun(zygotic &in_zy, int in_debug) : solver(in_zy, in_debug) {};
     void ps(double *vin, double *vout, double tin, double tout,
             double stephint, double accuracy, int n, FILE *slog);
 };
@@ -63,7 +67,7 @@ public:
 class Rk2 : public solver
 {
 public:
-    Rk2(const zygotic &in_zy, int in_debug) : solver(in_zy, in_debug) {};
+    Rk2(zygotic &in_zy, int in_debug) : solver(in_zy, in_debug) {};
     void ps(double *vin, double *vout, double tin, double tout,
             double stephint, double accuracy, int n, FILE *slog);
 };
@@ -79,7 +83,7 @@ public:
 class Rk4 : public solver
 {
 public:
-    Rk4(const zygotic &in_zy, int in_debug) : solver(in_zy, in_debug) {};
+    Rk4(zygotic &in_zy, int in_debug) : solver(in_zy, in_debug) {};
     void ps(double *vin, double *vout, double tin, double tout,
             double stephint, double accuracy, int n, FILE *slog);
 };
@@ -96,7 +100,7 @@ public:
 class Rkck : public solver
 {
 public:
-    Rkck(const zygotic &in_zy, int in_debug) : solver(in_zy, in_debug) {};
+    Rkck(zygotic &in_zy, int in_debug) : solver(in_zy, in_debug) {};
     void ps(double *vin, double *vout, double tin, double tout,
             double stephint, double accuracy, int n, FILE *slog);
 };
@@ -114,7 +118,7 @@ public:
 class Rkf : public solver
 {
 public:
-    Rkf(const zygotic &in_zy, int in_debug) : solver(in_zy, in_debug) {};
+    Rkf(zygotic &in_zy, int in_debug) : solver(in_zy, in_debug) {};
     void ps(double *vin, double *vout, double tin, double tout,
             double stephint, double accuracy, int n, FILE *slog);
 };
@@ -130,7 +134,7 @@ public:
 class Milne : public solver
 {
 public:
-    Milne(const zygotic &in_zy, int in_debug) : solver(in_zy, in_debug) {};
+    Milne(zygotic &in_zy, int in_debug) : solver(in_zy, in_debug) {};
     void ps(double *vin, double *vout, double tin, double tout,
             double stephint, double accuracy, int n, FILE *slog);
 };
@@ -147,7 +151,7 @@ public:
 class Adams : public solver
 {
 public:
-    Adams(const zygotic &in_zy, int in_debug) : solver(in_zy, in_debug) {};
+    Adams(zygotic &in_zy, int in_debug) : solver(in_zy, in_debug) {};
     void ps(double *vin, double *vout, double tin, double tout,
             double stephint, double accuracy, int n, FILE *slog);
 };
@@ -155,7 +159,7 @@ public:
 class StepSolver : public solver
 {
 public:
-    StepSolver(const zygotic &in_zy, int in_debug) : solver(in_zy, in_debug) {};
+    StepSolver(zygotic &in_zy, int in_debug) : solver(in_zy, in_debug) {};
 protected:
     /*          pzextr: implements the Richardson extrapolation (polynomial)   */
     void pzextr(int iest, double hest, double *yest, double *yz, double *dy,
@@ -174,7 +178,7 @@ protected:
 class BuSt : public StepSolver
 {
 public:
-    BuSt(const zygotic &in_zy, int in_debug) : solver(in_zy, in_debug) {};
+    BuSt(zygotic &in_zy, int in_debug) : StepSolver(in_zy, in_debug) {};
     void ps(double *vin, double *vout, double tin, double tout,
             double stephint, double accuracy, int n, FILE *slog);
 private:
@@ -204,7 +208,7 @@ private:
 class BaDe : public StepSolver
 {
 public:
-    BaDe(const zygotic &in_zy, int in_debug) : solver(in_zy, in_debug) {};
+    BaDe(zygotic &in_zy, int in_debug) : StepSolver(in_zy, in_debug) {};
     void ps(double *vin, double *vout, double tin, double tout,
             double stephint, double accuracy, int n, FILE *slog);
 private:
@@ -227,11 +231,18 @@ private:
 
 };
 
+
+int compare(const double *x, const double *y);
+// forward declaration
+struct EqParms;
+class maternal;
+
+
 // The delay solver
 class SoDe : public solver
 {
 public:
-    SoDe(const zygotic &in_zy, int in_debug);
+    SoDe(zygotic &in_zy, int in_debug);
     ~SoDe();
     void ps(double *vin, double *vout, double tin, double tout,
             double stephint, double accuracy, int n, FILE *slog);
@@ -249,7 +260,6 @@ private:
     int    numdel;  /* delay parameters used by DCERk32, y_delayed */
     double *delay;      /* static array set in SoDe, used by DCERk32 */
     int gridstart;  /* for the heuristic */
-    double *delay;       /* static array set in SoDe, used by DCERk32 */
     int gridpos;                 /* where you are in the grid */
     double *tdone;              /* the grid */
     double **derivv1;              /* intermediate derivatives

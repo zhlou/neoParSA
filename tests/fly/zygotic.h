@@ -8,12 +8,11 @@
 #ifndef ZYGOTIC_H_
 #define ZYGOTIC_H_
 #include <cstdio>
+#include <typeinfo>
+#include "solvers.h"
+#include "maternal.h"
 using namespace std;
 
-class solver;
-class SoDe;
-class maternal;
-struct TheProblem;
 
 struct EqParms
 {
@@ -78,8 +77,8 @@ private:
     EqParms ReadParameters(FILE *fp, const char *section_title);
 
     // old static varibles used in p_deriv
-    int dvdt_num_nucs = 0; /* store the number of nucs for next step */
-    int dvdt_bcd_index = 0; /* the *next* array in bicoid struct for bcd */
+    int dvdt_num_nucs; /* store the number of nucs for next step */
+    int dvdt_bcd_index; /* the *next* array in bicoid struct for bcd */
     DArrPtr dvdt_bcd; /* pointer to appropriate bicoid struct */
 
     /* A STRUCT ****************************************************************/

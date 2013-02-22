@@ -9,6 +9,8 @@
 #include "zygotic.h"
 #include <cfloat>
 #include <algorithm>
+#include <cmath>
+#include <cstring>
 using namespace std;
 
 // always use inline function instead of macro
@@ -2199,8 +2201,8 @@ void BuSt::mmid(double *vin, double *vout, double *deriv, double tin,
     double h; /* small (h) stepsize (equals htot / nstep) */
     double h2; /* double the small (h) stepsize */
 
-    vm = calloc(n, sizeof(double));
-    vn = calloc(n, sizeof(double));
+    vm = (double *)calloc(n, sizeof(double));
+    vn = (double *)calloc(n, sizeof(double));
 
     /* calculate h from H and n */
 
@@ -2900,10 +2902,9 @@ void BaDe::lubksb(double **a, int n, int *indx, double *b) {
     }
 }
 
-SoDe::SoDe(const zygotic &in_zy, int in_debug) :
-        solver(in_zy, in_debug)
+SoDe::SoDe(zygotic &in_zy, int in_debug) :
+        solver(in_zy, in_debug), TheMaternal(zygote.get_Maternal())
 {
-    TheMaternal = zygote.get_Maternal();
     gridpos = -1;
     gridstart = 0;
     tdone = NULL;

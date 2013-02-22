@@ -27,6 +27,8 @@ zygotic::zygotic(maternal& in_maternal, FILE *fp, const char* parm_section,
         TheMaternal(in_maternal), defs(in_maternal.getProblem()),
         gofu(in_gofu), debug(in_debug)
 {
+    dvdt_num_nucs = 0;
+    dvdt_bcd_index = 0;
     parm = ReadParameters(fp, parm_section);
     D = (double *) calloc(defs.ngenes, sizeof(double));
     vinput = (double *) calloc(defs.ngenes * defs.nnucs, sizeof(double));

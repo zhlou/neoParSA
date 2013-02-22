@@ -4,19 +4,25 @@
  *  Created on: Feb 8, 2013
  *      Author: zhlou
  */
+#include <cstring>
+#include <cmath>
 #include <gsl/gsl_errno.h>
 #include <gsl/gsl_spline.h>
+#include "maternal.h"
+#include "zygotic.h"
 #include "scoring.h"
+#include "solvers.h"
 
+using namespace std;
 
 scoring::scoring(FILE *fp, zygotic &zy, int flags, int ndigits, double step, double acc, FILE *slog,
                  const char *infile, int in_debug) :
-                 Zygote(zy), stepsize(step), accuracy(acc), slogptr(slog),
-                 filename(infile), debug(in_debug)
+                 Zygote(zy), TheMaternal(Zygote.get_Maternal()),
+                 defs(TheMaternal.getProblem()), stepsize(step), accuracy(acc),
+                 slogptr(slog), filename(infile), debug(in_debug)
 {
 
-    TheMaternal = Zygote.get_Maternal();
-    defs = TheMaternal.getProblem();
+    ndatapoints = 0;
     delay_solver = Zygote.get_delay_solver();
     gutparms.flag = flags;
     gutparms.ndigits = ndigits;
@@ -323,7 +329,7 @@ DataTable *scoring::List2Facts(Dlist *inlist) {
             if (current->d[j] != IGNORE) { /* valid conc? if IGNORE -> ignore! */
                 D->record[D->size - 1].size++; /* one more in this record */
                 D->record[D->size - 1].array = /* reallocate memory for array! */
-                realloc(D->record[D->size - 1].array,
+                (DataPoint *)realloc(D->record[D->size - 1].array,
                         D->record[D->size - 1].size * sizeof(DataPoint));
 
                 /* the following two lines assign concentration value and index ************/
@@ -903,8 +909,8 @@ num_genes)
             } else {
 
                 currsize--;
-                x = realloc(x, currsize*sizeof(double));
-                y = realloc(y, currsize*sizeof(double));
+                x = (double *)realloc(x, currsize*sizeof(double));
+                y = (double *)realloc(y, currsize*sizeof(double));
 
             }
         }

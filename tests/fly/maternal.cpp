@@ -5,9 +5,13 @@
  *      Author: zhlou
  */
 
-#include "maternal.h"
-#include "flyUtils.h"
 #include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <cctype>
+
+#include "maternal.h"
+#include "flyData.h"
 
 using namespace std;
 
@@ -52,7 +56,7 @@ const double maternal::full_divtimes4[TOTAL_DIVS] = { 50.8, 29.7, 17.3, 7.8,
 
 /* division durations */
 
-double maternal::full_div_durations[TOTAL_DIVS] =
+const double maternal::full_div_durations[TOTAL_DIVS] =
         { 5.1, 3.3, 3.0, 3.3, 3.0, 3.0 };
 
 
@@ -94,6 +98,11 @@ unsigned int ParseLineage(unsigned int lin)
 
 maternal::maternal(FILE* fp, int divstyle) : olddivstyle(divstyle)
 {
+    custom_gast = 0.;
+    full_nnucs = NULL;
+    full_lin_start = NULL;
+    bt_init_flag = 0;
+    rule_flag = 0;
     ReadTheProblem(fp);
     genotypes = ReadGenotypes(fp);
     nalleles = count_Slist(genotypes);
@@ -1307,7 +1316,7 @@ DataTable *maternal::List2Interp(Dlist *inlist, int num_genes)
     for(j=1; j <= num_genes; j++) {     /* always: read concs into array */
     D->record[D->size-1].size++;            /* one more in this record */
     D->record[D->size-1].array =       /* reallocate memory for array! */
-      realloc(D->record[D->size-1].array,
+      (DataPoint *)realloc(D->record[D->size-1].array,
           D->record[D->size-1].size * sizeof(DataPoint));
 
 /* the following two lines assign concentration value and index ************/

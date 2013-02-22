@@ -11,7 +11,14 @@
 #include <cstdio>
 #include <limits>
 #include "flyData.h"
+#include "DataLists.h"
 using namespace std;
+
+class zygotic;
+class maternal;
+class TheProblem;
+class SoDe;
+
 
 const double FORBIDDEN_MOVE = numeric_limits<double>::max();
 const int MAX_PRECISION = 16;
@@ -19,10 +26,10 @@ const int MAX_PRECISION = 16;
 
 /* range struct for limits and such */
 
-typedef struct Range {
+struct Range {
   double   lower;
   double   upper;
-} Range;
+};
 
 /***************************************************************************
  * The following describes the search space to the scoring function.       *
@@ -76,7 +83,7 @@ class scoring
 private:
     zygotic &Zygote;
     maternal &TheMaternal;
-    TheProblem &defs;
+    const TheProblem &defs;
     int nalleles;
     SoDe *delay_solver;
     int debug;
@@ -103,10 +110,10 @@ private:
 
     double stepsize; /* static variable for solver stepsize */
     double accuracy; /* static variable for solver accuracy */
-    int ndatapoints = 0; /* number of data points (for RMS) */
+    int ndatapoints; /* number of data points (for RMS) */
 
-    char *filename; /* infile name */
-    FILE *slogptr = NULL; /* solver log file pointer */
+    const char *filename; /* infile name */
+    FILE *slogptr; /* solver log file pointer */
 
     /* ... plus an init flag */
 
@@ -161,7 +168,7 @@ public:
      *   NOTE:  both InitZygote and InitScoring have to be called first!       *
      ***************************************************************************/
 
-    double Score(void)
+    double Score(void);
     void SetGuts (int gutflag, int ndigits)
     {
         gutparms.flag = gutflag;

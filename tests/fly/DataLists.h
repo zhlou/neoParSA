@@ -5,6 +5,11 @@
  *      Author: zhlou
  */
 
+#ifndef DATALISTS_H_
+#define DATALISTS_H_
+
+#include <cstdio>
+using namespace std;
 /* linked lists for reading bicoid (Blist) and bias/facts (Dlist) */
 
 struct Blist
@@ -71,3 +76,5 @@ int          count_Slist    (Slist *start);
 const int IGNORE = -1;
 Dlist *ReadData(FILE *fp , char *section, int *ndp, int ngenes);
 Dlist *ReadInterpData(FILE *fp , char *section, int num_genes, int *ndp);
+
+#endif

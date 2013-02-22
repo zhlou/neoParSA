@@ -76,15 +76,15 @@ private:
     Slist *genotypes;
     int nalleles;  /* number of alleles (genotypes) in data */
     double maxconc;     /* max prot conc: 12 (old-), 255 (newstyle) */
-    double custom_gast = 0;                  /* custom gastrulation time set by -S */
+    double custom_gast;                  /* custom gastrulation time set by -S */
 
     /* following is number of nucs in each cleavage cycle, reverse order */
     int *nnucs;
-    int *full_nnucs = NULL;
+    int *full_nnucs;
 
     /* following contains lineage numbers at which nuclei at each ccycle start */
     int *lin_start;
-    int *full_lin_start = NULL;
+    int *full_lin_start;
     int full_ccycles;
 
 
@@ -99,9 +99,9 @@ private:
     /* there is bias; these times can be retrieved by using GetBTimes          */
     GenoType *bt; /* bias times for each genotype */
 
-    int bt_init_flag = 0; /* flag for BTtable */
+    int bt_init_flag; /* flag for BTtable */
     //int d_flag = 0; // we don't need this anymore /* flag for first call to GetD */
-    int rule_flag = 0; /* flag for first call to GetRule */
+    int rule_flag; /* flag for first call to GetRule */
     //int theta_flag = 0; /* flag for first call to Theta*/
 
     int    olddivstyle;         /* flag: old or new division times? */

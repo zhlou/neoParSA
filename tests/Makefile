@@ -1,4 +1,4 @@
-DIRS = tsp rastrigin
+DIRS = tsp rastrigin fly
 .PHONY: all clean
 
 all: $(DIRS)

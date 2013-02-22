@@ -10,6 +10,8 @@
 #include <cstdlib>
 #include <cstdio>
 #include <cstdarg>
+#include <cmath>
+#include <cstring>
 
 using namespace std;
 /*** FreeSolution: frees memory of the solution structure created by *******
