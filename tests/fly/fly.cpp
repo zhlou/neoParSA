@@ -88,7 +88,7 @@ fly_params readFlyParams(xmlNode *docroot)
         xmlFree(prop);
         prop = NULL;
         if (params. debug) {
-            string slogfile(infile_name + ".slog");
+            string slogfile(params.infile_name + ".slog");
             params.slog = fopen(slogfile.c_str(), "w");
         }
     }
@@ -144,7 +144,7 @@ fly::fly(const fly_params &params) :
         defs(TheMaternal.getProblem()),
         zygote(TheMaternal, params.infile, params.section_title.c_str(),
                params.GofU, params.debug, params.solver_name.c_str()),
-        score(params.infile, *zygote, params.gutflag, params.gutndigits,
+        score(params.infile, zygote, params.gutflag, params.gutndigits,
               params.stepsize, params.accuracy, params.slog,
               params.infile_name.c_str(), params.debug)
 {
@@ -168,6 +168,8 @@ fly::fly(const fly_params &params) :
 
     const char read_fmt[] = "%d"; /* read an int */
     const char skip_fmt[] = "%*d "; /* ignore an int */
+
+    FILE *fp = params.infile;
 
     base = (char *) calloc(MAX_RECORD, sizeof(char *));
 
@@ -222,11 +224,11 @@ fly::fly(const fly_params &params) :
     tweak.lambdatweak = (int *) calloc(defs.ngenes, sizeof(int));
     tweak.tautweak = (int *) calloc(defs.ngenes, sizeof(int));
 
-    params.infile = FindSection(params.infile, "tweak"); /* find tweak section */
-    if (!params.infile)
+    fp = FindSection(fp, "tweak"); /* find tweak section */
+    if (!fp)
         error("ReadTweak: could not locate tweak\n");
 
-    while (strncmp((base = fgets(base, MAX_RECORD, params.infile)), "$$", 2)) {
+    while (strncmp((base = fgets(base, MAX_RECORD, fp)), "$$", 2)) {
 
         record = base;
 

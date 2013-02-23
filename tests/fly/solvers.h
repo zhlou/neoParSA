@@ -18,7 +18,7 @@ class solver
 {
 public:
     solver(zygotic &in_zy, int in_debug) : zygote(in_zy), debug(in_debug) {};
-    virtual ~solver() = 0;
+    virtual ~solver() {};
     virtual void ps(double *, double *, double, double, double, double, int,
             FILE *) = 0;
 protected:
@@ -159,11 +159,13 @@ public:
 class StepSolver : public solver
 {
 public:
-    StepSolver(zygotic &in_zy, int in_debug) : solver(in_zy, in_debug) {};
+    StepSolver(zygotic &in_zy, int in_debug) : solver(in_zy, in_debug) { d = hpoints = NULL;};
 protected:
     /*          pzextr: implements the Richardson extrapolation (polynomial)   */
     void pzextr(int iest, double hest, double *yest, double *yz, double *dy,
             int nv, const int KMAXX);
+    double *d;
+    double *hpoints;
 };
 /***** BuSt: propagates v(t) from t1 to t2 by Bulirsch-Stoer; this method **
  *           uses Richardson extrapolation to estimate v's at a hypothe-   *
@@ -236,6 +238,7 @@ int compare(const double *x, const double *y);
 // forward declaration
 struct EqParms;
 class maternal;
+class TheProblem;
 
 
 // The delay solver
@@ -253,6 +256,8 @@ public:
                     int input_ind, int num_genes);
     void Go_Backward(double *output, double *input, int output_ind,
                      int input_ind, int num_genes);
+    void ExternalInputs(double t, double t_size, double *yd, int n);
+    void DivideHistory(double t1, double t2);
 private:
     InterpObject hist_interp_object, extinp_interp_object;
     EqParms *lp;
@@ -272,6 +277,7 @@ private:
 
     double *fact_discons, fact_discons_size;
     maternal &TheMaternal;
+    const TheProblem &defs;
     /*** DCERk3(2): propagates v[0] (of size n) according to tarray  by  **
     the Runge-Kutta 3(2) pair with continuous extension storing the      **
     result in vatt. Initial conditions are specified in vatt[0],         **
@@ -288,12 +294,11 @@ private:
     void CE(double t, double *vans, double tbegin, double *v_at_tbegin,
             double ech, double *d1, double *d2, double *d3, double *d4, int n);
     void History(double t, double t_size, double *yd, int n);
-    void ExternalInputs(double t, double t_size, double *yd, int n);
-    void DivideHistory(double t1, double t2);
+
 
 
 };
 
-solver *SolverFactory(const zygotic &zygote, int debug,
+solver *SolverFactory(zygotic &zygote, int debug,
                       const char *name="Rk4");
 #endif /* SOLVERS_H_ */

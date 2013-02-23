@@ -13,6 +13,8 @@ using namespace std;
 /* DBL_EPSILON is about 2 x 10^-16. so BIG_EPSILON is ~10^-11 min. */
 
 const double EPSILON = DBL_EPSILON * 1000.;
+const double BIG_EPSILON = EPSILON * 1000.;
+const double HALF_EPSILON = EPSILON * .5;
 
                                   /* This assumes all times < 100. min. !! */
 
@@ -21,8 +23,6 @@ const double EPSILON = DBL_EPSILON * 1000.;
 #define      EPSILON     (FLT_EPSILON * 100.)             /* see above */
 #endif
 
-#define      BIG_EPSILON (EPSILON * 1000.)
-#define      HALF_EPSILON (EPSILON * .5)
 
 const int INTERPHASE = 0;
 const int MITOSIS = 1;

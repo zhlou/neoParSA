@@ -10,11 +10,12 @@
 #include <cfloat>
 #include <typeinfo>
 #include <cassert>
+#include <cstring>
+#include <cctype>
+#include <cmath>
+#include <cassert>
 using namespace std;
 
-static const double EPSILON = DBL_EPSILON * 1000.;
-static const double BIG_EPSILON = EPSILON * 1000.;
-static const double HALF_EPSILON = EPSILON * .5;
 
 const int zygotic::ADD_BIAS = 1;
 const int zygotic::NO_OP = 2;
@@ -324,7 +325,7 @@ zygotic::TList* zygotic::InitTList(void)
 zygotic::TList* zygotic::InsertTList(TList* first, double time, int op)
 {
     TList *current;                            /* used to step through TList */
-    TList *new;                   /* used to allocate memory for new element */
+    TList *newlist;                   /* used to allocate memory for new element */
 
     int n;                                      /* how many nuclei at 'time' */
 
@@ -345,12 +346,12 @@ zygotic::TList* zygotic::InsertTList(TList* first, double time, int op)
                 if ( current->op == MITOTATE) {
                     /* if we are skipping epsilon
                                       after MITOSIS start */
-                    new = (TList *)malloc(sizeof(TList));
-                    new->time = time;  /* -> allocate new element for right after */
-                    new->n = n;               /* cell division has occurred */
-                    new->op = op;
-                    new->next = current->next;
-                    current->next = new;
+                    newlist = (TList *)malloc(sizeof(TList));
+                    newlist->time = time;  /* -> allocate new element for right after */
+                    newlist->n = n;               /* cell division has occurred */
+                    newlist->op = op;
+                    newlist->next = current->next;
+                    current->next = newlist;
                     return first;
                 }
 
@@ -358,12 +359,12 @@ zygotic::TList* zygotic::InsertTList(TList* first, double time, int op)
                 return first;                /* -> just add new op to existing one */
             }
             else if ( current->n < n ) {                /* if, on the other hand */
-                new = (TList *)malloc(sizeof(TList));     /* cell div HAS happened */
-                new->time = time;       /* -> allocate new element for right after */
-                new->n = n;                          /* cell division has occurred */
-                new->op = op;
-                new->next = current->next;
-                current->next = new;
+                newlist = (TList *)malloc(sizeof(TList));     /* cell div HAS happened */
+                newlist->time = time;       /* -> allocate new element for right after */
+                newlist->n = n;                          /* cell division has occurred */
+                newlist->op = op;
+                newlist->next = current->next;
+                current->next = newlist;
                 return first;
             }
             else         /* a sudden reduction of nuclei will be hard to explain */
@@ -378,12 +379,12 @@ zygotic::TList* zygotic::InsertTList(TList* first, double time, int op)
                 current = current->next;               /* than the next time point */
             }                                                /* -> go there too! */
             else if ( time < current->next->time ) {         /* but if time is < */
-                new = (TList *)malloc(sizeof(TList));       /* the next time point */
-                new->time = time;                       /* -> allocate new element */
-                new->n = n;
-                new->op = op;
-                new->next = current->next;
-                current->next = new;
+                newlist = (TList *)malloc(sizeof(TList));       /* the next time point */
+                newlist->time = time;                       /* -> allocate new element */
+                newlist->n = n;
+                newlist->op = op;
+                newlist->next = current->next;
+                current->next = newlist;
                 return first;
             }
             else {      /* if all the above don't apply, there's something wrong */
@@ -998,37 +999,38 @@ void zygotic::p_jacobn(double t, double *v, double *dfdt, double **jac, int n)
  * place D's in the diagonal of the off-diagonal blocks (cf diagram above) */
 
       for (base=0; base < n; base+=defs.ngenes) {
-    for (i=base; i < base+defs.ngenes; i++) {
+          for (i=base; i < base+defs.ngenes; i++) {
 
-      k = i - base;
+              k = i - base;
 
-      gdot1  = 1 / (bot[i] * bot2[i]);
-      gdot1 *= lparm.R[k] * 0.5;
+              gdot1  = 1 / (bot[i] * bot2[i]);
+              gdot1 *= lparm.R[k] * 0.5;
 
-      for (j=base; j < base+defs.ngenes; j++) {
+              for (j=base; j < base+defs.ngenes; j++) {
 
-        kk = j - base;
+                  kk = j - base;
 
-        vdot1 = lparm.T[(k*defs.ngenes)+kk] * gdot1;
-        if ( k == kk ) {
-          if ( n > defs.ngenes )
-        if ( base > 0 && base < n-defs.ngenes )
-          vdot1 -= 2. * D[k];
-        else
-          vdot1 -= D[k];
-          vdot1 -= lparm.lambda[k];
-        }
-        jac[i][j] = vdot1;
+                  vdot1 = lparm.T[(k*defs.ngenes)+kk] * gdot1;
+                  if ( k == kk ) {
+                      if ( n > defs.ngenes ) {
+                          if ( base > 0 && base < n-defs.ngenes )
+                              vdot1 -= 2. * D[k];
+                          else
+                              vdot1 -= D[k];
+                      }
+                      vdot1 -= lparm.lambda[k];
+                  }
+                  jac[i][j] = vdot1;
 
-      }
+              }
 
-      if ( base > 0 )
-        jac[i][i-defs.ngenes] = D[k];
+              if ( base > 0 )
+                  jac[i][i-defs.ngenes] = D[k];
 
-      if ( base < n-defs.ngenes )
-        jac[i][i+defs.ngenes] = D[k];
+              if ( base < n-defs.ngenes )
+                  jac[i][i+defs.ngenes] = D[k];
 
-    }
+          }
       }
 
 /***************************************************************************
@@ -1078,38 +1080,39 @@ void zygotic::p_jacobn(double t, double *v, double *dfdt, double **jac, int n)
  * place D's in the diagonal of the off-diagonal blocks (cf diagram above) */
 
       for (base=0; base < n; base+=defs.ngenes) {
-    for (i=base; i < base+defs.ngenes; i++) {
+          for (i=base; i < base+defs.ngenes; i++) {
 
-      k = i - base;
+              k = i - base;
 
-      gdot1  = 2. * bot2[i];
-      gdot1 /= (1. + bot2[i]) * (1. + bot2[i]);
-      gdot1 *= lparm.R[k];
+              gdot1  = 2. * bot2[i];
+              gdot1 /= (1. + bot2[i]) * (1. + bot2[i]);
+              gdot1 *= lparm.R[k];
 
-      for (j=base; j < base+defs.ngenes; j++) {
+              for (j=base; j < base+defs.ngenes; j++) {
 
-        kk = j - base;
+                  kk = j - base;
 
-        vdot1 = lparm.T[(k*defs.ngenes)+kk] * gdot1;
-        if ( k == kk ) {
-          if ( n > defs.ngenes )
-        if ( base > 0 && base < n-defs.ngenes )
-          vdot1 -= 2. * D[k];
-        else
-          vdot1 -= D[k];
-          vdot1 -= lparm.lambda[k];
-        }
-        jac[i][j] = vdot1;
+                  vdot1 = lparm.T[(k*defs.ngenes)+kk] * gdot1;
+                  if ( k == kk ) {
+                      if ( n > defs.ngenes ) {
+                          if ( base > 0 && base < n-defs.ngenes )
+                              vdot1 -= 2. * D[k];
+                          else
+                              vdot1 -= D[k];
+                      }
+                      vdot1 -= lparm.lambda[k];
+                  }
+                  jac[i][j] = vdot1;
 
-      }
+              }
 
-      if ( base > 0 )
-        jac[i][i-defs.ngenes] = D[k];
+              if ( base > 0 )
+                  jac[i][i-defs.ngenes] = D[k];
 
-      if ( base < n-defs.ngenes )
-        jac[i][i+defs.ngenes] = D[k];
+              if ( base < n-defs.ngenes )
+                  jac[i][i+defs.ngenes] = D[k];
 
-    }
+          }
       }
 
 /*** semi-implicit solvers are NOT allowed with heaviside g(u) *************/
@@ -1127,26 +1130,27 @@ void zygotic::p_jacobn(double t, double *v, double *dfdt, double **jac, int n)
 
     register double vdot1;
 
-       for (base=0; base < n; base+=defs.ngenes) {
-    for (i=base; i < base+defs.ngenes; i++) {
-      k = i - base;
+    for (base=0; base < n; base+=defs.ngenes) {
+        for (i=base; i < base+defs.ngenes; i++) {
+            k = i - base;
 
-      for (j=base; j < base+defs.ngenes; j++) {
-        kk = j - base;
+            for (j=base; j < base+defs.ngenes; j++) {
+                kk = j - base;
 
-        if ( k == kk ) {
-          vdot1  = -lparm.lambda[k];
-          if ( n < defs.ngenes )
-        if ( base > 0 && base < n-defs.ngenes )
-          vdot1 -= 2. * D[k];
-        else
-          vdot1 -= D[k];
-        } else
-          vdot1 = 0.;
+                if ( k == kk ) {
+                    vdot1  = -lparm.lambda[k];
+                    if ( n < defs.ngenes ) {
+                        if ( base > 0 && base < n-defs.ngenes )
+                            vdot1 -= 2. * D[k];
+                        else
+                            vdot1 -= D[k];
+                    }
+                } else
+                    vdot1 = 0.;
 
-        jac[i][j] = vdot1;
+                jac[i][j] = vdot1;
 
-      }
+            }
 
       if ( base > 0 )
         jac[i][i-defs.ngenes] = D[k];
@@ -1532,13 +1536,14 @@ NArrPtr zygotic::Blastoderm(int in_genindex, char *genotype,
     rule = TheMaternal.GetRule(solution.array[i].time);
     SetRule(rule);
 
-    if ( debug )
-      if ( rule == 0 )
-    fprintf(slog, "Blastoderm: rule is INTERPHASE.\n");
-      else if ( rule == 1 && !(what2do[i] & DIVIDE) )
-    fprintf(slog, "Blastoderm: rule is MITOSIS.\n");
-      else if ( what2do[i] & DIVIDE )
-    fprintf(slog, "Blastoderm: rule is DIVISION.\n");
+    if ( debug ) {
+        if ( rule == 0 )
+            fprintf(slog, "Blastoderm: rule is INTERPHASE.\n");
+        else if ( rule == 1 && !(what2do[i] & DIVIDE) )
+            fprintf(slog, "Blastoderm: rule is MITOSIS.\n");
+        else if ( what2do[i] & DIVIDE )
+            fprintf(slog, "Blastoderm: rule is DIVISION.\n");
+    }
 
 /* ADD_BIAS is a special op in that it can be combined with any other op   *
  * (see also next comment); we can add (or subtract) protein conentrations *
@@ -1740,7 +1745,7 @@ void zygotic::d_deriv(double *v, double **vd, double t, double *vdot, int n)
     SoDe *delay_solver = get_delay_solver(); // This may need to change to the
                                              // parent of the delay solvers if
                                              // we have multiple delay solvers
-    assert(SoDe); // we need this for external input
+    assert(delay_solver); // we need this for external input
 
     /* get D parameters and bicoid gradient according to cleavage cycle */
 

@@ -1,5 +1,5 @@
-CXXFLAGS += `xml2-config --cflags`
-LDLIBS += `xml2-config --libs`
+CXXFLAGS += `xml2-config --cflags` -I$(HOME)/include
+LDLIBS += `xml2-config --libs` -L$(HOME)/lib -lgsl
 FLYOBJECTS = DataLists.o flyData.o maternal.o scoring.o solvers.o \
 			zygotic.o fly.o
 TARGET = printscore
@@ -9,3 +9,6 @@ all: $(TARGET)
 
 printscore: printscore.o $(FLYOBJECTS)
 	$(CXX) $(CXXFLAGS) -o $@ printscore.o $(FLYOBJECTS) $(LDLIBS)
+	
+clean:
+	rm -f $(FLYOBJECTS) $(TARGET) printscore.o

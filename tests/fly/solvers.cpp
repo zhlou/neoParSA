@@ -1882,8 +1882,8 @@ void BuSt::bsstep(double *v, double *deriv, int n, double *t, double htry,
 
     /* static global arrays */
 
-    extern double *d; /* D's used for extrapolation in pzextr */
-    extern double *hpoints; /* stepsizes h (=H/n) which we have tried */
+//    extern double *d; /* D's used for extrapolation in pzextr */
+//    extern double *hpoints; /* stepsizes h (=H/n) which we have tried */
 
     /* allocate arrays */
 
@@ -2119,8 +2119,8 @@ void StepSolver::pzextr(int iest, double hest, double *vest, double *vout,
     double delta;
     double *c; /* C's used for extrapolation */
 
-    extern double *d; /* D's used for extrapolation */
-    extern double *hpoints; /* stepsizes h (=H/n) which we have tried */
+//    extern double *d; /* D's used for extrapolation */
+//    extern double *hpoints; /* stepsizes h (=H/n) which we have tried */
 
     if (!(c = (double *) calloc(n, sizeof(double))))
         error("pzextr: error allocating c.\n");
@@ -2388,8 +2388,8 @@ void BaDe::stifbs(double *v, double *deriv, int n, double *t, double htry,
 
     /* static global arrays */
 
-    extern double *d; /* D's used for extrapolation in pzextr */
-    extern double *hpoints; /* stepsizes h (=H/n) which we have tried */
+//    extern double *d; /* D's used for extrapolation in pzextr */
+//    extern double *hpoints; /* stepsizes h (=H/n) which we have tried */
 
     /* allocate arrays */
 
@@ -2903,7 +2903,8 @@ void BaDe::lubksb(double **a, int n, int *indx, double *b) {
 }
 
 SoDe::SoDe(zygotic &in_zy, int in_debug) :
-        solver(in_zy, in_debug), TheMaternal(zygote.get_Maternal())
+        solver(in_zy, in_debug), TheMaternal(zygote.get_Maternal()),
+        defs(TheMaternal.getProblem())
 {
     gridpos = -1;
     gridstart = 0;
@@ -2917,7 +2918,7 @@ SoDe::SoDe(zygotic &in_zy, int in_debug) :
     maxdel = 0.;
     mindel = 1000.;
 
-    for (int j = 0; j < zygote.defs.ngenes; j++) {
+    for (int j = 0; j < defs.ngenes; j++) {
 
         if (lp->tau[j] > maxdel)
             maxdel = lp->tau[j];
@@ -2925,7 +2926,7 @@ SoDe::SoDe(zygotic &in_zy, int in_debug) :
             mindel = lp->tau[j];
 
     }
-    numdel = zygote.defs.ngenes;
+    numdel = defs.ngenes;
     delay = lp->tau;
 }
 
@@ -3036,7 +3037,7 @@ void SoDe::ps(double *vin, double *vout, double tin, double tout,
     }
 
     discon_array = Construct_Discont_Array(tout - tin, lp->tau,
-                                           zygote.defs.ngenes, shift_discs,
+                                           defs.ngenes, shift_discs,
                                            j + 1, &num_discons);
 
     for (i = 0; i < num_discons; i++) {
@@ -3627,7 +3628,7 @@ int SoDe::y_delayed(double ***vd, int n, double *rktimes, double *tau,
 
         for (dc = 0; dc < numdel; dc++)
             if (tau[dc] == 0.)
-                vd[vc][dc] = memcpy(vd[vc][dc], vdone[gridsize - 1],
+                vd[vc][dc] = (double *)memcpy(vd[vc][dc], vdone[gridsize - 1],
                                     sizeof(double) * n);
             else if (t - tau[dc] <= grid[0])
                 History(t - tau[dc], t, vd[vc][dc], n);
@@ -3644,7 +3645,7 @@ int SoDe::y_delayed(double ***vd, int n, double *rktimes, double *tau,
                 }
 
                 if ((j == gridsize - 1) && (t - tau[dc] == grid[gridsize - 1])) {
-                    vd[vc][dc] = memcpy(vd[vc][dc], vdone[gridsize - 1],
+                    vd[vc][dc] = (double *)memcpy(vd[vc][dc], vdone[gridsize - 1],
                                         sizeof(double) * n);
                     /*              for (i=0; i<n; i++)
                      printf("t=%f, t-del=%f, vdone[%d]=%f,"
@@ -3968,11 +3969,11 @@ void SoDe::History(double t, double t_size, double *yd, int n)
     if (n >= hist_interp_object.maxsize)
         Go_Forward(yd, blug, TheMaternal.GetStartLinIndex(t_size),
                    TheMaternal.GetStartLinIndex(hist_interp_object.maxtime),
-                   TheMaternal.defs.ngenes);
+                   defs.ngenes);
     else
         Go_Backward(yd, blug, TheMaternal.GetStartLinIndex(t_size),
                     TheMaternal.GetStartLinIndex(hist_interp_object.maxtime),
-                    TheMaternal.defs.ngenes);
+                    defs.ngenes);
     free(blug);
 
     return;
@@ -4019,11 +4020,11 @@ void SoDe::ExternalInputs(double t, double t_size, double *yd, int n)
     if (n >= extinp_interp_object.maxsize)
         Go_Forward(yd, blug, TheMaternal.GetStartLinIndex(t_size),
                    TheMaternal.GetStartLinIndex(extinp_interp_object.maxtime),
-                   TheMaternal.defs.egenes);
+                   defs.egenes);
     else
         Go_Backward(yd, blug, TheMaternal.GetStartLinIndex(t_size),
                     TheMaternal.GetStartLinIndex(extinp_interp_object.maxtime),
-                    TheMaternal.defs.egenes);
+                    defs.egenes);
     free(blug);
 
     return;
@@ -4044,7 +4045,7 @@ void SoDe::DivideHistory(double t1, double t2)
 
             Go_Forward(blug, vdonne[i], TheMaternal.GetStartLinIndex(t2),
                        TheMaternal.GetStartLinIndex(t1),
-                       TheMaternal.defs.ngenes);
+                       defs.ngenes);
 
             free(vdonne[i]);
             vdonne[i] = blug;
@@ -4053,7 +4054,7 @@ void SoDe::DivideHistory(double t1, double t2)
 
             Go_Forward(blug, derivv1[i], TheMaternal.GetStartLinIndex(t2),
                        TheMaternal.GetStartLinIndex(t1),
-                       TheMaternal.defs.ngenes);
+                       defs.ngenes);
 
             free(derivv1[i]);
             derivv1[i] = blug;
@@ -4062,7 +4063,7 @@ void SoDe::DivideHistory(double t1, double t2)
 
             Go_Forward(blug, derivv2[i], TheMaternal.GetStartLinIndex(t2),
                        TheMaternal.GetStartLinIndex(t1),
-                       TheMaternal.defs.ngenes);
+                       defs.ngenes);
 
             free(derivv2[i]);
             derivv2[i] = blug;
@@ -4071,7 +4072,7 @@ void SoDe::DivideHistory(double t1, double t2)
 
             Go_Forward(blug, derivv3[i], TheMaternal.GetStartLinIndex(t2),
                        TheMaternal.GetStartLinIndex(t1),
-                       TheMaternal.defs.ngenes);
+                       defs.ngenes);
 
             free(derivv3[i]);
             derivv3[i] = blug;
@@ -4080,7 +4081,7 @@ void SoDe::DivideHistory(double t1, double t2)
 
             Go_Forward(blug, derivv4[i], TheMaternal.GetStartLinIndex(t2),
                        TheMaternal.GetStartLinIndex(t1),
-                       TheMaternal.defs.ngenes);
+                       defs.ngenes);
 
             free(derivv4[i]);
             derivv4[i] = blug;
@@ -4113,9 +4114,9 @@ input_ind, int num_genes)
         size = TheMaternal.Index2NNuc(input_ind)*num_genes;
         y = (double *) calloc(size, sizeof(double));
 /*      printf("Goin' to do the tranfer:%d %d\n",size,newsize);*/
-        y = memcpy(y,input,size*sizeof(double));
+        y = (double *)memcpy(y,input,size*sizeof(double));
     } else if (output_ind == input_ind) {
-        output = memcpy(output,input,newsize*sizeof(double));
+        output = (double *)memcpy(output,input,newsize*sizeof(double));
         return;
     }
     else error("You are trying to go from nnucs %d to %d!",
@@ -4217,7 +4218,7 @@ input_ind, int num_genes)
     return;
 }
 
-solver *SolverFactory(const zygotic &zygote, int debug, const char *name)
+solver *SolverFactory(zygotic &zygote, int debug, const char *name)
 {
     if (!(strcmp(name, "a")) || !(strcmp(name, "Adams")))
         return new Adams(zygote, debug);
