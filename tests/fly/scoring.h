@@ -136,10 +136,7 @@ private:
     void GetInterp(FILE *fp, char *title, int num_genes,
                    DataTable **interp_tables);
 
-    /*** GetPenalty: calculates penalty from static limits, vmax and mmax ******
-     *   CAUTION:    InitPenalty must be called first!                         *
-     ***************************************************************************/
-    double GetPenalty(void);
+
 
     /*** Eval: scores the summed squared differences between equation solution *
      *         and data. Because the times for states written to the Solution  *
@@ -174,6 +171,12 @@ public:
         gutparms.flag = gutflag;
         gutparms.ndigits = ndigits;
     }
+    int GetNDatapoints(void) {return ndatapoints;}
+
+    /*** GetPenalty: calculates penalty from static limits, vmax and mmax ******
+     *   CAUTION:    InitPenalty must be called first!                         *
+     ***************************************************************************/
+    double GetPenalty(void);
 };
 
 #endif /* SCORING_H_ */

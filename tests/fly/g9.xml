@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <System>
-	<fly infile="g9_orig" solver="Euler" ndigits="16"/>
+	<fly infile="g9_orig" solver="Euler" ndigits="16" stepsize="1.25" section="input"/>
 </System>

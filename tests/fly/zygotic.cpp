@@ -7,6 +7,7 @@
 
 #include "zygotic.h"
 #include <cstdio>
+#include <cstdlib>
 #include <cfloat>
 #include <typeinfo>
 #include <cassert>

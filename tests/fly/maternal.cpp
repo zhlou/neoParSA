@@ -120,7 +120,8 @@ maternal::~maternal()
     free(nnucs);
     free(full_nnucs);
     free(defs.gene_ids);
-    free(defs.egene_ids);
+    if (defs.egenes > 0)
+        free(defs.egene_ids);
     int i, j;
     for (i = 0; i < nalleles; ++i) {
         // free bcdtype & biastype

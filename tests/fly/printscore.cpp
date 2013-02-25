@@ -21,7 +21,8 @@ int main(int argc, char **argv)
     xmlNode *root = xmlDocGetRootElement(doc);
     fly_params flyParams = readFlyParams(root);
     fly theFly(flyParams);
-    cout << theFly.get_score() << endl;
+    cout << "chisq = " << theFly.get_score() << " rms = " << theFly.get_rms()
+            << endl;
     return 0;
 }
 

@@ -72,6 +72,9 @@ private:
     zygotic zygote;
     scoring score;
     const TheProblem &defs;
+    double chisq;
+    bool score_valid;
+    double updateChisq() {chisq = score.Score(); score_valid = true; return chisq;}
 
     Tweak tweak; /* tells the annealer which parameters to tweak */
 
@@ -79,6 +82,7 @@ public:
     fly(const fly_params &params);
     int getDimension(); // returns the dimension of the problem
     double get_score(); // returns the energy (score) of the problem
+    double get_rms(); // returns the RMS
     void generateMove(int index, double theta_bar);
     // make the perturbation on parameter index with theta_bar
     void restoreMove(int index);

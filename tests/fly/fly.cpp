@@ -5,6 +5,8 @@
  *      Author: zhlou
  */
 #include <stdexcept>
+#include <cstring>
+#include <cmath>
 #include "fly.h"
 
 using namespace std;
@@ -347,9 +349,23 @@ fly::fly(const fly_params &params) :
             free(fmt1[i]);
         free(fmt1);
     }
+    // above is the end of read tweak
+
+    // book keeping on scores
+    chisq = score.Score();
+    score_valid = true;
 }
 
 double fly::get_score()
 {
-    return score.Score();
+    if (score_valid)
+        return chisq;
+    else
+        return updateChisq();
+}
+
+double fly::get_rms()
+{
+    return sqrt((get_score() - score.GetPenalty()) /
+                (double) score.GetNDatapoints());
 }
