@@ -13,6 +13,7 @@
 #include "scoring.h"
 
 #include <string>
+#include <vector>
 #include <libxml/tree.h>
 
 using namespace std;
@@ -68,6 +69,24 @@ private:
         int *tautweak; /* which taus to be tweaked */
     };
 
+    struct ParamList{
+      double    *param; /* pointers to parameters to be tweaked */
+      Range     *param_range; /* pointers to corresponding range limits */
+      double previous; // new member: store previous value for restore
+      bool canRestore; // new member: store if can be restored
+    };
+    // ptab is now a vector so Translate is easier to implement. It can
+    // automatically be deleted also. In addition, since all items in ptab
+    // are actually pointing to other parts of the fly problem, ParamList
+    // does not need a destructor.
+    vector<ParamList> ptab;
+
+    int nparams; /* number of parameters to be tweaked */
+
+
+    void Translate(vector<ParamList> &tab);
+
+
     maternal TheMaternal;
     zygotic zygote;
     scoring score;
@@ -76,14 +95,17 @@ private:
     bool score_valid;
     double updateChisq() {chisq = score.Score(); score_valid = true; return chisq;}
 
+    Tweak ReadTweak(const fly_params& params);
+
     Tweak tweak; /* tells the annealer which parameters to tweak */
 
 public:
     fly(const fly_params &params);
-    int getDimension(); // returns the dimension of the problem
+    ~fly();
+    int getDimension(){return nparams;}; // returns the dimension of the problem
     double get_score(); // returns the energy (score) of the problem
     double get_rms(); // returns the RMS
-    void generateMove(int index, double theta_bar);
+    void generateMove(int index, double delta);
     // make the perturbation on parameter index with theta_bar
     void restoreMove(int index);
 };

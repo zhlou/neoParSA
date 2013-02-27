@@ -177,6 +177,7 @@ public:
      *   CAUTION:    InitPenalty must be called first!                         *
      ***************************************************************************/
     double GetPenalty(void);
+    SearchSpace *GetLimits() {return limits;}
 };
 
 #endif /* SCORING_H_ */

@@ -141,113 +141,81 @@ fly_params readFlyParams(xmlNode *docroot)
     return params;
 }
 
-fly::fly(const fly_params &params) :
-        TheMaternal(params.infile, params.olddivstyle),
-        defs(TheMaternal.getProblem()),
-        zygote(TheMaternal, params.infile, params.section_title.c_str(),
-               params.GofU, params.debug, params.solver_name.c_str()),
-        score(params.infile, zygote, params.gutflag, params.gutndigits,
-              params.stepsize, params.accuracy, params.slog,
-              params.infile_name.c_str(), params.debug)
+fly::Tweak fly::ReadTweak(const fly_params& params)
 {
-    // read tweak
-
+    Tweak l_tweak;
     int *temptweak, *temptweak1; /* temporary arrays to read tweaks */
-
     int i; /* local loop counter */
     int c; /* used to parse text lines */
     int linecount = 0; /* keep track of # of lines read */
     int Tcount = 0; /* keep track of T lines read */
     int Ecount = 0; /* keep track of E lines read */
-
-    char *base; /* pointer to beginning of line string */
-    char *record; /* string for reading whole line of params */
-
-    char **fmt; /* array of format strings for reading params */
-    char **fmt1; /* array of format strings for reading
+    char* base; /* pointer to beginning of line string */
+    char* record; /* string for reading whole line of params */
+    char** fmt; /* array of format strings for reading params */
+    char** fmt1; /* array of format strings for reading
      E tweaks */
     char *skip, *skip1; /* string of values to be skipped */
-
     const char read_fmt[] = "%d"; /* read an int */
     const char skip_fmt[] = "%*d "; /* ignore an int */
-
-    FILE *fp = params.infile;
-
-    base = (char *) calloc(MAX_RECORD, sizeof(char *));
-
-    skip = (char *) calloc(MAX_RECORD, sizeof(char *));
-
-    skip1 = (char *) calloc(MAX_RECORD, sizeof(char *));
-
-    fmt = (char **) calloc(defs.ngenes, sizeof(char *));
+    FILE* fp = params.infile;
+    base = (char*) (calloc(MAX_RECORD, sizeof(char*)));
+    skip = (char*) (calloc(MAX_RECORD, sizeof(char*)));
+    skip1 = (char*) (calloc(MAX_RECORD, sizeof(char*)));
+    fmt = (char**) (calloc(defs.ngenes, sizeof(char*)));
     if (defs.egenes > 0)
-        fmt1 = (char **) calloc(defs.egenes, sizeof(char *));
+        fmt1 = (char**) (calloc(defs.egenes, sizeof(char*)));
 
-    temptweak = (int *) calloc(defs.ngenes, sizeof(int *));
-    temptweak1 = (int *) calloc(defs.egenes, sizeof(int *));
-
+    temptweak = (int*) (calloc(defs.ngenes, sizeof(int*)));
+    temptweak1 = (int*) (calloc(defs.egenes, sizeof(int*)));
     /* create format strings according to the number of genes */
-
     for (i = 0; i < defs.ngenes; i++) {
-        fmt[i] = (char *) calloc(MAX_RECORD, sizeof(char));
+        fmt[i] = (char*) (calloc(MAX_RECORD, sizeof(char)));
         fmt[i] = strcpy(fmt[i], skip);
         fmt[i] = strcat(fmt[i], read_fmt);
         skip = strcat(skip, skip_fmt);
     }
-
     /* create format strings according to the number of external inputs */
-
     if (defs.egenes > 0) {
-
         for (i = 0; i < defs.egenes; i++) {
-            fmt1[i] = (char *) calloc(MAX_RECORD, sizeof(char));
+            fmt1[i] = (char*) (calloc(MAX_RECORD, sizeof(char)));
             fmt1[i] = strcpy(fmt1[i], skip1);
             fmt1[i] = strcat(fmt1[i], read_fmt);
             skip1 = strcat(skip1, skip_fmt);
         }
-
     }
-
     /* initialize the Tweak struct */
-
-    tweak.Rtweak = (int *) calloc(defs.ngenes, sizeof(int));
-    tweak.Ttweak = (int *) calloc(defs.ngenes * defs.ngenes, sizeof(int));
-
+    l_tweak.Rtweak = (int*) (calloc(defs.ngenes, sizeof(int)));
+    l_tweak.Ttweak = (int*) (calloc(defs.ngenes * defs.ngenes, sizeof(int)));
     if (defs.egenes > 0)
-        tweak.Etweak = (int *) calloc(defs.ngenes * defs.egenes, sizeof(int));
+        l_tweak.Etweak = (int*) (calloc(defs.ngenes * defs.egenes, sizeof(int)));
 
-    tweak.mtweak = (int *) calloc(defs.ngenes, sizeof(int));
-    tweak.htweak = (int *) calloc(defs.ngenes, sizeof(int));
+    l_tweak.mtweak = (int*) (calloc(defs.ngenes, sizeof(int)));
+    l_tweak.htweak = (int*) (calloc(defs.ngenes, sizeof(int)));
     if ((defs.diff_schedule == 'A') || (defs.diff_schedule == 'C')) {
-        tweak.dtweak = (int *) malloc(sizeof(int));
+        l_tweak.dtweak = (int*) (malloc(sizeof(int)));
     } else {
-        tweak.dtweak = (int *) calloc(defs.ngenes, sizeof(int));
+        l_tweak.dtweak = (int*) (calloc(defs.ngenes, sizeof(int)));
     }
-    tweak.lambdatweak = (int *) calloc(defs.ngenes, sizeof(int));
-    tweak.tautweak = (int *) calloc(defs.ngenes, sizeof(int));
-
+    l_tweak.lambdatweak = (int*) (calloc(defs.ngenes, sizeof(int)));
+    l_tweak.tautweak = (int*) (calloc(defs.ngenes, sizeof(int)));
     fp = FindSection(fp, "tweak"); /* find tweak section */
     if (!fp)
         error("ReadTweak: could not locate tweak\n");
 
     while (strncmp((base = fgets(base, MAX_RECORD, fp)), "$$", 2)) {
-
         record = base;
-
-        c = (int) *record;
+        c = (int) (*record);
         while (c != '\0') {
-
-            if (isdigit(c)) { /* line contains data */
+            if (isdigit(c)) {
+                /* line contains data */
                 record = base;
-
                 /* usually read ngenes parameters, but for diff. schedule A or C only read *
                  * one d parameter                                                         */
-
                 /* If no external inputs, we must be on the next set of parameters, therefore increase linecount by one. */
                 if ((linecount == 2) && (defs.egenes == 0)) {
                     linecount++;
                 }
-
                 if ((linecount == 5) && ((defs.diff_schedule == 'A')
                         || (defs.diff_schedule == 'C'))) {
                     if (1 != sscanf(record, fmt[0], &temptweak[0]))
@@ -264,92 +232,107 @@ fly::fly(const fly_params &params) :
                     }
                 }
 
-                switch (linecount) { /* copy read parameters into the right array */
+                switch (linecount) {
+                /* copy read parameters into the right array */
                 case 0:
-                    for (i = 0; i < defs.ngenes; i++) /* R tweaks */
-                        tweak.Rtweak[i] = temptweak[i];
+                    for (i = 0; i < defs.ngenes; i++)
+                        /* R tweaks */
+                        l_tweak.Rtweak[i] = temptweak[i];
                     linecount++;
                     break;
                 case 1: /* T tweaks: keep track of read lines with Tcount */
                     for (i = 0; i < defs.ngenes; i++)
-                        tweak.Ttweak[i + Tcount * defs.ngenes] = temptweak[i];
+                        l_tweak.Ttweak[i + Tcount * defs.ngenes] = temptweak[i];
                     Tcount++;
                     if (Tcount == defs.ngenes)
                         linecount++;
+
                     break;
                 case 2: /* E tweaks: keep track of read lines with Ecount */
                     if (defs.egenes > 0) {
                         for (i = 0; i < defs.egenes; i++)
-                            tweak.Etweak[i + Ecount * defs.egenes] =
+                            l_tweak.Etweak[i + Ecount * defs.egenes] =
                                     temptweak1[i];
                         Ecount++;
                         if (Ecount == defs.ngenes)
                             linecount++;
                     }
-
                     break;
                 case 3: /* m tweaks */
                     for (i = 0; i < defs.ngenes; i++)
-                        tweak.mtweak[i] = temptweak[i];
+                        l_tweak.mtweak[i] = temptweak[i];
                     linecount++;
                     break;
                 case 4:
-                    for (i = 0; i < defs.ngenes; i++) /* h tweaks */
-                        tweak.htweak[i] = temptweak[i];
+                    for (i = 0; i < defs.ngenes; i++)
+                        /* h tweaks */
+                        l_tweak.htweak[i] = temptweak[i];
                     linecount++;
                     break;
                 case 5: /* d tweaks: consider diff. schedule */
                     if ((defs.diff_schedule == 'A') || (defs.diff_schedule
                             == 'C')) {
-                        tweak.dtweak[0] = temptweak[0];
+                        l_tweak.dtweak[0] = temptweak[0];
                     } else {
                         for (i = 0; i < defs.ngenes; i++)
-                            tweak.dtweak[i] = temptweak[i];
+                            l_tweak.dtweak[i] = temptweak[i];
                     }
                     linecount++;
                     break;
                 case 6: /* lambda tweaks */
                     for (i = 0; i < defs.ngenes; i++)
-                        tweak.lambdatweak[i] = temptweak[i];
+                        l_tweak.lambdatweak[i] = temptweak[i];
                     linecount++;
                     break;
                 case 7: /* lambda tweaks */
                     for (i = 0; i < defs.ngenes; i++)
-                        tweak.tautweak[i] = temptweak[i];
+                        l_tweak.tautweak[i] = temptweak[i];
                     linecount++;
                     break;
                 default:
                     error("ReadTweak: too many data lines in tweak section");
                 }
                 break; /* don't do rest of loop anymore! */
-            }
-
-            else if (isspace(c)) { /* ignore leading white space */
-                c = (int) *(++record);
-            }
-
-            else { /* anything but space or digit means comment */
+            } else if (isspace(c)) {
+                /* ignore leading white space */
+                c = (int) (*(++record));
+            } else {
+                /* anything but space or digit means comment */
                 break;
             }
         }
     }
-
     free(temptweak);
     free(temptweak1);
     free(base);
     free(skip);
     free(skip1);
-
     for (i = 0; i < defs.ngenes; i++)
         free(fmt[i]);
     free(fmt);
-
     if (defs.egenes > 0) {
         for (i = 0; i < defs.egenes; i++)
             free(fmt1[i]);
         free(fmt1);
     }
-    // above is the end of read tweak
+    return l_tweak;
+}
+
+fly::fly(const fly_params &params) :
+        TheMaternal(params.infile, params.olddivstyle),
+        defs(TheMaternal.getProblem()),
+        zygote(TheMaternal, params.infile, params.section_title.c_str(),
+               params.GofU, params.debug, params.solver_name.c_str()),
+        score(params.infile, zygote, params.gutflag, params.gutndigits,
+              params.stepsize, params.accuracy, params.slog,
+              params.infile_name.c_str(), params.debug)
+{
+    // read tweak
+
+    tweak = ReadTweak(params);
+    Translate(ptab);
+    nparams = ptab.size();
+
 
     // book keeping on scores
     chisq = score.Score();
@@ -368,4 +351,130 @@ double fly::get_rms()
 {
     return sqrt((get_score() - score.GetPenalty()) /
                 (double) score.GetNDatapoints());
+}
+
+fly::~fly()
+{
+    free(tweak.Rtweak);
+    free(tweak.Ttweak);
+    if (defs.egenes > 0)
+        free(tweak.Etweak);
+    free(tweak.mtweak);
+    free(tweak.htweak);
+    free(tweak.dtweak);
+    free(tweak.lambdatweak);
+    free(tweak.tautweak);
+}
+
+void fly::Translate(vector<ParamList> &tab)
+{
+    ParamList p;
+    int i, j;
+
+    // new ParamList element should always non-restorable
+    p.previous = 0;
+    p.canRestore = false;
+
+  /* Get limits and parameters */
+
+    EqParms *parm   = zygote.GetParameters();   /* get pointer to EqParm struct in zygotic.c */
+    SearchSpace *limits = score.GetLimits();           /* get pointer to SearchSpace in score.c */
+
+  /* if we are using a penalty, not all of Limits will have been allocated   */
+  /* and we must take care not to take indices of unallocated arrays!!!      */
+
+
+    for ( i=0; i < defs.ngenes; i++ )                 /* pointers to R stuff */
+        if ( tweak.Rtweak[i] == 1 ) {
+            p.param = &parm->R[i];
+            p.param_range = limits->Rlim[i];
+            tab.push_back(p);
+        }
+
+    for ( i=0; i < defs.ngenes; i++ )                 /* pointers to T stuff */
+        for ( j=0; j < defs.ngenes; j++ )
+            if ( tweak.Ttweak[i*defs.ngenes+j] == 1 ) {
+                p.param = &parm->T[j+i*defs.ngenes];
+                if ( limits->pen_vec == NULL )
+                    p.param_range = limits->Tlim[j+i*defs.ngenes];
+                else
+                    p.param_range = NULL;
+                tab.push_back(p);
+            } // end if
+
+    /* 01/13/10 Manu: If there are no external inputs, the for
+     * loop below should never be entered */
+
+    for ( i=0; i < defs.ngenes; i++ )                 /* pointers to E stuff */
+        for ( j=0; j < defs.egenes; j++ )
+            if ( tweak.Etweak[i*defs.egenes+j] == 1 ) {
+                p.param = &parm->E[j+i*defs.egenes];
+                if ( limits->pen_vec == NULL )
+                    p.param_range = limits->Elim[j+i*defs.egenes];
+                else
+                    p.param_range = NULL;
+                tab.push_back(p);
+            }
+
+    for ( i=0; i < defs.ngenes; i++ )                 /* pointers to m stuff */
+        if ( tweak.mtweak[i] == 1 ) {
+            p.param = &parm->m[i];
+            if ( limits->pen_vec == NULL )
+                p.param_range = limits->mlim[i];
+            else
+                p.param_range = NULL;
+            tab.push_back(p);
+        }
+
+    for ( i=0; i < defs.ngenes; i++ )                 /* pointers to h stuff */
+        if ( tweak.htweak[i] == 1 ) {
+            p.param = &parm->h[i];
+            if ( limits->pen_vec == NULL )
+                p.param_range = limits->hlim[i];
+            else
+                p.param_range = NULL;
+            tab.push_back(p);
+
+        }
+
+    for ( i=0; i < defs.ngenes; i++ )                 /* pointers to d stuff */
+        if ( tweak.dtweak[i] == 1 ) {
+            p.param = &parm->d[i];
+            p.param_range = limits->dlim[i];
+            tab.push_back(p);
+            if ( (defs.diff_schedule == 'A') || (defs.diff_schedule == 'C') )
+                break;
+        }
+
+    for ( i=0; i < defs.ngenes; i++ )            /* pointers to lambda stuff */
+        if ( tweak.lambdatweak[i] == 1 ) {
+            p.param = &parm->lambda[i];
+            p.param_range = limits->lambdalim[i];
+            tab.push_back(p);
+        }
+
+    for ( i=0; i < defs.ngenes; i++ )            /* pointers to tau stuff */
+        if ( tweak.tautweak[i] == 1 ) {
+            p.param = &parm->tau[i];
+            p.param_range = limits->taulim[i];
+            tab.push_back(p);
+        }
+}
+
+void fly::generateMove(int idx, double delta)
+{
+    ptab[idx].previous = *(ptab[idx].param);
+    *(ptab[idx].param) += delta;
+    ptab[idx].canRestore = true;
+    score_valid = false;
+}
+
+void fly::restoreMove(int idx)
+{
+    if(ptab[idx].canRestore) {
+        *(ptab[idx].param) = ptab[idx].previous;
+        ptab[idx].canRestore = false;
+        score_valid = false;
+    } else
+        runtime_error("cannot restore move");
 }
