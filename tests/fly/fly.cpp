@@ -138,6 +138,12 @@ fly_params readFlyParams(xmlNode *docroot)
         xmlFree(prop);
         prop = NULL;
     }
+    prop = xmlGetProp(section, (const xmlChar *)"outfile");
+    if (prop != NULL) {
+        params.outfile_name = (char *)prop;
+        xmlFree(prop);
+        prop = NULL;
+    }
     return params;
 }
 
@@ -477,4 +483,129 @@ void fly::restoreMove(int idx)
         score_valid = false;
     } else
         runtime_error("cannot restore move");
+}
+
+void fly::WriteParameters(char *filename, EqParms *p, char *title, int ndigits)
+{
+  char   *temp;                                     /* temporary file name */
+  char   *record;                         /* record to be read and written */
+  char   *record_ptr;        /* pointer used to remember record for 'free' */
+  char   *saverec;                 /* used to save following section title */
+  char   *shell_cmd;                             /* used by 'system' below */
+
+  FILE   *outfile;                                  /* name of output file */
+  FILE   *tmpfile;                               /* name of temporary file */
+
+
+  temp      = (char *)calloc(MAX_RECORD, sizeof(char));
+  record    = (char *)calloc(MAX_RECORD, sizeof(char));
+  saverec   = (char *)calloc(MAX_RECORD, sizeof(char));
+  shell_cmd = (char *)calloc(MAX_RECORD, sizeof(char));
+
+  record_ptr = record;            /* this is to remember record for 'free' */
+
+/* open output and temporary file */
+
+  outfile = fopen(filename, "r");              /* open outfile for reading */
+  if ( !outfile )                              /* sorry for the confusion! */
+    error("WriteParameters: error opening output file");
+
+  temp = strcpy(temp,"parmXXXXXX");               /* required by mkstemp() */
+  if ( mkstemp(temp) == -1 )              /* get unique name for temp file */
+    error("WriteParameters: error creating temporary file");
+
+  tmpfile = fopen(temp, "w");               /* ... and open it for writing */
+  if ( !tmpfile )
+    error("WriteParameters: error opening temporary file");
+
+  if ( FindSection(outfile, title) ) { /* erase section if already present */
+    fclose(outfile);                       /* this is a little kludgey but */
+    KillSection(filename, title);      /* since KillSection needs to be in */
+    outfile = fopen(filename, "r");           /* total control of the file */
+  }
+  rewind(outfile);
+
+/* the follwoing two loops look for the appropriate file position to write */
+/* the eqparms section (alternatives are input and eqparms)                */
+
+  if ( !strcmp(title, "input") ) {
+    while ( strncmp(record=fgets(record, MAX_RECORD, outfile),
+            "$genotypes", 10) )
+      fputs(record, tmpfile);
+  } else if ( !strcmp(title, "eqparms") ) {
+    while ( strncmp(record=fgets(record, MAX_RECORD, outfile),
+            "$input", 6) )
+      fputs(record, tmpfile);
+  }
+  fputs(record, tmpfile);
+
+  while ( strncmp(record=fgets(record, MAX_RECORD, outfile), "$$", 2) )
+    fputs(record, tmpfile);
+  fputs(record, tmpfile);
+
+  do {
+    record = fgets(record, MAX_RECORD, outfile);
+    if ( !record ) break;
+  } while ( strncmp(record, "$", 1) );
+
+  fputs("\n", tmpfile);
+
+  if ( record )
+    saverec = strcpy(saverec, record);
+
+/* now we write the eqparms section into the tmpfile */
+
+  zygote.PrintParameters(tmpfile, p, title, ndigits);
+
+  fprintf(tmpfile, "\n");
+
+/* ... and then write all the rest */
+
+  if ( record )
+    fputs(saverec, tmpfile);
+
+  while ( (record=fgets(record, MAX_RECORD, outfile)) )
+    fputs(record, tmpfile);
+
+  fclose(outfile);
+  fclose(tmpfile);
+
+/* rename tmpfile into new file */
+#ifdef BG
+  if ( -1 == rename(temp, filename) )
+    error("WriteParameters: error renaming temp file %s");
+#else
+
+  sprintf(shell_cmd, "cp -f %s %s", temp, filename);
+
+  if ( -1 == system(shell_cmd) )
+    error("WriteParameters: error renaming temp file %s");
+
+  if ( remove(temp) )
+    warning("WriteParameters: temp file %s could not be deleted", temp);
+#endif
+
+/* clean up */
+
+  free(temp);
+  free(record_ptr);
+  free(saverec);
+  free(shell_cmd);
+}
+
+void fly::serialize(void *buf) const
+{
+    double *dest = static_cast<double *>(buf); // new style cast
+    for (int i = 0; i < nparams; ++i) {
+        dest[i] = *(ptab[i].param);
+    }
+}
+
+void fly::deserialize(void const *buf)
+{
+    double const *from = static_cast<double const *>(buf);
+    for (int i = 0; i < nparams; ++i) {
+        *(ptab[i].param) = from[i];
+    }
+    score_valid = false;
 }

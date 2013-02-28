@@ -42,6 +42,7 @@ struct fly_params
     string section_title;                  /* parameter section name */
     string solver_name; // name of solver used
     string infile_name;
+    string outfile_name;
     int debug;
 
 
@@ -99,6 +100,8 @@ private:
 
     Tweak tweak; /* tells the annealer which parameters to tweak */
 
+    void WriteParameters(char *filename, EqParms *p, char *title, int ndigits);
+
 public:
     fly(const fly_params &params);
     ~fly();
@@ -108,6 +111,10 @@ public:
     void generateMove(int index, double delta);
     // make the perturbation on parameter index with theta_bar
     void restoreMove(int index);
+    int getStateSize(){return nparams * sizeof(double);}; // returns the byte count of the state
+    void serialize(void *buf) const; // serialize its state to buf
+    void deserialize(void const *buf); // inflate buf to a new state. calculation
+                                 // of new score is not required here.
 };
 
 #endif /* FLY_H_ */

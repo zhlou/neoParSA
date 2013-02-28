@@ -79,6 +79,9 @@ double feedbackMove<Problem, Debug>::propose()
     }
 
     prev_energy = energy;
+    // TODO: generate theta from theta bar here and pass only theta
+    //       to the problem so problem doesn't have to have random
+    //       number generator
     problem.generateMove(index, theta_bars[index]);
     ++ moves[index]; // prefix increment has lower precedence than [], right?
     energy = problem.get_score();

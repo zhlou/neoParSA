@@ -2173,3 +2173,77 @@ void zygotic::d_deriv(double *v, double **vd, double t, double *vdot, int n)
 
     return;
 }
+
+/*** PrintParameters: prints an eqparms section with 'title' to the stream *
+ *                    indicated by fp                                      *
+ ***************************************************************************/
+
+void zygotic::PrintParameters(FILE *fp, EqParms *p, char *title, int ndigits)
+{
+  int    i, j;                                      /* local loop counters */
+  double lambda_tmp;                           /* temporary var for lambda */
+
+
+  fprintf(fp, "$%s\n", title);
+  fprintf(fp, "promoter_strengths:\n");             /* Rs are written here */
+
+  for ( i=0; i<defs.ngenes; i++ )
+    fprintf(fp, "%*.*f ", ndigits+4, ndigits, p->R[i]);
+
+  fprintf(fp, "\n");
+  fprintf(fp, "genetic_interconnect_matrix:\n");        /* Ts written here */
+
+  for ( i=0; i<defs.ngenes; i++ ) {
+    for ( j=0; j<defs.ngenes; j++ )
+      fprintf(fp, "%*.*f ", ndigits+4, ndigits, p->T[(i*defs.ngenes)+j]);
+    fprintf(fp, "\n");
+  }
+
+  fprintf(fp, "external_input_strengths:\n");        /* Es written here */
+
+  for ( i=0; i<defs.ngenes; i++ ) {
+    for ( j=0; j<defs.egenes; j++ )
+      fprintf(fp, "%*.*f ", ndigits+4, ndigits, p->E[(i*defs.egenes)+j]);
+    fprintf(fp, "\n");
+  }
+
+  fprintf(fp, "maternal_connection_strengths:\n");      /* ms written here */
+
+  for ( i=0; i<defs.ngenes; i++ )
+    fprintf(fp, "%*.*f ", ndigits+4, ndigits, p->m[i]);
+
+  fprintf(fp, "\n");
+  fprintf(fp, "promoter_thresholds:\n");            /* hs are written here */
+
+  for ( i=0; i<defs.ngenes; i++ )
+    fprintf(fp, "%*.*f ", ndigits+4, ndigits, p->h[i]);
+
+  fprintf(fp, "\n");
+  fprintf(fp, "diffusion_parameter(s):\n");         /* ds are written here */
+
+  if ( (defs.diff_schedule == 'A') || (defs.diff_schedule == 'C') )
+    fprintf(fp, "%*.*f ", ndigits+4, ndigits, p->d[0]);
+  else
+    for ( i=0; i<defs.ngenes; i++ )
+      fprintf(fp, "%*.*f ", ndigits+4, ndigits, p->d[i]);
+
+  fprintf(fp, "\n");
+  fprintf(fp, "protein_half_lives:\n");        /* lambdas are written here */
+
+  for ( i=0; i<defs.ngenes; i++ ) {
+    lambda_tmp = log(2.) / p->lambda[i];           /* conversion done here */
+    fprintf(fp, "%*.*f ", ndigits+4, ndigits, lambda_tmp);
+  }
+
+  fprintf(fp, "\n");
+  fprintf(fp, "translational_transcriptional_delays:\n");        /* taus are written here */
+
+  for ( i=0; i<defs.ngenes; i++ )
+    fprintf(fp, "%*.*f ", ndigits+4, ndigits, p->tau[i]);
+
+  fprintf(fp, "\n$$\n");
+  fflush(fp);
+
+}
+
+

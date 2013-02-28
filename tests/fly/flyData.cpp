@@ -381,3 +381,95 @@ void warning(const char *format, ...)
 
 }
 
+/*** KillSection: erases the section with 'title' from the file 'fp' *******
+ ***************************************************************************/
+
+void KillSection(char *filename, char *title)
+{
+  size_t length;                                 /* length of title string */
+
+  char   *fulltitle;                                      /* title incl. $ */
+  char   *temp;                                     /* temporary file name */
+  char   *record;                         /* record to be read and written */
+  char   *record_ptr;        /* pointer used to remember record for 'free' */
+
+  char   *shell_cmd;                               /* used by system below */
+
+  FILE   *fp;             /* name of file where section needs to be killed */
+  FILE   *tmpfile;                               /* name of temporary file */
+
+
+  fulltitle = (char *)calloc(MAX_RECORD, sizeof(char));
+  temp      = (char *)calloc(MAX_RECORD, sizeof(char));
+  record    = (char *)calloc(MAX_RECORD, sizeof(char));
+  shell_cmd = (char *)calloc(MAX_RECORD, sizeof(char));
+
+  record_ptr = record;            /* this is to remember record for 'free' */
+
+  fp = fopen(filename, "r");                      /* open file for reading */
+  if ( !fp )
+    error("KillSection: error opening file %s", filename);
+
+  temp = strcpy(temp,"killXXXXXX");               /* required by mkstemp() */
+  if ( mkstemp(temp) == -1 )              /* get unique name for temp file */
+    error("KillSection: error creating temporary file");
+
+  tmpfile = fopen(temp, "w");               /* ... and open it for writing */
+  if ( !tmpfile )
+    error("KillSection: error opening temporary file");
+
+  if ( !FindSection(fp, title) )
+    error("KillSection: section to be killed not found");
+  rewind(fp);
+
+/* remove section by simply ignoring it while copying the file */
+
+  fulltitle = strcpy(fulltitle, "$");
+  fulltitle = strcat(fulltitle, title);
+  length    = strlen(fulltitle);
+
+  while (strncmp((record=fgets(record, MAX_RECORD, fp)),
+         fulltitle, length))
+    fputs(record, tmpfile);
+
+  while (strncmp((record=fgets(record, MAX_RECORD, fp)), "$$", 2))
+    ;
+
+  do {
+    record = fgets(record, MAX_RECORD, fp);
+    if ( !record ) break;
+  } while ( strncmp(record, "$", 1) );
+
+  if ( record )
+    fputs(record, tmpfile);
+
+  while ( (record=fgets(record, MAX_RECORD, fp)) )
+    fputs(record, tmpfile);
+
+  fclose(fp);
+  fclose(tmpfile);
+
+/* rename tmpfile into new file */
+
+#ifdef BG
+  if ( -1 == rename(temp, filename) )
+    error("KillSection: error renaming temp file %s", temp);
+#else
+
+  sprintf(shell_cmd, "cp -f %s %s", temp, filename);
+
+  if ( -1 == system(shell_cmd) )
+    error("KillSection: error renaming temp file %s", temp);
+
+  if ( remove(temp) )
+    warning("KillSection: temp file %s could not be deleted", temp);
+#endif
+
+/* clean up */
+
+  free(record_ptr);
+  free(temp);
+  free(shell_cmd);
+  free(fulltitle);
+}
+
