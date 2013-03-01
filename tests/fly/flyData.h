@@ -125,6 +125,6 @@ NArrPtr ConvertAnswer(NArrPtr answer, DArrPtr tabtimes);
 void error(const char *format, ...);
 void warning(const char *format, ...);
 FILE *FindSection(FILE *fp, const char *section);
-void KillSection(char *filename, char *title);
+void KillSection(const char *filename, char *title);
 
 #endif /* FLYDATA_H_ */

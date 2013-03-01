@@ -11,8 +11,9 @@ template<class Problem, class Debug>
 const double feedbackMove<Problem, Debug>::theta_min = 0.;
 
 template<class Problem, class Debug>
-feedbackMove<Problem, Debug>::feedbackMove(Problem& in_problem, xmlNode* root) :
-        problem(in_problem)
+feedbackMove<Problem, Debug>::feedbackMove(Problem& in_problem,
+                                           unirandom &in_rand, xmlNode* root) :
+        problem(in_problem), rnd(in_rand)
 {
     nparams = problem.getDimension();
     index = -1;
@@ -82,7 +83,13 @@ double feedbackMove<Problem, Debug>::propose()
     // TODO: generate theta from theta bar here and pass only theta
     //       to the problem so problem doesn't have to have random
     //       number generator
-    problem.generateMove(index, theta_bars[index]);
+    double uniform = 2.0 * rnd.random() - 1.0;
+    double theta;
+    if (uniform >= 0.)
+        theta = -1 * theta_bars[index] * log(abs(uniform));
+    else
+        theta = theta_bars[index] * log(abs(uniform));
+    problem.generateMove(index, theta);
     ++ moves[index]; // prefix increment has lower precedence than [], right?
     energy = problem.get_score();
     return (energy - prev_energy);

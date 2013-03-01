@@ -25,7 +25,7 @@ int main(int argc, char **argv)
         test_tsp.add_city(city(x, y));
     }
     unirandom rnd;
-    feedbackMove<tsp, debugIGNORE> tsp_problem(test_tsp, root);
+    feedbackMove<tsp, debugIGNORE> tsp_problem(test_tsp, rnd, root);
     simpleSchedule schedule(root);
     annealer<simpleSchedule, feedbackMove<tsp, debugIGNORE>, unirandom> tsp_anneal(schedule,
             tsp_problem, rnd, root);

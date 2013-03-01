@@ -7,8 +7,8 @@
 
 template<class Problem, class Debug, template<class > class PopBased>
 parallelFBMove<Problem, Debug, PopBased>::parallelFBMove(Problem& in_problem,
-        xmlNode* root, const MPIState &mpiState) :
-        feedbackMove<Problem, Debug>(in_problem, root), mpi(mpiState),
+        unirandom &in_rnd, xmlNode* root, const MPIState &mpiState) :
+        feedbackMove<Problem, Debug>(in_problem, in_rnd, root), mpi(mpiState),
         pop(in_problem, mpiState, root)
 {
 }

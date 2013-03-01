@@ -17,7 +17,7 @@ public:
 	unirandom &rnd;
 	//unsigned int* get_seed();
 	double get_score();
-	void generateMove(int idx, double theta_bar);
+	void generateMove(int idx, double theta);
 	void restoreMove(int idx);
 	void print_solution(ostream &o) const;
 	void write_section(xmlChar *secname);

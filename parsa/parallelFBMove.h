@@ -16,7 +16,8 @@ template<class Problem, class Debug, template <class> class PopBased>
 class parallelFBMove: public feedbackMove<Problem, Debug>
 {
 public:
-    parallelFBMove(Problem &in_problem, xmlNode *root, const MPIState &mpiState);
+    parallelFBMove(Problem &in_problem, unirandom &in_rnd, xmlNode *root,
+                   const MPIState &mpiState);
     ~parallelFBMove();
     int getWinner();
     void doMix(aState &state);

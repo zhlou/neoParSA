@@ -24,9 +24,9 @@ int main(int argc, char **argv)
 	}
 	unirandom rnd;
 	rastrigin rst(docroot, rnd);
-	feedbackMove<rastrigin, debugIGNORE> rst_problem(rst, docroot);
+	feedbackMove<rastrigin, debugSTD> rst_problem(rst, rnd, docroot);
 	lam schedule(docroot);
-	annealer<lam, feedbackMove<rastrigin, debugIGNORE>, unirandom >
+	annealer<lam, feedbackMove<rastrigin, debugSTD>, unirandom >
 	        rst_anneal(schedule, rst_problem, rnd, docroot);
 	//rastrigin_problem rst_problem(&rst, docroot);
 	//lam rst_anneal(&rst_problem, docroot);

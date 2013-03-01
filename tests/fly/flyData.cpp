@@ -384,7 +384,7 @@ void warning(const char *format, ...)
 /*** KillSection: erases the section with 'title' from the file 'fp' *******
  ***************************************************************************/
 
-void KillSection(char *filename, char *title)
+void KillSection(const char *filename, char *title)
 {
   size_t length;                                 /* length of title string */
 

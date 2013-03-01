@@ -97,19 +97,16 @@ void rastrigin::print_solution(ostream& o) const
 	o << "}" << endl;
 }
 
-void rastrigin::generateMove(int idx, double theta_bar)
+void rastrigin::generateMove(int idx, double theta)
 {
-    double x;
-    x = prev_x = vars[idx];
-    double uniform = 2.0 * rnd.random() - 1.0;
-    if (uniform >= 0)
-        x -= theta_bar * log(abs(uniform));
-    else
-        x += theta_bar * log(abs(uniform));
-    if (x > rastrigin::VAR_MAX)
-        x = rastrigin::VAR_MAX;
-    else if (x < rastrigin::VAR_MIN)
-        x = rastrigin::VAR_MIN;
+    double x = prev_x = vars[idx];
+    x += theta;
+    while (x > rastrigin::VAR_MAX || x < rastrigin::VAR_MIN) {
+        if (x > rastrigin::VAR_MAX)
+            x = 2 * rastrigin::VAR_MAX - x;
+        if (x < rastrigin::VAR_MIN)
+            x = 2 * rastrigin::VAR_MIN - x;
+    }
     vars[idx] = x;
     can_rollback = true;
     prev_idx = idx;

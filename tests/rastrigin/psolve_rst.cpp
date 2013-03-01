@@ -42,7 +42,8 @@ int main(int argc, char **argv)
     unirandom rnd(mpi.rank);
     rastrigin rst(docroot, rnd);
     parallelFBMove<rastrigin, debugIGNORE, adaptMix> *rst_problem =
-            new parallelFBMove<rastrigin, debugIGNORE, adaptMix>(rst, docroot, mpi);
+            new parallelFBMove<rastrigin, debugIGNORE, adaptMix>(rst, rnd,
+                                                                 docroot, mpi);
     plsa *pschedule = new plsa(docroot, mpi);
 
     //feedbackMove<rastrigin> rst_problem(rst, docroot);

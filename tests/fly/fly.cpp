@@ -333,6 +333,9 @@ fly::fly(const fly_params &params) :
               params.stepsize, params.accuracy, params.slog,
               params.infile_name.c_str(), params.debug)
 {
+    infile = params.infile_name;
+    outfile = params.outfile_name;
+    ndigits = params.ndigits;
     // read tweak
 
     tweak = ReadTweak(params);
@@ -343,6 +346,7 @@ fly::fly(const fly_params &params) :
     // book keeping on scores
     chisq = score.Score();
     score_valid = true;
+
 }
 
 double fly::get_score()
@@ -485,7 +489,7 @@ void fly::restoreMove(int idx)
         runtime_error("cannot restore move");
 }
 
-void fly::WriteParameters(char *filename, EqParms *p, char *title, int ndigits)
+void fly::WriteParameters(const char *filename, EqParms *p, char *title, int ndigits)
 {
   char   *temp;                                     /* temporary file name */
   char   *record;                         /* record to be read and written */
@@ -608,4 +612,20 @@ void fly::deserialize(void const *buf)
         *(ptab[i].param) = from[i];
     }
     score_valid = false;
+}
+
+void fly::writeAnswer()
+{
+    if (outfile.empty()){
+        outfile = infile;
+    } else {
+        char * shell_cmd = (char *)calloc(MAX_RECORD, sizeof(char));
+        sprintf(shell_cmd, "cp -f %s %s", infile.c_str(), outfile.c_str());
+        if ( -1 == system(shell_cmd) )
+            error("FinalMove: error creating output file %s", outfile.c_str());
+        free(shell_cmd);
+    }
+    EqParms *parm = zygote.GetParameters();
+    WriteParameters(outfile.c_str(), parm, "eqparms", ndigits);
+
 }

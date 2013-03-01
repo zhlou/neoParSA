@@ -1,6 +1,7 @@
 #ifndef MOVABLE_H
 #define MOVABLE_H
 #include <libxml/parser.h>
+#include "unirandom.h"
 #include "aState.h"
 
 /*
@@ -25,7 +26,7 @@ template <class Problem, class Debug>
 class feedbackMove : public Debug
 {
 public:
-    feedbackMove(Problem &in_problem, xmlNode *root=NULL);
+    feedbackMove(Problem &in_problem, unirandom &in_rnd, xmlNode *root=NULL);
     virtual ~feedbackMove();
     double get_score();
     double propose();
@@ -43,6 +44,7 @@ protected:
     double energy;
 private:
     int index;
+    unirandom &rnd;
 
     double *theta_bars;
     double prev_energy;

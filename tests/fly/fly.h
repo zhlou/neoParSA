@@ -88,6 +88,9 @@ private:
     void Translate(vector<ParamList> &tab);
 
 
+    string infile;
+    string outfile;
+    int ndigits;
     maternal TheMaternal;
     zygotic zygote;
     scoring score;
@@ -100,7 +103,7 @@ private:
 
     Tweak tweak; /* tells the annealer which parameters to tweak */
 
-    void WriteParameters(char *filename, EqParms *p, char *title, int ndigits);
+    void WriteParameters(const char *filename, EqParms *p, char *title, int ndigits);
 
 public:
     fly(const fly_params &params);
@@ -115,6 +118,7 @@ public:
     void serialize(void *buf) const; // serialize its state to buf
     void deserialize(void const *buf); // inflate buf to a new state. calculation
                                  // of new score is not required here.
+    void writeAnswer();
 };
 
 #endif /* FLY_H_ */
