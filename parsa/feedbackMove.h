@@ -22,11 +22,12 @@
  * };
  *
  */
-template <class Problem, class Debug>
-class feedbackMove : public Debug
+template <class Problem>
+class feedbackMove
 {
 public:
-    feedbackMove(Problem &in_problem, unirandom &in_rnd, xmlNode *root=NULL);
+    feedbackMove(Problem &in_problem, dynDebug &debug,
+                 unirandom &in_rnd, xmlNode *root=NULL);
     virtual ~feedbackMove();
     double get_score();
     double propose();
@@ -37,6 +38,7 @@ public:
 protected:
     int nparams;
     Problem &problem;
+    dynDebug &debugOut;
     virtual void collectMoveStats(){}; // do nothing in base class
     void move_control();
     long *success;

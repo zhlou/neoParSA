@@ -7,13 +7,13 @@
 #include <limits>
 using namespace std;
 
-template<class Problem, class Debug>
-const double feedbackMove<Problem, Debug>::theta_min = 0.;
+template<class Problem>
+const double feedbackMove<Problem>::theta_min = 0.;
 
-template<class Problem, class Debug>
-feedbackMove<Problem, Debug>::feedbackMove(Problem& in_problem,
-                                           unirandom &in_rand, xmlNode* root) :
-        problem(in_problem), rnd(in_rand)
+template<class Problem>
+feedbackMove<Problem>::feedbackMove(Problem& in_problem, dynDebug &debug,
+                                    unirandom &in_rand, xmlNode* root) :
+        problem(in_problem), debugOut(debug), rnd(in_rand)
 {
     nparams = problem.getDimension();
     index = -1;
@@ -59,14 +59,14 @@ feedbackMove<Problem, Debug>::feedbackMove(Problem& in_problem,
     }
 }
 
-template<class Problem, class Debug>
-inline double feedbackMove<Problem, Debug>::get_score()
+template<class Problem>
+inline double feedbackMove<Problem>::get_score()
 {
     return energy;
 }
 
-template<class Problem, class Debug>
-double feedbackMove<Problem, Debug>::propose()
+template<class Problem>
+double feedbackMove<Problem>::propose()
 {
     index++;
     index %= nparams;
@@ -80,9 +80,9 @@ double feedbackMove<Problem, Debug>::propose()
     }
 
     prev_energy = energy;
-    // TODO: generate theta from theta bar here and pass only theta
-    //       to the problem so problem doesn't have to have random
-    //       number generator
+    // generate theta from theta bar here and pass only theta
+    // to the problem so problem doesn't have to have random
+    // number generator
     double uniform = 2.0 * rnd.random() - 1.0;
     double theta;
     if (uniform >= 0.)
@@ -95,29 +95,29 @@ double feedbackMove<Problem, Debug>::propose()
     return (energy - prev_energy);
 }
 
-template<class Problem, class Debug>
-void feedbackMove<Problem, Debug>::accept()
+template<class Problem>
+void feedbackMove<Problem>::accept()
 {
     ++ success[index];
 }
 
-template<class Problem, class Debug>
-feedbackMove<Problem, Debug>::~feedbackMove()
+template<class Problem>
+feedbackMove<Problem>::~feedbackMove()
 {
     delete[] success;
     delete[] moves;
     delete[] theta_bars;
 }
 
-template<class Problem, class Debug>
-void feedbackMove<Problem, Debug>::reject()
+template<class Problem>
+void feedbackMove<Problem>::reject()
 {
     problem.restoreMove(index);
     energy = prev_energy;
 }
 
-template<class Problem, class Debug>
-void feedbackMove<Problem, Debug>::move_control()
+template<class Problem>
+void feedbackMove<Problem>::move_control()
 {
     for (int i = 0; i < nparams; ++i) {
         double acc_ratio = (double) success[i] / (double) moves[i];
@@ -127,9 +127,9 @@ void feedbackMove<Problem, Debug>::move_control()
         theta_bars[i] = exp(x);
         if (theta_bars[i] < theta_min)
             theta_bars[i] = theta_min;
-        Debug::debugOut << "\t" << theta_bars[i];
+        debugOut << "\t" << theta_bars[i];
         success[i] = 0;
         moves[i] = 0;
     }
-    Debug::debugOut << endl;
+    debugOut << endl;
 }

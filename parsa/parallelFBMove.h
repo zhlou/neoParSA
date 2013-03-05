@@ -12,11 +12,11 @@
 #include "feedbackMove.h"
 #include "MPIState.h"
 
-template<class Problem, class Debug, template <class> class PopBased>
-class parallelFBMove: public feedbackMove<Problem, Debug>
+template<class Problem, template <class> class PopBased>
+class parallelFBMove: public feedbackMove<Problem>
 {
 public:
-    parallelFBMove(Problem &in_problem, unirandom &in_rnd, xmlNode *root,
+    parallelFBMove(Problem &in_problem, dynDebug &debug, unirandom &in_rnd, xmlNode *root,
                    const MPIState &mpiState);
     ~parallelFBMove();
     int getWinner();
