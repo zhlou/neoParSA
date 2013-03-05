@@ -30,15 +30,17 @@ public:
     double Mix(aState &state);
 private:
     Problem &problem;
-    unirandom rnd;
     const MPIState &mpi;
+    unirandom rnd;
+    xmlNode *root;
+
     MPI_Win state_win;
     void *state_buf;
     int buf_size;
     double *energy_tab;
     double *prob_tab;
     double adaptCoef;
-    xmlNode *root;
+
     void adoptState(int Id);
 
 };
