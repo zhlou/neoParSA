@@ -11,11 +11,11 @@
 #include <libxml/parser.h>
 #include <mpi.h>
 #include "rastrigin.h"
-#include "annealer.h"
+#include "pannealer.h"
 #include "parallelFBMove.h"
 #include "unirandom.h"
 #include "plsa.h"
-#include "debugOut.h"
+#include "dynDebug.h"
 #include "adaptMix.h"
 using namespace std;
 int main(int argc, char **argv)
@@ -41,22 +41,24 @@ int main(int argc, char **argv)
     }
     unirandom rnd(mpi.rank);
     rastrigin rst(docroot, rnd);
-    parallelFBMove<rastrigin, debugIGNORE, adaptMix> *rst_problem =
-            new parallelFBMove<rastrigin, debugIGNORE, adaptMix>(rst, rnd,
-                                                                 docroot, mpi);
+    //parallelFBMove<rastrigin, debugIGNORE, adaptMix> *rst_problem =
+    //        new parallelFBMove<rastrigin, debugIGNORE, adaptMix>(rst, rnd,
+    //                                                             docroot, mpi);
     plsa *pschedule = new plsa(docroot, mpi);
 
     //feedbackMove<rastrigin> rst_problem(rst, docroot);
     //lam schedule(docroot);
-    annealer<plsa, parallelFBMove<rastrigin, debugIGNORE, adaptMix>, unirandom >
-            rst_anneal(*pschedule, *rst_problem, rnd, docroot);
+    //annealer<plsa, parallelFBMove<rastrigin, debugIGNORE, adaptMix>, unirandom >
+    //        rst_anneal(*pschedule, *rst_problem, rnd, docroot);
+    pannealer<rastrigin, plsa, parallelFBMove, adaptMix> *rst_anneal =
+            new pannealer<rastrigin, plsa, parallelFBMove, adaptMix>(rst, &rnd, docroot, mpi);
     cout << "The initial state is " << endl;
     rst.print_solution(cout);
-    cout << "The fininal energy is " << rst_anneal.loop() << endl;
+    cout << "The fininal energy is " << rst_anneal->loop() << endl;
     cout << "The solution is " << endl;
     rst.print_solution(cout);
-    delete pschedule;
-    delete rst_problem;
+    //delete pschedule;
+    delete rst_anneal;
     MPI_Finalize();
 
     return 0;

@@ -7,7 +7,8 @@
 
 #ifndef PANNEALER_H_
 #define PANNEALER_H_
-
+#include "annealer.h"
+#include "MPIState.h"
 template <class Problem, class Schedule, template<class> class Move,
           template<class> class PopBased>
 class pannealer : public annealer<Problem, Schedule, Move>

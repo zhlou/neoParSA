@@ -5,17 +5,16 @@
  *      Author: zhlou
  */
 
-template<class Problem, template<class > class PopBased>
-parallelFBMove<Problem, PopBased>::parallelFBMove(Problem& in_problem,
+template<class Problem>
+parallelFBMove<Problem>::parallelFBMove(Problem& in_problem,
         unirandom &in_rnd, xmlNode* root,
         const MPIState &mpiState) :
-        feedbackMove<Problem>(in_problem, in_rnd, root), mpi(mpiState),
-        pop(in_problem, mpiState, root)
+        feedbackMove<Problem>(in_problem, in_rnd, root), mpi(mpiState)
 {
 }
 
-template<class Problem, template<class > class PopBased>
-int parallelFBMove<Problem, PopBased>::getWinner()
+template<class Problem>
+int parallelFBMove<Problem>::getWinner()
 {
     struct
     {
@@ -29,21 +28,23 @@ int parallelFBMove<Problem, PopBased>::getWinner()
     return doubleint.rank;
 }
 
+/*
 template<class Problem, template<class > class PopBased>
 void parallelFBMove<Problem, PopBased>::doMix(aState &state)
 {
     //cout << "Run adapt mix" << endl;
     feedbackMove<Problem>::energy = pop.Mix(state);
 }
+*/
 
-template<class Problem, template<class > class PopBased>
-parallelFBMove<Problem, PopBased>::~parallelFBMove()
+template<class Problem>
+parallelFBMove<Problem>::~parallelFBMove()
 {
 
 }
 
-template<class Problem, template<class > class PopBased>
-void parallelFBMove<Problem, PopBased>::collectMoveStats()
+template<class Problem>
+void parallelFBMove<Problem>::collectMoveStats()
 {
     MPI_Allreduce(MPI_IN_PLACE, feedbackMove<Problem>::success,
             feedbackMove<Problem>::nparams, MPI_LONG, MPI_SUM, mpi.comm);

@@ -1,10 +1,16 @@
 DIRS = tsp rastrigin fly
-.PHONY: all clean
+.PHONY: all clean $(DIRS)
 
 all: $(DIRS)
 	for dir in $(DIRS); do\
 		(cd $$dir && $(MAKE)); \
 	done
+	
+rastrigin:
+	cd $@ && $(MAKE)
+	
+fly:
+	cd $@ && $(MAKE)
 
 clean:
 	for dir in $(DIRS); do\

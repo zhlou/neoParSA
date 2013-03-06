@@ -2,6 +2,7 @@
 #define MOVABLE_H
 #include <libxml/parser.h>
 #include "unirandom.h"
+#include "dynDebug.h"
 #include "aState.h"
 
 /*

@@ -51,16 +51,10 @@ double annealer<Problem, Schedule, Move>::initMoves()
 
 }
 
-/*
- * When the constructor is called, all other parts should already be set up.
- */
-template<class Problem, class Schedule, template<class> class Move>
-annealer<Problem, Schedule, Move>::annealer(Problem &problem,
-        unirandom * const in_rand, xmlNode *root) :
-        cooling(root), move(problem, in_rand, root), rand(in_rand), xmlroot(root)
+template<class Problem, class Schedule, template<class > class Move>
+void annealer<Problem, Schedule, Move>::initState(xmlNode* root)
 {
-    xmlNode *xmlsection = getSectionByName(root, "annealer_input");
-
+    xmlNode* xmlsection = getSectionByName(root, "annealer_input");
     if (xmlsection == NULL) {
         throw runtime_error(
                 string("Error: fail to find section annealer_input"));
@@ -71,6 +65,17 @@ annealer<Problem, Schedule, Move>::annealer(Problem &problem,
     is_init = false;
     state.step_cnt = 0;
     state.energy = move.get_score();
+}
+
+/*
+ * When the constructor is called, all other parts should already be set up.
+ */
+template<class Problem, class Schedule, template<class> class Move>
+annealer<Problem, Schedule, Move>::annealer(Problem &problem,
+        unirandom * const in_rand, xmlNode *root) :
+        cooling(root), move(problem, in_rand, root), rand(in_rand), xmlroot(root)
+{
+    initState(root);
 }
 
 template<class Problem, class Schedule, template<class> class Move>

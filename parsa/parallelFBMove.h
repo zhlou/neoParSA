@@ -12,7 +12,7 @@
 #include "feedbackMove.h"
 #include "MPIState.h"
 
-template<class Problem, template <class> class PopBased>
+template<class Problem>
 class parallelFBMove: public feedbackMove<Problem>
 {
 public:
@@ -20,15 +20,11 @@ public:
                    const MPIState &mpiState);
     ~parallelFBMove();
     int getWinner();
-    void doMix(aState &state);
+    // void doMix(aState &state);
 protected:
     void collectMoveStats();
 private:
     const MPIState &mpi;
-
-    PopBased<Problem> pop;
-
-
 
 };
 

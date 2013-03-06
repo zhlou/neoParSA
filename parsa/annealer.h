@@ -2,6 +2,7 @@
 #define ANNEALER_H
 
 #include <libxml/parser.h>
+#include "unirandom.h"
 #include "aState.h"
 //class movable;
 /*
@@ -60,6 +61,7 @@ protected:
     virtual void updateSegment(aState &state) {cooling.updateSegment(state);}
 
     bool step();
+    void initState(xmlNode* root);
 };
 
 
