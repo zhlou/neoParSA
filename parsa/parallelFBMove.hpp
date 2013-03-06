@@ -7,46 +7,46 @@
 
 template<class Problem, template<class > class PopBased>
 parallelFBMove<Problem, PopBased>::parallelFBMove(Problem& in_problem,
-        dynDebug &debug, unirandom &in_rnd, xmlNode* root,
+        unirandom &in_rnd, xmlNode* root,
         const MPIState &mpiState) :
-        feedbackMove<Problem>(in_problem, debug, in_rnd, root), mpi(mpiState),
+        feedbackMove<Problem>(in_problem, in_rnd, root), mpi(mpiState),
         pop(in_problem, mpiState, root)
 {
 }
 
-template<class Problem, class Debug, template<class > class PopBased>
-int parallelFBMove<Problem, Debug, PopBased>::getWinner()
+template<class Problem, template<class > class PopBased>
+int parallelFBMove<Problem, PopBased>::getWinner()
 {
     struct
     {
         double energy;
         int rank;
     } doubleint;
-    doubleint.energy = feedbackMove<Problem, Debug>::energy;
+    doubleint.energy = feedbackMove<Problem>::energy;
     doubleint.rank = mpi.rank;
     MPI_Allreduce(MPI_IN_PLACE, &doubleint, 1, MPI_DOUBLE_INT, MPI_MINLOC,
             mpi.comm);
     return doubleint.rank;
 }
 
-template<class Problem, class Debug, template<class > class PopBased>
-void parallelFBMove<Problem, Debug, PopBased>::doMix(aState &state)
+template<class Problem, template<class > class PopBased>
+void parallelFBMove<Problem, PopBased>::doMix(aState &state)
 {
     //cout << "Run adapt mix" << endl;
-    feedbackMove<Problem, Debug>::energy = pop.Mix(state);
+    feedbackMove<Problem>::energy = pop.Mix(state);
 }
 
-template<class Problem, class Debug, template<class > class PopBased>
-parallelFBMove<Problem, Debug, PopBased>::~parallelFBMove()
+template<class Problem, template<class > class PopBased>
+parallelFBMove<Problem, PopBased>::~parallelFBMove()
 {
 
 }
 
-template<class Problem, class Debug, template<class > class PopBased>
-void parallelFBMove<Problem, Debug, PopBased>::collectMoveStats()
+template<class Problem, template<class > class PopBased>
+void parallelFBMove<Problem, PopBased>::collectMoveStats()
 {
-    MPI_Allreduce(MPI_IN_PLACE, feedbackMove<Problem, Debug>::success,
-            feedbackMove<Problem, Debug>::nparams, MPI_LONG, MPI_SUM, mpi.comm);
-    MPI_Allreduce(MPI_IN_PLACE, feedbackMove<Problem, Debug>::moves,
-            feedbackMove<Problem, Debug>::nparams, MPI_LONG, MPI_SUM, mpi.comm);
+    MPI_Allreduce(MPI_IN_PLACE, feedbackMove<Problem>::success,
+            feedbackMove<Problem>::nparams, MPI_LONG, MPI_SUM, mpi.comm);
+    MPI_Allreduce(MPI_IN_PLACE, feedbackMove<Problem>::moves,
+            feedbackMove<Problem>::nparams, MPI_LONG, MPI_SUM, mpi.comm);
 }

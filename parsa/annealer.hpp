@@ -13,8 +13,8 @@
 
 using namespace std;
 
-template<class Schedule, class Move, class Random>
-double annealer<Schedule, Move, Random>::loop()
+template<class Problem, class Schedule, template<class> class Move>
+double annealer<Problem, Schedule, Move>::loop()
 {
     if (!is_init)
         initMoves();
@@ -29,9 +29,7 @@ double annealer<Schedule, Move, Random>::loop()
             state.s = cooling.updateS(state);
             ++ (state.step_cnt);
         } while (cooling.inSegment(state));
-        cooling.updateSegment(state);
-
-        move.doMix(state);
+        updateSegment(state);
     } while (!cooling.frozen(state));
 
     std::cout << "Annealing stopped at s = " << state.s << std::endl
@@ -39,8 +37,8 @@ double annealer<Schedule, Move, Random>::loop()
     return move.get_score();
 }
 
-template<class Schedule, class Move, class Random>
-double annealer<Schedule, Move, Random>::initMoves()
+template<class Problem, class Schedule, template<class> class Move>
+double annealer<Problem, Schedule, Move>::initMoves()
 {
     bool accepted;
     for (state.step_cnt = 0; state.step_cnt < initLoop; state.step_cnt++) {
@@ -56,10 +54,10 @@ double annealer<Schedule, Move, Random>::initMoves()
 /*
  * When the constructor is called, all other parts should already be set up.
  */
-template<class Schedule, class Move, class Random>
-annealer<Schedule, Move, Random>::annealer(Schedule& in_cool, Move& in_move,
-        Random &in_rand, xmlNode *root) :
-        cooling(in_cool), move(in_move), rand(in_rand), xmlroot(root)
+template<class Problem, class Schedule, template<class> class Move>
+annealer<Problem, Schedule, Move>::annealer(Problem &problem,
+        unirandom * const in_rand, xmlNode *root) :
+        cooling(root), move(problem, in_rand, root), rand(in_rand), xmlroot(root)
 {
     xmlNode *xmlsection = getSectionByName(root, "annealer_input");
 
@@ -75,18 +73,18 @@ annealer<Schedule, Move, Random>::annealer(Schedule& in_cool, Move& in_move,
     state.energy = move.get_score();
 }
 
-template<class Schedule, class Move, class Random>
-annealer<Schedule, Move, Random>::~annealer()
+template<class Problem, class Schedule, template<class> class Move>
+annealer<Problem, Schedule, Move>::~annealer()
 {
 }
 
-template<class Schedule, class Move, class Random>
-bool annealer<Schedule, Move, Random>::step()
+template<class Problem, class Schedule, template<class> class Move>
+bool annealer<Problem, Schedule, Move>::step()
 {
     double delta, crit, ran_n;
     delta = move.propose();
     crit = std::exp(-state.s * delta);
-    ran_n = rand.random();
+    ran_n = rand->random();
     if ((delta <= 0.0) || crit > ran_n) {
         move.accept();
         state.energy += delta;

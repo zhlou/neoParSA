@@ -26,19 +26,18 @@ template <class Problem>
 class feedbackMove
 {
 public:
-    feedbackMove(Problem &in_problem, dynDebug &debug,
-                 unirandom &in_rnd, xmlNode *root=NULL);
+    feedbackMove(Problem &in_problem, unirandom &in_rnd, xmlNode *root=NULL);
     virtual ~feedbackMove();
     double get_score();
     double propose();
     void accept();
     void reject();
     virtual void doMix(aState &){}; // do nothing in base class
-
+    dynDebug debugOut;
 protected:
     int nparams;
     Problem &problem;
-    dynDebug &debugOut;
+
     virtual void collectMoveStats(){}; // do nothing in base class
     void move_control();
     long *success;

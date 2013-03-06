@@ -11,9 +11,9 @@ template<class Problem>
 const double feedbackMove<Problem>::theta_min = 0.;
 
 template<class Problem>
-feedbackMove<Problem>::feedbackMove(Problem& in_problem, dynDebug &debug,
-                                    unirandom &in_rand, xmlNode* root) :
-        problem(in_problem), debugOut(debug), rnd(in_rand)
+feedbackMove<Problem>::feedbackMove(Problem& in_problem, unirandom &in_rand,
+                                    xmlNode* root) :
+        problem(in_problem), rnd(in_rand)
 {
     nparams = problem.getDimension();
     index = -1;
@@ -122,7 +122,7 @@ void feedbackMove<Problem>::move_control()
     for (int i = 0; i < nparams; ++i) {
         double acc_ratio = (double) success[i] / (double) moves[i];
         double x = log(theta_bars[i]);
-        Debug::debugOut << i << "\t" << acc_ratio;
+        debugOut << i << "\t" << acc_ratio;
         x += move_gain * (acc_ratio - 0.44);
         theta_bars[i] = exp(x);
         if (theta_bars[i] < theta_min)

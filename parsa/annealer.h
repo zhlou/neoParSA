@@ -40,43 +40,27 @@
  *      void reject();
  * };
  */
-template <class Schedule, class Move, class Random>
+template <class Problem, class Schedule, template<class> class Move>
 class annealer
 {
 public:
-    annealer(Schedule &in_cool, Move &in_move, Random &in_rand, xmlNode *root);
+    annealer(Problem &problem, unirandom * const in_rand, xmlNode *root);
     virtual ~annealer();
     double loop();
     double initMoves();
 protected:
-    Schedule &cooling;
-    Move &move;
-    Random &rand;
-    aState state;
-    //virtual void updateInitStep(bool accept);
-    //virtual void updateStep(bool accept) = 0;
-    //virtual void initStats() = 0;
-    //virtual bool frozen() = 0;
-    //virtual void updateS() = 0;
-    //virtual bool inSegment() = 0;
-    //virtual void updateSegment() = 0;
-    //virtual void resetSegmentStats();
-    bool step();
+    Schedule cooling;
+    Move<Problem> move;
+    unirandom *const rand;
     xmlNode *xmlroot;
-    //xmlNode *xmlsection;
-    //double s;
-    //double lambda;
-    //long unsigned step_cnt;
+    aState state;
     int initLoop;
     double initS;
-
-    //unsigned rnd_seed;
-    //movable *problem;
-    //double energy;
-    //int init_loop;
     bool is_init;
-};
+    virtual void updateSegment(aState &state) {cooling.updateSegment(state);}
 
+    bool step();
+};
 
 
 #include "annealer.hpp"

@@ -5,29 +5,48 @@
  *      Author: zhlou
  */
 #include <iostream>
+#include <exception>
 #include <stdexcept>
 #include "dynDebug.h"
 
-dynDebug::dynDebug(int i)
+void dynDebug::__setDebug(const char* outname)
 {
-    if (i == 0) {
-        isDebug = false;
-        out = NULL;
-    } else if (i == 1) {
-        isDebug = true;
-        out = &std::cout;
-    } else if (i == 2) {
-        isDebug = true;
-        out = &std::cerr;
+    if (status == ignore) {
+        streamout = NULL;
+    } else if (status == out) {
+        streamout = &std::cout;
+    } else if (status == error) {
+        streamout = &std::cerr;
+    } else if (status == file) {
+        try {
+            streamout = new std::ofstream(outname);
+        } catch (std::exception &e) {
+            std::cerr << e.what() << std::endl;
+            std::cerr << "debug info is going to be ignored" << std::endl;
+            status = ignore;
+            streamout = NULL;
+        }
     } else {
         throw std::runtime_error("unrecognized debug option");
     }
+}
 
+dynDebug::dynDebug(debugStatus st, const char *outname) : status(st)
+{
+    __setDebug(outname);
 }
 
 dynDebug& dynDebug::operator<<(StandardEndLine)
 {
-    if (isDebug)
-        *out << std::endl;
+    if (status != ignore)
+        *streamout << std::endl;
     return *this;
+}
+
+void dynDebug::setDebug(debugStatus st, const char *outname)
+{
+    if (status == file)
+        delete streamout;
+    status = st;
+    __setDebug(outname);
 }

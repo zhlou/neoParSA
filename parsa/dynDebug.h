@@ -6,18 +6,18 @@
 
 #include <ostream>
 #include <fstream>
-
+enum debugStatus {ignore, out, error, file};
 class dynDebug
 {
 private:
-    bool isDebug;
-    std::ostream *out;
+    std::ostream *streamout;
+    debugStatus status;
 public:
-    dynDebug(int i = 0);
-    dynDebug(const char *outname) : isDebug(true), out(new std::ofstream(outname)) {}
-    ~dynDebug(){if (out && out != &std::cout && out != &std::cerr) delete out;}
+    dynDebug(debugStatus st=ignore, const char *outname=NULL);
+    ~dynDebug(){if (status == file) delete streamout;}
     template<class T>
     dynDebug& operator <<(T const &);
+    void setDebug(debugStatus st, const char *outname=NULL);
 
 
 
@@ -26,13 +26,16 @@ public:
 
     // define an operator<< to take in std::endl
     dynDebug& operator<<(StandardEndLine);
+
+protected:
+    void __setDebug(const char* outname);
 };
 
 template<class T>
 dynDebug& dynDebug::operator<<(const T& t)
 {
-    if (isDebug)
-        *out << t;
+    if (status != ignore)
+        *streamout << t;
     return *this;
 }
 

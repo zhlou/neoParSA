@@ -2,9 +2,12 @@ LIBS = parsa/libparsa.a
 DIRS = parsa tests
 export CXXFLAGS += `xml2-config --cflags` -pg
 export LDLIBS += `xml2-config --libs` -pg
-.PHONY: all tests $(LIBS) clean
+.PHONY: all tests clean libparsa
 
-all: $(LIBS) tests
+all: libparsa tests
+
+libparsa:
+	cd parsa && $(MAKE)
 
 tests: $(LIBS)
 	cd $@ && $(MAKE)
