@@ -9,11 +9,11 @@
 #include <libxml/parser.h>
 #include <mpi.h>
 
-#include "annealer.h"
+#include "pannealer.h"
 #include "parallelFBMove.h"
 #include "unirandom.h"
 #include "plsa.h"
-#include "debugOut.h"
+#include "dynDebug.h"
 #include "adaptMix.h"
 #include "fly.h"
 
@@ -39,21 +39,20 @@ int main(int argc, char **argv)
         cerr << "Input incorrect" << endl;
         return 2;
     }
-    unirandom rnd(mpi.rank);
+    unirand48 rnd(mpi.rank);
     fly_params flyParams = readFlyParams(docroot);
     fly theFly(flyParams);
-    parallelFBMove<fly, debugSTD, adaptMix> *fly_problem =
-            new parallelFBMove<fly, debugSTD, adaptMix>(theFly, rnd, docroot, mpi);
-    plsa *pschedule = new plsa(docroot, mpi);
-    annealer<plsa, parallelFBMove<fly, debugSTD, adaptMix>, unirandom>
-        fly_sa(*pschedule, *fly_problem, rnd, docroot);
+    // parallelFBMove<fly, debugSTD, adaptMix> *fly_problem =
+    //        new parallelFBMove<fly, debugSTD, adaptMix>(theFly, rnd, docroot, mpi);
+    // plsa *pschedule = new plsa(docroot, mpi);
+    pannealer<fly, plsa, parallelFBMove, adaptMix> *fly_sa =
+            new pannealer<fly, plsa, parallelFBMove, adaptMix>(theFly, &rnd, docroot, mpi);
     cout << "The initial energy is " << theFly.get_score() << endl;
-    fly_sa.loop();
+    fly_sa->loop();
     cout << "The final energy is " << theFly.get_score() << endl;
-    if (fly_problem->getWinner() == mpi.rank)
+    if (fly_sa->getWinner() == mpi.rank)
         theFly.writeAnswer();
-    delete pschedule;
-    delete fly_problem;
+    delete fly_sa;
     MPI_Finalize();
 
     return 0;

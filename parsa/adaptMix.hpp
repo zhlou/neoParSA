@@ -33,14 +33,15 @@ adaptMix<Problem>::~adaptMix()
 }
 
 template<class Problem>
-double adaptMix<Problem>::Mix(aState& state)
+mixState adaptMix<Problem>::Mix(aState& state)
 {
     double energy = state.energy;
     int i;
     double prob, norm = 0;
+    // cout << "local energy @" << mpi.rank << " " << energy << endl;
     MPI_Allgather(&energy, 1, MPI_DOUBLE, energy_tab, 1, MPI_DOUBLE,
             mpi.comm);
-    //cout << "energy_tab@" << state.step_cnt;
+    //cout << "energy_tab" << mpi.rank << "@" << state.step_cnt;
     for (i = 0; i < mpi.nnodes; ++i) {
         prob = exp((energy - energy_tab[i]) * state.s);
         if (prob < numeric_limits<double>::min())
@@ -48,9 +49,10 @@ double adaptMix<Problem>::Mix(aState& state)
         if (prob > numeric_limits<double>::max()/mpi.nnodes)
             prob = numeric_limits<double>::max()/mpi.nnodes;
         norm += prob_tab[i] = prob;
-        //cout << " " << prob_tab[i];
+        // cout << " " << prob_tab[i];
+        // cout << " " << energy_tab[i];
     }
-    //cout << " norm = " << norm << endl;
+    // cout << " norm = " << norm << endl;
 
     double rand = rnd.random();
     if (rand > adaptCoef * mpi.nnodes / norm) {
@@ -61,12 +63,13 @@ double adaptMix<Problem>::Mix(aState& state)
             if (psum > rand)
                 break;
         }
-        cout << "rank " << mpi.rank << " adopts state from rank " << i << endl;
+        // cout << "rank " << mpi.rank << " adopts state from rank " << i << endl;
         adoptState(i);
-        return (state.energy = problem.get_score());
+        state.energy = problem.get_score();
+        return (mixState(i)); // return (std::move(mixState(i)));
     } else {
         adoptState(mpi.rank);
-        return state.energy;
+        return mixState();
     }
 }
 template<class Problem>

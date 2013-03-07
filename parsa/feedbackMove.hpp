@@ -11,7 +11,8 @@ template<class Problem>
 const double feedbackMove<Problem>::theta_min = 0.;
 
 template<class Problem>
-feedbackMove<Problem>::feedbackMove(Problem& in_problem, unirandom &in_rand,
+feedbackMove<Problem>::feedbackMove(Problem& in_problem,
+                                    unirandom * const in_rand,
                                     xmlNode* root) :
         problem(in_problem), rnd(in_rand)
 {
@@ -83,7 +84,7 @@ double feedbackMove<Problem>::propose()
     // generate theta from theta bar here and pass only theta
     // to the problem so problem doesn't have to have random
     // number generator
-    double uniform = 2.0 * rnd.random() - 1.0;
+    double uniform = 2.0 * rnd->random() - 1.0;
     double theta;
     if (uniform >= 0.)
         theta = -1 * theta_bars[index] * log(abs(uniform));

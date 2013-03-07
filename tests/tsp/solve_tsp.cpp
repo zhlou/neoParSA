@@ -6,7 +6,7 @@
 #include "feedbackMove.h"
 #include "tsp.h"
 #include "unirandom.h"
-#include "debugOut.h"
+//#include "debugOut.h"
 
 using namespace std;
 
@@ -25,10 +25,9 @@ int main(int argc, char **argv)
         test_tsp.add_city(city(x, y));
     }
     unirandom rnd;
-    feedbackMove<tsp, debugIGNORE> tsp_problem(test_tsp, rnd, root);
-    simpleSchedule schedule(root);
-    annealer<simpleSchedule, feedbackMove<tsp, debugIGNORE>, unirandom> tsp_anneal(schedule,
-            tsp_problem, rnd, root);
+    //feedbackMove<tsp, debugIGNORE> tsp_problem(test_tsp, rnd, root);
+    //simpleSchedule schedule(root);
+    annealer<tsp, simpleSchedule, feedbackMove> tsp_anneal(test_tsp, &rnd, root);
 
     //tsp_problem test_problem(&test_tsp);
     test_tsp.print_route(cout);

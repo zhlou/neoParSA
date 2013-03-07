@@ -57,6 +57,11 @@ int main(int argc, char **argv)
     cout << "The fininal energy is " << rst_anneal->loop() << endl;
     cout << "The solution is " << endl;
     rst.print_solution(cout);
+    if (rst_anneal->getWinner() == mpi.rank) {
+        cout << "The winning energy is " << rst.get_score() << endl;
+        cout << "The winning solution is " << endl;
+        rst.print_solution(cout);
+    }
     //delete pschedule;
     delete rst_anneal;
     MPI_Finalize();

@@ -12,6 +12,9 @@ rastrigin:
 fly:
 	cd $@ && $(MAKE)
 
+tsp:
+	cd $@ && $(MAKE)
+
 clean:
 	for dir in $(DIRS); do\
 		(cd $$dir && $(MAKE) clean); \

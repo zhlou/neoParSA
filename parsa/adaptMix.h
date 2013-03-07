@@ -10,6 +10,7 @@
 
 #include "MPIState.h"
 #include "unirandom.h"
+#include "mixState.h"
 #include <libxml/tree.h>
 
 /*
@@ -27,7 +28,7 @@ class adaptMix
 public:
     adaptMix(Problem &in_problem, const MPIState &mpiState, xmlNode *docroot);
     ~adaptMix();
-    double Mix(aState &state);
+    mixState Mix(aState &state);
 private:
     Problem &problem;
     const MPIState &mpi;

@@ -17,6 +17,7 @@ public:
     pannealer(Problem &problem, unirandom * const in_rand, xmlNode *root,
               const MPIState &mpiState);
     virtual ~pannealer();
+    int getWinner();
 protected:
     const MPIState &mpi;
     PopBased<Problem> pop;

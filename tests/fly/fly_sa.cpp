@@ -12,7 +12,7 @@
 #include "feedbackMove.h"
 #include "unirandom.h"
 #include "lam.h"
-#include "debugOut.h"
+#include "dynDebug.h"
 #include "fly.h"
 
 using namespace std;
@@ -33,10 +33,10 @@ int main(int argc, char **argv)
     unirandom rnd;
     fly_params flyParams = readFlyParams(docroot);
     fly theFly(flyParams);
-    feedbackMove<fly, debugSTD> fly_problem(theFly, rnd, docroot);
+    // feedbackMove<fly, debugSTD> fly_problem(theFly, rnd, docroot);
     lam schedule(docroot);
-    annealer<lam, feedbackMove<fly, debugSTD>, unirandom>
-        fly_sa(schedule, fly_problem, rnd, docroot);
+    annealer<fly, lam, feedbackMove>
+        fly_sa(theFly,&rnd, docroot);
     cout << "The initial energy is " << theFly.get_score() << endl;
     fly_sa.loop();
     cout << "The final energy is " << theFly.get_score() << endl;

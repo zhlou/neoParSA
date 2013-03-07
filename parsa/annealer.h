@@ -50,15 +50,16 @@ public:
     double loop();
     double initMoves();
 protected:
-    Schedule cooling;
-    Move<Problem> move;
+    Schedule *cooling;
+    Move<Problem> *move;
     unirandom *const rand;
     xmlNode *xmlroot;
     aState state;
     int initLoop;
     double initS;
     bool is_init;
-    virtual void updateSegment(aState &state) {cooling.updateSegment(state);}
+    annealer(unirandom * const in_rand, xmlNode *root);
+    virtual void updateSegment(aState &state) {cooling->updateSegment(state);}
 
     bool step();
     void initState(xmlNode* root);

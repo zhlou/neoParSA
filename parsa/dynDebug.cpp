@@ -15,7 +15,7 @@ void dynDebug::__setDebug(const char* outname)
         streamout = NULL;
     } else if (status == out) {
         streamout = &std::cout;
-    } else if (status == error) {
+    } else if (status == err) {
         streamout = &std::cerr;
     } else if (status == file) {
         try {

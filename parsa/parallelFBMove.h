@@ -11,16 +11,19 @@
 #include <mpi.h>
 #include "feedbackMove.h"
 #include "MPIState.h"
+#include "mixState.h"
 
 template<class Problem>
 class parallelFBMove: public feedbackMove<Problem>
 {
 public:
-    parallelFBMove(Problem &in_problem, unirandom &in_rnd, xmlNode *root,
+    parallelFBMove(Problem &in_problem, unirandom * const in_rnd, xmlNode *root,
                    const MPIState &mpiState);
     ~parallelFBMove();
     int getWinner();
     // void doMix(aState &state);
+    void processMix(const mixState &ms, const aState &state)
+    {if (ms.doesMix()) this->energy = state.energy;}
 protected:
     void collectMoveStats();
 private:

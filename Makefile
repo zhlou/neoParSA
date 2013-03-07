@@ -2,7 +2,7 @@ LIBS = parsa/libparsa.a
 DIRS = parsa tests
 export CXXFLAGS += `xml2-config --cflags` -pg
 export LDLIBS += `xml2-config --libs` -pg
-.PHONY: all tests clean libparsa rastrigin
+.PHONY: all tests clean libparsa rastrigin fly
 
 all: libparsa tests
 
@@ -11,6 +11,9 @@ libparsa:
 	
 rastrigin: $(LIBS)
 	cd tests && $(MAKE) rastrigin
+	
+fly: $(LIBS)
+	cd tests && $(MAKE) fly
 
 tests: $(LIBS)
 	cd $@ && $(MAKE)

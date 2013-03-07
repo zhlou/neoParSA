@@ -27,7 +27,7 @@ template <class Problem>
 class feedbackMove
 {
 public:
-    feedbackMove(Problem &in_problem, unirandom &in_rnd, xmlNode *root=NULL);
+    feedbackMove(Problem &in_problem, unirandom * in_rnd, xmlNode *root=NULL);
     virtual ~feedbackMove();
     double get_score();
     double propose();
@@ -46,7 +46,7 @@ protected:
     double energy;
 private:
     int index;
-    unirandom &rnd;
+    unirandom * const rnd;
 
     double *theta_bars;
     double prev_energy;
