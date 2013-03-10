@@ -119,6 +119,7 @@ public:
     void deserialize(void const *buf); // inflate buf to a new state. calculation
                                  // of new score is not required here.
     void writeAnswer();
+    void scramble();
 };
 
 #endif /* FLY_H_ */

@@ -9,13 +9,13 @@ all: libparsa tests
 libparsa:
 	cd parsa && $(MAKE)
 	
-rastrigin: $(LIBS)
+rastrigin: libparsa
 	cd tests && $(MAKE) rastrigin
 	
-fly: $(LIBS)
+fly: libparsa
 	cd tests && $(MAKE) fly
 
-tests: $(LIBS)
+tests: libparsa
 	cd $@ && $(MAKE)
 
 parsa/libparsa.a:

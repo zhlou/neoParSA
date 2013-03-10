@@ -13,7 +13,7 @@ void dynDebug::__setDebug(const char* outname)
 {
     if (status == ignore) {
         streamout = NULL;
-    } else if (status == out) {
+    } else if (status == sout) {
         streamout = &std::cout;
     } else if (status == err) {
         streamout = &std::cerr;

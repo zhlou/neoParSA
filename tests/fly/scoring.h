@@ -26,7 +26,8 @@ const int MAX_PRECISION = 16;
 
 /* range struct for limits and such */
 
-struct Range {
+class Range {
+public:
   double   lower;
   double   upper;
 };
@@ -57,18 +58,43 @@ struct Range {
  * NOTE: - Lambda is NOT the same stuff as lambda in equation params or    *
  *         the lambda of the Lam schedule (don't get confused!)            *
  ***************************************************************************/
-
-typedef struct {
-  double    *pen_vec;    /* pointer to array that defines penalty function */
-  Range     **Rlim;                      /* limits fore promoter strengths */
-  Range     **Tlim;        /* limits for T matrix, NULL if pen_vec != NULL */
-  Range     **Elim;        /* limits for E matrix, NULL if pen_vec != NULL */
-  Range     **mlim;               /* limits for m, NULL if pen_vec != NULL */
-  Range     **hlim;               /* limits for h, NULL if pen_vec != NULL */
-  Range     **dlim;                 /* limit(s) for diffusion parameter(s) */
-  Range     **lambdalim;           /* limits for lambda (prot. decay rate) */
-  Range     **taulim;           /* limits for tau (delays) */
-} SearchSpace;
+// Note by Zhihao
+// After careful checking with the code, there is no need to make limit's
+// to be Range **. 1d array is enough.
+class SearchSpace {
+public:
+    double    *pen_vec;    /* pointer to array that defines penalty function */
+    Range     *Rlim;                      /* limits fore promoter strengths */
+    Range     *Tlim;        /* limits for T matrix, NULL if pen_vec != NULL */
+    Range     *Elim;        /* limits for E matrix, NULL if pen_vec != NULL */
+    Range     *mlim;               /* limits for m, NULL if pen_vec != NULL */
+    Range     *hlim;               /* limits for h, NULL if pen_vec != NULL */
+    Range     *dlim;                 /* limit(s) for diffusion parameter(s) */
+    Range     *lambdalim;           /* limits for lambda (prot. decay rate) */
+    Range     *taulim;           /* limits for tau (delays) */
+    SearchSpace() {
+        pen_vec = NULL;
+        Rlim = NULL;
+        Tlim = NULL;
+        Elim = NULL;
+        mlim = NULL;
+        hlim = NULL;
+        dlim = NULL;
+        lambdalim = NULL;
+        taulim = NULL;
+    }
+    ~SearchSpace() {
+        delete[] taulim;
+        delete[] lambdalim;
+        delete[] dlim;
+        delete[] hlim;
+        delete[] mlim;
+        delete[] Elim;
+        delete[] Tlim;
+        delete[] Rlim;
+        delete[] pen_vec;
+    }
+};
 
 /* Yousong's GutInfo struct for writing square diff guts */
 
@@ -178,6 +204,7 @@ public:
      ***************************************************************************/
     double GetPenalty(void);
     SearchSpace *GetLimits() {return limits;}
+    SearchSpace *Penalty2Limits();
 };
 
 #endif /* SCORING_H_ */

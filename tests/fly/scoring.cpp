@@ -8,6 +8,7 @@
 #include <cmath>
 #include <gsl/gsl_errno.h>
 #include <gsl/gsl_spline.h>
+#include <cassert>
 #include "maternal.h"
 #include "zygotic.h"
 #include "scoring.h"
@@ -266,7 +267,12 @@ scoring::scoring(FILE *fp, zygotic &zy, int flags, int ndigits, double step, dou
 
 scoring::~scoring()
 {
-    // TODO Auto-generated destructor stub
+    // TODO free facttype?
+    // TODO free tt?
+    // TODO free polations?
+    // TODO free extinp_polations?
+    // TODO files?
+    delete limits;
 }
 
 
@@ -354,330 +360,289 @@ DataTable *scoring::List2Facts(Dlist *inlist) {
 
 SearchSpace *scoring::ReadLimits(FILE *fp)
 {
-  SearchSpace       *l_limits;
+    SearchSpace       *l_limits;
 
-  char              *record;    /* string for reading whole line of limits */
+    char              *record;    /* string for reading whole line of limits */
 
-  int               i, j;                            /* local loop counter */
+    int               i, j;                            /* local loop counter */
 
-  char              **fmt1;     /* format strings for reading lower limits */
-  char              **fmt2;     /* format strings for reading upper limits */
-  char              **efmt1;     /* format strings for reading lower
+    char              **fmt1;     /* format strings for reading lower limits */
+    char              **fmt2;     /* format strings for reading upper limits */
+    char              **efmt1;     /* format strings for reading lower
   limits of external inputs*/
-  char              **efmt2;     /* format strings for reading upper
+    char              **efmt2;     /* format strings for reading upper
   limits of external inputs*/
-  char              *skip;               /* string of values to be skipped */
+    char              *skip;               /* string of values to be skipped */
 
-  const char        read_fmt[]  = "%lg";                  /* read a double */
-  const char        skip_fmt1[] = "%*lg, %*lg) (";   /* ignore lower limit */
-  const char        skip_fmt2[] = "%*lg) (%*lg, ";   /* ignore upper limit */
+    const char        read_fmt[]  = "%lg";                  /* read a double */
+    const char        skip_fmt1[] = "%*lg, %*lg) (";   /* ignore lower limit */
+    const char        skip_fmt2[] = "%*lg) (%*lg, ";   /* ignore upper limit */
 
-  l_limits = (SearchSpace *)malloc(sizeof(SearchSpace));
+    l_limits = new SearchSpace;
 
-  record = (char *)calloc(MAX_RECORD, sizeof(char *));
+    record = (char *)calloc(MAX_RECORD, sizeof(char *));
 
-  skip = (char *)calloc(MAX_RECORD, sizeof(char *));
-  fmt1 = (char **)calloc(defs.ngenes, sizeof(char *));
-  fmt2 = (char **)calloc(defs.ngenes, sizeof(char *));
-
-  if (defs.egenes > 0) {
-
-      efmt1 = (char **)calloc(defs.egenes, sizeof(char *));
-      efmt2 = (char **)calloc(defs.egenes, sizeof(char *));
-  }
-
-/* create format strings according to the number of genes */
-
-  skip = strcpy(skip, "(");                      /* first for lower limits */
-
-  for ( i=0; i<defs.ngenes; i++ ) {
-    fmt1[i] = (char *)calloc(MAX_RECORD, sizeof(char));
-    fmt1[i] = strcpy(fmt1[i], skip);
-    fmt1[i] = strcat(fmt1[i], read_fmt);
-    skip    = strcat(skip, skip_fmt1);
-  }
-
-  skip = strcpy(skip, "(%*lg, ");                 /* then for upper limits */
-
-  for ( i=0; i<defs.ngenes; i++ ) {
-    fmt2[i] = (char *)calloc(MAX_RECORD, sizeof(char));
-    fmt2[i] = strcpy(fmt2[i], skip);
-    fmt2[i] = strcat(fmt2[i], read_fmt);
-    skip    = strcat(skip, skip_fmt2);
-  }
-
-/* create format strings according to the number of external inputs  -
- * this could have been done with just fmt1 and fmt2, picking their
- * size to be whatever was bigger - ngenes or egenes, however this
- * maintains the seperation of reading in normal things and external
- * inputs and avoid confusion */
+    skip = (char *)calloc(MAX_RECORD, sizeof(char *));
+    fmt1 = (char **)calloc(defs.ngenes, sizeof(char *));
+    fmt2 = (char **)calloc(defs.ngenes, sizeof(char *));
 
     if (defs.egenes > 0) {
 
-      skip = strcpy(skip, "(");                      /* first for lower limits */
+        efmt1 = (char **)calloc(defs.egenes, sizeof(char *));
+        efmt2 = (char **)calloc(defs.egenes, sizeof(char *));
+    }
 
-      for ( i=0; i<defs.egenes; i++ ) {
-        efmt1[i] = (char *)calloc(MAX_RECORD, sizeof(char));
-        efmt1[i] = strcpy(efmt1[i], skip);
-        efmt1[i] = strcat(efmt1[i], read_fmt);
+    /* create format strings according to the number of genes */
+
+    skip = strcpy(skip, "(");                      /* first for lower limits */
+
+    for ( i=0; i<defs.ngenes; i++ ) {
+        fmt1[i] = (char *)calloc(MAX_RECORD, sizeof(char));
+        fmt1[i] = strcpy(fmt1[i], skip);
+        fmt1[i] = strcat(fmt1[i], read_fmt);
         skip    = strcat(skip, skip_fmt1);
-      }
-
-      skip = strcpy(skip, "(%*lg, ");                 /* then for upper limits */
-
-      for ( i=0; i<defs.egenes; i++ ) {
-        efmt2[i] = (char *)calloc(MAX_RECORD, sizeof(char));
-        efmt2[i] = strcpy(efmt2[i], skip);
-        efmt2[i] = strcat(efmt2[i], read_fmt);
-        skip    = strcat(skip, skip_fmt2);
-      }
-
     }
 
-/* find limits section and check if penalty or explicit ranges are used    */
+    skip = strcpy(skip, "(%*lg, ");                 /* then for upper limits */
 
-  fp = FindSection(fp, "limits");                   /* find limits section */
-  if( !fp )
-    error("ReadLimits: cannot locate limits section");
-
-  fscanf(fp, "%*s\n");                    /* advance past first title line */
-
-  record = fgets(record, MAX_RECORD, fp);    /* read Lamda for penalty */
-
-  if ( !strncmp(record, "N/A", 3) ) {
-    l_limits->pen_vec = NULL;
-  } else {
-    l_limits->pen_vec = (double *)calloc(2 + defs.ngenes + defs.egenes,
-                                                    sizeof(double));
-    if ( 1 != sscanf(record, "%lg", l_limits->pen_vec) )
-      error("ReadLimits: error reading Lambda for penalty");
-  }
-
-
-/* initialize limits struct according to penalty or not                    *
-/* first the stuff that's not dependent on penalty                         */
-
-  l_limits->Rlim      = (Range **)calloc(defs.ngenes, sizeof(Range *));
-  for ( i=0; i<defs.ngenes; i++ ) {
-    l_limits->Rlim[i]      = (Range *)malloc(sizeof(Range));
-  }
-
-  l_limits->dlim      = (Range **)calloc(defs.ngenes, sizeof(Range *));
-
-  if ( (defs.diff_schedule == 'A') || (defs.diff_schedule == 'C') ) {
-    l_limits->dlim[0] = (Range *)malloc(sizeof(Range));
-  } else {
-    for ( i=0; i<defs.ngenes; i++ )
-      l_limits->dlim[i] = (Range *)malloc(sizeof(Range));
-  }
-
-  l_limits->lambdalim = (Range **)calloc(defs.ngenes, sizeof(Range *));
-
-  for ( i=0; i<defs.ngenes; i++ ) {
-     l_limits->lambdalim[i] = (Range *)malloc(sizeof(Range));
-  }
-
-  l_limits->taulim = (Range **)calloc(defs.ngenes, sizeof(Range *));
-
-  for ( i=0; i<defs.ngenes; i++ ) {
-     l_limits->taulim[i] = (Range *)malloc(sizeof(Range));
-  }
-
-
-/* ... and now the stuff that depends on whether we use penalty or not     */
-
-  if ( l_limits->pen_vec == 0 ) {
-    l_limits->Tlim =
-      (Range **)calloc(defs.ngenes * defs.ngenes, sizeof(Range *));
     for ( i=0; i<defs.ngenes; i++ ) {
-       for ( j=0; j<defs.ngenes; j++ )
-    l_limits->Tlim[(i * defs.ngenes) + j] =
-      (Range *)malloc(sizeof(Range));
+        fmt2[i] = (char *)calloc(MAX_RECORD, sizeof(char));
+        fmt2[i] = strcpy(fmt2[i], skip);
+        fmt2[i] = strcat(fmt2[i], read_fmt);
+        skip    = strcat(skip, skip_fmt2);
     }
+
+    /* create format strings according to the number of external inputs  -
+     * this could have been done with just fmt1 and fmt2, picking their
+     * size to be whatever was bigger - ngenes or egenes, however this
+     * maintains the seperation of reading in normal things and external
+     * inputs and avoid confusion */
 
     if (defs.egenes > 0) {
-        l_limits->Elim =
-          (Range **)calloc(defs.ngenes * defs.egenes, sizeof(Range *));
-        for ( i=0; i<defs.ngenes; i++ ) {
-           for ( j=0; j<defs.egenes; j++ )
-        l_limits->Elim[(i * defs.egenes) + j] =
-          (Range *)malloc(sizeof(Range));
+
+        skip = strcpy(skip, "(");                      /* first for lower limits */
+
+        for ( i=0; i<defs.egenes; i++ ) {
+            efmt1[i] = (char *)calloc(MAX_RECORD, sizeof(char));
+            efmt1[i] = strcpy(efmt1[i], skip);
+            efmt1[i] = strcat(efmt1[i], read_fmt);
+            skip    = strcat(skip, skip_fmt1);
         }
+
+        skip = strcpy(skip, "(%*lg, ");                 /* then for upper limits */
+
+        for ( i=0; i<defs.egenes; i++ ) {
+            efmt2[i] = (char *)calloc(MAX_RECORD, sizeof(char));
+            efmt2[i] = strcpy(efmt2[i], skip);
+            efmt2[i] = strcat(efmt2[i], read_fmt);
+            skip    = strcat(skip, skip_fmt2);
+        }
+
+    }
+
+    /* find limits section and check if penalty or explicit ranges are used    */
+
+    fp = FindSection(fp, "limits");                   /* find limits section */
+    if( !fp )
+        error("ReadLimits: cannot locate limits section");
+
+    fscanf(fp, "%*s\n");                    /* advance past first title line */
+
+    record = fgets(record, MAX_RECORD, fp);    /* read Lamda for penalty */
+
+    if ( !strncmp(record, "N/A", 3) ) {
+        l_limits->pen_vec = NULL;
     } else {
+        l_limits->pen_vec = new double[2 + defs.ngenes + defs.egenes];
+        if ( 1 != sscanf(record, "%lg", l_limits->pen_vec) )
+            error("ReadLimits: error reading Lambda for penalty");
+    }
 
+
+    /* initialize limits struct according to penalty or not   *
+     * first the stuff that's not dependent on penalty        */
+
+    l_limits->Rlim = new Range[defs.ngenes];
+    if ( (defs.diff_schedule == 'A') || (defs.diff_schedule == 'C') ) {
+        l_limits->dlim = new Range[1];
+    } else {
+        l_limits->dlim = new Range[defs.ngenes];
+    }
+    l_limits->lambdalim = new Range[defs.ngenes];
+    l_limits->taulim = new Range[defs.ngenes];
+
+    /* ... and now the stuff that depends on whether we use penalty or not     */
+
+    if ( l_limits->pen_vec == NULL ) {
+        l_limits->Tlim = new Range[defs.ngenes * defs.ngenes];
+        if (defs.egenes > 0) {
+            l_limits->Elim = new Range[defs.ngenes * defs.egenes];
+        } else {
+            l_limits->Elim = NULL;
+        }
+        l_limits->mlim = new Range[defs.ngenes];
+        l_limits->hlim = new Range[defs.ngenes];
+    } else {
+        l_limits->Tlim = NULL;
         l_limits->Elim = NULL;
-
+        l_limits->mlim = NULL;
+        l_limits->hlim = NULL;
     }
 
-    l_limits->mlim = (Range **)calloc(defs.ngenes, sizeof(Range *));
+    /* ... and finally read the actual values from the data file               */
+
+    fscanf(fp, "%*s\n");                          /* advance past title line */
+
+    record = fgets(record, MAX_RECORD, fp);     /* loop to read R limits */
     for ( i=0; i<defs.ngenes; i++ ) {
-      l_limits->mlim[i] = (Range *)malloc(sizeof(Range));
-    }
-    l_limits->hlim = (Range **)calloc(defs.ngenes, sizeof(Range *));
-    for ( i=0; i<defs.ngenes; i++ ) {
-      l_limits->hlim[i] = (Range *)malloc(sizeof(Range));
-    }
-  } else {
-    l_limits->Tlim = NULL;
-    l_limits->Elim = NULL;
-    l_limits->mlim = NULL;
-    l_limits->hlim = NULL;
-  }
-
-/* ... and finally read the actual values from the data file               */
-
-  fscanf(fp, "%*s\n");                          /* advance past title line */
-
-  record = fgets(record, MAX_RECORD, fp);     /* loop to read R limits */
-  for ( i=0; i<defs.ngenes; i++ ) {
-    if ( 1 != sscanf(record, (const char *)fmt1[i],
-             &l_limits->Rlim[i]->lower) )
-      error("ReadLimits: error reading promoter strength (R) limits");
-    if ( 1 != sscanf(record, (const char *)fmt2[i],
-             &l_limits->Rlim[i]->upper) )
-      error("ReadLimits: error reading promoter strength (R) limits");
-  }
-
-  fscanf(fp, "%*s\n");
-
-/* using explicit limits? */
-
-  if ( l_limits->pen_vec == 0 ) {
-    for ( i=0; i<defs.ngenes; i++ ) {     /* loops to read T matrix limits */
-      record = fgets(record, MAX_RECORD, fp);
-      for ( j=0; j<defs.ngenes; j++ ) {
-    if ( 1 != sscanf(record, (const char *)fmt1[j],
-             &l_limits->Tlim[(i * defs.ngenes) + j]->lower ) )
-      error("ReadLimits:: error reading T matrix limits");
-    if ( 1 != sscanf(record, (const char *)fmt2[j],
-             &l_limits->Tlim[(i * defs.ngenes) + j]->upper ) )
-      error("ReadLimits:: error reading T matrix limits");
-      }
+        if ( 1 != sscanf(record, (const char *)fmt1[i],
+                &l_limits->Rlim[i].lower) )
+            error("ReadLimits: error reading promoter strength (R) limits");
+        if ( 1 != sscanf(record, (const char *)fmt2[i],
+                &l_limits->Rlim[i].upper) )
+            error("ReadLimits: error reading promoter strength (R) limits");
     }
 
     fscanf(fp, "%*s\n");
 
-    if (defs.egenes > 0) {
+    /* using explicit limits? */
 
-        for ( i=0; i<defs.ngenes; i++ ) {     /* loops to read E matrix limits */
-          record = fgets(record, MAX_RECORD, fp);
-          for ( j=0; j<defs.egenes; j++ ) {
-        if ( 1 != sscanf(record, (const char *)efmt1[j],
-                 &l_limits->Elim[(i * defs.egenes) + j]->lower ) )
-          error("ReadLimits:: error reading E matrix limits");
-        if ( 1 != sscanf(record, (const char *)efmt2[j],
-                 &l_limits->Elim[(i * defs.egenes) + j]->upper ) )
-          error("ReadLimits:: error reading E matrix limits");
-          }
+    if ( l_limits->pen_vec == 0 ) {
+        for ( i=0; i<defs.ngenes; i++ ) {     /* loops to read T matrix limits */
+            record = fgets(record, MAX_RECORD, fp);
+            for ( j=0; j<defs.ngenes; j++ ) {
+                if ( 1 != sscanf(record, (const char *)fmt1[j],
+                        &l_limits->Tlim[(i * defs.ngenes) + j].lower ) )
+                    error("ReadLimits:: error reading T matrix limits");
+                if ( 1 != sscanf(record, (const char *)fmt2[j],
+                        &l_limits->Tlim[(i * defs.ngenes) + j].upper ) )
+                    error("ReadLimits:: error reading T matrix limits");
+            }
         }
-    } else {
 
         fscanf(fp, "%*s\n");
 
+        if (defs.egenes > 0) {
+
+            for ( i=0; i<defs.ngenes; i++ ) {     /* loops to read E matrix limits */
+                record = fgets(record, MAX_RECORD, fp);
+                for ( j=0; j<defs.egenes; j++ ) {
+                    if ( 1 != sscanf(record, (const char *)efmt1[j],
+                            &l_limits->Elim[(i * defs.egenes) + j].lower ) )
+                        error("ReadLimits:: error reading E matrix limits");
+                    if ( 1 != sscanf(record, (const char *)efmt2[j],
+                            &l_limits->Elim[(i * defs.egenes) + j].upper ) )
+                        error("ReadLimits:: error reading E matrix limits");
+                }
+            }
+        } else {
+
+            fscanf(fp, "%*s\n");
+
+        }
+
+        fscanf(fp, "%*s\n");
+
+        record = fgets(record, MAX_RECORD, fp);   /* loop to read m limits */
+        for ( i=0; i<defs.ngenes; i++ ) {
+            if ( 1 != sscanf(record, (const char *)fmt1[i],
+                    &l_limits->mlim[i].lower) )
+                error("ReadLimits: error reading maternal interconnect (m) limits");
+            if ( 1 != sscanf(record, (const char *)fmt2[i],
+                    &l_limits->mlim[i].upper) )
+                error("ReadLimits: error reading maternal interconnect (m) limits");
+        }
+
+        fscanf(fp, "%*s\n");
+
+        record = fgets(record, MAX_RECORD, fp);   /* loop to read h limits */
+        for ( i=0; i<defs.ngenes; i++ ) {
+            if ( 1 != sscanf(record, (const char *)fmt1[i],
+                    &l_limits->hlim[i].lower) )
+                error("ReadLimits: error reading promoter threshold (h) limits");
+            if ( 1 != sscanf(record, (const char *)fmt2[i],
+                    &l_limits->hlim[i].upper) )
+                error("ReadLimits: error reading promoter threshold (h) limits");
+        }
+
+        /* using penalty? -> ignore this part of the limit section */
+
+    } else {
+
+        for ( i=0; i<7; i++ )
+            fscanf(fp, "%*s\n");
+
+    }
+
+    fscanf(fp, "%*s\n");        /* diffusion paramter limit(s) are read here */
+
+    record = fgets(record, MAX_RECORD, fp);
+    if ( (defs.diff_schedule == 'A') || (defs.diff_schedule == 'C') ) {
+        if ( 1 != sscanf(record, (const char *)fmt1[0],
+                &l_limits->dlim[0].lower) )
+            error("ReadLimits: error reading diffusion parameter limit (d)");
+        if ( 1 != sscanf(record, (const char *)fmt2[0],
+                &l_limits->dlim[0].upper) )
+            error("ReadLimits: error reading diffusion parameter limit (d)");
+    } else {
+        for ( i=0; i<defs.ngenes; i++ ) {
+            if ( 1 != sscanf(record, (const char *)fmt1[i],
+                    &l_limits->dlim[i].lower) )
+                error("ReadLimits: error reading diffusion parameter limits (d)");
+            if ( 1 != sscanf(record, (const char *)fmt2[i],
+                    &l_limits->dlim[i].upper) )
+                error("ReadLimits: error reading diffusion parameter limits (d)");
+        }
     }
 
     fscanf(fp, "%*s\n");
 
-    record = fgets(record, MAX_RECORD, fp);   /* loop to read m limits */
+    record = fgets(record, MAX_RECORD, fp);  /* loop to read lambda lims */
     for ( i=0; i<defs.ngenes; i++ ) {
-      if ( 1 != sscanf(record, (const char *)fmt1[i],
-               &l_limits->mlim[i]->lower) )
-    error("ReadLimits: error reading maternal interconnect (m) limits");
-      if ( 1 != sscanf(record, (const char *)fmt2[i],
-               &l_limits->mlim[i]->upper) )
-    error("ReadLimits: error reading maternal interconnect (m) limits");
+        if ( 1 != sscanf(record, (const char *)fmt1[i],
+                &l_limits->lambdalim[i].upper) )
+            error("ReadLimits: error reading lambda limits");
+        l_limits->lambdalim[i].upper = log(2.) / l_limits->lambdalim[i].upper;
+        if ( 1 != sscanf(record, (const char *)fmt2[i],
+                &l_limits->lambdalim[i].lower) )
+            error("ReadLimits: error reading lambda limits");
+        l_limits->lambdalim[i].lower = log(2.) / l_limits->lambdalim[i].lower;
     }
 
     fscanf(fp, "%*s\n");
 
-    record = fgets(record, MAX_RECORD, fp);   /* loop to read h limits */
+    record = fgets(record, MAX_RECORD, fp);  /* loop to read tau lims */
     for ( i=0; i<defs.ngenes; i++ ) {
-      if ( 1 != sscanf(record, (const char *)fmt1[i],
-               &l_limits->hlim[i]->lower) )
-    error("ReadLimits: error reading promoter threshold (h) limits");
-      if ( 1 != sscanf(record, (const char *)fmt2[i],
-               &l_limits->hlim[i]->upper) )
-    error("ReadLimits: error reading promoter threshold (h) limits");
+        if ( 1 != sscanf(record, (const char *)fmt1[i],
+                &l_limits->taulim[i].lower) )
+            error("ReadLimits: error reading tau limits");
+        if ( 1 != sscanf(record, (const char *)fmt2[i],
+                &l_limits->taulim[i].upper) )
+            error("ReadLimits: error reading tau limits");
     }
 
-/* using penalty? -> ignore this part of the limit section */
+    free(record);
+    free(skip);
 
-  } else {
-
-    for ( i=0; i<7; i++ )
-      fscanf(fp, "%*s\n");
-
-  }
-
-  fscanf(fp, "%*s\n");        /* diffusion paramter limit(s) are read here */
-
-  record = fgets(record, MAX_RECORD, fp);
-  if ( (defs.diff_schedule == 'A') || (defs.diff_schedule == 'C') ) {
-    if ( 1 != sscanf(record, (const char *)fmt1[0],
-             &l_limits->dlim[0]->lower) )
-      error("ReadLimits: error reading diffusion parameter limit (d)");
-    if ( 1 != sscanf(record, (const char *)fmt2[0],
-             &l_limits->dlim[0]->upper) )
-      error("ReadLimits: error reading diffusion parameter limit (d)");
-  } else {
-    for ( i=0; i<defs.ngenes; i++ ) {
-      if ( 1 != sscanf(record, (const char *)fmt1[i],
-               &l_limits->dlim[i]->lower) )
-    error("ReadLimits: error reading diffusion parameter limits (d)");
-      if ( 1 != sscanf(record, (const char *)fmt2[i],
-               &l_limits->dlim[i]->upper) )
-    error("ReadLimits: error reading diffusion parameter limits (d)");
+    for (i=0; i<defs.ngenes; i++ ) {
+        free(fmt1[i]);
+        free(fmt2[i]);
     }
-  }
 
-  fscanf(fp, "%*s\n");
+    for (i=0; i<defs.egenes; i++ ) {
+        free(efmt1[i]);
+        free(efmt2[i]);
+    }
 
-  record = fgets(record, MAX_RECORD, fp);  /* loop to read lambda lims */
-  for ( i=0; i<defs.ngenes; i++ ) {
-    if ( 1 != sscanf(record, (const char *)fmt1[i],
-             &l_limits->lambdalim[i]->upper) )
-      error("ReadLimits: error reading lambda limits");
-    l_limits->lambdalim[i]->upper = log(2.) / l_limits->lambdalim[i]->upper;
-    if ( 1 != sscanf(record, (const char *)fmt2[i],
-             &l_limits->lambdalim[i]->lower) )
-      error("ReadLimits: error reading lambda limits");
-    l_limits->lambdalim[i]->lower = log(2.) / l_limits->lambdalim[i]->lower;
-  }
+    free(fmt1);
+    free(fmt2);
 
-  fscanf(fp, "%*s\n");
+    if (defs.egenes > 0) {
+        free(efmt1);
+        free(efmt2);
+    }
 
-  record = fgets(record, MAX_RECORD, fp);  /* loop to read tau lims */
-  for ( i=0; i<defs.ngenes; i++ ) {
-    if ( 1 != sscanf(record, (const char *)fmt1[i],
-             &l_limits->taulim[i]->lower) )
-      error("ReadLimits: error reading tau limits");
-    if ( 1 != sscanf(record, (const char *)fmt2[i],
-             &l_limits->taulim[i]->upper) )
-      error("ReadLimits: error reading tau limits");
-  }
-
-  free(record);
-  free(skip);
-
-  for (i=0; i<defs.ngenes; i++ ) {
-    free(fmt1[i]);
-    free(fmt2[i]);
-  }
-
-  for (i=0; i<defs.egenes; i++ ) {
-    free(efmt1[i]);
-    free(efmt2[i]);
-  }
-
-  free(fmt1);
-  free(fmt2);
-
-  if (defs.egenes > 0) {
-    free(efmt1);
-    free(efmt2);
-  }
-
-  return l_limits;
+    return l_limits;
 }
 
 void scoring::InitHistory(FILE *fp)
@@ -1003,31 +968,31 @@ double scoring::Score(void)
      * return after as few calculations as possible                            */
 
     for(i=0; i < defs.ngenes; i++) {
-        if( parm->R[i] > limits->Rlim[i]->upper)
+        if( parm->R[i] > limits->Rlim[i].upper)
             return(FORBIDDEN_MOVE);
-        if( parm->R[i] < limits->Rlim[i]->lower)
+        if( parm->R[i] < limits->Rlim[i].lower)
             return(FORBIDDEN_MOVE);
-        if( parm->lambda[i] > limits->lambdalim[i]->upper)
+        if( parm->lambda[i] > limits->lambdalim[i].upper)
             return(FORBIDDEN_MOVE);
-        if( parm->lambda[i] < limits->lambdalim[i]->lower)
+        if( parm->lambda[i] < limits->lambdalim[i].lower)
             return(FORBIDDEN_MOVE);
-        if( parm->tau[i] > limits->taulim[i]->upper)
+        if( parm->tau[i] > limits->taulim[i].upper)
             return(FORBIDDEN_MOVE);
-        if( parm->tau[i] < limits->taulim[i]->lower)
+        if( parm->tau[i] < limits->taulim[i].lower)
             return(FORBIDDEN_MOVE);
     }
 
     if( (defs.diff_schedule == 'A') || (defs.diff_schedule == 'C' ) ) {
-        if( parm->d[0] > limits->dlim[0]->upper)
+        if( parm->d[0] > limits->dlim[0].upper)
             return(FORBIDDEN_MOVE);
-        if( parm->d[0] < limits->dlim[0]->lower)
+        if( parm->d[0] < limits->dlim[0].lower)
             return(FORBIDDEN_MOVE);
     }
     else {
         for(i=0; i < defs.ngenes; i++){
-            if( parm->d[i] > limits->dlim[i]->upper)
+            if( parm->d[i] > limits->dlim[i].upper)
                 return(FORBIDDEN_MOVE);
-            if( parm->d[i] < limits->dlim[i]->lower)
+            if( parm->d[i] < limits->dlim[i].lower)
                 return(FORBIDDEN_MOVE);
         }
     }
@@ -1039,10 +1004,10 @@ double scoring::Score(void)
         for(i=0; i<defs.ngenes; i++) {
             for(j=0; j<defs.ngenes; j++) {
                 if (parm->T[(i * defs.ngenes) + j] >
-                limits->Tlim[(i * defs.ngenes) + j]->upper)
+                limits->Tlim[(i * defs.ngenes) + j].upper)
                     return(FORBIDDEN_MOVE);
                 if (parm->T[(i * defs.ngenes) + j] <
-                        limits->Tlim[(i * defs.ngenes) + j]->lower)
+                        limits->Tlim[(i * defs.ngenes) + j].lower)
                     return(FORBIDDEN_MOVE);
             }
 
@@ -1051,21 +1016,21 @@ double scoring::Score(void)
 
             for(j=0; j<defs.egenes; j++) {
                 if (parm->E[(i * defs.egenes) + j] >
-                limits->Elim[(i * defs.egenes) + j]->upper)
+                limits->Elim[(i * defs.egenes) + j].upper)
                     return(FORBIDDEN_MOVE);
                 if (parm->E[(i * defs.egenes) + j] <
-                        limits->Elim[(i * defs.egenes) + j]->lower)
+                        limits->Elim[(i * defs.egenes) + j].lower)
                     return(FORBIDDEN_MOVE);
             }
 
-            if (parm->m[i] > limits->mlim[i]->upper)
+            if (parm->m[i] > limits->mlim[i].upper)
                 return(FORBIDDEN_MOVE);
-            if (parm->m[i] < limits->mlim[i]->lower)
+            if (parm->m[i] < limits->mlim[i].lower)
                 return(FORBIDDEN_MOVE);
 
-            if (parm->h[i] > limits->hlim[i]->upper)
+            if (parm->h[i] > limits->hlim[i].upper)
                 return(FORBIDDEN_MOVE);
-            if (parm->h[i] < limits->hlim[i]->lower)
+            if (parm->h[i] < limits->hlim[i].lower)
                 return(FORBIDDEN_MOVE);
         }
 
@@ -1324,4 +1289,66 @@ double scoring::GutEval(NArrPtr Solution, int gindex)
     free(gut.array);
 
     return chisq;                                              /* that's it! */
+}
+
+SearchSpace *scoring::Penalty2Limits()
+{
+    assert(limits->pen_vec != NULL);
+    assert(limits->Tlim == NULL);
+    assert(limits->Elim == NULL);
+    assert(limits->mlim == NULL);
+    assert(limits->hlim == NULL);
+
+    int i,j;
+    double Lambda = limits->pen_vec[0];
+    Range u, gu, x, y;
+
+    gu.lower = Lambda;
+    gu.upper = 1 - Lambda;
+
+    x.lower = ( 2 * gu.lower - 1 );  /* the following calculates the inverse */
+    x.upper = ( 2 * gu.upper - 1 );  /* function of g(u) for gu limits above */
+                                          /* (see JJs lab notes for details) */
+    y.lower = sqrt( 1 - x.lower * x.lower );
+    y.upper = sqrt( 1 - x.upper * x.upper );
+
+    u.lower = x.lower / y.lower;
+    u.upper = x.upper / y.upper;
+
+    u.lower = u.lower / sqrt(defs.ngenes);  /* this is to compensate for the */
+    u.upper = u.upper / sqrt(defs.ngenes);       /* summing up of parameters */
+
+
+
+    limits->Tlim = new Range[defs.ngenes * defs.ngenes];
+
+
+    if (defs.egenes > 0)
+        limits->Elim = new Range[defs.ngenes * defs.egenes];
+
+    limits->mlim = new Range[defs.ngenes];
+    limits->hlim = new Range[defs.ngenes];
+
+    for ( i=0; i<defs.ngenes; i++ ) {
+        for ( j=0; j<defs.ngenes; j++ ) {
+            limits->Tlim[(i*defs.ngenes)+j].lower = u.lower;
+            limits->Tlim[(i*defs.ngenes)+j].upper = u.upper;
+        }
+
+        for ( j=0; j<defs.egenes; j++ ) {
+            limits->Elim[(i*defs.egenes)+j].lower = u.lower;
+            limits->Elim[(i*defs.egenes)+j].upper = u.upper;
+        }
+
+
+        limits->mlim[i].lower = u.lower;
+        limits->mlim[i].upper = u.upper;
+
+
+        limits->hlim[i].lower = u.lower;
+        limits->hlim[i].upper = u.upper;
+    }
+    return limits;
+
+
 }

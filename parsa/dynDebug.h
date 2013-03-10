@@ -6,7 +6,7 @@
 
 #include <ostream>
 #include <fstream>
-enum debugStatus {ignore, out, err, file};
+enum debugStatus {ignore, sout, err, file};
 class dynDebug
 {
 private:

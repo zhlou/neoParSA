@@ -7,6 +7,7 @@
 #include <stdexcept>
 #include <cstring>
 #include <cmath>
+#include <cstdlib>
 #include "fly.h"
 
 using namespace std;
@@ -397,7 +398,7 @@ void fly::Translate(vector<ParamList> &tab)
     for ( i=0; i < defs.ngenes; i++ )                 /* pointers to R stuff */
         if ( tweak.Rtweak[i] == 1 ) {
             p.param = &parm->R[i];
-            p.param_range = limits->Rlim[i];
+            p.param_range = &limits->Rlim[i];
             tab.push_back(p);
         }
 
@@ -406,7 +407,7 @@ void fly::Translate(vector<ParamList> &tab)
             if ( tweak.Ttweak[i*defs.ngenes+j] == 1 ) {
                 p.param = &parm->T[j+i*defs.ngenes];
                 if ( limits->pen_vec == NULL )
-                    p.param_range = limits->Tlim[j+i*defs.ngenes];
+                    p.param_range = &limits->Tlim[j+i*defs.ngenes];
                 else
                     p.param_range = NULL;
                 tab.push_back(p);
@@ -420,7 +421,7 @@ void fly::Translate(vector<ParamList> &tab)
             if ( tweak.Etweak[i*defs.egenes+j] == 1 ) {
                 p.param = &parm->E[j+i*defs.egenes];
                 if ( limits->pen_vec == NULL )
-                    p.param_range = limits->Elim[j+i*defs.egenes];
+                    p.param_range = &limits->Elim[j+i*defs.egenes];
                 else
                     p.param_range = NULL;
                 tab.push_back(p);
@@ -430,7 +431,7 @@ void fly::Translate(vector<ParamList> &tab)
         if ( tweak.mtweak[i] == 1 ) {
             p.param = &parm->m[i];
             if ( limits->pen_vec == NULL )
-                p.param_range = limits->mlim[i];
+                p.param_range = &limits->mlim[i];
             else
                 p.param_range = NULL;
             tab.push_back(p);
@@ -440,7 +441,7 @@ void fly::Translate(vector<ParamList> &tab)
         if ( tweak.htweak[i] == 1 ) {
             p.param = &parm->h[i];
             if ( limits->pen_vec == NULL )
-                p.param_range = limits->hlim[i];
+                p.param_range = &limits->hlim[i];
             else
                 p.param_range = NULL;
             tab.push_back(p);
@@ -450,7 +451,7 @@ void fly::Translate(vector<ParamList> &tab)
     for ( i=0; i < defs.ngenes; i++ )                 /* pointers to d stuff */
         if ( tweak.dtweak[i] == 1 ) {
             p.param = &parm->d[i];
-            p.param_range = limits->dlim[i];
+            p.param_range = &limits->dlim[i];
             tab.push_back(p);
             if ( (defs.diff_schedule == 'A') || (defs.diff_schedule == 'C') )
                 break;
@@ -459,14 +460,14 @@ void fly::Translate(vector<ParamList> &tab)
     for ( i=0; i < defs.ngenes; i++ )            /* pointers to lambda stuff */
         if ( tweak.lambdatweak[i] == 1 ) {
             p.param = &parm->lambda[i];
-            p.param_range = limits->lambdalim[i];
+            p.param_range = &limits->lambdalim[i];
             tab.push_back(p);
         }
 
     for ( i=0; i < defs.ngenes; i++ )            /* pointers to tau stuff */
         if ( tweak.tautweak[i] == 1 ) {
             p.param = &parm->tau[i];
-            p.param_range = limits->taulim[i];
+            p.param_range = &limits->taulim[i];
             tab.push_back(p);
         }
 }
@@ -628,4 +629,111 @@ void fly::writeAnswer()
     EqParms *parm = zygote.GetParameters();
     WriteParameters(outfile.c_str(), parm, "eqparms", ndigits);
 
+}
+
+void fly::scramble()
+{
+    SearchSpace *limits = score.GetLimits();
+    bool penaltyflag = false;
+    if (limits->pen_vec != NULL) {
+        limits = score.Penalty2Limits();
+        penaltyflag = true;
+    }
+    EqParms *param   = zygote.GetParameters();
+    double out, T_pen, m_pen;
+    srand48(getpid());
+    int i,j;
+    for ( i=0; i<defs.ngenes; i++ ) {
+
+        if ( tweak.Rtweak[i] == 1 ) {                      /* scramble Rs here */
+            out = drand48();
+            param->R[i] = limits->Rlim[i].lower +
+                    out * (limits->Rlim[i].upper - limits->Rlim[i].lower);
+        }
+
+        for ( j=0; j<defs.ngenes; j++ ) {                  /* scramble Ts here */
+            if ( tweak.Ttweak[(i*defs.ngenes)+j] == 1 ) {
+                out = drand48();
+                if ( !penaltyflag ) {
+                    param->T[(i*defs.ngenes)+j] =
+                            limits->Tlim[(i*defs.ngenes)+j].lower +
+                            out * (limits->Tlim[(i*defs.ngenes)+j].upper -
+                                    limits->Tlim[(i*defs.ngenes)+j].lower);
+                } else {
+                    T_pen = limits->Tlim[(i*defs.ngenes)+j].lower +
+                           out * (limits->Tlim[(i*defs.ngenes)+j].upper -
+                                    limits->Tlim[(i*defs.ngenes)+j].lower);
+                    param->T[(i*defs.ngenes)+j] = T_pen / limits->pen_vec[j+2];
+                }                                      /* above is T_pen / vmax[i] */
+            }
+        }
+
+        for ( j=0; j<defs.egenes; j++ ) {                  /* scramble Es here */
+            if ( tweak.Etweak[(i*defs.egenes)+j] == 1 ) {
+                out = drand48();
+                if ( !penaltyflag ) {
+                    param->E[(i*defs.egenes)+j] =
+                            limits->Elim[(i*defs.egenes)+j].lower +
+                            out * (limits->Elim[(i*defs.egenes)+j].upper -
+                                    limits->Elim[(i*defs.egenes)+j].lower);
+                } else {
+                    T_pen = limits->Elim[(i*defs.egenes)+j].lower +
+                            out * (limits->Elim[(i*defs.egenes)+j].upper -
+                                    limits->Elim[(i*defs.egenes)+j].lower);
+                    param->E[(i*defs.egenes)+j] = T_pen /
+                            limits->pen_vec[defs.ngenes+j+2];
+                }                                      /* above is T_pen / vmax[i] */
+            }
+        }
+
+        if ( tweak.mtweak[i] == 1 ) {                      /* scramble ms here */
+            out = drand48();
+            if ( !penaltyflag ) {
+                param->m[i] = limits->mlim[i].lower +
+                        out * (limits->mlim[i].upper - limits->mlim[i].lower);
+            } else {
+                m_pen = limits->mlim[i].lower +
+                        out * (limits->mlim[i].upper - limits->mlim[i].lower);
+                param->m[i] = m_pen / limits->pen_vec[1];           /* m_pen / mmax */
+            }
+        }
+
+        if ( tweak.htweak[i] == 1 ) {                      /* scramble hs here */
+            out = drand48();
+            param->h[i] = limits->hlim[i].lower +
+                    out * (limits->hlim[i].upper - limits->hlim[i].lower);
+        }
+
+        if ( tweak.lambdatweak[i] == 1 ) {            /* scramble lambdas here */
+            out = drand48();
+            param->lambda[i] = limits->lambdalim[i].lower +
+                    out * (limits->lambdalim[i].upper - limits->lambdalim[i].lower);
+        }
+
+        if ( tweak.tautweak[i] == 1 ) {                      /* scramble
+      delays here */
+            out = drand48();
+            param->tau[i] = limits->taulim[i].lower +
+                    out * (limits->taulim[i].upper - limits->taulim[i].lower);
+        }
+    }
+
+    /* ds need to be srambled separately, since for diffusion schedules A & C  */
+    /* there's just one single d                                               */
+
+    if ( (defs.diff_schedule == 'A') || (defs.diff_schedule == 'C') ) {
+        if ( tweak.dtweak[0] == 1 ) {
+            out        = drand48();
+            param->d[0] = limits->dlim[0].lower +
+                    out * (limits->dlim[0].upper - limits->dlim[0].lower);
+        }
+    } else {
+        for ( i=0; i<defs.ngenes; i++ ) {
+            if ( tweak.dtweak[i] == 1 ) {
+                out        = drand48();
+                param->d[i] = limits->dlim[i].lower +
+                        out * (limits->dlim[i].upper - limits->dlim[i].lower);
+            }
+        }
+    }
 }
