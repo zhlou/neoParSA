@@ -12,13 +12,13 @@
 
 using namespace std;
 
-fly_params readFlyParams(xmlNode *docroot)
+fly_params readFlyParams(xmlNode *docroot, const char* default_section)
 {
     static const double MAX_STEPSIZE = 100.8;
     fly_params params;
 
     // put defaults on
-    params.section_title = string("eqparms");
+    params.section_title = default_section;
     params.solver_name = string("Rk4");
     params.ndigits = 12;
     params.gutndigits = 6;
@@ -490,7 +490,8 @@ void fly::restoreMove(int idx)
         runtime_error("cannot restore move");
 }
 
-void fly::WriteParameters(const char *filename, EqParms *p, char *title, int ndigits)
+void fly::WriteParameters(const char *filename, EqParms *p, const char *title,
+                          int ndigits)
 {
   char   *temp;                                     /* temporary file name */
   char   *record;                         /* record to be read and written */
@@ -615,7 +616,7 @@ void fly::deserialize(void const *buf)
     score_valid = false;
 }
 
-void fly::writeAnswer()
+void fly::writeAnswer(const char* title)
 {
     if (outfile.empty()){
         outfile = infile;
@@ -627,7 +628,7 @@ void fly::writeAnswer()
         free(shell_cmd);
     }
     EqParms *parm = zygote.GetParameters();
-    WriteParameters(outfile.c_str(), parm, "eqparms", ndigits);
+    WriteParameters(outfile.c_str(), parm, title, ndigits);
 
 }
 

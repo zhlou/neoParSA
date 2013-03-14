@@ -18,7 +18,7 @@ inline double DSQR(double a) {
     return (a == 0.0) ? 0.0 : (a * a);
 }
 
-void solver::WriteSolvLog(char* solver, double tin, double tout, double h,
+void solver::WriteSolvLog(const char* solver, double tin, double tout, double h,
                           int n, int nderivs, FILE* slog)
 {
     double nds; /* Number of Derivative evaluations per Step */

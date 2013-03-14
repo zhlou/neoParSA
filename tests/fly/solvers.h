@@ -22,7 +22,7 @@ public:
     virtual void ps(double *, double *, double, double, double, double, int,
             FILE *) = 0;
 protected:
-    void WriteSolvLog(char *solver, double tin, double tout, double h, int n,
+    void WriteSolvLog(const char *solver, double tin, double tout, double h, int n,
               int nderivs, FILE *slog);
     int debug;
     zygotic &zygote;

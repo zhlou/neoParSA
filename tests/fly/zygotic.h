@@ -227,7 +227,7 @@ public:
                 NULL;
     }
 
-    void PrintParameters(FILE *fp, EqParms *p, char *title, int ndigits);
+    void PrintParameters(FILE *fp, EqParms *p, const char *title, int ndigits);
 
 };
 

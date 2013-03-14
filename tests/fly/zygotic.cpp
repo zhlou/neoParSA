@@ -2178,7 +2178,7 @@ void zygotic::d_deriv(double *v, double **vd, double t, double *vdot, int n)
  *                    indicated by fp                                      *
  ***************************************************************************/
 
-void zygotic::PrintParameters(FILE *fp, EqParms *p, char *title, int ndigits)
+void zygotic::PrintParameters(FILE *fp, EqParms *p, const char *title, int ndigits)
 {
   int    i, j;                                      /* local loop counters */
   double lambda_tmp;                           /* temporary var for lambda */

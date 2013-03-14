@@ -49,7 +49,7 @@ struct fly_params
 };
 
 // set default parameters and read from xml for any parameters that get override
-fly_params readFlyParams(xmlNode *docroot);
+fly_params readFlyParams(xmlNode *docroot, const char* default_section="eqparms");
 
 class fly // This class implements the interfaces and has old translate stuff
 {
@@ -103,7 +103,8 @@ private:
 
     Tweak tweak; /* tells the annealer which parameters to tweak */
 
-    void WriteParameters(const char *filename, EqParms *p, char *title, int ndigits);
+    void WriteParameters(const char *filename, EqParms *p, const char *title,
+                         int ndigits);
 
 public:
     fly(const fly_params &params);
@@ -118,7 +119,7 @@ public:
     void serialize(void *buf) const; // serialize its state to buf
     void deserialize(void const *buf); // inflate buf to a new state. calculation
                                  // of new score is not required here.
-    void writeAnswer();
+    void writeAnswer(const char* title);
     void scramble();
 };
 
