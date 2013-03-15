@@ -34,6 +34,8 @@ int main(int argc, char **argv)
 	cout << "The fininal energy is " << rst_anneal.loop() << endl;
 	cout << "The solution is " << endl;
 	rst.print_solution(cout);
+	rst_anneal.writeResult();
+	xmlSaveFormatFile(docname, doc, 1);
 
 	return 0;
 }

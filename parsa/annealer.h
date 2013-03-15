@@ -49,6 +49,7 @@ public:
     virtual ~annealer();
     double loop();
     double initMoves();
+    void writeResult();
 protected:
     Schedule *cooling;
     Move<Problem> *move;

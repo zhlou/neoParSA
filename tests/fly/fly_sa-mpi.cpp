@@ -50,8 +50,11 @@ int main(int argc, char **argv)
     cout << "The initial energy is " << theFly.get_score() << endl;
     fly_sa->loop();
     cout << "The final energy is " << theFly.get_score() << endl;
-    if (fly_sa->getWinner() == mpi.rank)
+    if (fly_sa->getWinner() == mpi.rank) {
         theFly.writeAnswer("eqparam");
+        xmlSaveFormatFile(docname, doc, 1);
+    }
+
     delete fly_sa;
     MPI_Finalize();
 

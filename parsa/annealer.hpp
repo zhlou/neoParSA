@@ -7,6 +7,7 @@
  */
 
 #include <iostream>
+#include <sstream>
 #include <cmath>
 #include <stdexcept>
 #include "utils.h"
@@ -50,6 +51,20 @@ double annealer<Problem, Schedule, Move>::initMoves()
     is_init = true;
     return move->get_score();
 
+}
+
+template<class Problem, class Schedule, template<class > class Move>
+void annealer<Problem, Schedule, Move>::writeResult()
+{
+    xmlNode *result = xmlNewChild(xmlroot, NULL,
+                                  (const xmlChar *)"annealing_result", NULL);
+    std::ostringstream s_energy, s_step;
+    s_energy << state.energy;
+    s_step << state.s;
+    xmlNewProp(result, (const xmlChar*)"final_energy",
+               (const xmlChar*)s_energy.str().c_str());
+    xmlNewProp(result, (const xmlChar*)"max_count",
+               (const xmlChar*)s_step.str().c_str());
 }
 
 template<class Problem, class Schedule, template<class > class Move>
