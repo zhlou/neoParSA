@@ -47,7 +47,8 @@ int main(int argc, char **argv)
     // plsa *pschedule = new plsa(docroot, mpi);
     pannealer<fly, plsa, parallelFBMove, adaptMix> *fly_sa =
             new pannealer<fly, plsa, parallelFBMove, adaptMix>(theFly, &rnd, docroot, mpi);
-    fly_sa->setDebug(file,(flyParams.infile_name + ".log").c_str());
+    if (mpi.rank == 0)
+        fly_sa->setDebug(file,(flyParams.infile_name + ".log").c_str());
     cout << "The initial energy is " << theFly.get_score() << endl;
     fly_sa->loop();
     cout << "The final energy is " << theFly.get_score() << endl;
