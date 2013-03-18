@@ -30,7 +30,8 @@ double annealer<Problem, Schedule, Move>::loop()
             state.s = cooling->updateS(state);
             ++ (state.step_cnt);
         } while (cooling->inSegment(state));
-        // cout << state.step_cnt << " " << state.s << " " << state.energy << endl;
+        debugOut << state.step_cnt << " " << state.s << " "
+                 << state.energy << endl;
         updateSegment(state);
     } while (!cooling->frozen(state));
 

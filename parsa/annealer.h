@@ -4,6 +4,7 @@
 #include <libxml/parser.h>
 #include "unirandom.h"
 #include "aState.h"
+#include "dynDebug.h"
 //class movable;
 /*
  * This is the abstract annealer template. All the actual functionalities
@@ -50,7 +51,10 @@ public:
     double loop();
     double initMoves();
     void writeResult();
+    void setDebug(debugStatus st, const char*outname=NULL)
+    {debugOut.setDebug(st, outname);}
 protected:
+    dynDebug debugOut;
     Schedule *cooling;
     Move<Problem> *move;
     unirandom *const rand;
