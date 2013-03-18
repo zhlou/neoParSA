@@ -1,5 +1,5 @@
-CXXFLAGS += -I$(HOME)/include -I../../parsa -g
-LDLIBS += -L$(HOME)/lib -lgsl -lgslcblas -L../../parsa -lparsa -g
+CXXFLAGS += -I$(HOME)/include -I../../parsa
+LDLIBS += -L$(HOME)/lib -lgsl -lgslcblas -L../../parsa -lparsa
 FLYOBJECTS = DataLists.o flyData.o maternal.o scoring.o solvers.o \
 			zygotic.o fly.o
 TARGET = printscore fly_sa fly_sa-mpi scramble
