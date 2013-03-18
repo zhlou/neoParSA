@@ -9,9 +9,11 @@
 #define LAM_H_
 
 //#include "annealer.h"
+
+#include <libxml/tree.h>
 #include "aState.h"
 #include "invLinearFit.h"
-#include <libxml/tree.h>
+#include "dynDebug.h"
 
 class lam
 {
@@ -29,6 +31,8 @@ public:
     bool inSegment(aState state){return !((state.step_cnt % proc_tau) == 0);}
     void updateSegment(aState state);
     virtual bool needMix(){return false;}
+    void setDebug(debugStatus st, const char*outname=NULL)
+        {debugOut.setDebug(st, outname);}
 
 protected:
     int proc_tau;
@@ -36,6 +40,7 @@ protected:
     double vari;
     double mean;
     int success;
+    dynDebug debugOut;
 
 
     double freeze_crit;

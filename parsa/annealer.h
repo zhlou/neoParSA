@@ -52,7 +52,7 @@ public:
     double initMoves();
     void writeResult();
     void setDebug(debugStatus st, const char*outname=NULL)
-    {debugOut.setDebug(st, outname);}
+    {cooling->setDebug(st, outname);}
 protected:
     dynDebug debugOut;
     Schedule *cooling;

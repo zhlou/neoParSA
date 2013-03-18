@@ -58,6 +58,7 @@ lam::lam(xmlNode *root)
     vari = 0.;
     mean = 0.;
     //resetSegmentStats();
+    debugOut << "iterations S\t dS/S\t meanE\tsdE\t(e)meanE\t(e)sdE\tacc\talpha" << endl;
 }
 
 lam::~lam()
@@ -145,6 +146,14 @@ void lam::updateSegment(aState state)
     collectStats();
     updateEstimators(state.s);
     updateLam();
+    double estimate_mean = fit_mean->getEstimate(state.s);
+    double estimate_sd = fit_sd->getEstimate(state.s);
+    double d = state.s *estimate_sd;
+    debugOut << state.step_cnt << " " << state.s << " "
+             << lambda * alpha / (d * d * estimate_sd) << " "
+             << mean << " " << sqrt(vari) << " "
+             << estimate_mean << " " << estimate_sd << " "
+             << acc_ratio << " " << alpha << endl;
 //    resetSegmentStats();
 }
 
@@ -194,18 +203,6 @@ void lam::collectInitStats(unsigned long init_loop)
     vari = vari / (double) init_loop - mean * mean;
     acc_ratio = (double) success / (double) init_loop;
 }
-
-/*
-double lam::getInitS()
-{
-    return init_S;
-}
-
-int lam::getInitLoop()
-{
-    return init_loop;
-}
-*/
 
 void lam::updateLam()
 {
