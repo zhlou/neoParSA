@@ -65,8 +65,8 @@ void plsa::updateEstimators(double s)
     fit_mean->decay();
     fit_sd->decay();
     for (int i = 0; i < mpi.nnodes; ++i) {
-        fit_mean->partialUpdate(w_m, s, local_stat_buf[i].mean);
-        fit_sd->partialUpdate(w_m, s, local_stat_buf[i].var);
+        fit_mean->partialUpdate(w_m, 1.0 / local_stat_buf[i].mean, s);
+        fit_sd->partialUpdate(w_m, 1.0 / local_stat_buf[i].var, s);
         success += local_stat_buf[i].success;
     }
     fit_mean->finishUpdate();
