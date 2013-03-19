@@ -61,7 +61,7 @@ void annealer<Problem, Schedule, Move>::writeResult()
                                   (const xmlChar *)"annealing_result", NULL);
     std::ostringstream s_energy, s_step;
     s_energy << state.energy;
-    s_step << state.s;
+    s_step << state.step_cnt;
     xmlNewProp(result, (const xmlChar*)"final_energy",
                (const xmlChar*)s_energy.str().c_str());
     xmlNewProp(result, (const xmlChar*)"max_count",
