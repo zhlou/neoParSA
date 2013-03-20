@@ -63,6 +63,7 @@ protected:
     int initLoop;
     double initS;
     bool is_init;
+    double tlaps;
     annealer(unirandom * const in_rand, xmlNode *root);
     virtual void updateSegment(aState &state) {cooling->updateSegment(state);}
 
