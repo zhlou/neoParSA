@@ -11,6 +11,7 @@
 #include "MPIState.h"
 #include "unirandom.h"
 #include "mixState.h"
+#include "Mixing.h"
 #include <libxml/tree.h>
 
 /*
@@ -26,24 +27,19 @@ template <class Problem>
 class adaptMix
 {
 public:
-    adaptMix(Problem &in_problem, const MPIState &mpiState, xmlNode *docroot);
+    adaptMix(Problem &in_problem, const MPIState &mpiState,
+             unirandom * const in_rnd, xmlNode *docroot);
     ~adaptMix();
     mixState Mix(aState &state);
+    static const char *name;
 private:
-    Problem &problem;
-    const MPIState &mpi;
-    unirandom rnd;
+    Mixing<Problem> mix;
+    unirandom * const rnd;
     xmlNode *root;
+    int nnodes;
 
-    MPI_Win state_win;
-    void *state_buf;
-    int buf_size;
-    double *energy_tab;
-    double *prob_tab;
+
     double adaptCoef;
-
-    void adoptState(int Id);
-
 };
 
 

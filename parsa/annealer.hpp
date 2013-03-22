@@ -60,20 +60,44 @@ double annealer<Problem, Schedule, Move>::initMoves()
 }
 
 template<class Problem, class Schedule, template<class > class Move>
-void annealer<Problem, Schedule, Move>::writeResult()
-{
-    xmlNode *result = xmlNewChild(xmlroot, NULL,
-                                  (const xmlChar *)"annealing_result", NULL);
+void annealer<Problem, Schedule, Move>::writeResultData(xmlNode* result) {
     std::ostringstream s_energy, s_step, s_time;
     s_energy << state.energy;
     s_step << state.step_cnt;
     s_time << tlaps;
-    xmlNewProp(result, (const xmlChar*)"final_energy",
-               (const xmlChar*)s_energy.str().c_str());
-    xmlNewProp(result, (const xmlChar*)"max_count",
-               (const xmlChar*)s_step.str().c_str());
-    xmlNewProp(result, (const xmlChar*)"time",
-                   (const xmlChar*)s_time.str().c_str());
+    xmlNewProp(result, (const xmlChar*) ("final_energy"),
+               (const xmlChar*) (s_energy.str().c_str()));
+    xmlNewProp(result, (const xmlChar*) ("max_count"),
+               (const xmlChar*) (s_step.str().c_str()));
+    xmlNewProp(result, (const xmlChar*) ("time"),
+               (const xmlChar*) (s_time.str().c_str()));
+}
+template<class Problem, class Schedule, template<class> class Move>
+void annealer<Problem, Schedule, Move>::writeMethodText(xmlNode *method)
+{
+    xmlNewProp(method, (const xmlChar*)"cooling-schedule",
+               (const xmlChar*)Schedule::name);
+    xmlNewProp(method, (const xmlChar*)"move-generation",
+               (const xmlChar*)Move<Problem>::name);
+}
+template<class Problem, class Schedule, template<class > class Move>
+void annealer<Problem, Schedule, Move>::writeResult()
+{
+    xmlNode *result = getSectionByName(xmlroot, "annealing_result");
+    if (result != NULL) {
+        xmlUnlinkNode(result);
+        xmlFreeNode(result);
+    }
+    result = xmlNewChild(xmlroot, NULL, (const xmlChar *)"annealing_result",
+                         NULL);
+    writeResultData(result);
+    xmlNode *method = getSectionByName(xmlroot, "method");
+    if (method != NULL) {
+        xmlUnlinkNode(method);
+        xmlFreeNode(method);
+    }
+    method = xmlNewChild(xmlroot, NULL, (const xmlChar *)"method", NULL);
+    writeMethodText(method);
 }
 
 template<class Problem, class Schedule, template<class > class Move>

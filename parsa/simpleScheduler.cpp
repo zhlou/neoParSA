@@ -10,6 +10,7 @@
 #include <stdexcept>
 
 using namespace std;
+const char *simpleSchedule::name = "exponential";
 
 simpleSchedule::simpleSchedule(xmlNode *root)
 {

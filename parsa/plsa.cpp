@@ -2,6 +2,7 @@
 #include <cmath>
 using namespace std;
 
+const char *plsa::name = "parallel Lam";
 
 plsa::plsa(xmlNode* root, const MPIState &mpiState) :
         lam(root), mpi(mpiState)

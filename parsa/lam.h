@@ -33,6 +33,7 @@ public:
     virtual bool needMix(){return false;}
     void setDebug(debugStatus st, const char*outname=NULL)
         {debugOut.setDebug(st, outname);}
+    static const char* name;
 
 protected:
     int proc_tau;

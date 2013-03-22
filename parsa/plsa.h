@@ -17,6 +17,7 @@ class plsa: public lam
 public:
     plsa(xmlNode *root, const MPIState &mpiState);
     ~plsa();
+    static const char *name;
     //bool frozen(aState state);
 protected:
     struct StatData {

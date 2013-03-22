@@ -15,7 +15,7 @@
 using namespace std;
 
 const double lam::UNINITIALIZED = numeric_limits<double>::max();
-
+const char * lam::name = "Lam";
 // in newer compilers, string constants cast to char * will generate
 // warning messages unless done explicitly.
 

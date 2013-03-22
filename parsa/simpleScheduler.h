@@ -10,6 +10,7 @@
 
 #include "annealer.h"
 #include "aState.h"
+#include "dynDebug.h"
 #include <libxml/tree.h>
 
 class simpleSchedule
@@ -28,9 +29,13 @@ public:
     bool inSegment(aState state) {return false;}
     void updateSegment(aState state) {};
     bool needMix(){return false;}
+    void setDebug(debugStatus st, const char* outname=NULL)
+    {debugOut.setDebug(st,outname);}
+    static const char* name;
 private:
     unsigned reject_cnt;
     double lambda;
+    dynDebug debugOut;
     //int init_loop;
     //double init_S;
 };

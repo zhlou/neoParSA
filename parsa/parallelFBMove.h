@@ -24,6 +24,7 @@ public:
     // void doMix(aState &state);
     void processMix(const mixState &ms, const aState &state)
     {if (ms.doesMix()) this->energy = state.energy;}
+    static const char *name;
 protected:
     void collectMoveStats();
 private:

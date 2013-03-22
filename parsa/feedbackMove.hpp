@@ -11,6 +11,9 @@ template<class Problem>
 const double feedbackMove<Problem>::theta_min = 0.;
 
 template<class Problem>
+const char *feedbackMove<Problem>::name = "feedbackMove";
+
+template<class Problem>
 feedbackMove<Problem>::feedbackMove(Problem& in_problem,
                                     unirandom * const in_rand,
                                     xmlNode* root) :

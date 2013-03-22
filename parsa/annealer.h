@@ -51,7 +51,7 @@ public:
     double loop();
     double initMoves();
     void writeResult();
-    void setDebug(debugStatus st, const char*outname=NULL)
+    void setCoolLog(debugStatus st, const char*outname=NULL)
     {cooling->setDebug(st, outname);}
 protected:
     dynDebug debugOut;
@@ -69,6 +69,8 @@ protected:
 
     bool step();
     void initState(xmlNode* root);
+    virtual void writeResultData(xmlNode* result);
+    virtual void writeMethodText(xmlNode* method);
 };
 
 

@@ -35,6 +35,7 @@ public:
     void reject();
     virtual void doMix(aState &){}; // do nothing in base class
     dynDebug debugOut;
+    static const char *name;
 protected:
     int nparams;
     Problem &problem;

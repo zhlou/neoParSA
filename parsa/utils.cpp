@@ -11,7 +11,8 @@
 #include <cstdlib>
 using namespace std;
 
-
+// return double value from node "section" with property name "name"
+// throws runtime_error when not found
 double getPropDouble(xmlNode* section, const char* name)
 {
     xmlChar *prop = NULL;
@@ -24,6 +25,8 @@ double getPropDouble(xmlNode* section, const char* name)
     return val;
 }
 
+// return integer value from node "section" with property name "name"
+// throws runtime_error when not found
 int getPropInt(xmlNode* section, const char* name)
 {
     xmlChar *prop = NULL;
@@ -36,6 +39,7 @@ int getPropInt(xmlNode* section, const char* name)
     return val;
 }
 
+// return node with name "name" or NULL if not found
 xmlNode* getSectionByName(xmlNode* root, const char* name)
 {
     xmlNode *section = root->children;

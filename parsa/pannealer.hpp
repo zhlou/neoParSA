@@ -10,7 +10,7 @@ template <class Problem, class Schedule, template<class> class Move,
 pannealer<Problem, Schedule, Move, PopBased>::pannealer(Problem &problem,
           unirandom * const in_rand, xmlNode *root, const MPIState &mpiState) :
           annealer<Problem, Schedule, Move>::annealer(in_rand, root),
-          mpi(mpiState), pop(problem, mpiState, root)
+          mpi(mpiState), pop(problem, mpiState, in_rand, root)
 {
     // this pointer is necessary because otherwise the lookup to parent members
     // may fail depending on compilers
@@ -52,5 +52,15 @@ void pannealer<Problem, Schedule, Move, PopBased>::updateSegment(aState &state)
     annealer<Problem, Schedule, Move>::updateSegment(state);
     mixState ms = pop.Mix(state);
     this->move->processMix(ms, state);
+
+}
+
+template <class Problem, class Schedule, template<class> class Move,
+          template<class> class PopBased>
+void pannealer<Problem, Schedule, Move, PopBased>::writeMethodText(xmlNode* method)
+{
+    annealer<Problem, Schedule, Move>::writeMethodText(method);
+    xmlNewProp(method, (const xmlChar*)"mixing",
+               (const xmlChar*)PopBased<Problem>::name);
 
 }

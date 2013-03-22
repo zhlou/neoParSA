@@ -4,6 +4,8 @@
  *  Created on: Jan 28, 2013
  *      Author: zhlou
  */
+template <class Problem>
+const char *parallelFBMove<Problem>::name = "parallelFeedbackMove";
 
 template<class Problem>
 parallelFBMove<Problem>::parallelFBMove(Problem& in_problem,
