@@ -50,6 +50,9 @@ public:
     virtual ~annealer();
     double loop();
     double initMoves();
+    // fixed T moves with no stats updated for schedule. move part is involved
+    // hence likely updated.
+    double fixedTMoves(double S, long steps);
     void writeResult();
     void setCoolLog(debugStatus st, const char*outname=NULL)
     {cooling->setDebug(st, outname);}

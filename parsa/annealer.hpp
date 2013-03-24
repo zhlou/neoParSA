@@ -45,11 +45,24 @@ double annealer<Problem, Schedule, Move>::loop()
     return move->get_score();
 }
 
+template<class Problem, class Schedule, template<class > class Move>
+double annealer<Problem, Schedule, Move>::fixedTMoves(double S, long steps)
+{
+    double prev_s = state.s;
+    state.s = S;
+    for (int i = 0; i < steps; ++i) {
+        step();
+    }
+    state.s = prev_s;
+    return move->get_score();
+}
+
 template<class Problem, class Schedule, template<class> class Move>
 double annealer<Problem, Schedule, Move>::initMoves()
 {
+    fixedTMoves(state.s, initLoop);
     bool accepted;
-    for (state.step_cnt = 0; state.step_cnt < initLoop; state.step_cnt++) {
+    for (state.step_cnt = 0; state.step_cnt < initLoop; ++ state.step_cnt) {
         accepted = step();
         cooling->updateInitStep(accepted, state);
     }
@@ -72,7 +85,8 @@ void annealer<Problem, Schedule, Move>::writeResultData(xmlNode* result) {
     xmlNewProp(result, (const xmlChar*) ("time"),
                (const xmlChar*) (s_time.str().c_str()));
 }
-template<class Problem, class Schedule, template<class> class Move>
+
+template<class Problem, class Schedule, template<class > class Move>
 void annealer<Problem, Schedule, Move>::writeMethodText(xmlNode *method)
 {
     xmlNewProp(method, (const xmlChar*)"cooling-schedule",
