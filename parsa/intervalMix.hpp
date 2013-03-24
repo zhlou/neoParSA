@@ -41,6 +41,6 @@ mixState intervalMix<Problem>::Mix(aState &state)
 
 inline int readInterval(xmlNode *root)
 {
-    xmlNode *section = getSectionByName(root, "mxi");
+    xmlNode *section = getSectionByName(root, "mix");
     return getPropInt(section, "interval");
 }
