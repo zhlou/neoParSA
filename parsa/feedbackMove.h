@@ -34,12 +34,13 @@ public:
     void accept();
     void reject();
     virtual void doMix(aState &){}; // do nothing in base class
-    dynDebug debugOut;
     static const char *name;
+    void setDebug(debugStatus st, const char*outname=NULL)
+    {debugOut.setDebug(st, outname);}
 protected:
     int nparams;
     Problem &problem;
-
+    dynDebug debugOut;
     virtual void collectMoveStats(){}; // do nothing in base class
     void move_control();
     long *success;

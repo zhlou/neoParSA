@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <libxml/parser.h>
+#include <unistd.h>
 
 #include "annealer.h"
 #include "feedbackMove.h"
@@ -23,7 +24,15 @@ int main(int argc, char **argv)
         cerr << "Missing input files" << endl;
         return 1;
     }
-    char *docname = argv[1];
+    char c;
+    bool equil = false;
+    while ( (c = getopt(argc, argv, "E")) != -1) {
+    	switch(c) {
+    	case 'E':
+    		equil = true;
+    	}
+    }
+    char *docname = argv[optind];
     xmlDoc *doc = xmlParseFile(docname);
     xmlNode *docroot = xmlDocGetRootElement(doc);
     if (docroot == NULL) {
@@ -37,11 +46,16 @@ int main(int argc, char **argv)
     lam schedule(docroot);
     annealer<fly, lam, feedbackMove>
         fly_sa(theFly,&rnd, docroot);
-    cout << "The initial energy is " << theFly.get_score() << endl;
-    fly_sa.loop();
-    cout << "The final energy is " << theFly.get_score() << endl;
-    theFly.writeAnswer("eqparam");
-    xmlSaveFormatFile(docname, doc, 1);
+    if (equil)
+    	fly_sa.initMoves();
+    else {
+        cout << "The initial energy is " << theFly.get_score() << endl;
+        fly_sa.loop();
+        cout << "The final energy is " << theFly.get_score() << endl;
+        theFly.writeAnswer("eqparam");
+        xmlSaveFormatFile(docname, doc, 1);
+    }
+
 
     return 0;
 }

@@ -56,6 +56,8 @@ public:
     void writeResult();
     void setCoolLog(debugStatus st, const char*outname=NULL)
     {cooling->setDebug(st, outname);}
+    void setProlix(debugStatus st, const char*outname=NULL)
+    {move->setDebug(st, outname);}
 protected:
     dynDebug debugOut;
     Schedule *cooling;
