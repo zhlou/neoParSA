@@ -36,6 +36,8 @@ int main(int argc, char **argv)
 	rst.print_solution(cout);
 	rst_anneal.writeResult();
 	xmlSaveFormatFile(docname, doc, 1);
+	xmlFreeDoc(doc);
+	xmlCleanupParser();
 
 	return 0;
 }

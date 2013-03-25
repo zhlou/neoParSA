@@ -5,5 +5,4 @@
 	<output dim="3" x1="2.100000" x2="3.300000" x3="-1.400000"/>
 	<move interval="100" gain="0.1"/>
 	<mix adaptcoef="10"/>
-	<lam tau="100" memLength_mean="200" memLength_sd="1000" criterion="0.0001" freeze_cnt="3"/>
-<annealing result final_energy="0.000760122" max_count="3267.93"/></System>
+	<lam tau="100" memLength_mean="200" memLength_sd="1000" criterion="0.0001" freeze_cnt="3"/><annealing_result final_energy="0.995883" max_count="1214000" time="12.48"/><method cooling-schedule="Lam" move-generation="feedbackMove"/></System>

@@ -30,6 +30,7 @@ int main(int argc, char **argv)
     	switch(c) {
     	case 'E':
     		equil = true;
+    		break;
     	}
     }
     char *docname = argv[optind];

@@ -279,6 +279,7 @@ zygotic::~zygotic()
     free(parm.lambda);
     free(parm.tau);
     // TODO free parm
+    delete solver;
 }
 
 /*** THE FOLLOWING FUNCTIONS ARE FOR HANDLING TLIST, a linked list used to *
