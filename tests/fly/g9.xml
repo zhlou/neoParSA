@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <System>
 	<fly infile="test-2" solver="Euler" ndigits="16" stepsize="1.25" section="input"/>
-	<annealer_input init_T="1000" lambda="0.001" init_loop="1000"/>
+	<annealer_input init_T="1000" lambda="0.001" init_loop="10000"/>
 	<output dim="3" x1="2.100000" x2="3.300000" x3="-1.400000"/>
 	<move interval="100" gain="0.1"/>
 	<mix adaptcoef="10"/>

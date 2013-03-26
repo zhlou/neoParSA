@@ -18,6 +18,7 @@ public:
     template<class T>
     dynDebug& operator <<(T const &);
     void setDebug(debugStatus st, const char *outname=NULL);
+    bool isIgnore() const {return (status == ignore);}
 
 
 

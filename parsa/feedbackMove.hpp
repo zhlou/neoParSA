@@ -123,17 +123,23 @@ void feedbackMove<Problem>::reject()
 template<class Problem>
 void feedbackMove<Problem>::move_control()
 {
+    debugOut << sweep;
     for (int i = 0; i < nparams; ++i) {
         double acc_ratio = (double) success[i] / (double) moves[i];
         double x = log(theta_bars[i]);
-        debugOut << i << "\t" << acc_ratio;
+        debugOut << "\t" << acc_ratio;
         x += move_gain * (acc_ratio - 0.44);
         theta_bars[i] = exp(x);
         if (theta_bars[i] < theta_min)
             theta_bars[i] = theta_min;
-        debugOut << "\t" << theta_bars[i];
         success[i] = 0;
         moves[i] = 0;
     }
+    if (!debugOut.isIgnore()){
+        for (int i = 0; i < nparams; ++i) {
+            debugOut << "\t" << theta_bars[i];
+        }
+    }
+
     debugOut << endl;
 }

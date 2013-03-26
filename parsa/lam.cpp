@@ -176,8 +176,8 @@ void lam::initStats(aState state)
     double d = (1.0 - acc_ratio) / (2.0 - acc_ratio);
     alpha = 4.0 * acc_ratio * d * d;
     old_energy = state.energy;
-    cout << state.step_cnt << ": " << mean << "\t" << sd << "\t" << alpha
-            <<endl;
+    //cout << state.step_cnt << ": " << mean << "\t" << sd << "\t" << alpha
+    //        <<endl;
     //resetSegmentStats(); // we don't need this since it is called automatically
                            // before every segment
 }

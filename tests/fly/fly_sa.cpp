@@ -40,13 +40,15 @@ int main(int argc, char **argv)
         cerr << "Input incorrect" << endl;
         return 2;
     }
-    unirandom rnd;
+    unirand48 rnd;
     fly_params flyParams = readFlyParams(docroot);
     fly theFly(flyParams);
     // feedbackMove<fly, debugSTD> fly_problem(theFly, rnd, docroot);
     lam schedule(docroot);
     annealer<fly, lam, feedbackMove>
         fly_sa(theFly,&rnd, docroot);
+    fly_sa.setCoolLog(file, (flyParams.infile_name+".log").c_str());
+    fly_sa.setProlix(file, (flyParams.infile_name+".prolix").c_str());
     if (equil)
     	fly_sa.initMoves();
     else {
@@ -56,6 +58,9 @@ int main(int argc, char **argv)
         theFly.writeAnswer("eqparam");
         xmlSaveFormatFile(docname, doc, 1);
     }
+    xmlFreeDoc(doc);
+    xmlCleanupParser();
+
 
 
     return 0;
