@@ -11,10 +11,10 @@ solve_rst:  rastrigin.o solve_rastrigin.o $(LIBPARSA)
 	$(CXX) $(LDFLAGS) -o $@ $(OBJECT) $(LDLIBS)
 	
 psolve_rst.o: psolve_rst.cpp $(LIBPARSA)
-	mpic++ $(CXXFLAGS) -c psolve_rst.cpp
+	$(MPICXX) $(CXXFLAGS) -c psolve_rst.cpp
 	
 psolve_rst: rastrigin.o psolve_rst.o
-	mpic++ $(LDFLAGS) -o $@ $^ $(LDLIBS)
+	$(MPICXX) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 	
 test_rst: rastrigin.o test_rst.o
 	$(CXX) $(LDFLAGS) -o $@ rastrigin.o test_rst.o $(LDLIBS)

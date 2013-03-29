@@ -11,7 +11,7 @@ SOURCE = annealer.h annealer.hpp feedbackMove.h feedbackMove.hpp\
 	unirandom.h unirandom.cpp lam.cpp lam.h invLinearFit.h invLinearFit.cpp \
 	parallelFBMove.h parallelFBMove.hpp dynDebug.h dynDebug.cpp
 	
-CXXFLAGS += -g
+#CXXFLAGS += -g
 .PHONY: all clean
 
 all: $(TARGET)
@@ -23,7 +23,7 @@ libparsa.a: $(OBJECT) $(SOURCE)
 	ar -rcs $@ $(OBJECT)
 
 plsa.o: plsa.cpp plsa.h
-	mpic++ $(CXXFLAGS) -fpic -c plsa.cpp
+	$(MPICXX) $(CXXFLAGS) -fpic -c plsa.cpp
 
 $(OBJECT): %.o: %.cpp
 %.o: CXXFLAGS += -fpic

@@ -1,4 +1,4 @@
-CXXFLAGS += -I../../parsa -g
+CXXFLAGS += -I../../parsa
 LDLIBS += -L../../parsa -lparsa
 LIBPARSA = ../../parsa/libparsa.a
 TARGET = solve_tsp test

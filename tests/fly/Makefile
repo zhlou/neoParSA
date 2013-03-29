@@ -18,10 +18,10 @@ fly_sa: fly_sa.o $(FLYOBJECTS)
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDLIBS)
 	
 fly_sa-mpi.o: fly_sa-mpi.cpp
-	mpic++ $(CXXFLAGS) -c $^
+	$(MPICXX) $(CXXFLAGS) -c $^
 	
 fly_sa-mpi: fly_sa-mpi.o $(FLYOBJECTS)
-	mpic++ $(LDFLAGS) -o $@ $^ $(LDLIBS)
+	$(MPICXX) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 clean:
 	rm -f $(FLYOBJECTS) $(TARGET) printscore.o fly_sa.o fly_sa-mpi.o
