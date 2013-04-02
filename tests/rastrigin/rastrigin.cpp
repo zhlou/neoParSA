@@ -8,6 +8,7 @@
 #include "rastrigin.h"
 #include "unirandom.h"
 #include <string.h>
+// #include <omp.h>
 
 using namespace std;
 const double rastrigin::VAR_MAX = 5.12;
@@ -101,12 +102,14 @@ void rastrigin::generateMove(int idx, double theta)
 {
     double x = prev_x = vars[idx];
     x += theta;
-    while (x > rastrigin::VAR_MAX || x < rastrigin::VAR_MIN) {
-        if (x > rastrigin::VAR_MAX)
-            x = 2 * rastrigin::VAR_MAX - x;
-        if (x < rastrigin::VAR_MIN)
-            x = 2 * rastrigin::VAR_MIN - x;
-    }
+    x = fmod(x,VAR_MAX);
+
+//    while (x > rastrigin::VAR_MAX || x < rastrigin::VAR_MIN) {
+//        if (x > rastrigin::VAR_MAX)
+//            x = 2 * rastrigin::VAR_MAX - x;
+//        if (x < rastrigin::VAR_MIN)
+//            x = 2 * rastrigin::VAR_MIN - x;
+//    }
     vars[idx] = x;
     can_rollback = true;
     prev_idx = idx;
@@ -130,7 +133,9 @@ rastrigin::~rastrigin()
 double rastrigin::get_score()
 {
 	double tot = 0;
-	for (int i = 0; i < dim; i++) {
+	int i;
+// #pragma omp parallel for private(i) reduction(+:tot)
+	for (i = 0; i < dim; i++) {
 		tot += vars[i] * vars[i] - 10.0 * cos(2 * M_PI * vars[i]);
 	}
 	return (10 * dim + tot);

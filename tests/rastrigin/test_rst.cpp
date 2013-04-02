@@ -20,8 +20,9 @@ int main(int argc, char **argv)
 	xmlDoc *doc = xmlParseFile(docname);
 	xmlNode *root = xmlDocGetRootElement(doc);
 	rastrigin rst(root, rnd);
+	cout << "The score is " << rst.get_score() << endl;
 	rst.write_section((xmlChar *)"output");
-	xmlSaveFile(docname, doc);
+	xmlSaveFormatFile(docname, doc,1);
 	xmlFree(doc);
 	return 0;
 }
