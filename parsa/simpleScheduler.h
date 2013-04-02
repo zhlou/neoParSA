@@ -22,7 +22,7 @@ public:
     //double getInitS();
     //int getInitLoop();
     void updateInitStep(bool accept, aState state);
-    bool frozen(aState state);
+    virtual bool frozen(aState state);
     void resetSegmentStats(){};
     void updateStep(bool accept, aState state);
     double updateS(aState state);
@@ -34,8 +34,9 @@ public:
     static const char* name;
 protected:
     unsigned reject_cnt;
-    double lambda;
+    double alpha;
     dynDebug debugOut;
+    unsigned long max_rej;
     //int init_loop;
     //double init_S;
 };

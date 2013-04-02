@@ -14,13 +14,14 @@ const char *simpleSchedule::name = "exponential";
 
 simpleSchedule::simpleSchedule(xmlNode *root)
 {
-    xmlNode *xmlsection = getSectionByName(root, "annealer_input");
+    xmlNode *xmlsection = getSectionByName(root, "exponential");
 
     if (xmlsection == NULL) {
         throw runtime_error(string("Error: fail to find section annealer_input"));
     }
     //init_S = 1.0 / getPropDouble(xmlsection, "init_T");
-    lambda = getPropDouble(xmlsection, "lambda");
+    alpha = getPropDouble(xmlsection, "alpha");
+    max_rej = getPropInt(xmlsection, "max_rej");
     //init_loop = getPropInt(xmlsection, "init_loop");
     reject_cnt = 0;
 
@@ -46,13 +47,13 @@ void simpleSchedule::updateInitStep(bool, aState)
 
 bool simpleSchedule::frozen(aState)
 {
-    const unsigned max_rej = 100;
+    // const unsigned max_rej = 100;
     return (reject_cnt >= max_rej);
 }
 
 double simpleSchedule::updateS(aState state)
 {
-    return state.s * (1 + lambda);
+    return state.s * (1 + alpha);
 }
 
 

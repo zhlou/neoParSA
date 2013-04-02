@@ -6,4 +6,4 @@
 	<move interval="100" gain="0.1"/>
 	<mix adaptcoef="10"/>
 	<lam tau="100" memLength_mean="200" memLength_sd="1000" criterion="0.0001" freeze_cnt="3"/>
-</System>
+	<exponential alpha="0.9999" max_rej="100"></exponential></System>
