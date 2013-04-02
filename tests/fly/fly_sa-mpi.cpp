@@ -17,6 +17,7 @@
 #include "adaptMix.h"
 #include "intervalMix.h"
 #include "fly.h"
+#include "pSimpleSchedule.h"
 
 using namespace std;
 
@@ -46,8 +47,8 @@ int main(int argc, char **argv)
     // parallelFBMove<fly, debugSTD, adaptMix> *fly_problem =
     //        new parallelFBMove<fly, debugSTD, adaptMix>(theFly, rnd, docroot, mpi);
     // plsa *pschedule = new plsa(docroot, mpi);
-    pannealer<fly, plsa, parallelFBMove, intervalMix> *fly_sa =
-            new pannealer<fly, plsa, parallelFBMove, intervalMix>(theFly, &rnd, docroot, mpi);
+    pannealer<fly, pSimpleSchedule, parallelFBMove, intervalMix> *fly_sa =
+            new pannealer<fly, pSimpleSchedule, parallelFBMove, intervalMix>(theFly, &rnd, docroot, mpi);
     if (mpi.rank == 0)
         fly_sa->setCoolLog(file,(flyParams.infile_name + ".log").c_str());
     cout << "The initial energy is " << theFly.get_score() << endl;
@@ -59,6 +60,8 @@ int main(int argc, char **argv)
         xmlSaveFormatFile(docname, doc, 1);
     }
 
+    xmlFreeDoc(doc);
+    xmlCleanupParser();
     delete fly_sa;
     MPI_Finalize();
 

@@ -27,12 +27,12 @@ public:
     void updateStep(bool accept, aState state);
     double updateS(aState state);
     bool inSegment(aState state) {return false;}
-    void updateSegment(aState state) {};
+    void updateSegment(aState state);
     bool needMix(){return false;}
     void setDebug(debugStatus st, const char* outname=NULL)
     {debugOut.setDebug(st,outname);}
     static const char* name;
-private:
+protected:
     unsigned reject_cnt;
     double lambda;
     dynDebug debugOut;

@@ -61,3 +61,7 @@ void simpleSchedule::initStats(aState)
     reject_cnt = 0;
 }
 
+void simpleSchedule::updateSegment(aState state) {
+    debugOut << state.step_cnt << "\t" << 1.0/state.s << "\t"
+            << state.energy << std::endl;
+}
