@@ -19,6 +19,7 @@ public:
     bool frozen(const aState);
 protected:
     const MPIState &mpi;
+    unsigned cnt;
 };
 
 #endif /* PSIMPLESCHEDULE_H_ */

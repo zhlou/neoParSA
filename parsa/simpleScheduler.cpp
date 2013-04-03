@@ -53,7 +53,7 @@ bool simpleSchedule::frozen(aState)
 
 double simpleSchedule::updateS(aState state)
 {
-    return state.s * (1 + alpha);
+    return state.s / alpha;
 }
 
 
