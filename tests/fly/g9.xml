@@ -4,6 +4,6 @@
 	<annealer_input init_T="1000" lambda="0.001" init_loop="10000"/>
 	<output dim="3" x1="2.100000" x2="3.300000" x3="-1.400000"/>
 	<move interval="100" gain="0.1"/>
-	<mix adaptcoef="10"/>
+	<mix adaptcoef="10" interval="100"/>
 	<lam tau="100" memLength_mean="200" memLength_sd="1000" criterion="0.0001" freeze_cnt="3"/>
-	<exponential alpha="0.9999" max_rej="100"></exponential></System>
+	<exponential alpha="0.9999" max_rej="100"/><annealing_result final_energy="10.8945" max_count="130000" time="10.02"/><method cooling-schedule="parallel exponential" move-generation="parallelFeedbackMove" mixing="intervalMix"/></System>

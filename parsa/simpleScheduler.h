@@ -26,7 +26,7 @@ public:
     void resetSegmentStats(){};
     void updateStep(bool accept, aState state);
     double updateS(aState state);
-    bool inSegment(aState state) {return (state.step_cnt % max_rej);}
+    bool inSegment(aState state) {return (state.step_cnt % log_freq);}
     void updateSegment(aState state);
     bool needMix(){return false;}
     void setDebug(debugStatus st, const char* outname=NULL)
@@ -37,8 +37,10 @@ protected:
     double alpha;
     dynDebug debugOut;
     unsigned long max_rej;
+    unsigned log_freq;
     //int init_loop;
     //double init_S;
+    xmlNode *xmlsection;
 };
 
 #endif /* SIMPLEANNEALER_H_ */

@@ -8,13 +8,14 @@
 #include "simpleScheduler.h"
 #include "utils.h"
 #include <stdexcept>
+#include <exception>
 
 using namespace std;
 const char *simpleSchedule::name = "exponential";
 
 simpleSchedule::simpleSchedule(xmlNode *root)
 {
-    xmlNode *xmlsection = getSectionByName(root, "exponential");
+    xmlsection = getSectionByName(root, "exponential");
 
     if (xmlsection == NULL) {
         throw runtime_error(string("Error: fail to find section exponential"));
@@ -22,6 +23,12 @@ simpleSchedule::simpleSchedule(xmlNode *root)
     //init_S = 1.0 / getPropDouble(xmlsection, "init_T");
     alpha = getPropDouble(xmlsection, "alpha");
     max_rej = getPropInt(xmlsection, "max_rej");
+    log_freq = 100;
+    try {
+        log_freq = getPropInt(xmlsection, "log_freq");
+    } catch (const std::exception &e) {
+
+    }
     //init_loop = getPropInt(xmlsection, "init_loop");
     reject_cnt = 0;
 

@@ -20,6 +20,7 @@ public:
 protected:
     const MPIState &mpi;
     unsigned cnt;
+    int check_freq;
 };
 
 #endif /* PSIMPLESCHEDULE_H_ */
