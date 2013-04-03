@@ -17,7 +17,7 @@ simpleSchedule::simpleSchedule(xmlNode *root)
     xmlNode *xmlsection = getSectionByName(root, "exponential");
 
     if (xmlsection == NULL) {
-        throw runtime_error(string("Error: fail to find section annealer_input"));
+        throw runtime_error(string("Error: fail to find section exponential"));
     }
     //init_S = 1.0 / getPropDouble(xmlsection, "init_T");
     alpha = getPropDouble(xmlsection, "alpha");
