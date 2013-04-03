@@ -2,7 +2,7 @@ LIBS = parsa/libparsa.a
 DIRS = parsa tests
 export CXXFLAGS += `xml2-config --cflags`
 export LDLIBS += `xml2-config --libs`
-export MPICXX = mpicxx -cc=$(CXX)
+export MPICXX = mpicxx -cxx=$(CXX)
 .PHONY: all tests clean libparsa rastrigin fly debug
 
 all: libparsa tests

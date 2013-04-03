@@ -26,7 +26,7 @@ public:
     void resetSegmentStats(){};
     void updateStep(bool accept, aState state);
     double updateS(aState state);
-    bool inSegment(aState state) {return false;}
+    bool inSegment(aState state) {return !(state.step_cnt % max_rej);}
     void updateSegment(aState state);
     bool needMix(){return false;}
     void setDebug(debugStatus st, const char* outname=NULL)
