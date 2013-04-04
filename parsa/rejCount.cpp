@@ -7,7 +7,7 @@
 
 #include "rejCount.h"
 
-rejCount::rejCount() {
+rejCount::rejCount(const Param &param) {
     // TODO Auto-generated constructor stub
 
 }
