@@ -17,18 +17,18 @@ public:
     class Param {
     public:
         int max_rej;
-        int output_freq;
+        //int output_freq;
         debugStatus st;
         const char * debugname;
     };
     rejCount(const Param &param);
     virtual ~rejCount();
     void updateState(bool accept, const aState &state);
-    bool frozen(const aState &state);
+    bool frozen(const aState &state) const;
 protected:
-    dynDebug debugOut;
+    mutable dynDebug debugOut;
     int max_rej;
-    int output_freq;
+    //int output_freq;
     int reject_cnt;
 };
 rejCount::Param rejCountParamXML(xmlNode *root, debugStatus st=ignore,
