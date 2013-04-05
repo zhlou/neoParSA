@@ -11,7 +11,7 @@
 #include <libxml/tree.h>
 #include "aState.h"
 #include "dynDebug.h"
-
+class rejCountP;
 class rejCount {
 public:
     class Param {
@@ -20,17 +20,19 @@ public:
         //int output_freq;
         debugStatus st;
         const char * debugname;
+        Param(xmlNode *root, debugStatus st=ignore,
+              const char * debugname=NULL);
     };
     rejCount(const Param &param);
-    virtual ~rejCount();
-    void updateState(bool accept, const aState &state);
+    ~rejCount(){};
+    void updateStep(bool accept, const aState &state);
     bool frozen(const aState &state) const;
-protected:
+    friend class rejCountP;
+private:
     mutable dynDebug debugOut;
-    int max_rej;
+    const int max_rej;
     //int output_freq;
     int reject_cnt;
 };
-rejCount::Param rejCountParamXML(xmlNode *root, debugStatus st=ignore,
-                                 const char * debugname=NULL);
+
 #endif /* REJCOUNT_H_ */
