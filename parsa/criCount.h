@@ -15,6 +15,7 @@ public:
     {
         double freeze_crit;
         int cnt_crit;
+        Param(xmlNode *root);
     };
     criCount(const Param &param);
     ~criCount();

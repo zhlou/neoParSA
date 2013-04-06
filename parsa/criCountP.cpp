@@ -23,3 +23,8 @@ bool criCountP::frozen(const aState &state)
     MPI_Allreduce(&local_freeze, &global_flag, 1, MPI_INT, MPI_SUM, mpi.comm);
     return (bool)global_flag;
 }
+
+criCountP::Param::Param(xmlNode* root, const MPIState& MPIState) :
+        serCount(root), mpi(MPIState)
+{
+}

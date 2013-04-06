@@ -28,3 +28,10 @@ bool criCount::frozen(const aState& state)
     old_energy = state.energy;
     return (freeze_cnt >= cnt_crit);
 }
+
+criCount::Param::Param(xmlNode* root)
+{
+    xmlNode *xmlsection = getSectionByName(root, "count_criterion");
+    freeze_crit = getPropDouble(xmlsection, "freeze_crit");
+    cnt_crit = getPropInt(xmlsection, "freeze_cnt");
+}
