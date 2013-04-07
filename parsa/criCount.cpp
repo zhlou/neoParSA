@@ -7,6 +7,7 @@
 
 #include "criCount.h"
 #include "utils.h"
+#include <cmath>
 #include <limits>
 
 criCount::criCount(const criCount::Param &param) :
@@ -22,7 +23,7 @@ criCount::~criCount() {
 
 bool criCount::frozen(const aState& state)
 {
-    if ((old_energy - state.energy) < freeze_crit)
+    if (std::abs(old_energy - state.energy) < freeze_crit)
         freeze_cnt++;
     else
         freeze_cnt = 0;
