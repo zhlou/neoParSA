@@ -6,6 +6,7 @@
  */
 
 #include "criCount.h"
+#include "utils.h"
 #include <limits>
 
 criCount::criCount(const criCount::Param &param) :

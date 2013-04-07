@@ -13,6 +13,7 @@
 #include "feedbackMove.h"
 #include "unirandom.h"
 #include "lam.h"
+#include "criCount.h"
 #include "dynDebug.h"
 #include "fly.h"
 
@@ -45,8 +46,9 @@ int main(int argc, char **argv)
     fly theFly(flyParams);
     // feedbackMove<fly, debugSTD> fly_problem(theFly, rnd, docroot);
     lam schedule(docroot);
-    annealer<fly, lam, feedbackMove>
-        fly_sa(theFly,&rnd, docroot);
+    criCount::Param criCntParam(docroot);
+    annealer<fly, lam, criCount, feedbackMove>
+        fly_sa(theFly,&rnd, criCntParam, docroot);
     fly_sa.setCoolLog(file, (flyParams.infile_name+".log").c_str());
     fly_sa.setProlix(file, (flyParams.infile_name+".prolix").c_str());
     if (equil)

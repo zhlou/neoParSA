@@ -8,7 +8,7 @@
 #include "criCountP.h"
 
 criCountP::criCountP(const Param& param, const MPIState& mpiState) :
-    serCount(param.serParam), mpi(param.mpi)
+    serCount(param.serParam), mpi(mpiState)
 {
 }
 
@@ -24,7 +24,7 @@ bool criCountP::frozen(const aState &state)
     return (bool)global_flag;
 }
 
-criCountP::Param::Param(xmlNode* root, const MPIState& MPIState) :
-        serCount(root), mpi(MPIState)
+criCountP::Param::Param(xmlNode* root) :
+        serParam(root)
 {
 }

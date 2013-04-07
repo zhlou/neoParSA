@@ -5,11 +5,13 @@
  *      Author: zhlou
  */
 #include "mixState.h"
-template <class Problem, class Schedule, template<class> class Move,
-          template<class> class PopBased>
-pannealer<Problem, Schedule, Move, PopBased>::pannealer(Problem &problem,
-          unirandom * const in_rand, xmlNode *root, const MPIState &mpiState) :
-          annealer<Problem, Schedule, Move>::annealer(in_rand, root),
+template <class Problem, class Schedule, class FrozenCnd,
+          template<class> class Move, template<class> class PopBased>
+pannealer<Problem, Schedule, FrozenCnd, Move,
+          PopBased>::pannealer(Problem &problem, unirandom * const in_rand,
+                               typename FrozenCnd::Param frozenParam,
+                               xmlNode *root, const MPIState &mpiState) :
+          annealer<Problem, Schedule, FrozenCnd, Move>::annealer(in_rand, root),
           mpi(mpiState), pop(problem, mpiState, in_rand, root)
 {
     // this pointer is necessary because otherwise the lookup to parent members
@@ -17,20 +19,19 @@ pannealer<Problem, Schedule, Move, PopBased>::pannealer(Problem &problem,
     this->cooling = new Schedule(root, mpiState);
     this->move = new Move<Problem>(problem, in_rand, root, mpiState);
     this->state.energy = this->move->get_score();
-
-
+    this->frozen = new FrozenCnd(frozenParam, mpiState);
 }
 
-template<class Problem, class Schedule, template<class > class Move, template<
-        class > class PopBased>
-pannealer<Problem, Schedule, Move, PopBased>::~pannealer()
+template<class Problem, class Schedule, class FrozenCnd,
+        template<class > class Move, template<class> class PopBased>
+pannealer<Problem, Schedule, FrozenCnd, Move, PopBased>::~pannealer()
 {
 
 }
 
-template<class Problem, class Schedule, template<class > class Move, template<
-        class > class PopBased>
-int pannealer<Problem, Schedule, Move, PopBased>::getWinner()
+template<class Problem, class Schedule, class FrozenCnd,
+        template<class> class Move, template<class> class PopBased>
+int pannealer<Problem, Schedule, FrozenCnd, Move, PopBased>::getWinner()
 {
     struct
     {
@@ -44,22 +45,23 @@ int pannealer<Problem, Schedule, Move, PopBased>::getWinner()
     return doubleint.rank;
 }
 
-template <class Problem, class Schedule, template<class> class Move,
-          template<class> class PopBased>
-void pannealer<Problem, Schedule, Move, PopBased>::updateSegment(aState &state)
+template <class Problem, class Schedule, class FrozenCnd,
+          template<class> class Move, template<class> class PopBased>
+void pannealer<Problem, Schedule, FrozenCnd, Move, PopBased>::updateSegment(aState &state)
 {
 
-    annealer<Problem, Schedule, Move>::updateSegment(state);
+    annealer<Problem, Schedule, FrozenCnd, Move>::updateSegment(state);
     mixState ms = pop.Mix(state);
     this->move->processMix(ms, state);
 
 }
 
-template <class Problem, class Schedule, template<class> class Move,
-          template<class> class PopBased>
-void pannealer<Problem, Schedule, Move, PopBased>::writeMethodText(xmlNode* method)
+template <class Problem, class Schedule, class FrozenCnd,
+          template<class> class Move, template<class> class PopBased>
+void pannealer<Problem, Schedule, FrozenCnd, Move,
+               PopBased>::writeMethodText(xmlNode* method)
 {
-    annealer<Problem, Schedule, Move>::writeMethodText(method);
+    annealer<Problem, Schedule, FrozenCnd, Move>::writeMethodText(method);
     xmlNewProp(method, (const xmlChar*)"mixing",
                (const xmlChar*)PopBased<Problem>::name);
 

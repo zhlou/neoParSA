@@ -9,12 +9,13 @@
 #define PANNEALER_H_
 #include "annealer.h"
 #include "MPIState.h"
-template <class Problem, class Schedule, template<class> class Move,
+template <class Problem, class Schedule, class FrozenCnd, template<class> class Move,
           template<class> class PopBased>
-class pannealer : public annealer<Problem, Schedule, Move>
+class pannealer : public annealer<Problem, Schedule, FrozenCnd, Move>
 {
 public:
-    pannealer(Problem &problem, unirandom * const in_rand, xmlNode *root,
+    pannealer(Problem &problem, unirandom * const in_rand,
+              typename FrozenCnd::Param frozenParam, xmlNode *root,
               const MPIState &mpiState);
     virtual ~pannealer();
     int getWinner();

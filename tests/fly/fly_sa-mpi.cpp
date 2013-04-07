@@ -13,6 +13,7 @@
 #include "parallelFBMove.h"
 #include "unirandom.h"
 #include "plsa.h"
+#include "criCountP.h"
 #include "dynDebug.h"
 #include "adaptMix.h"
 #include "intervalMix.h"
@@ -44,11 +45,14 @@ int main(int argc, char **argv)
     unirand48 rnd(mpi.rank);
     fly_params flyParams = readFlyParams(docroot);
     fly theFly(flyParams);
+    criCountP::Param criCntParam(docroot);
     // parallelFBMove<fly, debugSTD, adaptMix> *fly_problem =
     //        new parallelFBMove<fly, debugSTD, adaptMix>(theFly, rnd, docroot, mpi);
     // plsa *pschedule = new plsa(docroot, mpi);
-    pannealer<fly, pSimpleSchedule, parallelFBMove, intervalMix> *fly_sa =
-            new pannealer<fly, pSimpleSchedule, parallelFBMove, intervalMix>(theFly, &rnd, docroot, mpi);
+    pannealer<fly, pSimpleSchedule, criCountP, parallelFBMove, intervalMix>
+            *fly_sa = new pannealer<fly, pSimpleSchedule, criCountP,
+                                    parallelFBMove, intervalMix>(theFly, &rnd,
+                                            criCntParam, docroot, mpi);
     if (mpi.rank == 0)
         fly_sa->setCoolLog(file,(flyParams.infile_name + ".log").c_str());
     cout << "The initial energy is " << theFly.get_score() << endl;

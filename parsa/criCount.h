@@ -8,11 +8,15 @@
 #ifndef CRICOUNT_H_
 #define CRICOUNT_H_
 
+#include <libxml/tree.h>
+#include "aState.h"
+
 class criCountP;
 class criCount {
 public:
     class Param
     {
+    public:
         double freeze_crit;
         int cnt_crit;
         Param(xmlNode *root);

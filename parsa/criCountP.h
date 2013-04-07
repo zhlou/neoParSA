@@ -15,9 +15,9 @@ class criCountP {
 public:
     class Param
     {
+    public:
         criCount::Param serParam;
-        const MPIState &mpi;
-        Param(xmlNode *root, const MPIState &MPIState);
+        Param(xmlNode *root);
     };
     criCountP(const Param &param, const MPIState &mpiState);
     ~criCountP();

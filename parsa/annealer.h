@@ -42,11 +42,12 @@
  *      void reject();
  * };
  */
-template <class Problem, class Schedule, template<class> class Move>
+template <class Problem, class Schedule, class FrozenCnd, template<class> class Move>
 class annealer
 {
 public:
-    annealer(Problem &problem, unirandom * const in_rand, xmlNode *root);
+    annealer(Problem &problem, unirandom * const in_rand,
+            typename FrozenCnd::Param frozenParam, xmlNode *root);
     virtual ~annealer();
     double loop();
     double initMoves();
@@ -61,6 +62,7 @@ public:
 protected:
     dynDebug debugOut;
     Schedule *cooling;
+    FrozenCnd *frozen;
     Move<Problem> *move;
     unirandom *const rand;
     xmlNode *xmlroot;
