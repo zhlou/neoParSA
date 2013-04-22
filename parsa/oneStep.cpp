@@ -9,7 +9,7 @@
 #include "utils.h"
 #include <stdexcept>
 #include <string>
-
+const char * oneStep::name = "oneStep";
 oneStep::oneStep(xmlNode *root) {
     xmlNode *xmlsection = getSectionByName(root, "oneStep");
     if (xmlsection == NULL)

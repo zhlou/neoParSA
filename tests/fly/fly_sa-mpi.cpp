@@ -55,7 +55,7 @@ int main(int argc, char **argv)
                                             criCntParam, docroot, mpi);
     if (mpi.rank == 0) {
         fly_sa->setCoolLog(file,(flyParams.infile_name + ".log").c_str());
-        fly_sa->setProlix(file, (flyParams.infile_name + ".prolix").c_str()));
+        fly_sa->setProlix(file, (flyParams.infile_name + ".prolix").c_str());
     }
 
     cout << "The initial energy is " << theFly.get_score() << endl;
