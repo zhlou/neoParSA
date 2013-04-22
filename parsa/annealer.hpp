@@ -62,19 +62,19 @@ double annealer<Problem, Schedule, FrozenCnd, Move>::loop()
     if (!is_init)
         initMoves();
     bool accepted;
-    state.step_cnt = 0;
+    // state.step_cnt = 0;
     do { // while not frozen
         cooling->resetSegmentStats();
 
         do { // while in segment
             accepted = step();
+
             cooling->updateStep(accepted, state);
             frozen->updateStep(accepted, state);
             state.s = cooling->updateS(state);
             ++ (state.step_cnt);
         } while (cooling->inSegment(state));
-        debugOut << state.step_cnt << " " << state.s << " "
-                 << state.energy << endl;
+
         updateSegment(state);
     } while (!frozen->frozen(state));
 
@@ -175,6 +175,7 @@ template<class Problem, class Schedule, class FrozenCnd, template<class> class M
 bool annealer<Problem, Schedule, FrozenCnd, Move>::step()
 {
     double delta, crit, ran_n;
+    bool flag;
     delta = move->propose();
     // cout << state.energy + delta << "@" << state.step_cnt << endl;
     crit = std::exp(-state.s * delta);
@@ -182,9 +183,13 @@ bool annealer<Problem, Schedule, FrozenCnd, Move>::step()
     if ((delta <= 0.0) || crit > ran_n) {
         move->accept();
         state.energy += delta;
-        return true;
+
+        flag = true;
     } else {
         move->reject();
-        return false;
+        flag = false;
     }
+    debugOut << state.step_cnt << " " << state.s << " "
+             << state.energy << endl;
+    return flag;
 }
