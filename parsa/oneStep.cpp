@@ -15,7 +15,7 @@ oneStep::oneStep(xmlNode *root) {
     if (xmlsection == NULL)
         throw std::runtime_error(std::string("Error: fail to find section oneStep"));
 
-    target_s = getPropDouble(xmlsection, "target");
+    target_s = 1./getPropDouble(xmlsection, "target");
 }
 
 oneStep::~oneStep() {
