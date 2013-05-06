@@ -6,6 +6,7 @@
 #include "feedbackMove.h"
 #include "tsp.h"
 #include "unirandom.h"
+#include "rejCount.h"
 //#include "debugOut.h"
 
 using namespace std;
@@ -27,7 +28,9 @@ int main(int argc, char **argv)
     unirandom rnd;
     //feedbackMove<tsp, debugIGNORE> tsp_problem(test_tsp, rnd, root);
     //simpleSchedule schedule(root);
-    annealer<tsp, simpleSchedule, feedbackMove> tsp_anneal(test_tsp, &rnd, root);
+    rejCount::Param rejCntParam(root);
+    annealer<tsp, simpleSchedule, rejCount, feedbackMove>
+        tsp_anneal(test_tsp, &rnd, rejCntParam, root);
 
     //tsp_problem test_problem(&test_tsp);
     test_tsp.print_route(cout);
