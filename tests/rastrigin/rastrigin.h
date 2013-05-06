@@ -28,6 +28,7 @@ public:
 	int getStateSize() const {return sizeof(double)*dim;};
 	void serialize(void *buf) const;
 	void deserialize(void const *buf);
+	double scramble();
 private:
 	xmlNode *docroot;
 	xmlNode *section;

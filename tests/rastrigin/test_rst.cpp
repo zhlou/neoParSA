@@ -7,6 +7,11 @@
 
 #include "rastrigin.h"
 #include "unirandom.h"
+#include "annealer.h"
+#include "tempCount.h"
+#include "expHold.h"
+#include "feedbackMove.h"
+#include <string>
 #include <libxml/parser.h>
 #include <iostream>
 
@@ -21,7 +26,17 @@ int main(int argc, char **argv)
 	xmlNode *root = xmlDocGetRootElement(doc);
 	rastrigin rst(root, rnd);
 	cout << "The score is " << rst.get_score() << endl;
-	rst.write_section((xmlChar *)"output");
+	double nScore = rst.scramble();
+	cout << "New score is " << nScore << endl;
+	rst.print_solution(cout);
+	rst.write_section((xmlChar *)"rastrigin");
+	tempCount::Param tmpCntParam(root);
+	annealer<rastrigin, expHold, tempCount, feedbackMove>
+	    rst_anneal(rst, &rnd, tmpCntParam, root);
+	std::string steplogName(argv[1]);
+	steplogName.replace(steplogName.end()-4,steplogName.end(),".steplog");
+	rst_anneal.setStepLog(file, steplogName.c_str());
+	rst_anneal.loop();
 	xmlSaveFormatFile(docname, doc,1);
 	xmlFree(doc);
 	return 0;

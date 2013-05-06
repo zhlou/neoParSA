@@ -7,6 +7,7 @@
 #include <stdexcept>
 #include "rastrigin.h"
 #include "unirandom.h"
+#include "utils.h"
 #include <string.h>
 // #include <omp.h>
 
@@ -74,7 +75,13 @@ rastrigin::rastrigin(xmlNode *root, unirandom &in_rnd):
 
 void rastrigin::write_section(xmlChar *secname)
 {
-	xmlNode *node = xmlNewChild(docroot, NULL, secname, NULL);
+    xmlNode *node;
+    node = getSectionByName(docroot, (const char *)secname);
+    if (node != NULL) {
+        xmlUnlinkNode(node);
+        xmlFreeNode(node);
+    }
+	node = xmlNewChild(docroot, NULL, secname, NULL);
 	char *namebuf = new char[255];
 	char *valbuf = new char[255];
 	sprintf(namebuf, "%d", dim);
@@ -86,7 +93,6 @@ void rastrigin::write_section(xmlChar *secname)
 	}
 	delete[] valbuf;
 	delete[] namebuf;
-
 }
 
 void rastrigin::print_solution(ostream& o) const
@@ -159,4 +165,13 @@ void rastrigin::serialize(void* buf) const
 void rastrigin::deserialize(void const *buf)
 {
     memcpy(vars, buf, sizeof(double) * dim);
+}
+
+double rastrigin::scramble()
+{
+    int i;
+    for (i = 0; i < dim; ++i) {
+        vars[i] = VAR_MAX * (2.0 * rnd.random() - 1.0);
+    }
+    return get_score();
 }

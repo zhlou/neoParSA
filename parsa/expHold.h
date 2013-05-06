@@ -20,9 +20,10 @@ private:
 public:
     expHold(xmlNode *root);
     ~expHold();
-    void initStates(const aState &){}
-    void updateInitSte(bool, const aState &){}
+    void initStats(const aState &){}
+    void updateInitStep(bool, const aState &){}
     void resetSegmentStats(){}
+    void updateStep(bool, const aState &) {}
     double updateS(const aState &state);
     bool inSegment(aState) {return false;}
     void updateSegment(const aState &) {}
