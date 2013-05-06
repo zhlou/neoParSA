@@ -7,6 +7,7 @@
 //#include "rastrigin_problem.h"
 #include "unirandom.h"
 #include "lam.h"
+#include "criCount.h"
 using namespace std;
 int main(int argc, char **argv)
 {
@@ -25,8 +26,9 @@ int main(int argc, char **argv)
 	rastrigin rst(docroot, rnd);
 	//feedbackMove<rastrigin, debugSTD> rst_problem(rst, rnd, docroot);
 	//lam schedule(docroot);
-	annealer<rastrigin, lam, feedbackMove>
-	        rst_anneal(rst, &rnd, docroot);
+	criCount::Param criCntParam(docroot);
+	annealer<rastrigin, lam, criCount, feedbackMove>
+	        rst_anneal(rst, &rnd, criCntParam, docroot);
 	//rastrigin_problem rst_problem(&rst, docroot);
 	//lam rst_anneal(&rst_problem, docroot);
 	cout << "The initial state is " << endl;

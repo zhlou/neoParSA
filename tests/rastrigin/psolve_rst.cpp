@@ -17,6 +17,7 @@
 #include "plsa.h"
 #include "dynDebug.h"
 #include "adaptMix.h"
+#include "criCountP.h"
 using namespace std;
 int main(int argc, char **argv)
 {
@@ -45,13 +46,15 @@ int main(int argc, char **argv)
     //        new parallelFBMove<rastrigin, debugIGNORE, adaptMix>(rst, rnd,
     //                                                             docroot, mpi);
     plsa *pschedule = new plsa(docroot, mpi);
+    criCountP::Param criCntParam(docroot);
 
     //feedbackMove<rastrigin> rst_problem(rst, docroot);
     //lam schedule(docroot);
     //annealer<plsa, parallelFBMove<rastrigin, debugIGNORE, adaptMix>, unirandom >
     //        rst_anneal(*pschedule, *rst_problem, rnd, docroot);
-    pannealer<rastrigin, plsa, parallelFBMove, adaptMix> *rst_anneal =
-            new pannealer<rastrigin, plsa, parallelFBMove, adaptMix>(rst, &rnd, docroot, mpi);
+    pannealer<rastrigin, plsa, criCountP, parallelFBMove, adaptMix> *rst_anneal =
+            new pannealer<rastrigin, plsa, criCountP, parallelFBMove, adaptMix>
+            (rst, &rnd, criCntParam, docroot, mpi);
     cout << "The initial state is " << endl;
     rst.print_solution(cout);
     cout << "The fininal energy is " << rst_anneal->loop() << endl;
