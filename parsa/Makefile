@@ -6,14 +6,15 @@ TARGET = libparsa.a
 	lam.h lam.cpp utils.h utils.cpp plsa.h plsa.cpp
 OBJECT = simpleScheduler.o utils.o unirandom.o lam.o invLinearFit.o plsa.o\
 	dynDebug.o pSimpleSchedule.o rejCount.o rejCountP.o criCount.o criCountP.o \
-	maxSteps.o oneStep.o
+	maxSteps.o oneStep.o expHold.o tempCount.o
 SOURCE = annealer.h annealer.hpp feedbackMove.h feedbackMove.hpp\
 	simpleScheduler.h simpleScheduler.cpp utils.h utils.cpp \
 	unirandom.h unirandom.cpp lam.cpp lam.h invLinearFit.h invLinearFit.cpp \
 	parallelFBMove.h parallelFBMove.hpp dynDebug.h dynDebug.cpp \
 	pSimpleSchedule.h pSimpleSchedule.cpp rejCount.h rejCount.cpp \
 	rejCountP.h rejCountP.cpp criCount.h criCount.cpp criCountP.h criCountP.cpp \
-	maxSteps.h maxSteps.cpp oneStep.h oneStep.cpp
+	maxSteps.h maxSteps.cpp oneStep.h oneStep.cpp expHold.h expHold.cpp \
+	tempCount.h tempCount.cpp
 	
 #CXXFLAGS += -g
 .PHONY: all clean
