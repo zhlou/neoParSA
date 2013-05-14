@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <libxml/parser.h>
-#include "simpleScheduler.h"
+#include "exponential.h"
 #include "annealer.h"
 #include "feedbackMove.h"
 #include "tsp.h"
@@ -28,9 +28,10 @@ int main(int argc, char **argv)
     unirandom rnd;
     //feedbackMove<tsp, debugIGNORE> tsp_problem(test_tsp, rnd, root);
     //simpleSchedule schedule(root);
+    exponential::Param scheduleParam(root);
     rejCount::Param rejCntParam(root);
     annealer<tsp, exponential, rejCount, feedbackMove>
-        tsp_anneal(test_tsp, &rnd, rejCntParam, root);
+        tsp_anneal(test_tsp, &rnd, scheduleParam, rejCntParam, root);
 
     //tsp_problem test_problem(&test_tsp);
     test_tsp.print_route(cout);

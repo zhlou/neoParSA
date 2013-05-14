@@ -45,10 +45,10 @@ int main(int argc, char **argv)
     fly_params flyParams = readFlyParams(docroot);
     fly theFly(flyParams);
     // feedbackMove<fly, debugSTD> fly_problem(theFly, rnd, docroot);
-    lam schedule(docroot);
+    lam::Param scheParam(docroot);
     criCount::Param criCntParam(docroot);
     annealer<fly, lam, criCount, feedbackMove>
-        fly_sa(theFly,&rnd, criCntParam, docroot);
+        fly_sa(theFly,&rnd, scheParam, criCntParam, docroot);
     fly_sa.setCoolLog(file, (flyParams.infile_name+".log").c_str());
     fly_sa.setProlix(file, (flyParams.infile_name+".prolix").c_str());
     if (equil)

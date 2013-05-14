@@ -18,7 +18,17 @@ private:
     double alpha;
     dynDebug debugOut;
 public:
-    expHold(xmlNode *root);
+    class Param {
+    public:
+        double target_s;
+        double alpha;
+        debugStatus st;
+        const char *outname;
+        Param(xmlNode *root, debugStatus in_st=ignore, const char *name=NULL);
+    };
+    expHold(Param param) : target_s(param.target_s), alpha(param.alpha),
+            debugOut(param.st, param.outname)
+    {};
     ~expHold();
     void initStats(const aState &){}
     void updateInitStep(bool, const aState &){}

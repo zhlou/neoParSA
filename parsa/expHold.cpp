@@ -10,7 +10,9 @@
 #include <stdexcept>
 
 const char * expHold::name = "expHold";
-expHold::expHold(xmlNode* root) {
+expHold::Param::Param(xmlNode* root, debugStatus in_st, const char *name) :
+        st(in_st), outname(name)
+{
     xmlNode *xmlsection = getSectionByName(root, "expHold");
     if (xmlsection == NULL)
         throw std::runtime_error(std::string("Error: fail to find section expHold"));

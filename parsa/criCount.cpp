@@ -7,6 +7,8 @@
 
 #include "criCount.h"
 #include "utils.h"
+#include <stdexcept>
+#include <string>
 #include <cmath>
 #include <limits>
 
@@ -34,6 +36,8 @@ bool criCount::frozen(const aState& state)
 criCount::Param::Param(xmlNode* root)
 {
     xmlNode *xmlsection = getSectionByName(root, "count_criterion");
+    if (xmlsection == NULL)
+        throw std::runtime_error(std::string("Error: fail to find section count_criterion"));
     freeze_crit = getPropDouble(xmlsection, "freeze_crit");
     cnt_crit = getPropInt(xmlsection, "freeze_cnt");
 }

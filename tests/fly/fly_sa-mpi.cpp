@@ -18,7 +18,7 @@
 #include "adaptMix.h"
 #include "intervalMix.h"
 #include "fly.h"
-#include "pSimpleSchedule.h"
+#include "expParallel.h"
 
 using namespace std;
 
@@ -45,14 +45,15 @@ int main(int argc, char **argv)
     unirand48 rnd(mpi.rank);
     fly_params flyParams = readFlyParams(docroot);
     fly theFly(flyParams);
+    expParallel::Param scheParam(docroot);
     criCountP::Param criCntParam(docroot);
     // parallelFBMove<fly, debugSTD, adaptMix> *fly_problem =
     //        new parallelFBMove<fly, debugSTD, adaptMix>(theFly, rnd, docroot, mpi);
     // plsa *pschedule = new plsa(docroot, mpi);
     pannealer<fly, expParallel, criCountP, parallelFBMove, intervalMix>
             *fly_sa = new pannealer<fly, expParallel, criCountP,
-                                    parallelFBMove, intervalMix>(theFly, &rnd,
-                                            criCntParam, docroot, mpi);
+                                    parallelFBMove, intervalMix>
+            (theFly, &rnd, scheParam, criCntParam, docroot, mpi);
     if (mpi.rank == 0) {
         fly_sa->setCoolLog(file,(flyParams.infile_name + ".log").c_str());
         fly_sa->setProlix(file, (flyParams.infile_name + ".prolix").c_str());

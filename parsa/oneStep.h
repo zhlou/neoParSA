@@ -17,7 +17,14 @@ private:
     double target_s;
     dynDebug debugOut;
 public:
-    oneStep(xmlNode *root);
+    class Param {
+    public:
+        double target_s;
+        debugStatus st;
+        const char *outname;
+        Param(xmlNode *root, debugStatus st=ignore, const char *outname=NULL);
+    };
+    oneStep(Param param);
     ~oneStep();
     void initStats(aState &state) {state.s = target_s;}
     void updateInitStep(bool, aState){}

@@ -30,9 +30,10 @@ int main(int argc, char **argv)
 	cout << "New score is " << nScore << endl;
 	rst.print_solution(cout);
 	rst.write_section((xmlChar *)"rastrigin");
+	expHold::Param scheduleParam(root);
 	tempCount::Param tmpCntParam(root);
 	annealer<rastrigin, expHold, tempCount, feedbackMove>
-	    rst_anneal(rst, &rnd, tmpCntParam, root);
+	    rst_anneal(rst, &rnd, scheduleParam, tmpCntParam, root);
 	std::string steplogName(argv[1]);
 	steplogName.replace(steplogName.end()-4,steplogName.end(),".steplog");
 	rst_anneal.setStepLog(file, steplogName.c_str());
