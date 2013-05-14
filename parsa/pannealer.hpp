@@ -9,6 +9,7 @@ template <class Problem, class Schedule, class FrozenCnd,
           template<class> class Move, template<class> class PopBased>
 pannealer<Problem, Schedule, FrozenCnd, Move,
           PopBased>::pannealer(Problem &problem, unirandom * const in_rand,
+                               typename Schedule::Param scheParam,
                                typename FrozenCnd::Param frozenParam,
                                xmlNode *root, const MPIState &mpiState) :
           annealer<Problem, Schedule, FrozenCnd, Move>::annealer(in_rand, root),
@@ -16,7 +17,7 @@ pannealer<Problem, Schedule, FrozenCnd, Move,
 {
     // this pointer is necessary because otherwise the lookup to parent members
     // may fail depending on compilers
-    this->cooling = new Schedule(root, mpiState);
+    this->cooling = new Schedule(scheParam, mpiState);
     this->move = new Move<Problem>(problem, in_rand, root, mpiState);
     this->state.energy = this->move->get_score();
     this->frozen = new FrozenCnd(frozenParam, mpiState);

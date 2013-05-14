@@ -1,46 +1,56 @@
 /*
- * simpleAnnealer.h
+ * exponential.h
  *
  *  Created on: Dec 9, 2012
  *      Author: zhlou
  */
 
-#ifndef SIMPLEANNEALER_H_
-#define SIMPLEANNEALER_H_
+#ifndef EXPONENTIAL_H_
+#define EXPONENTIAL_H_
 
 #include "annealer.h"
 #include "aState.h"
 #include "dynDebug.h"
 #include <libxml/tree.h>
 
-class simpleSchedule
+class exponential
 {
 public:
-    simpleSchedule(xmlNode *root);
-    virtual ~simpleSchedule();
+    class Param{
+    public:
+        unsigned long max_rej;
+        unsigned segLength;
+        double alpha;
+        debugStatus st;
+        const char *outname;
+        Param(xmlNode *root, debugStatus st=ignore, const char *outname=NULL);
+    };
+    exponential(const Param &param);
+    // exponential(xmlNode *root);
+    ~exponential();
     void initStats(aState state);
     //double getInitS();
     //int getInitLoop();
     void updateInitStep(bool accept, aState state);
-    virtual bool frozen(aState state);
+    // virtual bool frozen(aState state);
     void resetSegmentStats(){};
     void updateStep(bool accept, aState state);
     double updateS(aState state);
-    bool inSegment(aState state) {return (state.step_cnt % log_freq);}
+    bool inSegment(aState state) {return (state.step_cnt % segLength);}
     void updateSegment(aState state);
-    bool needMix(){return false;}
+    // bool needMix(){return false;}
     void setDebug(debugStatus st, const char* outname=NULL)
     {debugOut.setDebug(st,outname);}
     static const char* name;
-protected:
+private:
     unsigned reject_cnt;
     double alpha;
     dynDebug debugOut;
     unsigned long max_rej;
-    unsigned log_freq;
+    unsigned segLength;
     //int init_loop;
     //double init_S;
-    xmlNode *xmlsection;
+    // xmlNode *xmlsection;
 };
 
-#endif /* SIMPLEANNEALER_H_ */
+#endif /* EXPONENTIAL_H_ */

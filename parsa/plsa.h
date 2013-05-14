@@ -15,7 +15,13 @@
 class plsa: public lam
 {
 public:
-    plsa(xmlNode *root, const MPIState &mpiState);
+    class Param {
+    public:
+        lam::Param lamParam;
+        Param(xmlNode *root, debugStatus st=ignore, const char *outname=NULL);
+    };
+    plsa(Param param, const MPIState &mpiState);
+    // plsa(xmlNode *root, const MPIState &mpiState);
     ~plsa();
     static const char *name;
     //bool frozen(aState state);

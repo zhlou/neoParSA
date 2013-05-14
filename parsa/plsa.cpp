@@ -4,8 +4,14 @@ using namespace std;
 
 const char *plsa::name = "parallel Lam";
 
-plsa::plsa(xmlNode* root, const MPIState &mpiState) :
-        lam(root), mpi(mpiState)
+plsa::Param::Param(xmlNode *root, debugStatus st, const char *outname) :
+        lamParam(root, st, outname)
+{
+
+}
+
+plsa::plsa(Param param, const MPIState &mpiState) :
+        lam(param.lamParam), mpi(mpiState)
 {
     local_stat_buf = new StatData[mpi.nnodes];
     //l_stat.s = -1;

@@ -49,8 +49,8 @@ int main(int argc, char **argv)
     // parallelFBMove<fly, debugSTD, adaptMix> *fly_problem =
     //        new parallelFBMove<fly, debugSTD, adaptMix>(theFly, rnd, docroot, mpi);
     // plsa *pschedule = new plsa(docroot, mpi);
-    pannealer<fly, pSimpleSchedule, criCountP, parallelFBMove, intervalMix>
-            *fly_sa = new pannealer<fly, pSimpleSchedule, criCountP,
+    pannealer<fly, expParallel, criCountP, parallelFBMove, intervalMix>
+            *fly_sa = new pannealer<fly, expParallel, criCountP,
                                     parallelFBMove, intervalMix>(theFly, &rnd,
                                             criCntParam, docroot, mpi);
     if (mpi.rank == 0) {

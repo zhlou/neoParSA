@@ -18,7 +18,20 @@
 class lam
 {
 public:
-    lam(xmlNode *root);
+    class Param {
+    public:
+        int proc_tau;
+        double freeze_crit;
+        int cnt_crit;
+        double lambda;
+        double w_mean;
+        double w_sd;
+        debugStatus st;
+        const char * outname;
+        Param(xmlNode *root, debugStatus st=ignore, const char *outname=NULL);
+    };
+    lam(Param param);
+    // lam(xmlNode *root);
     virtual ~lam();
     //double getInitS();
     //int getInitLoop();
@@ -36,20 +49,30 @@ public:
     static const char* name;
 
 protected:
+    // parameters
     int proc_tau;
+    double freeze_crit;
+    int cnt_crit;
+    dynDebug debugOut;
+    double lambda;
+    double w_mean;
+    double w_sd;
+
+
+    // states
+    invLinearFit *fit_mean, *fit_sd;
+    double alpha;
     double acc_ratio;
     double vari;
     double mean;
     int success;
-    dynDebug debugOut;
-
-
-    double freeze_crit;
-    //double energy;
-    //double s;
     double old_energy;
     int freeze_cnt;
-    int cnt_crit;
+
+    //double energy;
+    //double s;
+
+
 
     static const double UNINITIALIZED;
 
@@ -62,12 +85,7 @@ protected:
     void local_frozen(const aState& state);
     virtual bool global_frozen();
 
-    // below are lam parameters
-    invLinearFit *fit_mean, *fit_sd;
-    double alpha;
-    double w_mean;
-    double w_sd;
-    double lambda;
+
 
 private:
 

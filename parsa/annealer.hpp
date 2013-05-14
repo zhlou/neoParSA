@@ -19,12 +19,13 @@ using namespace std;
  */
 template<class Problem, class Schedule, class FrozenCnd, template<class> class Move>
 annealer<Problem, Schedule, FrozenCnd, Move>::annealer(Problem &problem,
-        unirandom * const in_rand, typename FrozenCnd::Param frozenParam,
+        unirandom * const in_rand, typename Schedule::Param scheParam,
+        typename FrozenCnd::Param frozenParam,
         xmlNode *root) :
         rand(in_rand), xmlroot(root)
 {
     initState(root);
-    cooling = new Schedule(root);
+    cooling = new Schedule(scheParam);
     move = new Move<Problem>(problem, in_rand, root);
     frozen = new FrozenCnd(frozenParam);
     state.energy = move->get_score();

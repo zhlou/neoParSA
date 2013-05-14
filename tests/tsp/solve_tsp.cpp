@@ -29,7 +29,7 @@ int main(int argc, char **argv)
     //feedbackMove<tsp, debugIGNORE> tsp_problem(test_tsp, rnd, root);
     //simpleSchedule schedule(root);
     rejCount::Param rejCntParam(root);
-    annealer<tsp, simpleSchedule, rejCount, feedbackMove>
+    annealer<tsp, exponential, rejCount, feedbackMove>
         tsp_anneal(test_tsp, &rnd, rejCntParam, root);
 
     //tsp_problem test_problem(&test_tsp);

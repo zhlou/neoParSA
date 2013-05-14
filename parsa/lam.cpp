@@ -18,8 +18,8 @@ const double lam::UNINITIALIZED = numeric_limits<double>::max();
 const char * lam::name = "Lam";
 // in newer compilers, string constants cast to char * will generate
 // warning messages unless done explicitly.
-
-lam::lam(xmlNode *root)
+lam::Param::Param(xmlNode* root, debugStatus in_st, const char* name) :
+        st(in_st), outname(name)
 {
     xmlNode *section = getSectionByName(root, "annealer_input");
 
@@ -45,20 +45,17 @@ lam::lam(xmlNode *root)
         w_sd = 0.;
     freeze_crit = getPropDouble(section, "criterion");
     cnt_crit = getPropInt(section, "freeze_cnt");
-    freeze_cnt = 0;
-    fit_mean = NULL;
-    fit_sd = NULL;
+}
 
-    old_energy = UNINITIALIZED;
-    alpha = UNINITIALIZED;
-    //s = init_S;
-    //step_cnt = 0;
-    acc_ratio = 0.;
-    success = 0;
-    vari = 0.;
-    mean = 0.;
-    //resetSegmentStats();
-    debugOut << "iterations S\t dS/S\t meanE\tsdE\t(e)meanE\t(e)sdE\tacc\talpha" << endl;
+lam::lam(Param param) : proc_tau(param.proc_tau), freeze_crit(param.freeze_crit),
+        cnt_crit(param.cnt_crit), debugOut(param.st, param.outname),
+        lambda(param.lambda), w_mean(param.w_mean), w_sd(param.w_sd),
+        acc_ratio(0.), success(0), vari(0.), mean(0.), fit_mean(NULL),
+        fit_sd(NULL), old_energy(UNINITIALIZED), alpha(UNINITIALIZED),
+        freeze_cnt(0)
+{
+    debugOut << "iterations S\t dS/S\t meanE\tsdE\t(e)meanE\t(e)sdE\tacc\talpha"
+             << endl;
 }
 
 lam::~lam()
@@ -215,3 +212,5 @@ bool lam::global_frozen()
 {
     return (freeze_cnt >= cnt_crit);
 }
+
+

@@ -47,7 +47,8 @@ class annealer
 {
 public:
     annealer(Problem &problem, unirandom * const in_rand,
-            typename FrozenCnd::Param frozenParam, xmlNode *root);
+             typename Schedule::Param scheParam,
+             typename FrozenCnd::Param frozenParam, xmlNode *root);
     virtual ~annealer();
     double loop();
     double initMoves();
