@@ -17,6 +17,7 @@
 #include "dynDebug.h"
 #include "adaptMix.h"
 #include "intervalMix.h"
+#include "pulseBcast.h"
 #include "fly.h"
 #include "expParallel.h"
 
@@ -50,9 +51,9 @@ int main(int argc, char **argv)
     // parallelFBMove<fly, debugSTD, adaptMix> *fly_problem =
     //        new parallelFBMove<fly, debugSTD, adaptMix>(theFly, rnd, docroot, mpi);
     // plsa *pschedule = new plsa(docroot, mpi);
-    pannealer<fly, expParallel, criCountP, parallelFBMove, intervalMix>
+    pannealer<fly, expParallel, criCountP, parallelFBMove, pulseBcast>
             *fly_sa = new pannealer<fly, expParallel, criCountP,
-                                    parallelFBMove, intervalMix>
+                                    parallelFBMove, pulseBcast>
             (theFly, &rnd, scheParam, criCntParam, docroot, mpi);
     if (mpi.rank == 0) {
         fly_sa->setCoolLog(file,(flyParams.infile_name + ".log").c_str());
