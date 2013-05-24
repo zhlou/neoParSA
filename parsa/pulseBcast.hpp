@@ -41,13 +41,14 @@ mixState pulseBcast<Problem>::Mix(aState& state)
         return mixState();
     }
     int root = (counter / frequency) % mpi.nnodes;
+    ++ counter;
     double energy;
     if (mpi.rank == root) {
         energy = state.energy;
         problem.serialize(state_buf);
     }
     MPI_Bcast(&energy, 1, MPI_DOUBLE, root, mpi.comm);
-    MPI_Bcast(&state_buf, buf_size, MPI_BYTE, root, mpi.comm);
+    MPI_Bcast(state_buf, buf_size, MPI_BYTE, root, mpi.comm);
     if (mpi.rank != root) {
         // The incoming state is treated as current state
         // and real current state is treated as proposed state.
@@ -61,5 +62,6 @@ mixState pulseBcast<Problem>::Mix(aState& state)
             return mixState(root);
         }
     }
+
     return mixState();
 }
