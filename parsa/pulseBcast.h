@@ -24,6 +24,7 @@ private:
     const int buf_size;
     unsigned counter;
     unsigned frequency;
+    dynDebug debugOut;
 public:
     pulseBcast(Problem &problem, const MPIState &mpiState,
                unirandom * const in_rnd, xmlNode *docroot);
