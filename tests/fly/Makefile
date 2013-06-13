@@ -2,7 +2,7 @@ CXXFLAGS += -I$(HOME)/include -I../../parsa
 LDLIBS += -L$(HOME)/lib -lgsl -lgslcblas -L../../parsa -lparsa
 FLYOBJECTS = DataLists.o flyData.o maternal.o scoring.o solvers.o \
 			zygotic.o fly.o
-TARGET = printscore fly_sa fly_sa-mpi scramble fly_pulse
+TARGET = printscore fly_sa fly_sa-mpi scramble fly_pulse fly_expHold
 LIBPARSA = ../../parsa/libparsa.a
 .PHONY: all clean
 
@@ -15,6 +15,9 @@ scramble: scramble.o $(FLYOBJECTS)
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDLIBS)
 	
 fly_pulse: fly_pulse.o $(FLYOBJECTS)
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDLIBS)
+	
+fly_expHold: fly_expHold.o $(FLYOBJECTS)
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDLIBS)
 
 fly_sa: fly_sa.o $(FLYOBJECTS)

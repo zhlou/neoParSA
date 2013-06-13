@@ -19,6 +19,7 @@ int main(int argc, char **argv)
 {
 	if (argc <= 1) {
 		cerr << "Missing input files" << endl;
+		return 1;
 	}
 	unirandom rnd;
 	char *docname = argv[1];
