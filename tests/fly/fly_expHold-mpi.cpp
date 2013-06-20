@@ -1,9 +1,10 @@
 /*
- * fly_sa-mpi.cpp
+ * fly_expHold-mpi.cpp
  *
- *  Created on: Mar 3, 2013
+ *  Created on: Jun 20, 2013
  *      Author: zhlou
  */
+
 
 #include <iostream>
 #include <sstream>
@@ -20,7 +21,7 @@
 #include "intervalMix.h"
 #include "pulseBcast.h"
 #include "fly.h"
-#include "expParallel.h"
+#include "expHoldP.h"
 
 using namespace std;
 
@@ -47,13 +48,13 @@ int main(int argc, char **argv)
     unirand48 rnd(mpi.rank);
     fly_params flyParams = readFlyParams(docroot);
     fly theFly(flyParams);
-    expParallel::Param scheParam(docroot);
+    expHoldP::Param scheParam(docroot);
     criCountP::Param criCntParam(docroot);
     // parallelFBMove<fly, debugSTD, adaptMix> *fly_problem =
     //        new parallelFBMove<fly, debugSTD, adaptMix>(theFly, rnd, docroot, mpi);
     // plsa *pschedule = new plsa(docroot, mpi);
-    pannealer<fly, expParallel, criCountP, parallelFBMove, pulseBcast>
-            *fly_sa = new pannealer<fly, expParallel, criCountP,
+    pannealer<fly, expHoldP, criCountP, parallelFBMove, pulseBcast>
+            *fly_sa = new pannealer<fly, expHoldP, criCountP,
                                     parallelFBMove, pulseBcast>
             (theFly, &rnd, scheParam, criCntParam, docroot, mpi);
     if (mpi.rank == 0) {

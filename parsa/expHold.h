@@ -29,7 +29,7 @@ public:
     expHold(Param param) : target_s(param.target_s), alpha(param.alpha),
             debugOut(param.st, param.outname)
     {};
-    ~expHold();
+    virtual ~expHold();
     void initStats(const aState &){}
     void updateInitStep(bool, const aState &){}
     void resetSegmentStats(){}
