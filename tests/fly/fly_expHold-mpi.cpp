@@ -15,7 +15,7 @@
 #include "parallelFBMove.h"
 #include "unirandom.h"
 #include "plsa.h"
-#include "criCountP.h"
+#include "tempCountP.h"
 #include "dynDebug.h"
 #include "adaptMix.h"
 #include "intervalMix.h"
@@ -49,14 +49,14 @@ int main(int argc, char **argv)
     fly_params flyParams = readFlyParams(docroot);
     fly theFly(flyParams);
     expHoldP::Param scheParam(docroot);
-    criCountP::Param criCntParam(docroot);
+    tempCountP::Param frozenParam(docroot);
     // parallelFBMove<fly, debugSTD, adaptMix> *fly_problem =
     //        new parallelFBMove<fly, debugSTD, adaptMix>(theFly, rnd, docroot, mpi);
     // plsa *pschedule = new plsa(docroot, mpi);
-    pannealer<fly, expHoldP, criCountP, parallelFBMove, pulseBcast>
-            *fly_sa = new pannealer<fly, expHoldP, criCountP,
+    pannealer<fly, expHoldP, tempCountP, parallelFBMove, pulseBcast>
+            *fly_sa = new pannealer<fly, expHoldP, tempCountP,
                                     parallelFBMove, pulseBcast>
-            (theFly, &rnd, scheParam, criCntParam, docroot, mpi);
+            (theFly, &rnd, scheParam, frozenParam, docroot, mpi);
     if (mpi.rank == 0) {
         fly_sa->setCoolLog(file,(flyParams.infile_name + ".log").c_str());
         fly_sa->setProlix(file, (flyParams.infile_name + ".prolix").c_str());

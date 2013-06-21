@@ -31,7 +31,7 @@ public:
     tempCount(const Param &param) : max_steps(param.max_steps),
             step_cnt(0), target_s(param.target_s),
             debugOut(param.st, param.debugname) {}
-    ~tempCount();
+    virtual ~tempCount();
     void updateStep(bool, const aState &state);
     bool frozen(const aState &state);
 };
