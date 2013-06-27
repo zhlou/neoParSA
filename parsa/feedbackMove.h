@@ -45,14 +45,12 @@ protected:
     void move_control();
     long *success;
     long *moves;
+    double *theta_bars;
     double energy;
 private:
     int index;
     unirandom * const rnd;
-
-    double *theta_bars;
     double prev_energy;
-
     double move_gain;
     long sweep;
     int move_interval;
