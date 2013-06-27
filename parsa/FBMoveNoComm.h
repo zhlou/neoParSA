@@ -31,6 +31,7 @@ public:
 private:
     const MPIState &mpi;
     double *theta_buf;
+    MPI_Win theta_win;
 };
 
 
