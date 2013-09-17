@@ -119,6 +119,7 @@ public:
     void serialize(void *buf) const; // serialize its state to buf
     void deserialize(void const *buf); // inflate buf to a new state. calculation
                                  // of new score is not required here.
+    void state2theta(void const *buf, double *theta);
     void writeAnswer(const char* title);
     void scramble();
 };

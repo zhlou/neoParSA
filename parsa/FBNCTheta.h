@@ -7,6 +7,12 @@
 
 #ifndef FBNCTHETA_H_
 #define FBNCTHETA_H_
+
+#include <mpi.h>
+#include "feedbackMove.h"
+#include "MPIState.h"
+#include "mixState.h"
+
 // Feedback move, no communication,
 // with theta_bar adjustment
 template<class Problem>

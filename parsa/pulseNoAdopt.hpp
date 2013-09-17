@@ -14,7 +14,7 @@ const char * pulseNoAdopt<Problem>::name = "pulseNoAdopt";
 template<class Problem>
 pulseNoAdopt<Problem>::pulseNoAdopt(Problem& in_problem, const MPIState& mpiState,
                                 unirandom* const in_rnd, xmlNode* docroot) :
-        problem(in_problem), mpi(mpiState), rnd(in_rnd), counter(0)buf_size(problem.getStateSize())
+        problem(in_problem), mpi(mpiState), rnd(in_rnd), counter(0)
 {
     xmlNode *section = getSectionByName(docroot, "pulseBcast");
     if (section == NULL) {

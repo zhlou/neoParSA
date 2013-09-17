@@ -14,7 +14,8 @@ SOURCE = annealer.h annealer.hpp feedbackMove.h feedbackMove.hpp\
 	expParallel.h expParallel.cpp rejCount.h rejCount.cpp \
 	rejCountP.h rejCountP.cpp criCount.h criCount.cpp criCountP.h criCountP.cpp \
 	maxSteps.h maxSteps.cpp oneStep.h oneStep.cpp expHold.h expHold.cpp \
-	expHoldP.h expHoldP.cpp tempCount.h tempCount.cpp tempCountP.h tempCountP.cpp
+	expHoldP.h expHoldP.cpp tempCount.h tempCount.cpp tempCountP.h \
+	tempCountP.cpp pulseNoAdopt.h pulseNoAdopt.hpp FBNCTheta.h FBNCTheta.hpp
 	
 #CXXFLAGS += -g
 .PHONY: all clean

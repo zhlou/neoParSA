@@ -632,6 +632,14 @@ void fly::writeAnswer(const char* title)
 
 }
 
+void fly::state2theta(const void* buf, double* theta)
+{
+    double const *from = static_cast<double const *>(buf);
+    for (int i = 0; i < nparams; ++i) {
+        theta[i] = abs(from[i] - *(ptab[i].param));
+    }
+}
+
 void fly::scramble()
 {
     SearchSpace *limits = score.GetLimits();
