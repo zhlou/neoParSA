@@ -14,22 +14,21 @@ const char * pulseNoAdopt<Problem>::name = "pulseNoAdopt";
 template<class Problem>
 pulseNoAdopt<Problem>::pulseNoAdopt(Problem& in_problem, const MPIState& mpiState,
                                 unirandom* const in_rnd, xmlNode* docroot) :
-        problem(in_problem), mpi(mpiState), rnd(in_rnd), counter(0),
-        buf_size(problem.getStateSize())
+        problem(in_problem), mpi(mpiState), rnd(in_rnd), counter(0)buf_size(problem.getStateSize())
 {
     xmlNode *section = getSectionByName(docroot, "pulseBcast");
     if (section == NULL) {
         throw std::runtime_error(std::string("Error: cannot find section pulseBcast"));
     }
     frequency = getPropInt(section, "frequency");
-    MPI_Alloc_mem(buf_size,MPI_INFO_NULL, &state_buf);
+    //MPI_Alloc_mem(buf_size,MPI_INFO_NULL, &state_buf);
 
 }
 
 template<class Problem>
 pulseNoAdopt<Problem>::~pulseNoAdopt()
 {
-    MPI_Free_mem(state_buf);
+    //MPI_Free_mem(state_buf);
 }
 
 template<class Problem>
@@ -44,7 +43,7 @@ mixState pulseNoAdopt<Problem>::Mix(aState& state)
     double energy;
     if (mpi.rank == root) {
         energy = state.energy;
-        problem.serialize(state_buf);
+        //problem.serialize(state_buf);
     }
     MPI_Bcast(&energy, 1, MPI_DOUBLE, root, mpi.comm);
     // MPI_Bcast(state_buf, buf_size, MPI_BYTE, root, mpi.comm);

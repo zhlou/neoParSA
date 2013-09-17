@@ -20,8 +20,8 @@ private:
     Problem &problem;
     const MPIState &mpi;
     unirandom * const rnd;
-    void *state_buf;
-    const int buf_size;
+    //void *state_buf;
+    //const int buf_size;
     unsigned counter;
     unsigned frequency;
     dynDebug debugOut;
