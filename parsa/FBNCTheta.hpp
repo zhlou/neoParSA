@@ -39,6 +39,7 @@ void FBNCTheta<Problem>::processMix(const mixState& ms, const aState& state)
         MPI_Get(local_buf, buf_size, MPI_BYTE, ms.adoptList[0],0,
                 buf_size, MPI_BYTE, state_win);
         this->problem.state2theta(local_buf,theta_buf);
+        this->energy = state.energy;
         for (int i=0;i<(this->nparams);++i) {
             this->theta_bars[i] = theta_buf[i];
         }
