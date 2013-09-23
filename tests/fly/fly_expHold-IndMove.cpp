@@ -10,6 +10,7 @@
 #include <sstream>
 #include <libxml/parser.h>
 #include <mpi.h>
+#include <unistd.h>
 
 #include "pannealer.h"
 #include "FBMoveNoComm.h"
@@ -38,7 +39,19 @@ int main(int argc, char **argv)
         cerr << "Missing input files" << endl;
         return 1;
     }
-    char *docname = argv[1];
+    char c;
+    bool isprolix = false;
+    while ( (c = getopt(argc, argv, "p")) != -1) {
+        switch(c) {
+        case 'p':
+            isprolix = true;
+            break;
+        default:
+            cerr << "Unrecognized option: " << c << endl;
+            return 1;
+        }
+    }
+    char *docname = argv[optind];
     xmlDoc *doc = xmlParseFile(docname);
     xmlNode *docroot = xmlDocGetRootElement(doc);
     if (docroot == NULL) {
@@ -57,9 +70,15 @@ int main(int argc, char **argv)
             *fly_sa = new pannealer<fly, expHoldP, tempCountP,
                                     FBMoveNoComm, pulseBcast>
             (theFly, &rnd, scheParam, frozenParam, docroot, mpi);
+    if (isprolix) {
+        fly_sa->setProlix(file, (flyParams.infile_name + "_" +
+                ((ostringstream*)&(ostringstream()<<mpi.rank))->str() +
+                ".prolix").c_str());
+    }
+
     if (mpi.rank == 0) {
         fly_sa->setCoolLog(file,(flyParams.infile_name + ".log").c_str());
-        fly_sa->setProlix(file, (flyParams.infile_name + ".prolix").c_str());
+        //fly_sa->setProlix(file, (flyParams.infile_name + ".prolix").c_str());
     }
     fly_sa->setStepLog(file, (flyParams.infile_name + "_" +
             ((ostringstream*)&(ostringstream()<<mpi.rank))->str() +
