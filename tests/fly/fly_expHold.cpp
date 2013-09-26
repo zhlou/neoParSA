@@ -24,7 +24,19 @@ int main(int argc, char **argv)
         cerr << "Missing input files" << endl;
         return 1;
     }
-    char *docname = argv[1];
+    char c;
+    bool isprolix = false;
+    while ( (c = getopt(argc, argv, "p")) != -1) {
+        switch(c) {
+        case 'p':
+            isprolix = true;
+            break;
+        default:
+            cerr << "Unrecognized option: " << c << endl;
+            return 1;
+        }
+    }
+    char *docname = argv[optind];
 
     xmlDoc *doc = xmlParseFile(docname);
     xmlNode *docroot = xmlDocGetRootElement(doc);
@@ -42,6 +54,9 @@ int main(int argc, char **argv)
     annealer<fly, expHold, tempCount, feedbackMove>
         fly_expHold(theFly, &rnd, scheduleParam, tmpCntParam, docroot);
     fly_expHold.setStepLog(file, (flyParams.infile_name+".steplog").c_str());
+    if (isprolix) {
+        fly_expHold.setProlix(file,(flyParams.infile_name+".prolix").c_str());
+    }
     fly_expHold.loop();
     xmlFreeDoc(doc);
     xmlCleanupParser();
