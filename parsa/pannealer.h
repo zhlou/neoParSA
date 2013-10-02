@@ -20,6 +20,8 @@ public:
               const MPIState &mpiState);
     virtual ~pannealer();
     int getWinner();
+    void setMixLog(debugStatus st, const char* outname=NULL)
+    {pop.setDebug(st, outname);}
 protected:
     const MPIState &mpi;
     PopBased<Problem> pop;

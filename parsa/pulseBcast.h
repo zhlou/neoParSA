@@ -30,6 +30,8 @@ public:
                unirandom * const in_rnd, xmlNode *docroot);
     ~pulseBcast();
     mixState Mix(aState &state);
+    void setDebug(debugStatus st, const char* outname=NULL)
+    {debugOut.setDebug(st,outname);}
     static const char * name;
 
 };

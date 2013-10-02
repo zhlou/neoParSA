@@ -56,10 +56,17 @@ mixState pulseBcast<Problem>::Mix(aState& state)
         double delta = energy - state.energy;
         double crit = 1.0 - std::exp(state.s * delta); // no negative sign here
         double randval = rnd->random();
+        debugOut << "step " << state.step_cnt << " "
+                 << "proc " << mpi.rank << ": " << state.energy << " <- "
+                 << "proc " << root << ": " << energy << " @ " << state.s
+                 << " P = " << crit;
         if ((delta <= 0.0) && (crit > randval)) { // adopt the incoming state
+            debugOut << " accepted" << endl;
             problem.deserialize(state_buf);
             state.energy = energy;
             return mixState(root);
+        } else {
+            debugOut << " rejected" << endl;
         }
     }
 

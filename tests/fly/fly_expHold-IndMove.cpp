@@ -41,10 +41,14 @@ int main(int argc, char **argv)
     }
     char c;
     bool isprolix = false;
-    while ( (c = getopt(argc, argv, "p")) != -1) {
+    bool isverbose = false;
+    while ( (c = getopt(argc, argv, "pv")) != -1) {
         switch(c) {
         case 'p':
             isprolix = true;
+            break;
+        case 'v':
+            isverbose = true;
             break;
         default:
             cerr << "Unrecognized option: " << c << endl;
@@ -70,10 +74,14 @@ int main(int argc, char **argv)
             *fly_sa = new pannealer<fly, expHoldP, tempCountP,
                                     FBMoveNoComm, pulseBcast>
             (theFly, &rnd, scheParam, frozenParam, docroot, mpi);
+    string outprefix = flyParams.infile_name + "_" +
+            ((ostringstream*)&(ostringstream()<<mpi.rank))->str();
     if (isprolix) {
-        fly_sa->setProlix(file, (flyParams.infile_name + "_" +
-                ((ostringstream*)&(ostringstream()<<mpi.rank))->str() +
-                ".prolix").c_str());
+        fly_sa->setProlix(file, (outprefix + ".prolix").c_str());
+    }
+
+    if (isverbose) {
+        fly_sa->setMixLog(file, (outprefix + ".mixlog").c_str());
     }
 
     if (mpi.rank == 0) {
