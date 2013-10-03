@@ -7,6 +7,7 @@
 
 #include "expHold.h"
 #include "utils.h"
+#include <exception>
 #include <stdexcept>
 
 const char * expHold::name = "expHold";
@@ -18,6 +19,12 @@ expHold::Param::Param(xmlNode* root, debugStatus in_st, const char *name) :
         throw std::runtime_error(std::string("Error: fail to find section expHold"));
     target_s = 1./getPropDouble(xmlsection, "target");
     alpha = getPropDouble(xmlsection, "alpha");
+    segLength = 1;
+    try {
+        segLength = getPropInt(xmlsection, "segLength");
+    } catch (const std::exception &e) {
+        // ignored
+    }
 }
 
 expHold::~expHold() {
