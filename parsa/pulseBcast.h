@@ -8,10 +8,11 @@
 #ifndef PULSEBCAST_H_
 #define PULSEBCAST_H_
 
+#include <libxml/tree.h>
+#include "dynDebug.h"
 #include "MPIState.h"
 #include "unirandom.h"
 #include "mixState.h"
-#include <libxml/tree.h>
 
 template <class Problem>
 class pulseBcast

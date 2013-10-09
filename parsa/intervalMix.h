@@ -8,9 +8,11 @@
 #ifndef INTERVALMIX_H_
 #define INTERVALMIX_H_
 
+#include <libxml/tree.h>
+#include "dynDebug.h"
 #include "MPIState.h"
 #include "mixState.h"
-#include <libxml/tree.h>
+
 template <class Problem>
 class intervalMix {
 public:
@@ -19,6 +21,10 @@ public:
     ~intervalMix();
     mixState Mix(aState &state);
     static const char * name;
+    void setDebug(debugStatus st, const char* outname=NULL)
+    {
+        mix.debugOut.setDebug(st, outname);
+    }
 private:
     Mixing<Problem> mix;
     xmlNode *root;

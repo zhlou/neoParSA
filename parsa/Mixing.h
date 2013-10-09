@@ -33,6 +33,7 @@ public:
     double adoptState(int id);
     double adoptState(){return adoptState(mpi.rank);}
     int getPartner() const;
+    mutable dynDebug debugOut;
 };
 
 #include "Mixing.hpp"

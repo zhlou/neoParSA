@@ -40,7 +40,7 @@ void Mixing<Problem>::calProbTab(const aState &state)
     norm = 0;
     MPI_Allgather(&energy, 1, MPI_DOUBLE, energy_tab, 1, MPI_DOUBLE,
             mpi.comm);
-    //cout << "energy_tab" << mpi.rank << "@" << state.step_cnt;
+    debugOut << mpi.rank << "@" << state.step_cnt << " " << state.s << " ";
     for (i = 0; i < mpi.nnodes; ++i) {
         prob = exp((energy - energy_tab[i]) * state.s);
         if (prob < numeric_limits<double>::min())
@@ -48,9 +48,10 @@ void Mixing<Problem>::calProbTab(const aState &state)
         if (prob > numeric_limits<double>::max()/mpi.nnodes)
             prob = numeric_limits<double>::max()/mpi.nnodes;
         norm += prob_tab[i] = prob;
-        // cout << " " << prob_tab[i];
-        // cout << " " << energy_tab[i];
+        debugOut << " " << prob_tab[i];
+        debugOut << " " << energy_tab[i];
     }
+    // debugOut << endl;
 
 }
 
@@ -83,5 +84,6 @@ int Mixing<Problem>::getPartner() const
         if (psum > rand)
             break;
     }
+    debugOut << " Adopt " << i << endl;
     return i;
 }
