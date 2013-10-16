@@ -4,10 +4,11 @@ FLYOBJECTS = DataLists.o flyData.o maternal.o scoring.o solvers.o \
 			zygotic.o fly.o
 ALLOBJECTS = $(FLYOBJECTS) printscore.o scramble.o fly_sa.o fly_pulse.o\
              fly_expHold.o fly_sa-mpi.o fly_expHold-mpi.o fly_expHold-IndMove.o\
-             fly_expHold-theta.o fly_expHold-TA.o fly_expHold-mixing.o
+             fly_expHold-theta.o fly_expHold-TA.o fly_expHold-mixing.o \
+             fly_expHold-mixing-IM.o
 TARGET = printscore fly_sa fly_sa-mpi scramble fly_pulse fly_expHold \
          fly_expHold-mpi fly_expHold-IndMove fly_expHold-theta\
-         fly_expHold-TA fly_expHold-mixing
+         fly_expHold-TA fly_expHold-mixing fly_expHold-mixing-IM
 LIBPARSA = ../../parsa/libparsa.a
 .PHONY: all clean
 
@@ -62,6 +63,12 @@ fly_expHold-mixing.o: fly_expHold-mixing.cpp
 	$(MPICXX) $(CXXFLAGS) -c $^
 	
 fly_expHold-mixing: fly_expHold-mixing.o $(FLYOBJECTS)
+	$(MPICXX) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+
+fly_expHold-mixing-IM.o: fly_expHold-mixing-IM.cpp
+	$(MPICXX) $(CXXFLAGS) -c $^
+	
+fly_expHold-mixing-IM: fly_expHold-mixing-IM.o $(FLYOBJECTS)
 	$(MPICXX) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 clean:
