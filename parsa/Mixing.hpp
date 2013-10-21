@@ -61,6 +61,10 @@ double Mixing<Problem>::adoptState(int Id)
     problem.serialize(state_buf);
     MPI_Win_post(mpi.group, MPI_MODE_NOPUT, state_win);
     MPI_Win_start(mpi.group, 0, state_win);
+    if (Id < 0 || Id >= mpi.nnodes) { // should not happen
+        std::cerr<< "adoptState " << mpi.rank <<": Invalid Id " << Id <<endl;
+        Id = mpi.rank;
+    }
     if (Id != mpi.rank)
         MPI_Get(state_buf, buf_size, MPI_BYTE, Id, 0, buf_size, MPI_BYTE,
                 state_win);
@@ -83,6 +87,11 @@ int Mixing<Problem>::getPartner() const
         psum += (prob_tab[i]/norm);
         if (psum > rand)
             break;
+    }
+    if (i == mpi.nnodes) {
+        std::cerr << "getPartner " << mpi.rank <<": psum = " << psum
+                  << " rand = " << rand << endl;
+        i = mpi.rank;
     }
     debugOut << " Adopt " << i << endl;
     return i;
