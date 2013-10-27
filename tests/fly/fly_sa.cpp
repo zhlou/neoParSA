@@ -58,6 +58,7 @@ int main(int argc, char **argv)
         fly_sa.loop();
         cout << "The final energy is " << theFly.get_score() << endl;
         theFly.writeAnswer("eqparam");
+        fly_sa.writeResult();
         xmlSaveFormatFile(docname, doc, 1);
     }
     xmlFreeDoc(doc);
