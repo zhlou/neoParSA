@@ -16,8 +16,11 @@ Mixing<Problem>::Mixing(Problem & in_problem, const MPIState &mpiState,
     energy_tab = new double[mpi.nnodes];
     prob_tab = new double[mpi.nnodes];
     buf_size = problem.getStateSize();
+    MPI_Info info_no_locks;
+    MPI_Info_create(&info_no_locks);
+    MPI_Info_set(info_no_locks, "no_locks","true");
     MPI_Alloc_mem(buf_size, MPI_INFO_NULL, &state_buf);
-    MPI_Win_create(state_buf, buf_size, buf_size, MPI_INFO_NULL, mpi.comm,
+    MPI_Win_create(state_buf, buf_size, buf_size, info_no_locks, mpi.comm,
             &state_win);
     norm = 0;
 }
