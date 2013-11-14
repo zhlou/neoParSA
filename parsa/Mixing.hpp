@@ -18,7 +18,7 @@ Mixing<Problem>::Mixing(Problem & in_problem, const MPIState &mpiState,
     buf_size = problem.getStateSize();
     MPI_Info info_no_locks;
     MPI_Info_create(&info_no_locks);
-    MPI_Info_set(info_no_locks, "no_locks","true");
+    MPI_Info_set(info_no_locks, (char *)"no_locks",(char *)"true");
     MPI_Alloc_mem(buf_size, MPI_INFO_NULL, &state_buf);
     MPI_Win_create(state_buf, buf_size, buf_size, info_no_locks, mpi.comm,
             &state_win);
@@ -43,7 +43,7 @@ void Mixing<Problem>::calProbTab(const aState &state)
     norm = 0;
     MPI_Allgather(&energy, 1, MPI_DOUBLE, energy_tab, 1, MPI_DOUBLE,
             mpi.comm);
-    debugOut << mpi.rank << "@" << state.step_cnt << " " << state.s << " ";
+    debugOut << mpi.rank << " @ " << state.step_cnt << " " << state.s << " ";
     for (i = 0; i < mpi.nnodes; ++i) {
         prob = exp((energy - energy_tab[i]) * state.s);
         if (prob < numeric_limits<double>::min())
@@ -51,8 +51,8 @@ void Mixing<Problem>::calProbTab(const aState &state)
         if (prob > numeric_limits<double>::max()/mpi.nnodes)
             prob = numeric_limits<double>::max()/mpi.nnodes;
         norm += prob_tab[i] = prob;
-        debugOut << " " << prob_tab[i];
-        debugOut << " " << energy_tab[i];
+        //debugOut << " " << prob_tab[i];
+        //debugOut << " " << energy_tab[i];
     }
     // debugOut << endl;
 

@@ -57,7 +57,7 @@ public:
     double fixedTMoves(double S, long steps);
     void writeResult();
     void setStepLog(debugStatus st, const char* outname=NULL)
-    {debugOut.setDebug(st, outname);}
+    {debugOut.setDebug(st, outname); debugOut.precision(16);}
     void setCoolLog(debugStatus st, const char*outname=NULL)
     {cooling->setDebug(st, outname);}
     void setProlix(debugStatus st, const char*outname=NULL)

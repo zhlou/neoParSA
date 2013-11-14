@@ -19,6 +19,8 @@ public:
     dynDebug& operator <<(T const &);
     void setDebug(debugStatus st, const char *outname=NULL);
     bool isIgnore() const {return (status == ignore);}
+    void precision(std::streamsize prec)
+    {if (status != ignore) streamout->precision(prec);}
 
 
 
@@ -39,5 +41,7 @@ dynDebug& dynDebug::operator<<(const T& t)
         *streamout << t;
     return *this;
 }
+
+
 
 #endif
