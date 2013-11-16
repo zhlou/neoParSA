@@ -4,6 +4,7 @@
 #include <sstream>
 #include <libxml/parser.h>
 #include <mpi.h>
+#include <unistd.h>
 
 #include "pannealer.h"
 #include "parallelFBMove.h"

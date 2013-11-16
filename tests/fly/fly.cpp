@@ -8,6 +8,7 @@
 #include <cstring>
 #include <cmath>
 #include <cstdlib>
+#include <unistd.h>
 #include "fly.h"
 
 using namespace std;

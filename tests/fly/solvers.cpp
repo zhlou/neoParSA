@@ -9,6 +9,7 @@
 #include "zygotic.h"
 #include <cfloat>
 #include <algorithm>
+#include <cstdlib>
 #include <cmath>
 #include <cstring>
 using namespace std;

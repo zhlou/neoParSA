@@ -6,6 +6,7 @@
  */
 #include <iostream>
 #include <stdexcept>
+#include <unistd.h>
 #include "fly.h"
 
 int main(int argc, char **argv)
