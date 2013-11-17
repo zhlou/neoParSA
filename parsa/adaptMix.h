@@ -32,6 +32,10 @@ public:
     ~adaptMix();
     mixState Mix(aState &state);
     static const char *name;
+    void setDebug(debugStatus st, const char* outname=NULL)
+    {
+        mix.debugOut.setDebug(st, outname);
+    }
 private:
     Mixing<Problem> mix;
     unirandom * const rnd;
