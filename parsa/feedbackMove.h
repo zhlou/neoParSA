@@ -55,6 +55,7 @@ private:
     long sweep;
     int move_interval;
     static const double theta_min;
+    double target;
 };
 
 

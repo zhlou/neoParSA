@@ -59,6 +59,12 @@ feedbackMove<Problem>::feedbackMove(Problem& in_problem,
             prop = NULL;
         } else
             move_interval = 100;
+        if ((prop = xmlGetProp(section, (xmlChar *)"target")) != NULL) {
+            target = strtod((char *)prop, NULL);
+            xmlFree(prop);
+            prop = NULL;
+        } else
+            target = 0.44;
 
     }
 }
@@ -128,7 +134,7 @@ void feedbackMove<Problem>::move_control()
         double acc_ratio = (double) success[i] / (double) moves[i];
         double x = log(theta_bars[i]);
         debugOut << "\t" << acc_ratio;
-        x += move_gain * (acc_ratio - 0.44);
+        x += move_gain * (acc_ratio - target);
         theta_bars[i] = exp(x);
         if (theta_bars[i] < theta_min)
             theta_bars[i] = theta_min;
