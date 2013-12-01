@@ -26,8 +26,12 @@ int main(int argc, char **argv)
     }
     char c;
     bool isprolix = false;
-    while ( (c = getopt(argc, argv, "p")) != -1) {
+    bool equil = false;
+    while ( (c = getopt(argc, argv, "pE")) != -1) {
         switch(c) {
+        case 'E':
+            equil = true;
+            break;
         case 'p':
             isprolix = true;
             break;
@@ -57,7 +61,11 @@ int main(int argc, char **argv)
     if (isprolix) {
         fly_expHold.setProlix(file,(flyParams.infile_name+".prolix").c_str());
     }
-    fly_expHold.loop();
+    if (equil)
+        fly_expHold.initMovesOnly();
+    else {
+        fly_expHold.loop();
+    }
     xmlFreeDoc(doc);
     xmlCleanupParser();
     return 0;

@@ -52,6 +52,7 @@ public:
     virtual ~annealer();
     double loop();
     double initMoves();
+    double initMovesOnly();
     // fixed T moves with no stats updated for schedule. move part is involved
     // hence likely updated.
     double fixedTMoves(double S, long steps);

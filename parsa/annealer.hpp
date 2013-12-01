@@ -114,6 +114,14 @@ double annealer<Problem, Schedule, FrozenCnd, Move>::initMoves()
 
 }
 
+template<class Problem, class Schedule, class FrozenCnd, template<class> class Move>
+double annealer<Problem, Schedule, FrozenCnd, Move>::initMovesOnly()
+{
+    fixedTMoves(state.s, initLoop);
+    return move->get_score();
+
+}
+
 template<class Problem, class Schedule, class FrozenCnd, template<class > class Move>
 void annealer<Problem, Schedule, FrozenCnd, Move>::writeResultData(xmlNode* result) {
     std::ostringstream s_energy, s_step, s_time;
