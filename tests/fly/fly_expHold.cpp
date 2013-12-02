@@ -27,7 +27,7 @@ int main(int argc, char **argv)
     char c;
     bool isprolix = false;
     bool equil = false;
-    while ( (c = getopt(argc, argv, "pE")) != -1) {
+    while ( (c = getopt(argc, argv, "Ep")) != -1) {
         switch(c) {
         case 'E':
             equil = true;
@@ -65,7 +65,11 @@ int main(int argc, char **argv)
         fly_expHold.initMovesOnly();
     else {
         fly_expHold.loop();
+        theFly.writeAnswer("eqparms");
+        fly_expHold.writeResult();
+        xmlSaveFormatFile(docname, doc, 1);
     }
+
     xmlFreeDoc(doc);
     xmlCleanupParser();
     return 0;
