@@ -35,8 +35,12 @@ int main(int argc, char **argv)
     char c;
     bool isprolix = false;
     bool isverbose = false;
-    while ( (c = getopt(argc, argv, "pv")) != -1) {
+    bool issteplog = true;
+    while ( (c = getopt(argc, argv, "pvL")) != -1) {
         switch(c) {
+        case 'L':
+            issteplog = false;
+            break;
         case 'p':
             isprolix = true;
             break;
@@ -81,7 +85,9 @@ int main(int argc, char **argv)
         fly_sa->setCoolLog(file,(flyParams.infile_name + ".log").c_str());
         // fly_sa->setProlix(file, (flyParams.infile_name + ".prolix").c_str());
     }
-    fly_sa->setStepLog(file, (outprefix + ".steplog").c_str());
+    if (issteplog) {
+        fly_sa->setStepLog(file, (outprefix + ".steplog").c_str());
+    }
 
 
     cout << "The initial energy is " << theFly.get_score() << endl;
