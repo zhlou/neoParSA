@@ -71,7 +71,7 @@ void simPLam::resetSegmentStats()
 
 double simPLam::updateS(const aState& state)
 {
-    return state.s + lambda * alpha / (sd * sd * sd * state.s);
+    return state.s + lambda * alpha / (sd * sd * sd * state.s * state.s);
 }
 
 void simPLam::calcStats(int nsteps)
@@ -86,7 +86,11 @@ void simPLam::calcStats(int nsteps)
     alpha = 4.0 * acc_ratio * d * d;
 }
 
-void simPLam::updateSegment(const aState&)
+void simPLam::updateSegment(const aState &state)
 {
     calcStats(proc_tau);
+    debugOut << state.step_cnt << " " << state.s << " "
+             << lambda * alpha / (state.s * state.s * sd * sd * sd)
+             << " " << mean << " " << sd << " " << acc_ratio << " "
+             << alpha << std::endl;
 }
