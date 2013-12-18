@@ -52,7 +52,8 @@ public:
     double updateS(const aState &state);
     bool inSegment(aState state){return !((state.step_cnt % proc_tau) == 0);}
     void updateSegment(const aState &);
-    void setDebug(debugStatus st, const char* outname=NULL);
+    void setDebug(debugStatus st, const char* outname=NULL)
+        {debugOut.setDebug(st, outname);}
     static const char * name;
 
 

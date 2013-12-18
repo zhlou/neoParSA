@@ -12,6 +12,7 @@
 #include "dynDebug.h"
 #include "MPIState.h"
 #include "mixState.h"
+#include "Mixing.h"
 
 template <class Problem>
 class intervalMix {

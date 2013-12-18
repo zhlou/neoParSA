@@ -49,7 +49,8 @@ simPLam::simPLam(Param param, const MPIState& mpi) :
 
 }
 
-simPLam::~simPLam() {
+simPLam::~simPLam()
+{
 }
 
 void simPLam::initStats(const aState& state)
@@ -88,7 +89,4 @@ void simPLam::calcStats(int nsteps)
 void simPLam::updateSegment(const aState&)
 {
     calcStats(proc_tau);
-}
-
-void simPLam::setDebug(debugStatus st, const char* outname) {
 }
