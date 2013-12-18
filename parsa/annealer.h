@@ -16,8 +16,8 @@
  * class Schedule
  * {
  * public:
- *      double getInitS();
- *      int getInitLoop();
+ *      //double getInitS(); // no longer used
+ *      //int getInitLoop(); // no longer used
  *      void updateInitStep(bool accept, double energy);
  *      void initStats();
  *      bool frozen();
