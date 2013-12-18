@@ -79,7 +79,7 @@ void simPLam::calcStats(int nsteps)
 {
     double from[3] = { sum, sumsq, success }, to[3];
     double N = (double) (mpiState.nnodes) * nsteps;
-    MPI_Allreduce(from, to, 2, MPI_DOUBLE, MPI_SUM, mpiState.comm);
+    MPI_Allreduce(from, to, 3, MPI_DOUBLE, MPI_SUM, mpiState.comm);
     mean = to[0] / N;
     sd = std::sqrt((to[1] - mean * to[0]) / N);
     acc_ratio = (to[2]) / N;
