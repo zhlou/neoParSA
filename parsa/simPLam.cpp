@@ -67,6 +67,7 @@ void simPLam::resetSegmentStats()
 {
     sum = 0;
     sumsq = 0;
+    success = 0;
 }
 
 double simPLam::updateS(const aState& state)
@@ -76,12 +77,12 @@ double simPLam::updateS(const aState& state)
 
 void simPLam::calcStats(int nsteps)
 {
-    double from[2] = { sum, sumsq }, to[2];
+    double from[3] = { sum, sumsq, success }, to[3];
     double N = (double) (mpiState.nnodes) * nsteps;
     MPI_Allreduce(from, to, 2, MPI_DOUBLE, MPI_SUM, mpiState.comm);
     mean = to[0] / N;
     sd = std::sqrt((to[1] - mean * to[0]) / N);
-    acc_ratio = (double) (success) / N;
+    acc_ratio = (to[2]) / N;
     double d = (1.0 - acc_ratio) / (2.0 - acc_ratio);
     alpha = 4.0 * acc_ratio * d * d;
 }
