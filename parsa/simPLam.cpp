@@ -80,7 +80,7 @@ void simPLam::calcStats(int nsteps)
     double N = (double) (mpiState.nnodes) * nsteps;
     MPI_Allreduce(from, to, 2, MPI_DOUBLE, MPI_SUM, mpiState.comm);
     mean = to[0] / N;
-    sd = std::sqrt((to[1] - N * to[0] * to[0]) / N);
+    sd = std::sqrt((to[1] - mean * to[0]) / N);
     acc_ratio = (double) (success) / N;
     double d = (1.0 - acc_ratio) / (2.0 - acc_ratio);
     alpha = 4.0 * acc_ratio * d * d;
