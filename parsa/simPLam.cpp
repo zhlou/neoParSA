@@ -6,11 +6,24 @@
  */
 
 #include <cmath>
+#include <exception>
+#include <stdexcept>
 #include "simPLam.h"
+#include "utils.h"
+
 
 const char * simPLam::name = "simPLam";
 
-simPLam::Param::Param(xmlNode* root, debugStatus in_st, const char* name) {
+simPLam::Param::Param(xmlNode* root, debugStatus in_st, const char* name) :
+        st(in_st),
+        outname(name)
+{
+    xmlNode *xmlsection = getSectionByName(root, "simPLam");
+    if (xmlsection == NULL)
+        throw std::runtime_error(std::string("Error: fail to find section simPLam"));
+    proc_tau = getPropInt(xmlsection,"tau");
+    lambda = getPropDouble(xmlsection, "lambda");
+
 }
 
 void simPLam::updateStep(bool accept, const aState &state)
@@ -21,7 +34,19 @@ void simPLam::updateStep(bool accept, const aState &state)
     sumsq += (state.energy * state.energy);
 }
 
-simPLam::simPLam(Param param, const MPIState&) {
+simPLam::simPLam(Param param, const MPIState& mpi) :
+        proc_tau(param.proc_tau),
+        lambda(param.lambda),
+        mpiState(mpi),
+        acc_ratio(0.),
+        alpha(0.),
+        mean(0.),
+        sd(0.),
+        sum(0.),
+        sumsq(0.),
+        success(0)
+{
+
 }
 
 simPLam::~simPLam() {

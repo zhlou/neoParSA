@@ -38,6 +38,10 @@ public:
     class Param {
     public:
         Param(xmlNode *root, debugStatus in_st=ignore, const char *name=NULL);
+        int proc_tau;
+        double lambda;
+        debugStatus st;
+        const char * outname;
     };
     simPLam(Param param, const MPIState &);
     ~simPLam();
