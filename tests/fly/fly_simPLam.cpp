@@ -18,7 +18,7 @@
 #include "parallelFBMove.h"
 #include "unirandom.h"
 #include "simPLam.h"
-#include "criCountP.h"
+#include "globalCount.h"
 #include "dynDebug.h"
 #include "intervalMix.h"
 #include "fly.h"
@@ -74,10 +74,10 @@ int main(int argc, char **argv)
     fly_params flyParams = readFlyParams(docroot);
     fly theFly(flyParams);
     simPLam::Param schdParam(docroot);
-    criCountP::Param frozenParam(docroot);
+    globalCount::Param frozenParam(docroot);
 
-    pannealer<fly, simPLam, criCountP, parallelFBMove, intervalMix>
-        *fly_sa = new pannealer<fly, simPLam, criCountP, parallelFBMove,
+    pannealer<fly, simPLam, globalCount, parallelFBMove, intervalMix>
+        *fly_sa = new pannealer<fly, simPLam, globalCount, parallelFBMove,
                                 intervalMix>
                     (theFly, &rnd, schdParam, frozenParam, docroot, mpi);
     string outprefix = flyParams.infile_name + "_" +

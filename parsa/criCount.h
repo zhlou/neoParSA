@@ -26,6 +26,7 @@ public:
     void updateStep(bool, const aState &){}
     bool frozen(const aState &state);
     friend class criCountP;
+    friend class globalCount;
 private:
     const double freeze_crit;
     double old_energy;
