@@ -25,7 +25,7 @@ public:
     };
     globalCount(const Param &param, const MPIState &mpiState) :
         serCount(param.serParam), mpi(mpiState),
-        globalcritcnt(serCount.freeze_cnt * mpi.nnodes)
+        globalcritcnt(serCount.cnt_crit * mpi.nnodes)
     {
     }
     ~globalCount(){}
