@@ -8,6 +8,7 @@
 #include <iostream>
 #include <sstream>
 #include <libxml/parser.h>
+#include <unistd.h>
 #include <mpi.h>
 
 #include "pannealer.h"
@@ -37,37 +38,67 @@ int main(int argc, char **argv)
         cerr << "Missing input files" << endl;
         return 1;
     }
-    char *docname = argv[1];
-    xmlDoc *doc = xmlParseFile(docname);
-    xmlNode *docroot = xmlDocGetRootElement(doc);
-    if (docroot == NULL) {
+    char c;
+    bool isprolix = false;
+    bool isverbose = false;
+    bool issteplog = false;
+
+    while ( (c = getopt(argc, argv, "lpv")) != -1) {
+        switch(c) {
+        case 'l':
+            issteplog = true;
+            break;
+        case 'p':
+            isprolix = true;
+            break;
+        case 'v':
+            isverbose = true;
+            break;
+        default:
+            cerr << "Unrecognized option: " << c << endl;
+            return 1;
+        }
+    }
+    char *docname = argv[optind];
+    xmlDoc *doc;
+    if ( (doc = xmlParseFile(docname) ) == NULL) {
+        cerr << "XML file " << docname << " ill formed or not found!" << endl;
+        return 2;
+    }
+    xmlNode *docroot;
+    if ( (docroot = xmlDocGetRootElement(doc) ) == NULL) {
         cerr << "Input incorrect" << endl;
         return 2;
     }
     unirand48 rnd(mpi.rank);
     fly_params flyParams = readFlyParams(docroot);
     fly theFly(flyParams);
-    expParallel::Param scheParam(docroot);
+    plsa::Param scheParam(docroot);
     criCountP::Param criCntParam(docroot);
     // parallelFBMove<fly, debugSTD, adaptMix> *fly_problem =
     //        new parallelFBMove<fly, debugSTD, adaptMix>(theFly, rnd, docroot, mpi);
     // plsa *pschedule = new plsa(docroot, mpi);
-    pannealer<fly, expParallel, criCountP, parallelFBMove, pulseBcast>
-            *fly_sa = new pannealer<fly, expParallel, criCountP,
-                                    parallelFBMove, pulseBcast>
+    pannealer<fly, plsa, criCountP, parallelFBMove, intervalMix>
+            *fly_sa = new pannealer<fly, plsa, criCountP,
+                                    parallelFBMove, intervalMix>
             (theFly, &rnd, scheParam, criCntParam, docroot, mpi);
-    if (mpi.rank == 0) {
-        fly_sa->setCoolLog(file,(flyParams.infile_name + ".log").c_str());
-        fly_sa->setProlix(file, (flyParams.infile_name + ".prolix").c_str());
+    string outprefix = flyParams.infile_name + "_" +
+                ((ostringstream*)&(ostringstream()<<mpi.rank))->str();
+    if (isprolix) {
+        fly_sa->setProlix(file, (outprefix+".prolix").c_str());
     }
-    fly_sa->setStepLog(file, (flyParams.infile_name + "_" +
-            ((ostringstream*)&(ostringstream()<<mpi.rank))->str() +
-            ".steplog").c_str());
-
-
-    cout << "The initial energy is " << theFly.get_score() << endl;
+    if (isverbose) {
+        fly_sa->setMixLog(file, (outprefix + ".mixlog").c_str());
+    }
+    if (mpi.rank == 0) {
+        fly_sa->setCoolLog(file, (flyParams.infile_name + ".log").c_str());
+    }
+    if (issteplog) {
+        fly_sa->setStepLog(file, (outprefix + ".steplog").c_str());
+    }
+    //cout << "The initial energy is " << theFly.get_score() << endl;
     fly_sa->loop();
-    cout << "The final energy is " << theFly.get_score() << endl;
+    //cout << "The final energy is " << theFly.get_score() << endl;
     if (fly_sa->getWinner() == mpi.rank) {
         theFly.writeAnswer("eqparms");
         fly_sa->writeResult();
