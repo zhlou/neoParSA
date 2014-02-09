@@ -53,9 +53,9 @@ rastrigin::rastrigin(xmlNode *root, unirandom &in_rnd):
 		throw 2;
 	}
 	vars = new double[dim];
-	char *namebuf = new char[255];
+	char *namebuf = NULL;
 	for (int i = 0; i < dim; i++) {
-		sprintf(namebuf, "x%d", i+1);
+		asprintf(&namebuf, "x%d", i+1);
 		if ((prop = xmlGetProp(section, (xmlChar *)namebuf))
 				!= NULL) {
 			vars[i] = strtod((char *) prop, NULL);
@@ -63,10 +63,18 @@ rastrigin::rastrigin(xmlNode *root, unirandom &in_rnd):
 			prop = NULL;
 		} else {
 			vars[i] = VAR_MAX * (2.0 * rnd.random() - 1.0);
+			// write the value back into xml file
+			char *valbuf = NULL;
+			asprintf(&valbuf, "%g", vars[i]);
+			xmlNewProp(section, (const xmlChar *)namebuf,
+			        (const xmlChar*)valbuf);
+			free(valbuf);
 		}
+		free(namebuf);
+		namebuf = NULL;
 
 	}
-	delete []namebuf;
+
 
     prev_x = 0; // to make the compiler happy
     prev_idx = -1;
@@ -88,7 +96,7 @@ void rastrigin::write_section(xmlChar *secname)
 	xmlNewProp(node, (xmlChar *) "dim", (xmlChar *) namebuf);
 	for (int i = 0; i < dim; i++) {
 		sprintf(namebuf, "x%d", i + 1);
-		sprintf(valbuf, "%f", vars[i]);
+		sprintf(valbuf, "%g", vars[i]);
 		xmlNewProp(node, (xmlChar *) namebuf, (xmlChar *) valbuf);
 	}
 	delete[] valbuf;
