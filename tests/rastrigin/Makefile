@@ -1,9 +1,9 @@
 CXXFLAGS += -I../../parsa
 LDLIBS += -L../../parsa -lparsa
 LIBPARSA = ../../parsa/libparsa.a
-TARGET = solve_rst test_rst psolve_rst rst_pEH-mix
+TARGET = solve_rst test_rst psolve_rst rst_expHold rst_pEH-mix
 RST_OBJ = rastrigin.o
-ALL_OBJ = $(RST_OBJ) solve_rastrigin.o psolve_rst.o rst_pEH-mix.o
+ALL_OBJ = $(RST_OBJ) solve_rastrigin.o psolve_rst.o rst_expHold.o rst_pEH-mix.o
 #OBJECT = rastrigin.o solve_rastrigin.o
 .PHONY: all clean
 
@@ -20,7 +20,10 @@ psolve_rst: psolve_rst.o $(RST_OBJ)
 	
 test_rst: rastrigin.o test_rst.o
 	$(CXX) $(LDFLAGS) -o $@ rastrigin.o test_rst.o $(LDLIBS)
-	
+
+rst_expHold: rst_expHold.o $(RST_OBJ)
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDLIBS)
+
 rst_pEH-mix.o: rst_pEH-mix.cpp
 	$(MPICXX) $(CXXFLAGS) -c $^
 	
