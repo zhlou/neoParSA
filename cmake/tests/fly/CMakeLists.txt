@@ -1,0 +1,12 @@
+find_package(GSL)
+set(FLY_COMMON DataLists.cpp flyData.cpp maternal.cpp scoring.cpp solvers.cpp
+	zygotic.cpp fly.cpp)
+add_executable(scramble scramble.cpp ${FLY_COMMON})
+add_executable(fly_sa fly_sa.cpp ${FLY_COMMON})
+add_executable(fly_sa-mpi fly_sa-mpi.cpp ${FLY_COMMON})
+set(BINARIES scramble fly_sa fly_sa-mpi)
+foreach(bin ${BINARIES})
+	target_link_libraries(${bin} parsa ${LIBXML2_LIBRARIES} ${GSL_LIBRARIES})
+endforeach()
+target_link_libraries(fly_sa-mpi ${MPI_C_LIBRARIES})
+#set_target_properties(fly_sa-mpi PROPERTIES LINK_FLAGS "${MPI_C_LINK_FLAGS}")

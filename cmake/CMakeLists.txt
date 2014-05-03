@@ -1,0 +1,20 @@
+cmake_minimum_required(VERSION 2.8)
+project(parsa)
+
+option(DEBUG "Compile with debugging information" OFF)
+
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/CMakeFiles/")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib/)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib/)
+find_package(LibXml2 REQUIRED)
+find_package(MPI REQUIRED)
+include_directories(${LIBXML2_INCLUDE_DIR})
+include_directories(${MPI_INCLUDE_PATH})
+#target_link_libraries(${LIBXML2_LIBRARIES})
+#target_link_libraries(${MPI_LIBRARY})
+set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS "")
+include_directories(parsa)
+add_subdirectory(parsa)
+add_subdirectory(tests)
+
