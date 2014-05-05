@@ -1063,7 +1063,7 @@ double scoring::Score(void)
                 perror("printscore");
                 exit(1);
             }
-            Zygote.PrintBlastoderm(fp, answer, "debug_output", MAX_PRECISION,
+            Zygote.PrintBlastoderm(fp, answer, (char *)"debug_output", MAX_PRECISION,
                             defs.ngenes);
             fclose(fp);
         }
