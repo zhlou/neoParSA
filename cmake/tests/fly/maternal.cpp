@@ -184,7 +184,7 @@ void maternal::ReadTheProblem(FILE* fp)
             error("ReadTheProblem: error reading problem section (egene_ids)");
     } else {
         defs.egene_ids = (char *) calloc(1, sizeof(char));
-        defs.egene_ids = "\0";
+        defs.egene_ids = (char *)"\0";
         fscanf(fp, "%*s\n"); /* next line (ignore empty external gene ID line) */
     }
 
