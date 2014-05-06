@@ -33,6 +33,7 @@ void tsp::add_city(city the_city)
     can_rollback = false;
     cost_valid = false;
     ncities = cities.size();
+    cities.back().next = 0;
 
 }
 
