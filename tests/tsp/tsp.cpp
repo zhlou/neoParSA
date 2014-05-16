@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <cmath>
+#include <algorithm>
 
 using namespace std;
 
@@ -18,6 +19,7 @@ ostream & operator << (ostream &o, const city &c)
     return o;
 }
 
+
 double dist(const city &c1, const city &c2)
 {
     double dx = c1.x - c2.x;
@@ -25,17 +27,18 @@ double dist(const city &c1, const city &c2)
     return sqrt(dx*dx + dy*dy);
 }
 
+/*
 void tsp::add_city(city the_city)
 {
     if (ncities > 0)
         cities.back().next = ncities;
     cities.push_back(the_city);
     can_rollback = false;
-    cost_valid = false;
     ncities = cities.size();
     cities.back().next = 0;
 
 }
+
 
 void tsp::print_array(ostream &o) const
 {
@@ -60,35 +63,24 @@ void tsp::print_route(ostream &o) const
     }
     o << endl;
 }
-
-int tsp::get_ncities() const
+*/
+double tsp::calc_tour() const
 {
-    return cities.size();
-}
-
-double tsp::calc_route()
-{
-    if (cities.size() <=0)
-        return 0;
-    double cost = 0.0;
-    for (int cur=0, i = cities[0].next; i!= 0; cur = i, i = cities[i].next) {
-        cost += dist(cities[cur],cities[i]);
+    double cost = .0;
+    if (ncities < 2)
+        return cost;
+    size_t i,c1,c2;
+    for (i = 1; i < ncities; ++i) {
+        cost += get_edge(tour[i-1],tour[i]);
     }
-    route_cost = cost;
-    cost_valid = true;
+    cost += get_edge(tour[ncities-1],tour[0]);
+
     return cost;
 }
 
-double tsp::get_score()
+double tsp::swap(size_t c1, size_t c2)
 {
-    if (cost_valid)
-        return route_cost;
-    else
-        return calc_route();
-}
-
-double tsp::swap(int c1, int c2)
-{
+    /*
     int n1 = cities[c1].next;
     int n2 = cities[c2].next;
 
@@ -108,9 +100,18 @@ double tsp::swap(int c1, int c2)
     cities[n1].next = n2;
 
     route_cost += diff;
-    return diff;
+*/
+    return 0;
 
 }
+
+bool tsp::pairLess::operator() (const neighbor_pair& e1, const neighbor_pair& e2) const
+{
+    return (theTsp.get_edge(e1.from(),e1.to()) < theTsp.get_edge(e2.from(),e2.to()));
+
+}
+
+/*
 double tsp::step(int c1, int c2)
 {
     int n = cities.size();
@@ -128,7 +129,7 @@ double tsp::step(int c1, int c2)
 
     return swap(c1, c2);
 }
-
+*/
 double tsp::roll_back()
 {
     if (!can_rollback)
@@ -143,16 +144,16 @@ int tsp::getDimension()
     return 1;
 }
 
-void tsp::generateMove(int, double)
+void tsp::generateMove(int, double theta)
 {
-    int c1, c2;
-    int ncities = cities.size();
+    size_t c1, c2;
     c1 = rand_r(&seed) % ncities;
+    c2 = c1 + (size_t)theta + 1;
     do {
         c2 = rand_r(&seed) % ncities;
     } while (c2 == c1);
 
-    step(c1, c2);
+    // step(c1, c2);
 }
 
 void tsp::restoreMove(int)
@@ -160,12 +161,44 @@ void tsp::restoreMove(int)
     roll_back();
 }
 
+tsp::tsp(vector<city>& city_list)
+{
+    size_t i,j;
+    ncities = city_list.size();
+    double dx, dy;
+    tour.resize(ncities);
+    edge_wt.resize(ncities);
+    neighbors.resize(ncities);
+    for (i=0; i < ncities; ++i){
+        tour[i]=i;
+        edge_wt[i].resize(i);
+        //edge_wt[i].resize(i,0);
+        for (j=0; j < i; ++j){
+            edge_wt[i][j] = dist(city_list[i],city_list[j]);
+        }
+
+    }
+    for (i = 0; i < ncities; ++i) {
+        for (j = 0; j < ncities; ++j) {
+            if (j != i) {
+                neighbors[i].push_back(neighbor_pair(i,j));
+                sort(neighbors[i].begin(),neighbors[i].end(), pairLess(*this));
+            }
+        }
+    }
+    can_rollback = false;
+    route_cost = calc_tour();
+    prev_cost = route_cost;
+    r1 = r2 = 0;
+    seed = time(NULL);
+}
+
 tsp::tsp()
 {
     can_rollback = false;
-    cost_valid = true;
     route_cost = 0.0;
+    prev_cost = route_cost;
     r1 = r2 = 0; // just to avoid having uninialized variables
     seed = time(NULL);
-    ncities = cities.size();
+    ncities = 0;
 }

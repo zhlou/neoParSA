@@ -38,7 +38,7 @@ int main(int argc, char **argv)
     //simpleSchedule tsp_anneal(&test_problem, root);
     cout << "The finial energy is " << tsp_anneal.loop() << endl;
     cout << "The energy cached is " << test_tsp.get_score() << endl;
-    cout << "The real energy is " << test_tsp.calc_route() << endl;
+    cout << "The real energy is " << test_tsp.calc_tour() << endl;
 
     test_tsp.print_route(cout);
     return 0;

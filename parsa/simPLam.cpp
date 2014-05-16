@@ -77,7 +77,7 @@ double simPLam::updateS(const aState& state)
 
 void simPLam::calcStats(int nsteps)
 {
-    double from[3] = { sum, sumsq, success }, to[3];
+    double from[3] = { sum, sumsq, (double)success }, to[3];
     double N = (double) (mpiState.nnodes) * nsteps;
     MPI_Allreduce(from, to, 3, MPI_DOUBLE, MPI_SUM, mpiState.comm);
     mean = to[0] / N;
