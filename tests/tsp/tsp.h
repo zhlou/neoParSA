@@ -36,7 +36,7 @@ private:
     struct pairLess
     {
         tsp& theTsp;
-        pairLess(tsp theTsp):theTsp(theTsp){}
+        pairLess(tsp& theTsp):theTsp(theTsp){}
         bool operator () (const neighbor_pair& e1, const neighbor_pair& e2) const;
     };
     vector<size_t> tour;
