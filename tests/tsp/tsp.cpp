@@ -149,10 +149,10 @@ void tsp::generateMove(int, double theta)
     size_t c1, c2;
     c1 = rand_r(&seed) % ncities;
     c2 = c1 + (size_t)theta + 1;
-    do {
-        c2 = rand_r(&seed) % ncities;
-    } while (c2 == c1);
-
+    if (c2 > ncities - 1)
+    	c2 = rand_r(&seed) % (ncities -1);
+    c2 = neighbors[c1][c2].to();
+    swap(c1,c2);
     // step(c1, c2);
 }
 
