@@ -78,30 +78,54 @@ double tsp::calc_tour() const
     return cost;
 }
 
-double tsp::swap(size_t c1, size_t c2)
+double tsp::swap(size_t id1, size_t id2)
 {
-    /*
-    int n1 = cities[c1].next;
-    int n2 = cities[c2].next;
+	size_t p1 = position[id1];
+	size_t p2 = position[id2];
+	size_t id1p = tour[prev(p1)];
+	size_t id1n = tour[next(p1)];
+	size_t id2p = tour[prev(p2)];
+	size_t id2n = tour[next(p2)];
+	double add_cost = 0.0;
+	double remove_cost = 0.0;
+	prev_cost = route_cost;
+	r1 = id1;
+	r2 = id2;
+	if (p1 == prev(p2)) {
+		assert(id1n == id2);
+		assert(id1 == id2p);
+		remove_cost += get_edge(id1,id1p);
+		remove_cost += get_edge(id2,id2n);
+		add_cost += get_edge(id1,id2n);
+		add_cost += get_edge(id2,id1p);
+	} else if (p2 == prev(p1)) {
+		assert(id2n == id1);
+		assert(id2 == id1p);
+		remove_cost += get_edge(id1,id1n);
+		remove_cost += get_edge(id2,id1p);
+		add_cost += get_edge(id1,id2p);
+		add_cost += get_edge(id2,id1n);
+	} else {
+		assert(id1 != id2p);
+		assert(id1 != id2n);
+		assert(id2 != id1p);
+		assert(id2 != id1n);
+		remove_cost += get_edge(id1, id1p);
+		remove_cost += get_edge(id1, id1n);
+		remove_cost += get_edge(id2, id2p);
+		remove_cost += get_edge(id2, id2n);
+		add_cost += get_edge(id1, id2p);
+		add_cost += get_edge(id1, id2n);
+		add_cost += get_edge(id2, id1p);
+		add_cost += get_edge(id2, id1n);
+	}
 
-    double previous = dist(cities[c1],cities[n1]) 
-        + dist(cities[c2], cities[n2]);
-    double current = dist(cities[c1],cities[c2]) 
-        + dist(cities[n1], cities[n2]);
-    double diff = current - previous;
-
-    for (int prev = n1, i = cities[n1].next, next = cities[i].next; i != n2; 
-            i = next, next = cities[next].next) {
-        assert(i != c1);
-        cities[i].next = prev;
-        prev = i;
-    }
-    cities[c1].next = c2;
-    cities[n1].next = n2;
-
-    route_cost += diff;
-*/
-    return 0;
+	tour[p1] = id2;
+	tour[p2] = id1;
+	position[id1] = p2;
+	position[id2] = p1;
+	route_cost += add_cost - remove_cost;
+    return route_cost;
 
 }
 
@@ -149,7 +173,7 @@ void tsp::generateMove(int, double theta)
     size_t c1, c2;
     c1 = rand_r(&seed) % ncities;
     c2 = c1 + (size_t)theta + 1;
-    if (c2 > ncities - 1)
+    if (c2 >= ncities - 1)
     	c2 = rand_r(&seed) % (ncities -1);
     c2 = neighbors[c1][c2].to();
     swap(c1,c2);
@@ -167,13 +191,15 @@ tsp::tsp(vector<city>& city_list)
     ncities = city_list.size();
     double dx, dy;
     tour.resize(ncities);
+    position.resize(ncities);
     edge_wt.resize(ncities);
     neighbors.resize(ncities);
     for (i=0; i < ncities; ++i){
-        tour[i]=i;
+        tour[i] = i;
+        position[i] = i;
         edge_wt[i].resize(i);
         //edge_wt[i].resize(i,0);
-        for (j=0; j < i; ++j){
+        for (j = 0; j < i; ++j){
             edge_wt[i][j] = dist(city_list[i],city_list[j]);
         }
 

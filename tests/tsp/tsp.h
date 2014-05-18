@@ -39,19 +39,23 @@ private:
         pairLess(tsp& theTsp):theTsp(theTsp){}
         bool operator () (const neighbor_pair& e1, const neighbor_pair& e2) const;
     };
+    /*
+     * Make sure that tour[position[i]] == i
+     */
     vector<size_t> tour;
+    vector<size_t> position;
     vector<vector <double> > edge_wt;
     vector<vector <neighbor_pair > > neighbors;
     //vector<city> cities;
     bool can_rollback;
     double prev_cost;
-    //mutable bool cost_valid;
     double route_cost;
     int r1, r2;
-    double swap(size_t c1, size_t c2);
     unsigned seed;
     size_t ncities;
     double get_edge(size_t i, size_t j) const {return i > j ? edge_wt[i][j] : edge_wt[j][i];}
+    size_t prev(size_t i){ return (i>0)?(i-1):(ncities-1);}
+    size_t next(size_t i){ return (i<ncities-1)?(i+1):0;}
     //bool less(const neighbor_pair& e1, const neighbor_pair& e2) const;
 public:
     tsp(vector<city>& city_list);
@@ -60,6 +64,7 @@ public:
     //void print_route(ostream &) const;
     // void add_city(city);
     size_t get_ncities() const {return ncities;}
+    double swap(size_t c1, size_t c2);
     double calc_tour() const;
     int getDimension();
     void generateMove(int, double);
