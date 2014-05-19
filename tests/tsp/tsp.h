@@ -63,9 +63,7 @@ private:
 public:
     tsp(vector<city>& city_list);
     tsp();
-    //void print_array(ostream &) const;
     string print_route() const;
-    // void add_city(city);
     size_t get_ncities() const {return ncities;}
     double swap(size_t c1, size_t c2);
     double calc_tour() const;
@@ -73,8 +71,8 @@ public:
     void generateMove(int, double);
     void restoreMove(int);
     double get_score() const {return route_cost;}
-    //double step(int c1, int c2);
     double roll_back();
+    void save_tsplib_xml(const char* name) const;
 };
 
 #endif

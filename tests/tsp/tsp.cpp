@@ -1,11 +1,13 @@
-#include "tsp.h"
 #include <cassert>
 #include <ctime>
 #include <cstdlib>
 #include <sstream>
 #include <cmath>
 #include <algorithm>
-#include <iosfwd>
+
+#include <libxml/tree.h>
+
+#include "tsp.h"
 
 using namespace std;
 
@@ -28,30 +30,6 @@ double dist(const city &c1, const city &c2)
     return sqrt(dx*dx + dy*dy);
 }
 
-/*
-void tsp::add_city(city the_city)
-{
-    if (ncities > 0)
-        cities.back().next = ncities;
-    cities.push_back(the_city);
-    can_rollback = false;
-    ncities = cities.size();
-    cities.back().next = 0;
-
-}
-
-
-void tsp::print_array(ostream &o) const
-{
-    for (vector<city>::const_iterator it = cities.begin(); it != cities.end();
-            it++) {
-        if (it != cities.begin())
-            o << "->";
-        o << *it << it->next;
-    }
-    o << endl;
-}
-*/
 string tsp::print_route() const
 {
 	ostringstream convert;
@@ -134,25 +112,6 @@ bool tsp::pairLess::operator() (const neighbor_pair& e1, const neighbor_pair& e2
 
 }
 
-/*
-double tsp::step(int c1, int c2)
-{
-    int n = cities.size();
-    if (c1 < 0 || c1 >= n || c2 < 0 || c2 >= n)
-        return -1;
-    if (c1 == c2) {
-    	can_rollback = false;
-    	return 0;
-    }
-
-
-    r1 = c1;
-    r2 = cities[c1].next;
-    can_rollback = true;
-
-    return swap(c1, c2);
-}
-*/
 double tsp::roll_back()
 {
     if (!can_rollback)
@@ -197,7 +156,6 @@ tsp::tsp(vector<city>& city_list)
         tour[i] = i;
         position[i] = i;
         edge_wt[i].resize(i);
-        //edge_wt[i].resize(i,0);
         for (j = 0; j < i; ++j){
             edge_wt[i][j] = dist(city_list[i],city_list[j]);
         }
@@ -207,8 +165,8 @@ tsp::tsp(vector<city>& city_list)
         for (j = 0; j < ncities; ++j) {
             if (j != i) {
                 neighbors[i].push_back(neighbor_pair(i,j));
-                sort(neighbors[i].begin(),neighbors[i].end(), pairLess(*this));
             }
+            sort(neighbors[i].begin(),neighbors[i].end(), pairLess(*this));
         }
     }
     can_rollback = false;
@@ -226,4 +184,30 @@ tsp::tsp()
     r1 = r2 = 0; // just to avoid having uninialized variables
     seed = time(NULL);
     ncities = 0;
+}
+
+void tsp::save_tsplib_xml(const char *name) const
+{
+    xmlDocPtr doc = xmlNewDoc(BAD_CAST "1.0");
+    xmlNodePtr root = xmlNewNode(NULL, BAD_CAST
+                                 "travellingSalesmanProblemInstance");
+    xmlNodePtr graph = xmlNewChild(root, NULL, BAD_CAST "graph",NULL);
+    xmlNodePtr vertex_iter = NULL;
+    xmlNodePtr edge_iter = NULL;
+    char *id_str = NULL;
+    for (size_t i = 0; i < ncities; ++i) {
+        vertex_iter = xmlNewChild(graph, NULL, BAD_CAST "vertex", NULL);
+        for (size_t j = 0; j < ncities; ++j) {
+            if (j != i) {
+                asprintf(& id_str, "%ld",j);
+                edge_iter = xmlNewChild(vertex_iter, NULL, BAD_CAST "edge",
+                                        BAD_CAST id_str);
+
+            }
+        }
+
+    }
+    xmlDocSetRootElement(doc, root);
+
+
 }

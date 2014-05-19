@@ -1,7 +1,8 @@
-#include "tsp.h"
 #include <fstream>
 #include <iostream>
 #include <vector>
+
+#include "tsp.h"
 
 using namespace std;
 
@@ -18,6 +19,8 @@ int main (int argc, char **argv)
     clist.push_back(city(3,0));
 
     tsp test_tsp(clist);
+
+    cout.precision(16);
 
     cout << "The initial cost is " << test_tsp.get_score() << endl;
     cout << "The initail tour is:" << endl << test_tsp.print_route();
