@@ -34,13 +34,13 @@ int main(int argc, char **argv)
         tsp_anneal(test_tsp, &rnd, scheduleParam, rejCntParam, root);
 
     //tsp_problem test_problem(&test_tsp);
-    test_tsp.print_route(cout);
+    //test_tsp.print_route(cout);
     //simpleSchedule tsp_anneal(&test_problem, root);
     cout << "The finial energy is " << tsp_anneal.loop() << endl;
     cout << "The energy cached is " << test_tsp.get_score() << endl;
     cout << "The real energy is " << test_tsp.calc_tour() << endl;
 
-    test_tsp.print_route(cout);
+    //test_tsp.print_route(cout);
     return 0;
 
 }

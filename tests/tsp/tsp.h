@@ -4,6 +4,7 @@
 #include<vector>
 #include<list>
 #include<ostream>
+#include<string>
 
 using namespace std;
 
@@ -33,6 +34,7 @@ private:
         size_t to() const {return pair[1];}
         size_t& to() {return pair[1];}
     };
+    // This is the functor used in sorting the neighbors.
     struct pairLess
     {
         tsp& theTsp;
@@ -46,22 +48,23 @@ private:
     vector<size_t> position;
     vector<vector <double> > edge_wt;
     vector<vector <neighbor_pair > > neighbors;
-    //vector<city> cities;
+
     bool can_rollback;
     double prev_cost;
     double route_cost;
     int r1, r2;
     unsigned seed;
     size_t ncities;
+
     double get_edge(size_t i, size_t j) const {return i > j ? edge_wt[i][j] : edge_wt[j][i];}
     size_t prev(size_t i){ return (i>0)?(i-1):(ncities-1);}
     size_t next(size_t i){ return (i<ncities-1)?(i+1):0;}
-    //bool less(const neighbor_pair& e1, const neighbor_pair& e2) const;
+
 public:
     tsp(vector<city>& city_list);
     tsp();
     //void print_array(ostream &) const;
-    //void print_route(ostream &) const;
+    string print_route() const;
     // void add_city(city);
     size_t get_ncities() const {return ncities;}
     double swap(size_t c1, size_t c2);

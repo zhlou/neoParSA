@@ -2,9 +2,10 @@
 #include <cassert>
 #include <ctime>
 #include <cstdlib>
-#include <iostream>
+#include <sstream>
 #include <cmath>
 #include <algorithm>
+#include <iosfwd>
 
 using namespace std;
 
@@ -50,20 +51,17 @@ void tsp::print_array(ostream &o) const
     }
     o << endl;
 }
-
-void tsp::print_route(ostream &o) const
-{
-    if (cities.size() <= 0)
-        return;
-    
-    o << cities[0];
-    for (int i = cities[0].next; i != 0; i = cities[i].next) {
-        o << "->";
-        o << cities[i];
-    }
-    o << endl;
-}
 */
+string tsp::print_route() const
+{
+	ostringstream convert;
+	for (int i = 0; i < ncities; ++i) {
+		convert << tour[i] << " -> ";
+	}
+	convert << tour[0] << endl;
+	return convert.str();
+}
+
 double tsp::calc_tour() const
 {
     double cost = .0;
@@ -125,6 +123,7 @@ double tsp::swap(size_t id1, size_t id2)
 	position[id1] = p2;
 	position[id2] = p1;
 	route_cost += add_cost - remove_cost;
+	can_rollback = true;
     return route_cost;
 
 }

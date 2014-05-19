@@ -20,6 +20,12 @@ int main (int argc, char **argv)
     tsp test_tsp(clist);
 
     cout << "The initial cost is " << test_tsp.get_score() << endl;
+    cout << "The initail tour is:" << endl << test_tsp.print_route();
+    test_tsp.swap(2,3);
+    cout << endl;
+    cout << "After swap, cost is " << test_tsp.get_score() << endl;
+    cout << "            real cost is " << test_tsp.calc_tour() << endl;
+    cout << "            tour is " << endl << test_tsp.print_route();
 //    ifstream ifile("input.dat");
 //    if (!ifile)
 //        return -1;
