@@ -80,7 +80,7 @@ double tsp::swap(size_t id1, size_t id2)
 		assert(id2n == id1);
 		assert(id2 == id1p);
 		remove_cost += get_edge(id1,id1n);
-		remove_cost += get_edge(id2,id1p);
+		remove_cost += get_edge(id2,id2p);
 		add_cost += get_edge(id1,id2p);
 		add_cost += get_edge(id2,id1n);
 	} else {

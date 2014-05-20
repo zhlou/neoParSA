@@ -1,0 +1,81 @@
+<?xml version="1.0"?>
+<travellingSalesmanProblemInstance>
+  <annealer_input init_T="1000" lambda="0.001" init_loop="1000"></annealer_input>
+  <count_reject max_rej="100"></count_reject>
+  <exponential alpha="0.0001" max_rej="100" log_freq="100"></exponential>
+  <move gain="0.03" interval="100" target="0.44"></move>
+  <graph>
+    <vertex>
+      <edge cost="1.000000000000000e+00">1</edge>
+      <edge cost="1.000000000000000e+00">2</edge>
+      <edge cost="1.414213562373095e+00">3</edge>
+      <edge cost="2.000000000000000e+00">4</edge>
+      <edge cost="2.236067977499790e+00">5</edge>
+      <edge cost="3.000000000000000e+00">6</edge>
+      <edge cost="3.162277660168380e+00">7</edge>
+    </vertex>
+    <vertex>
+      <edge cost="1.000000000000000e+00">0</edge>
+      <edge cost="1.414213562373095e+00">2</edge>
+      <edge cost="1.000000000000000e+00">3</edge>
+      <edge cost="2.236067977499790e+00">4</edge>
+      <edge cost="2.000000000000000e+00">5</edge>
+      <edge cost="3.162277660168380e+00">6</edge>
+      <edge cost="3.000000000000000e+00">7</edge>
+    </vertex>
+    <vertex>
+      <edge cost="1.000000000000000e+00">0</edge>
+      <edge cost="1.414213562373095e+00">1</edge>
+      <edge cost="1.000000000000000e+00">3</edge>
+      <edge cost="1.000000000000000e+00">4</edge>
+      <edge cost="1.414213562373095e+00">5</edge>
+      <edge cost="2.000000000000000e+00">6</edge>
+      <edge cost="2.236067977499790e+00">7</edge>
+    </vertex>
+    <vertex>
+      <edge cost="1.414213562373095e+00">0</edge>
+      <edge cost="1.000000000000000e+00">1</edge>
+      <edge cost="1.000000000000000e+00">2</edge>
+      <edge cost="1.414213562373095e+00">4</edge>
+      <edge cost="1.000000000000000e+00">5</edge>
+      <edge cost="2.236067977499790e+00">6</edge>
+      <edge cost="2.000000000000000e+00">7</edge>
+    </vertex>
+    <vertex>
+      <edge cost="2.000000000000000e+00">0</edge>
+      <edge cost="2.236067977499790e+00">1</edge>
+      <edge cost="1.000000000000000e+00">2</edge>
+      <edge cost="1.414213562373095e+00">3</edge>
+      <edge cost="1.000000000000000e+00">5</edge>
+      <edge cost="1.000000000000000e+00">6</edge>
+      <edge cost="1.414213562373095e+00">7</edge>
+    </vertex>
+    <vertex>
+      <edge cost="2.236067977499790e+00">0</edge>
+      <edge cost="2.000000000000000e+00">1</edge>
+      <edge cost="1.414213562373095e+00">2</edge>
+      <edge cost="1.000000000000000e+00">3</edge>
+      <edge cost="1.000000000000000e+00">4</edge>
+      <edge cost="1.414213562373095e+00">6</edge>
+      <edge cost="1.000000000000000e+00">7</edge>
+    </vertex>
+    <vertex>
+      <edge cost="3.000000000000000e+00">0</edge>
+      <edge cost="3.162277660168380e+00">1</edge>
+      <edge cost="2.000000000000000e+00">2</edge>
+      <edge cost="2.236067977499790e+00">3</edge>
+      <edge cost="1.000000000000000e+00">4</edge>
+      <edge cost="1.414213562373095e+00">5</edge>
+      <edge cost="1.000000000000000e+00">7</edge>
+    </vertex>
+    <vertex>
+      <edge cost="3.162277660168380e+00">0</edge>
+      <edge cost="3.000000000000000e+00">1</edge>
+      <edge cost="2.236067977499790e+00">2</edge>
+      <edge cost="2.000000000000000e+00">3</edge>
+      <edge cost="1.414213562373095e+00">4</edge>
+      <edge cost="1.000000000000000e+00">5</edge>
+      <edge cost="1.000000000000000e+00">6</edge>
+    </vertex>
+  </graph>
+</travellingSalesmanProblemInstance>

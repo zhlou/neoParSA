@@ -13,18 +13,10 @@ using namespace std;
 
 int main(int argc, char **argv)
 {
-    const char *xmlfile = "tsp.xml";
+    const char *xmlfile = "test8.xml";
     xmlDoc *doc = xmlParseFile(xmlfile);
     xmlNode *root = xmlDocGetRootElement(doc);
-    tsp test_tsp;
-    ifstream ifile("input.dat");
-    if (!ifile)
-        return -1;
-    double x, y;
-    while (!ifile.eof()) {
-        ifile >> x >> y;
-        test_tsp.add_city(city(x, y));
-    }
+    tsp test_tsp(root);
     unirandom rnd;
     //feedbackMove<tsp, debugIGNORE> tsp_problem(test_tsp, rnd, root);
     //simpleSchedule schedule(root);
