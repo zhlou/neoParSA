@@ -1,10 +1,12 @@
 #ifndef TSP_H
 #define TSP_H
 
-#include<vector>
-#include<list>
-#include<ostream>
-#include<string>
+#include <vector>
+#include <list>
+#include <ostream>
+#include <string>
+
+#include <libxml/tree.h>
 
 using namespace std;
 
@@ -61,8 +63,9 @@ private:
     size_t next(size_t i){ return (i<ncities-1)?(i+1):0;}
 
 public:
-    tsp(vector<city>& city_list);
     tsp();
+    tsp(vector<city>& city_list);
+    tsp(xmlNodePtr docroot);
     string print_route() const;
     size_t get_ncities() const {return ncities;}
     double swap(size_t c1, size_t c2);

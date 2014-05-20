@@ -8,6 +8,7 @@
 #include <libxml/tree.h>
 
 #include "tsp.h"
+#include "utils.h"
 
 using namespace std;
 
@@ -184,6 +185,27 @@ tsp::tsp()
     r1 = r2 = 0; // just to avoid having uninialized variables
     seed = time(NULL);
     ncities = 0;
+}
+
+tsp::tsp(xmlNodePtr docroot)
+{
+	xmlNodePtr graph = getSectionByName(docroot, "graph");
+	if (!graph)
+		throw runtime_error(string("Error: fail to find section graph"));
+
+	size_t i = 0, j = 0;
+	xmlNodePtr v_iter = graph->children;
+	xmlNodePtr e_iter = NULL;
+	while(v_iter != NULL) {
+		if (!xmlStrcmp(v_iter->name, BAD_CAST "vertex")) {
+			tour.push_back(i);
+			position.push_back(i);
+			++i;
+		}
+		v_iter = v_iter->next;
+	}
+
+
 }
 
 void tsp::save_tsplib_xml(const char *name) const
