@@ -2,12 +2,18 @@
 #include <iostream>
 #include <vector>
 
+#include <libxml/parser.h>
 #include "tsp.h"
 
 using namespace std;
 
 int main (int argc, char **argv)
 {
+    char xmlname[] = "test8.xml";
+    xmlDocPtr doc = xmlParseFile(xmlname);
+    xmlNodePtr root = xmlDocGetRootElement(doc);
+    tsp test_tsp(root);
+    /*
     vector<city> clist;
     clist.push_back(city(0,1));
     clist.push_back(city(0,0));
@@ -19,6 +25,7 @@ int main (int argc, char **argv)
     clist.push_back(city(3,0));
 
     tsp test_tsp(clist);
+    */
     test_tsp.save_tsplib_xml("test8.xml");
 
     cout.precision(16);

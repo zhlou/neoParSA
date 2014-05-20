@@ -4,6 +4,7 @@
 #include <sstream>
 #include <cmath>
 #include <algorithm>
+#include <stdexcept>
 
 #include <libxml/tree.h>
 
@@ -196,15 +197,44 @@ tsp::tsp(xmlNodePtr docroot)
 	size_t i = 0, j = 0;
 	xmlNodePtr v_iter = graph->children;
 	xmlNodePtr e_iter = NULL;
-	while(v_iter != NULL) {
-		if (!xmlStrcmp(v_iter->name, BAD_CAST "vertex")) {
-			tour.push_back(i);
-			position.push_back(i);
-			++i;
+	double wt;
+	char * text_buf = NULL;
+	for (v_iter = graph->children; v_iter != NULL; v_iter = v_iter->next){
+		if (xmlStrcmp(v_iter->name, BAD_CAST "vertex"))
+		    continue;
+		tour.push_back(i);
+		position.push_back(i);
+		edge_wt.push_back(vector<double>());
+		for (e_iter = v_iter->children; e_iter != NULL; e_iter = e_iter->next) {
+		    if (xmlStrcmp(e_iter->name, BAD_CAST "edge"))
+		        continue;
+		    text_buf = (char *)xmlNodeGetContent(e_iter);
+		    sscanf(text_buf,"%lu",&j);
+		    xmlFree(text_buf);
+		    if (j < i) {
+		        text_buf = (char *)xmlGetProp(e_iter,BAD_CAST "cost");
+		        sscanf(text_buf,"%lf",&wt);
+		        xmlFree(text_buf);
+		        edge_wt[i].push_back(wt);
+		    }
 		}
-		v_iter = v_iter->next;
+		++i;
 	}
-
+	ncities = tour.size();
+	neighbors.resize(ncities);
+    for (i = 0; i < ncities; ++i) {
+        for (j = 0; j < ncities; ++j) {
+            if (j != i) {
+                neighbors[i].push_back(neighbor_pair(i,j));
+            }
+            sort(neighbors[i].begin(),neighbors[i].end(), pairLess(*this));
+        }
+    }
+    can_rollback = false;
+    route_cost = calc_tour();
+    prev_cost = route_cost;
+    r1 = r2 = 0;
+    seed = time(NULL);
 
 }
 
@@ -233,6 +263,7 @@ void tsp::save_tsplib_xml(const char *name) const
     }
     xmlDocSetRootElement(doc, root);
     xmlSaveFormatFile(name, doc, 1);
+    xmlFreeDoc(doc);
 
 
 }
