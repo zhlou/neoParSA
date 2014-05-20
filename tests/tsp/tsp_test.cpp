@@ -19,6 +19,7 @@ int main (int argc, char **argv)
     clist.push_back(city(3,0));
 
     tsp test_tsp(clist);
+    test_tsp.save_tsplib_xml("test8.xml");
 
     cout.precision(16);
 

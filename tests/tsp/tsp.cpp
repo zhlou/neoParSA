@@ -194,20 +194,23 @@ void tsp::save_tsplib_xml(const char *name) const
     xmlNodePtr graph = xmlNewChild(root, NULL, BAD_CAST "graph",NULL);
     xmlNodePtr vertex_iter = NULL;
     xmlNodePtr edge_iter = NULL;
-    char *id_str = NULL;
+    char *text_buf = NULL;
     for (size_t i = 0; i < ncities; ++i) {
         vertex_iter = xmlNewChild(graph, NULL, BAD_CAST "vertex", NULL);
         for (size_t j = 0; j < ncities; ++j) {
             if (j != i) {
-                asprintf(& id_str, "%ld",j);
+                asprintf(& text_buf, "%lu",j);
                 edge_iter = xmlNewChild(vertex_iter, NULL, BAD_CAST "edge",
-                                        BAD_CAST id_str);
-
+                                        BAD_CAST text_buf);
+                free(text_buf);
+                asprintf(&text_buf, "%.15e",get_edge(i,j));
+                xmlNewProp(edge_iter, BAD_CAST"cost", BAD_CAST text_buf);
+                free(text_buf);
             }
         }
-
     }
     xmlDocSetRootElement(doc, root);
+    xmlSaveFormatFile(name, doc, 1);
 
 
 }
