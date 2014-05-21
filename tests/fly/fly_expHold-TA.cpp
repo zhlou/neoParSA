@@ -60,7 +60,7 @@ int main(int argc, char **argv)
     pannealer<fly, expHoldP, tempCountP, FBNCTheta, pulseBcast>
             *fly_sa = new pannealer<fly, expHoldP, tempCountP,
                                     FBNCTheta, pulseBcast>
-            (theFly, &rnd, scheParam, frozenParam, docroot, mpi);
+            (theFly, rnd, scheParam, frozenParam, docroot, mpi);
     if (mpi.rank == 0) {
         fly_sa->setCoolLog(file,(flyParams.infile_name + ".log").c_str());
         fly_sa->setProlix(file, (flyParams.infile_name + ".prolix").c_str());

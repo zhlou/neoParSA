@@ -10,7 +10,7 @@ const char *FBMoveNoComm<Problem>::name = "FeedbackMoveNoComm";
 
 template<class Problem>
 FBMoveNoComm<Problem>::FBMoveNoComm(Problem& in_problem,
-        unirandom* const in_rnd, xmlNode* root, const MPIState& mpiState) :
+        unirandom& in_rnd, xmlNode* root, const MPIState& mpiState) :
         feedbackMove<Problem>(in_problem, in_rnd, root), mpi(mpiState)
 {
     theta_buf = new double[this->nparams];

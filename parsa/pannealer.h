@@ -14,7 +14,7 @@ template <class Problem, class Schedule, class FrozenCnd, template<class> class 
 class pannealer : public annealer<Problem, Schedule, FrozenCnd, Move>
 {
 public:
-    pannealer(Problem &problem, unirandom * const in_rand,
+    pannealer(Problem &problem, unirandom& in_rand,
               typename Schedule::Param scheParam,
               typename FrozenCnd::Param frozenParam, xmlNode *root,
               const MPIState &mpiState);

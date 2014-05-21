@@ -20,7 +20,7 @@ class pulseBcast
 private:
     Problem &problem;
     const MPIState &mpi;
-    unirandom * const rnd;
+    unirandom& rnd;
     void *state_buf;
     const int buf_size;
     unsigned counter;
@@ -28,7 +28,7 @@ private:
     dynDebug debugOut;
 public:
     pulseBcast(Problem &problem, const MPIState &mpiState,
-               unirandom * const in_rnd, xmlNode *docroot);
+               unirandom& in_rnd, xmlNode *docroot);
     ~pulseBcast();
     mixState Mix(aState &state);
     void setDebug(debugStatus st, const char* outname=NULL)

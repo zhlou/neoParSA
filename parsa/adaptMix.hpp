@@ -14,7 +14,7 @@ const char *adaptMix<Problem>::name = "adaptiveMixing";
 
 template<class Problem>
 adaptMix<Problem>::adaptMix(Problem& in_problem, const MPIState& mpiState,
-        unirandom * const in_rnd, xmlNode *docroot) :
+        unirandom& in_rnd, xmlNode *docroot) :
         mix(in_problem, mpiState, in_rnd), rnd(in_rnd), nnodes(mpiState.nnodes),
         root(docroot)
 {
@@ -34,7 +34,7 @@ template<class Problem>
 mixState adaptMix<Problem>::Mix(aState& state)
 {
     mix.calProbTab(state);
-    double rand = rnd->random();
+    double rand = rnd.random();
     if (rand > adaptCoef * nnodes / mix.getNorm()) {
         int i = mix.getPartner();
         // cout << "rank " << mpi.rank << " adopts state from rank " << i << endl;

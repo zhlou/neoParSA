@@ -13,7 +13,7 @@ const char * pulseNoAdopt<Problem>::name = "pulseNoAdopt";
 
 template<class Problem>
 pulseNoAdopt<Problem>::pulseNoAdopt(Problem& in_problem, const MPIState& mpiState,
-                                unirandom* const in_rnd, xmlNode* docroot) :
+                                unirandom& in_rnd, xmlNode* docroot) :
         problem(in_problem), mpi(mpiState), rnd(in_rnd), counter(0)
 {
     xmlNode *section = getSectionByName(docroot, "pulseBcast");
@@ -53,7 +53,7 @@ mixState pulseNoAdopt<Problem>::Mix(aState& state)
         // Thus we do one step of Metropolis algorithm
         double delta = energy - state.energy;
         double crit = 1.0 - std::exp(state.s * delta); // no negative sign here
-        double randval = rnd->random();
+        double randval = rnd.random();
         if ((delta <= 0.0) && (crit > randval)) { // adopt the incoming state
             // problem.deserialize(state_buf);
             // state.energy = energy;

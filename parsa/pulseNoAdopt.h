@@ -19,7 +19,7 @@ class pulseNoAdopt
 private:
     Problem &problem;
     const MPIState &mpi;
-    unirandom * const rnd;
+    unirandom& rnd;
     //void *state_buf;
     //const int buf_size;
     unsigned counter;
@@ -27,7 +27,7 @@ private:
     dynDebug debugOut;
 public:
     pulseNoAdopt(Problem &problem, const MPIState &mpiState,
-                 unirandom * const in_rnd, xmlNode *docroot);
+                 unirandom& in_rnd, xmlNode *docroot);
     ~pulseNoAdopt();
     mixState Mix(aState &state);
     static const char * name;

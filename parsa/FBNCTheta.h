@@ -26,7 +26,7 @@ private:
     void *local_buf;
     const int buf_size;
 public:
-    FBNCTheta(Problem &in_problem, unirandom * const in_rnd, xmlNode *root,
+    FBNCTheta(Problem &in_problem, unirandom& in_rnd, xmlNode *root,
               const MPIState &mpiState);
     ~FBNCTheta();
     int getWinner();

@@ -17,7 +17,7 @@ template<class Problem>
 class parallelFBMove: public feedbackMove<Problem>
 {
 public:
-    parallelFBMove(Problem &in_problem, unirandom * const in_rnd, xmlNode *root,
+    parallelFBMove(Problem &in_problem, unirandom& in_rnd, xmlNode *root,
                    const MPIState &mpiState);
     ~parallelFBMove();
     int getWinner();

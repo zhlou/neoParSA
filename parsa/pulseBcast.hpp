@@ -14,7 +14,7 @@ const char * pulseBcast<Problem>::name = "pulseBcast";
 
 template<class Problem>
 pulseBcast<Problem>::pulseBcast(Problem& in_problem, const MPIState& mpiState,
-                                unirandom* const in_rnd, xmlNode* docroot) :
+                                unirandom& in_rnd, xmlNode* docroot) :
         problem(in_problem), mpi(mpiState), rnd(in_rnd), counter(0),
         buf_size(problem.getStateSize())
 {
@@ -55,7 +55,7 @@ mixState pulseBcast<Problem>::Mix(aState& state)
         // Thus we do one step of Metropolis algorithm
         double delta = energy - state.energy;
         double crit = 1.0 - std::exp(state.s * delta); // no negative sign here
-        double randval = rnd->random();
+        double randval = rnd.random();
         debugOut << "step " << state.step_cnt << " "
                  << "proc " << mpi.rank << ": " << state.energy << " <- "
                  << "proc " << root << ": " << energy << " @ " << state.s

@@ -19,7 +19,7 @@ using namespace std;
  */
 template<class Problem, class Schedule, class FrozenCnd, template<class> class Move>
 annealer<Problem, Schedule, FrozenCnd, Move>::annealer(Problem &problem,
-        unirandom * const in_rand, typename Schedule::Param scheParam,
+        unirandom& in_rand, typename Schedule::Param scheParam,
         typename FrozenCnd::Param frozenParam,
         xmlNode *root) :
         rand(in_rand), xmlroot(root)
@@ -37,7 +37,7 @@ annealer<Problem, Schedule, FrozenCnd, Move>::annealer(Problem &problem,
  * of generating cooling schedule and move scheme
  */
 template<class Problem, class Schedule, class FrozenCnd, template<class> class Move>
-annealer<Problem, Schedule, FrozenCnd, Move>::annealer(unirandom * const in_rand,
+annealer<Problem, Schedule, FrozenCnd, Move>::annealer(unirandom& in_rand,
         xmlNode *root) :
         rand(in_rand), xmlroot(root)
 {
@@ -188,7 +188,7 @@ bool annealer<Problem, Schedule, FrozenCnd, Move>::step()
     delta = move->propose();
     // cout << state.energy + delta << "@" << state.step_cnt << endl;
     crit = std::exp(-state.s * delta);
-    ran_n = rand->random();
+    ran_n = rand.random();
     if ((delta <= 0.0) || crit > ran_n) {
         move->accept();
         state.energy += delta;

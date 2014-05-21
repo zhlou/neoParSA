@@ -39,7 +39,7 @@ int main(int argc, char **argv)
     oneStep::Param scheduleParam(docroot);
     maxSteps::Param frozenParam(docroot);
     annealer<fly, oneStep, maxSteps, feedbackMove>
-        fly_pulse(theFly, &rnd, scheduleParam, frozenParam, docroot);
+        fly_pulse(theFly, rnd, scheduleParam, frozenParam, docroot);
     fly_pulse.setStepLog(file, (flyParams.infile_name+".steplog").c_str());
     fly_pulse.loop();
     xmlFreeDoc(doc);

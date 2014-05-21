@@ -18,7 +18,7 @@ template <class Problem>
 class intervalMix {
 public:
     intervalMix(Problem &in_problem, const MPIState &mpiState,
-                unirandom * const in_rand, xmlNode *docroot);
+                unirandom& in_rand, xmlNode *docroot);
     ~intervalMix();
     mixState Mix(aState &state);
     static const char * name;

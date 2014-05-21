@@ -17,7 +17,7 @@ class Mixing
 private:
     Problem &problem;
     const MPIState &mpi;
-    unirandom * const rnd;
+    unirandom& rnd;
 
     MPI_Win state_win;
     void *state_buf;
@@ -26,7 +26,7 @@ private:
     double *prob_tab;
     double norm;
 public:
-    Mixing(Problem &problem, const MPIState &mpiState, unirandom * const in_rnd);
+    Mixing(Problem &problem, const MPIState &mpiState, unirandom& in_rnd);
     ~Mixing();
     void calProbTab(const aState &state);
     double getNorm() const {return norm;}

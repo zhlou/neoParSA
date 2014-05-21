@@ -80,7 +80,7 @@ int main(int argc, char **argv)
     pannealer<rastrigin, expHoldP, tempCountP, parallelFBMove, intervalMix>
             *rst_sa = new pannealer<rastrigin, expHoldP, tempCountP,
                                     parallelFBMove, intervalMix>
-            (rst, &rnd, scheParam, frozenParam, docroot, mpi);
+            (rst, rnd, scheParam, frozenParam, docroot, mpi);
     string basename(docname);
     size_t sz = basename.size();
     basename.resize(sz-4);

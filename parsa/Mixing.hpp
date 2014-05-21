@@ -10,7 +10,7 @@ using namespace std;
 
 template<typename Problem>
 Mixing<Problem>::Mixing(Problem & in_problem, const MPIState &mpiState,
-                  unirandom * const in_rnd) :
+                  unirandom& in_rnd) :
         problem(in_problem), mpi(mpiState), rnd(in_rnd)
 {
     energy_tab = new double[mpi.nnodes];
@@ -83,7 +83,7 @@ double Mixing<Problem>::adoptState(int Id)
 template<typename Problem>
 int Mixing<Problem>::getPartner() const
 {
-    double rand = rnd->random();
+    double rand = rnd.random();
     double psum = 0.;
     int i;
     for (i = 0; i < mpi.nnodes; ++i) {

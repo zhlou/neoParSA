@@ -14,7 +14,7 @@ template <class Problem>
 const char * intervalMix<Problem>::name = "intervalMix";
 template<class Problem>
 intervalMix<Problem>::intervalMix(Problem &in_problem, const MPIState &mpiState,
-                                  unirandom * const in_rand, xmlNode *docroot) :
+                                  unirandom& in_rand, xmlNode *docroot) :
         mix(in_problem, mpiState, in_rand), root(docroot),
         interval(readInterval(root)), tau_count(0)
 {

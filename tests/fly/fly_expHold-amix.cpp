@@ -65,7 +65,7 @@ int main(int argc, char **argv)
     pannealer<fly, expHoldP, tempCountP, parallelFBMove, adaptMix>
             *fly_sa = new pannealer<fly, expHoldP, tempCountP,
                                     parallelFBMove, adaptMix>
-            (theFly, &rnd, scheParam, frozenParam, docroot, mpi);
+            (theFly, rnd, scheParam, frozenParam, docroot, mpi);
     string outprefix = flyParams.infile_name + "_" +
             ((ostringstream*)&(ostringstream()<<mpi.rank))->str();
     if (isprolix) {

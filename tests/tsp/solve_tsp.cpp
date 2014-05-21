@@ -23,7 +23,7 @@ int main(int argc, char **argv)
     exponential::Param scheduleParam(root);
     rejCount::Param rejCntParam(root);
     annealer<tsp, exponential, rejCount, feedbackMove>
-        tsp_anneal(test_tsp, &rnd, scheduleParam, rejCntParam, root);
+        tsp_anneal(test_tsp, rnd, scheduleParam, rejCntParam, root);
 
     //tsp_problem test_problem(&test_tsp);
     //test_tsp.print_route(cout);

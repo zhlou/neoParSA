@@ -22,7 +22,7 @@ template<class Problem>
 class FBMoveNoComm: public feedbackMove<Problem>
 {
 public:
-    FBMoveNoComm(Problem &in_problem, unirandom * const in_rnd, xmlNode *root,
+    FBMoveNoComm(Problem &in_problem, unirandom& in_rnd, xmlNode *root,
                  const MPIState &miState);
     ~FBMoveNoComm();
     int getWinner();

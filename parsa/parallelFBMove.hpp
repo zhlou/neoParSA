@@ -9,7 +9,7 @@ const char *parallelFBMove<Problem>::name = "parallelFeedbackMove";
 
 template<class Problem>
 parallelFBMove<Problem>::parallelFBMove(Problem& in_problem,
-        unirandom * const in_rnd, xmlNode* root,
+        unirandom& in_rnd, xmlNode* root,
         const MPIState &mpiState) :
         feedbackMove<Problem>(in_problem, in_rnd, root), mpi(mpiState)
 {

@@ -55,7 +55,7 @@ int main(int argc, char **argv)
     //        rst_anneal(*pschedule, *rst_problem, rnd, docroot);
     pannealer<rastrigin, plsa, criCountP, parallelFBMove, adaptMix> *rst_anneal =
             new pannealer<rastrigin, plsa, criCountP, parallelFBMove, adaptMix>
-            (rst, &rnd, scheduleParam, criCntParam, docroot, mpi);
+            (rst, rnd, scheduleParam, criCntParam, docroot, mpi);
     cout << "The initial state is " << endl;
     rst.print_solution(cout);
     cout << "The fininal energy is " << rst_anneal->loop() << endl;

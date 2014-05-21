@@ -29,7 +29,7 @@ int main(int argc, char **argv)
 	lam::Param scheduleParam(docroot);
 	criCount::Param criCntParam(docroot);
 	annealer<rastrigin, lam, criCount, feedbackMove>
-	        rst_anneal(rst, &rnd, scheduleParam, criCntParam, docroot);
+	        rst_anneal(rst, rnd, scheduleParam, criCntParam, docroot);
 	//rastrigin_problem rst_problem(&rst, docroot);
 	//lam rst_anneal(&rst_problem, docroot);
 	cout << "The initial state is " << endl;

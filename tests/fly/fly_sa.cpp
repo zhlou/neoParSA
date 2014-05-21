@@ -48,7 +48,7 @@ int main(int argc, char **argv)
     lam::Param scheParam(docroot);
     criCount::Param criCntParam(docroot);
     annealer<fly, lam, criCount, feedbackMove>
-        fly_sa(theFly,&rnd, scheParam, criCntParam, docroot);
+        fly_sa(theFly,rnd, scheParam, criCntParam, docroot);
     fly_sa.setCoolLog(file, (flyParams.infile_name+".log").c_str());
     fly_sa.setProlix(file, (flyParams.infile_name+".prolix").c_str());
     if (equil)

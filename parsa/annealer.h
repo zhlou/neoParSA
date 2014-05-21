@@ -46,7 +46,7 @@ template <class Problem, class Schedule, class FrozenCnd, template<class> class 
 class annealer
 {
 public:
-    annealer(Problem &problem, unirandom * const in_rand,
+    annealer(Problem &problem, unirandom& in_rand,
              typename Schedule::Param scheParam,
              typename FrozenCnd::Param frozenParam, xmlNode *root);
     virtual ~annealer();
@@ -68,14 +68,14 @@ protected:
     Schedule *cooling;
     FrozenCnd *frozen;
     Move<Problem> *move;
-    unirandom *const rand;
+    unirandom& rand;
     xmlNode *xmlroot;
     aState state;
     int initLoop;
     double initS;
     bool is_init;
     double tlaps;
-    annealer(unirandom * const in_rand, xmlNode *root);
+    annealer(unirandom& in_rand, xmlNode *root);
     virtual void updateSegment(aState &state) {cooling->updateSegment(state);}
 
     bool step();

@@ -56,7 +56,7 @@ int main(int argc, char **argv)
     expHold::Param scheduleParam(docroot);
     tempCount::Param tmpCntParam(docroot);
     annealer<fly, expHold, tempCount, feedbackMove>
-        fly_expHold(theFly, &rnd, scheduleParam, tmpCntParam, docroot);
+        fly_expHold(theFly, rnd, scheduleParam, tmpCntParam, docroot);
     fly_expHold.setStepLog(file, (flyParams.infile_name+".steplog").c_str());
     if (isprolix) {
         fly_expHold.setProlix(file,(flyParams.infile_name+".prolix").c_str());

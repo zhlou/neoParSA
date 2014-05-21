@@ -69,7 +69,7 @@ int main(int argc, char **argv)
     tempCount::Param frozenParam(docroot);
     annealer<rastrigin, expHold, tempCount, feedbackMove>*rst_sa
             = new annealer<rastrigin, expHold, tempCount, feedbackMove>
-                  (rst, &rnd, scheParam, frozenParam, docroot);
+                  (rst, rnd, scheParam, frozenParam, docroot);
     string basename(docname);
     size_t sz = basename.size();
     basename.resize(sz-4);

@@ -8,7 +8,7 @@
 template <class Problem, class Schedule, class FrozenCnd,
           template<class> class Move, template<class> class PopBased>
 pannealer<Problem, Schedule, FrozenCnd, Move,
-          PopBased>::pannealer(Problem &problem, unirandom * const in_rand,
+          PopBased>::pannealer(Problem &problem, unirandom& in_rand,
                                typename Schedule::Param scheParam,
                                typename FrozenCnd::Param frozenParam,
                                xmlNode *root, const MPIState &mpiState) :

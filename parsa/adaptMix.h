@@ -28,7 +28,7 @@ class adaptMix
 {
 public:
     adaptMix(Problem &in_problem, const MPIState &mpiState,
-             unirandom * const in_rnd, xmlNode *docroot);
+             unirandom& in_rnd, xmlNode *docroot);
     ~adaptMix();
     mixState Mix(aState &state);
     static const char *name;
@@ -38,7 +38,7 @@ public:
     }
 private:
     Mixing<Problem> mix;
-    unirandom * const rnd;
+    unirandom& rnd;
     xmlNode *root;
     int nnodes;
 
