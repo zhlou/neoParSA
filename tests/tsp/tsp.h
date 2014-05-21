@@ -76,6 +76,7 @@ public:
     double get_score() const {return route_cost;}
     double roll_back();
     void save_tsplib_xml(const char* name) const;
+    void write_tour(xmlNodePtr xmlroot);
 };
 
 #endif

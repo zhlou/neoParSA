@@ -143,7 +143,10 @@ void tsp::generateMove(int, double theta)
 void tsp::restoreMove(int)
 {
     roll_back();
+    can_rollback = false;
 }
+
+
 
 tsp::tsp(vector<city>& city_list)
 {
@@ -264,6 +267,14 @@ void tsp::save_tsplib_xml(const char *name) const
     xmlDocSetRootElement(doc, root);
     xmlSaveFormatFile(name, doc, 1);
     xmlFreeDoc(doc);
+}
 
-
+void tsp::write_tour(xmlNodePtr xmlroot)
+{
+    char text_buf[100];
+    xmlNodePtr tourNode = xmlNewChild(xmlroot, NULL, BAD_CAST "tour", NULL);
+    for (size_t i = 0; i < ncities; ++i) {
+        sprintf(text_buf,"%lu",i);
+        xmlNewChild(tourNode, NULL, BAD_CAST "vertex", BAD_CAST text_buf);
+    }
 }
