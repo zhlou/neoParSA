@@ -6,6 +6,7 @@
  */
 #include <limits>
 #include <cstdlib>
+#include <cmath>
 using namespace std;
 
 template<class Problem>
