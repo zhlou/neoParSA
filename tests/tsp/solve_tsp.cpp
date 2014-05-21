@@ -13,7 +13,7 @@ using namespace std;
 
 int main(int argc, char **argv)
 {
-    const char *xmlfile = "test8.xml";
+    const char *xmlfile = argv[1];
     xmlDoc *doc = xmlParseFile(xmlfile);
     xmlNode *root = xmlDocGetRootElement(doc);
     tsp test_tsp(root);
@@ -28,9 +28,11 @@ int main(int argc, char **argv)
     //tsp_problem test_problem(&test_tsp);
     //test_tsp.print_route(cout);
     //simpleSchedule tsp_anneal(&test_problem, root);
+    cout.precision(16);
     cout << "The finial energy is " << tsp_anneal.loop() << endl;
     cout << "The energy cached is " << test_tsp.get_score() << endl;
     cout << "The real energy is " << test_tsp.calc_tour() << endl;
+    cout << test_tsp.print_route();
 
     //test_tsp.print_route(cout);
     return 0;
