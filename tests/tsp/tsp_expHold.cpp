@@ -84,6 +84,7 @@ int main(int argc, char **argv)
         cout << "The initial energy is " << theTSP.get_score() << endl;
         tsp_expHold.loop();
         cout << "Final energy is " << theTSP.get_score() << endl;
+        cout << "Actual energy is " << theTSP.calc_tour() << endl;
         theTSP.write_tour(xmlroot);
         tsp_expHold.writeResult();
         xmlSaveFormatFile(docname, xmldoc,1);

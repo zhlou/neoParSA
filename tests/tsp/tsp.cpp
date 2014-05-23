@@ -272,7 +272,12 @@ void tsp::save_tsplib_xml(const char *name) const
 void tsp::write_tour(xmlNodePtr xmlroot)
 {
     char text_buf[100];
-    xmlNodePtr tourNode = xmlNewChild(xmlroot, NULL, BAD_CAST "tour", NULL);
+    xmlNodePtr tourNode = getSectionByName(xmlroot, "tour");
+    if (tourNode != NULL) {
+        xmlUnlinkNode(tourNode);
+        xmlFreeNode(tourNode);
+    }
+    tourNode = xmlNewChild(xmlroot, NULL, BAD_CAST "tour", NULL);
     for (size_t i = 0; i < ncities; ++i) {
         sprintf(text_buf,"%lu",i);
         xmlNewChild(tourNode, NULL, BAD_CAST "vertex", BAD_CAST text_buf);
