@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <sstream>
 #include <cmath>
+#include <iostream>
 #include <algorithm>
 #include <stdexcept>
 
@@ -132,9 +133,12 @@ void tsp::generateMove(int, double theta)
 {
     size_t c1, c2;
     c1 = rand_r(&seed) % ncities;
-    c2 = c1 + (size_t)theta + 1;
-    if (c2 >= ncities - 1)
+    if (theta < 0)
+        theta = - theta;
+    c2 = (size_t)theta;
+    if ( (c2 >= ncities - 1) || (theta > (double) (ncities -1)))
     	c2 = rand_r(&seed) % (ncities -1);
+    cout << "move (id, theta, neighbor): (" << c1 << ", " << theta << ", " << c2 << ")" << endl;
     c2 = neighbors[c1][c2].to();
     swap(c1,c2);
     // step(c1, c2);
@@ -279,7 +283,7 @@ void tsp::write_tour(xmlNodePtr xmlroot)
     }
     tourNode = xmlNewChild(xmlroot, NULL, BAD_CAST "tour", NULL);
     for (size_t i = 0; i < ncities; ++i) {
-        sprintf(text_buf,"%lu",i);
+        sprintf(text_buf,"%lu",tour[i]);
         xmlNewChild(tourNode, NULL, BAD_CAST "vertex", BAD_CAST text_buf);
     }
 }

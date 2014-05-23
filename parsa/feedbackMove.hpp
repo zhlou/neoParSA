@@ -67,6 +67,14 @@ feedbackMove<Problem>::feedbackMove(Problem& in_problem,
             prop = NULL;
         } else
             target = 0.44;
+        if ((prop = xmlGetProp(section, BAD_CAST "init_theta_bar")) != NULL){
+            double initTheta = strtod((char *)prop, NULL);
+            xmlFree(prop);
+            prop = NULL;
+            for (size_t i = 0; i < nparams; ++i) {
+                theta_bars[i] = initTheta;
+            }
+        }
 
     }
 }
@@ -140,6 +148,8 @@ void feedbackMove<Problem>::move_control()
         theta_bars[i] = exp(x);
         if (theta_bars[i] < theta_min)
             theta_bars[i] = theta_min;
+        if (isinf(theta_bars[i]))
+            theta_bars[i] = numeric_limits<double>::max();
         success[i] = 0;
         moves[i] = 0;
     }
