@@ -46,6 +46,8 @@ protected:
     long *success;
     long *moves;
     double *theta_bars;
+    double *theta_mins;
+    double *theta_maxs;
     double energy;
 private:
     int index;
@@ -54,7 +56,7 @@ private:
     double move_gain;
     long sweep;
     int move_interval;
-    static const double theta_min;
+    //static const double theta_min;
     double target;
 };
 

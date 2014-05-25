@@ -9,8 +9,8 @@
 #include <cmath>
 using namespace std;
 
-template<class Problem>
-const double feedbackMove<Problem>::theta_min = 0.;
+//template<class Problem>
+//const double feedbackMove<Problem>::theta_min = 0.;
 
 template<class Problem>
 const char *feedbackMove<Problem>::name = "feedbackMove";
@@ -26,10 +26,14 @@ feedbackMove<Problem>::feedbackMove(Problem& in_problem,
     success = new long[nparams];
     moves = new long[nparams];
     theta_bars = new double[nparams];
+    theta_mins = new double[nparams];
+    theta_maxs = new double[nparams];
     for (int i = 0; i < nparams; ++i) {
         success[i] = 0;
         moves[i] = 0;
         theta_bars[i] = 1.0;
+        theta_mins[i] = 0.;
+        theta_maxs[i] = numeric_limits<double>::max();
     }
     energy = problem.get_score();
     prev_energy = energy;
@@ -74,6 +78,30 @@ feedbackMove<Problem>::feedbackMove(Problem& in_problem,
             for (size_t i = 0; i < nparams; ++i) {
                 theta_bars[i] = initTheta;
             }
+        }
+        // check theta min and max
+        int i;
+        for (xmlNodePtr thetaNode = section->children; thetaNode != NULL;
+        		thetaNode = thetaNode->next) {
+        	if (xmlStrcmp(thetaNode->name, BAD_CAST "theta"))
+        		continue;
+        	if ((prop = xmlNodeGetContent(thetaNode)) == NULL)
+        		continue;
+        	i = atoi((char *)prop);
+        	xmlFree(prop);
+        	prop = NULL;
+        	if (i < 0 || i >= nparams)
+        		continue;
+        	if ((prop = xmlGetProp(thetaNode, BAD_CAST "max")) != NULL){
+        		theta_maxs[i] = strtod((char *)prop, NULL);
+        		xmlFree(prop);
+        		prop = NULL;
+        	}
+        	if ((prop = xmlGetProp(thetaNode, BAD_CAST "min")) != NULL){
+        		theta_mins[i] = strtod((char *)prop, NULL);
+        		xmlFree(prop);
+        		prop = NULL;
+        	}
         }
 
     }
@@ -127,6 +155,8 @@ feedbackMove<Problem>::~feedbackMove()
     delete[] success;
     delete[] moves;
     delete[] theta_bars;
+    delete[] theta_mins;
+    delete[] theta_maxs;
 }
 
 template<class Problem>
@@ -146,10 +176,10 @@ void feedbackMove<Problem>::move_control()
         debugOut << "\t" << acc_ratio;
         x += move_gain * (acc_ratio - target);
         theta_bars[i] = exp(x);
-        if (theta_bars[i] < theta_min)
-            theta_bars[i] = theta_min;
-        if (isinf(theta_bars[i]))
-            theta_bars[i] = numeric_limits<double>::max();
+        if (theta_bars[i] < theta_mins[i])
+            theta_bars[i] = theta_mins[i];
+        if (theta_bars[i] > theta_maxs[i])
+            theta_bars[i] = theta_maxs[i];
         success[i] = 0;
         moves[i] = 0;
     }
