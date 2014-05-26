@@ -62,6 +62,7 @@ private:
     size_t prev(size_t i){ return (i>0)?(i-1):(ncities-1);}
     size_t next(size_t i){ return (i<ncities-1)?(i+1):0;}
 
+    tsp(const tsp &tsp); // = delete; disable copy constructor until it gets implemented
 public:
     tsp();
     tsp(vector<city>& city_list);
@@ -77,6 +78,9 @@ public:
     double roll_back();
     void save_tsplib_xml(const char* name) const;
     void write_tour(xmlNodePtr xmlroot);
+    size_t getStateSize() const {return sizeof(size_t)*ncities;}
+    void serialize(void *buf) const;
+    void deserialize(void const *buf);
 };
 
 #endif

@@ -138,7 +138,7 @@ void tsp::generateMove(int, double theta)
     c2 = (size_t)theta;
     if ( (c2 >= ncities - 1) || (theta > (double) (ncities -1)))
     	c2 = rand_r(&seed) % (ncities -1);
-    cout << "move (id, theta, neighbor): (" << c1 << ", " << theta << ", " << c2 << ")" << endl;
+    //cout << "move (id, theta, neighbor): (" << c1 << ", " << theta << ", " << c2 << ")" << endl;
     c2 = neighbors[c1][c2].to();
     swap(c1,c2);
     // step(c1, c2);
@@ -286,4 +286,22 @@ void tsp::write_tour(xmlNodePtr xmlroot)
         sprintf(text_buf,"%lu",tour[i]);
         xmlNewChild(tourNode, NULL, BAD_CAST "vertex", BAD_CAST text_buf);
     }
+}
+
+void tsp::serialize(void *buf) const
+{
+	size_t *buf_tour = (size_t*)buf;
+	for (size_t i = 0; i < ncities; ++i) {
+		buf_tour[i] = tour[i];
+	}
+
+}
+
+void tsp::deserialize(const void *buf)
+{
+	size_t i;
+	for (i = 0; i < ncities; ++i) {
+		tour[i] = *((size_t *)buf + i);
+		position[tour[i]] = i;
+	}
 }
