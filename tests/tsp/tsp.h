@@ -78,6 +78,7 @@ public:
     double roll_back();
     void save_tsplib_xml(const char* name) const;
     void write_tour(xmlNodePtr xmlroot);
+    double read_tour(const xmlNodePtr xmlroot);
     size_t getStateSize() const {return sizeof(size_t)*ncities;}
     void serialize(void *buf) const;
     void deserialize(void const *buf);

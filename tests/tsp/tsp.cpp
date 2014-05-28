@@ -288,6 +288,42 @@ void tsp::write_tour(xmlNodePtr xmlroot)
     }
 }
 
+double tsp::read_tour(const xmlNodePtr xmlroot)
+{
+    xmlNodePtr xmltour = getSectionByName(xmlroot, "tour");
+    if (NULL == xmltour) {
+        throw runtime_error(string("Error: fail to find tour section"));
+    }
+    vector<size_t> tmp_tour(ncities,0);
+    vector<size_t> tmp_position(ncities,-1);
+    xmlChar *content = NULL;
+    size_t i = 0, j;
+    for (xmlNodePtr vNode = xmltour->children; vNode != NULL; vNode = vNode->next) {
+        if (xmlStrcmp(vNode->name, BAD_CAST"vertex"))
+            continue;
+        if (i >= ncities) // ignore
+            break;
+        content = xmlNodeGetContent(vNode);
+        if (content == NULL)
+            throw runtime_error(string("Error: tour vertex with no ID"));
+        tmp_tour[i] = atoi((char *)content);
+        ++i;
+    }
+    if (i < ncities)
+        throw runtime_error(string("Error: not enough vertices in tour"));
+    for (i = 0; i < ncities; ++i) {
+        j = tmp_tour[i];
+        if (tmp_position[j] != -1)
+            throw runtime_error(string("invalid tour"));
+        tmp_position[j] = i;
+    }
+    copy(tmp_tour.begin(),tmp_tour.end(),tour.begin());
+    copy(tmp_position.begin(),tmp_position.end(),position.end());
+
+    can_rollback = false;
+    return (route_cost = calc_tour());
+}
+
 void tsp::serialize(void *buf) const
 {
 	size_t *buf_tour = (size_t*)buf;
