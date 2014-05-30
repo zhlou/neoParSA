@@ -273,24 +273,24 @@ void tsp::save_tsplib_xml(const char *name) const
     xmlFreeDoc(doc);
 }
 
-void tsp::write_tour(xmlNodePtr xmlroot)
+void tsp::write_tour(xmlNodePtr xmlroot, const char *tourname)
 {
     char text_buf[100];
-    xmlNodePtr tourNode = getSectionByName(xmlroot, "tour");
+    xmlNodePtr tourNode = getSectionByName(xmlroot, tourname);
     if (tourNode != NULL) {
         xmlUnlinkNode(tourNode);
         xmlFreeNode(tourNode);
     }
-    tourNode = xmlNewChild(xmlroot, NULL, BAD_CAST "tour", NULL);
+    tourNode = xmlNewChild(xmlroot, NULL, BAD_CAST tourname, NULL);
     for (size_t i = 0; i < ncities; ++i) {
         sprintf(text_buf,"%lu",tour[i]);
         xmlNewChild(tourNode, NULL, BAD_CAST "vertex", BAD_CAST text_buf);
     }
 }
 
-double tsp::read_tour(const xmlNodePtr xmlroot)
+double tsp::read_tour(const xmlNodePtr xmlroot, const char *tourname)
 {
-    xmlNodePtr xmltour = getSectionByName(xmlroot, "tour");
+    xmlNodePtr xmltour = getSectionByName(xmlroot, tourname);
     if (NULL == xmltour) {
         throw runtime_error(string("Error: fail to find tour section"));
     }
@@ -307,6 +307,7 @@ double tsp::read_tour(const xmlNodePtr xmlroot)
         if (content == NULL)
             throw runtime_error(string("Error: tour vertex with no ID"));
         tmp_tour[i] = atoi((char *)content);
+        xmlFree(content);
         ++i;
     }
     if (i < ncities)
@@ -318,7 +319,7 @@ double tsp::read_tour(const xmlNodePtr xmlroot)
         tmp_position[j] = i;
     }
     copy(tmp_tour.begin(),tmp_tour.end(),tour.begin());
-    copy(tmp_position.begin(),tmp_position.end(),position.end());
+    copy(tmp_position.begin(),tmp_position.end(),position.begin());
 
     can_rollback = false;
     return (route_cost = calc_tour());

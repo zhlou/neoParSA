@@ -27,11 +27,13 @@ int main(int argc, char **argv)
     bool issteplog = true;
     bool isequil = false;
 
+    const char *tourname = "tour";
+
     std::string section;
     std::string binname(basename(argv[0]));
     try {
         char c;
-        while ( (c = getopt(argc, argv, "EpL")) != -1) {
+        while ( (c = getopt(argc, argv, "EpLx:")) != -1) {
             switch(c) {
             case 'E':
                 isequil = true;
@@ -41,6 +43,9 @@ int main(int argc, char **argv)
                 break;
             case 'p':
                 isprolix = true;
+                break;
+            case 'x':
+                tourname = optarg;
                 break;
             default:
                 throw std::runtime_error("Unrecognized option");
@@ -61,6 +66,12 @@ int main(int argc, char **argv)
 
     unirand48 rnd;
     tsp theTSP(xmlroot);
+    try {
+        theTSP.read_tour(xmlroot, tourname);
+    } catch (std::exception &ex) {
+        std::cerr << ex.what() << std::endl;
+        std::cerr << "Using ID rank tour instead" << std::endl;
+    }
     lam::Param scheduleParam(xmlroot);
     criCount::Param frozenParam(xmlroot);
     annealer<tsp, lam, criCount, feedbackMove>
@@ -86,7 +97,7 @@ int main(int argc, char **argv)
         tsp_sa.loop();
         cout << "Final energy is " << theTSP.get_score() << endl;
         cout << "Actual energy is " << theTSP.calc_tour() << endl;
-        theTSP.write_tour(xmlroot);
+        theTSP.write_tour(xmlroot, "tour_output");
         tsp_sa.writeResult();
         xmlSaveFormatFile(docname, xmldoc,1);
     }

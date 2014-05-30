@@ -77,8 +77,8 @@ public:
     double get_score() const {return route_cost;}
     double roll_back();
     void save_tsplib_xml(const char* name) const;
-    void write_tour(xmlNodePtr xmlroot);
-    double read_tour(const xmlNodePtr xmlroot);
+    void write_tour(xmlNodePtr xmlroot, const char *tourname);
+    double read_tour(const xmlNodePtr xmlroot, const char *tourname);
     size_t getStateSize() const {return sizeof(size_t)*ncities;}
     void serialize(void *buf) const;
     void deserialize(void const *buf);
