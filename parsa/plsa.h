@@ -38,7 +38,7 @@ protected:
     //void initStats();
     void collectInitStats(unsigned long init_loop);
     void updateEstimators(double s);
-    bool global_frozen();
+    //bool global_frozen();
 
     void PackNCommStats(bool UseSD = true);
 //    void initEstimators();

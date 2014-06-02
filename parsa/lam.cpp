@@ -36,19 +36,21 @@ lam::Param::Param(xmlNode* root, debugStatus in_st, const char* name) :
     proc_tau = getPropInt(section, "tau");
 
     double memlength_mean = getPropDouble(section, "memLength_mean");
-    double memlength_sd = getPropDouble(section, "memLength_mean");
+    double memlength_sd = getPropDouble(section, "memLength_sd");
     w_mean = 1.0 - proc_tau / (memlength_mean / lambda);
     if (w_mean < 0.)
         w_mean = 0.;
     w_sd = 1.0 - proc_tau / (memlength_sd / lambda);
     if (w_sd < 0.)
         w_sd = 0.;
-    freeze_crit = getPropDouble(section, "criterion");
-    cnt_crit = getPropInt(section, "freeze_cnt");
+    //freeze_crit = getPropDouble(section, "criterion");
+    //cnt_crit = getPropInt(section, "freeze_cnt");
 }
 
-lam::lam(Param param) : proc_tau(param.proc_tau), freeze_crit(param.freeze_crit),
-        cnt_crit(param.cnt_crit), debugOut(param.st, param.outname),
+lam::lam(Param param) : proc_tau(param.proc_tau),
+        //freeze_crit(param.freeze_crit),
+        //cnt_crit(param.cnt_crit),
+        debugOut(param.st, param.outname),
         lambda(param.lambda), w_mean(param.w_mean), w_sd(param.w_sd),
         acc_ratio(0.), success(0), vari(0.), mean(0.), fit_mean(NULL),
         fit_sd(NULL), old_energy(UNINITIALIZED), alpha(UNINITIALIZED),
@@ -65,7 +67,7 @@ lam::~lam()
     if (fit_sd != NULL)
         delete fit_sd;
 }
-
+/*
 void lam::local_frozen(const aState& state)
 {
     if (abs(state.energy - old_energy) < freeze_crit)
@@ -77,7 +79,7 @@ void lam::local_frozen(const aState& state)
 
 }
 
-/*
+
  double lam::loop()
  {
  long unsigned step_cnt = 0;
@@ -96,7 +98,7 @@ void lam::local_frozen(const aState& state)
 
  return problem->get_score();
  }
- */
+
 
 bool lam::frozen(aState state)
 {
@@ -104,7 +106,7 @@ bool lam::frozen(aState state)
     return global_frozen();
 
 }
-
+ */
 void lam::updateStep(bool accept, aState state)
 {
     //++ step_cnt;
@@ -207,10 +209,10 @@ void lam::updateLam()
     double d = (1.0 - acc_ratio) / (2.0 - acc_ratio);
     alpha = 4.0 * acc_ratio * d * d;
 }
-
+/*
 bool lam::global_frozen()
 {
     return (freeze_cnt >= cnt_crit);
 }
-
+*/
 

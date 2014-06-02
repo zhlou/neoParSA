@@ -26,6 +26,8 @@ plsa::~plsa()
     delete[] local_stat_buf;
 }
 
+/*
+
 bool plsa::global_frozen()
 {
     int local_freeze = (freeze_cnt >= cnt_crit);
@@ -34,6 +36,7 @@ bool plsa::global_frozen()
     return (bool)global_flag;
 }
 
+ */
 
 /* This method takes a boolean to decide the content of l_stat.var
  * True (default) for using standard deviation or square root of the value

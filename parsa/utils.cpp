@@ -16,6 +16,8 @@ using namespace std;
 // throws runtime_error when not found
 double getPropDouble(xmlNode* section, const char* name)
 {
+    if (section == NULL)
+        throw runtime_error(string("Error: NULL section"));
     xmlChar *prop = NULL;
     prop = xmlGetProp(section, (xmlChar *)name);
     if (prop == NULL)
@@ -30,6 +32,8 @@ double getPropDouble(xmlNode* section, const char* name)
 // throws runtime_error when not found
 int getPropInt(xmlNode* section, const char* name)
 {
+    if (section == NULL)
+            throw runtime_error(string("Error: NULL section"));
     xmlChar *prop = NULL;
     prop = xmlGetProp(section, (const xmlChar *)name);
     if (prop == NULL)

@@ -21,8 +21,8 @@ public:
     class Param {
     public:
         int proc_tau;
-        double freeze_crit;
-        int cnt_crit;
+        //double freeze_crit;
+        //int cnt_crit;
         double lambda;
         double w_mean;
         double w_sd;
@@ -35,7 +35,7 @@ public:
     virtual ~lam();
     //double getInitS();
     //int getInitLoop();
-    bool frozen(const aState state);
+    //bool frozen(const aState state);
     void updateInitStep(bool accept, aState state);
     void initStats(aState state);
     void resetSegmentStats();
@@ -51,8 +51,8 @@ public:
 protected:
     // parameters
     int proc_tau;
-    double freeze_crit;
-    int cnt_crit;
+    //double freeze_crit;
+    //int cnt_crit;
     dynDebug debugOut;
     double lambda;
     double w_mean;
@@ -82,8 +82,8 @@ protected:
     void resetLam();
     void updateLam();
     virtual void updateEstimators(double s);
-    void local_frozen(const aState& state);
-    virtual bool global_frozen();
+    //void local_frozen(const aState& state);
+    //virtual bool global_frozen();
 
 
 
