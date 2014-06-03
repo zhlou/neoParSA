@@ -15,10 +15,14 @@
 int main(int argc, char **argv)
 {
 	const char *tourname = "tour";
+	const char *outname = NULL;
     try {
         char c;
-        while ((c = getopt(argc, argv, "x:")) != -1) {
+        while ((c = getopt(argc, argv, "x:f:")) != -1) {
             switch(c) {
+            case 'f':
+                outname = optarg;
+                break;
             case 'x':
                 tourname = optarg;
                 break;
@@ -32,10 +36,12 @@ int main(int argc, char **argv)
     } catch (std::exception &ex) {
         std::cerr << ex.what() << std::endl;
         std::cerr << "Usage: " << "tsp_printscore"
-                << " [-x tour_section_name] input_file" << endl;
+                << " [-x tour_section_name] [-f output_name] input_file" << endl;
         return -1;
     }
     const char *xmlname = argv[optind];
+    if (NULL == outname)
+        outname = xmlname;
     xmlDocPtr xmldoc = xmlParseFile(xmlname);
     xmlNodePtr xmlroot = xmlDocGetRootElement(xmldoc);
 
@@ -55,7 +61,7 @@ int main(int argc, char **argv)
     std::cout << "Final tour length is " << theTSP.get_score()
     		<< std::endl;
     theTSP.write_tour(xmlroot, tourname);
-    xmlSaveFormatFile(xmlname, xmldoc, 1);
+    xmlSaveFormatFile(outname, xmldoc, 1);
     xmlFreeDoc(xmldoc);
     xmlCleanupParser();
 
