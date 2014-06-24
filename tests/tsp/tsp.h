@@ -79,7 +79,7 @@ public:
     void save_tsplib_xml(const char* name) const;
     void write_tour(xmlNodePtr xmlroot, const char *tourname);
     double read_tour(const xmlNodePtr xmlroot, const char *tourname);
-    size_t getStateSize() const {return sizeof(size_t)*ncities;}
+    size_t getStateSize() const {return sizeof(size_t)*ncities+sizeof(double);}
     void serialize(void *buf) const;
     void deserialize(void const *buf);
 };

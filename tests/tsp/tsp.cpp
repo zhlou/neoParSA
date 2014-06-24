@@ -327,7 +327,9 @@ double tsp::read_tour(const xmlNodePtr xmlroot, const char *tourname)
 
 void tsp::serialize(void *buf) const
 {
-	size_t *buf_tour = (size_t*)buf;
+    double *score = (double *)buf;
+    *score = route_cost;
+	size_t *buf_tour = (size_t*)((double*)buf+1);
 	for (size_t i = 0; i < ncities; ++i) {
 		buf_tour[i] = tour[i];
 	}
@@ -336,9 +338,12 @@ void tsp::serialize(void *buf) const
 
 void tsp::deserialize(const void *buf)
 {
+    route_cost = *(double *)buf;
+    size_t *buf_tour = (size_t*)((double*)buf+1);
 	size_t i;
 	for (i = 0; i < ncities; ++i) {
-		tour[i] = *((size_t *)buf + i);
+		tour[i] = buf_tour[i];
 		position[tour[i]] = i;
 	}
+	can_rollback = false;
 }
