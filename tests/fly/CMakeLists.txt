@@ -1,4 +1,6 @@
 find_package(GSL)
+include_directories(${GSL_INCLUDE_DIRS})
+
 set(FLY_COMMON DataLists.cpp flyData.cpp maternal.cpp scoring.cpp solvers.cpp
 	zygotic.cpp fly.cpp)
 set(MPIBINARIES fly_sa-mpi fly_expHold-mpi fly_expHold-IndMove fly_expHold-theta
