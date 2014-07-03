@@ -13,6 +13,7 @@ struct aState
     unsigned long step_cnt;
     double s;
     double energy;
+    double proposed; // proposed energy
 };
 
 

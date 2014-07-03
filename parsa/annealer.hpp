@@ -186,6 +186,7 @@ bool annealer<Problem, Schedule, FrozenCnd, Move>::step()
     double delta, crit, ran_n;
     bool flag;
     delta = move->propose();
+    state.proposed = state.energy + delta;
     // cout << state.energy + delta << "@" << state.step_cnt << endl;
     crit = std::exp(-state.s * delta);
     ran_n = rand.random();
@@ -199,6 +200,6 @@ bool annealer<Problem, Schedule, FrozenCnd, Move>::step()
         flag = false;
     }
     debugOut << state.step_cnt << " " << state.s << " "
-             << state.energy << endl;
+             << state.energy << " " << state.proposed << endl;
     return flag;
 }
