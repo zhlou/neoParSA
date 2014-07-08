@@ -21,6 +21,7 @@ private:
 
     MPI_Win state_win;
     void *state_buf;
+    void *recv_buf;
     int buf_size;
     double *energy_tab;
     double *prob_tab;

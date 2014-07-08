@@ -22,6 +22,7 @@ Mixing<Problem>::Mixing(Problem & in_problem, const MPIState &mpiState,
     MPI_Alloc_mem(buf_size, MPI_INFO_NULL, &state_buf);
     MPI_Win_create(state_buf, buf_size, buf_size, info_no_locks, mpi.comm,
             &state_win);
+    recv_buf = calloc(1, buf_size);
     norm = 0;
 }
 
@@ -30,6 +31,7 @@ Mixing<Problem>::~Mixing()
 {
     MPI_Win_free(&state_win);
     MPI_Free_mem(state_buf);
+    free(recv_buf);
     delete[] energy_tab;
     delete[] prob_tab;
 }
@@ -69,13 +71,13 @@ double Mixing<Problem>::adoptState(int Id)
         Id = mpi.rank;
     }
     if (Id != mpi.rank)
-        MPI_Get(state_buf, buf_size, MPI_BYTE, Id, 0, buf_size, MPI_BYTE,
+        MPI_Get(recv_buf, buf_size, MPI_BYTE, Id, 0, buf_size, MPI_BYTE,
                 state_win);
     MPI_Win_complete(state_win);
     MPI_Win_wait(state_win);
     if (Id != mpi.rank) {
 
-        problem.deserialize(state_buf);
+        problem.deserialize(recv_buf);
     }
     return problem.get_score();
 }
