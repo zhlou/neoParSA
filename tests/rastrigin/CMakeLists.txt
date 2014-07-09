@@ -1,12 +1,14 @@
 set(RST_COMMON rastrigin.cpp)
-set(MPIBINARIES psolve_rst rst_pEH-mix)
-set(BINARIES ${MPIBINARIES} solve_rst test_rst rst_expHold)
+set(MPIBINARIES psolve_rst rst_pEH-mix rst_simPLam)
+set(BINARIES ${MPIBINARIES} solve_rst test_rst rst_expHold rst_lam)
 
 add_executable(test_rst test_rst.cpp ${RST_COMMON})
 add_executable(solve_rst solve_rastrigin.cpp ${RST_COMMON})
 add_executable(psolve_rst psolve_rst.cpp ${RST_COMMON})
 add_executable(rst_expHold rst_expHold.cpp ${RST_COMMON})
 add_executable(rst_pEH-mix rst_pEH-mix.cpp ${RST_COMMON})
+add_executable(rst_lam rst_lam.cpp ${RST_COMMON})
+add_executable(rst_simPLam rst_simPLam.cpp ${RST_COMMON})
 
 foreach(bin ${BINARIES})
 	target_link_libraries(${bin} parsa ${LIBXML2_LIBRARIES})
