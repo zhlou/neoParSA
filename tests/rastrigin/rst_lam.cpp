@@ -24,20 +24,24 @@ using namespace std;
 int main(int argc, char **argv)
 {
     bool isprolix = false;
-    bool issteplog = true;
+    bool issteplog = false;
     bool isequil = false;
+    bool iscoollog = true;
 
     std::string section;
     std::string binname(basename(argv[0]));
     try {
         char c;
-        while ( (c = getopt(argc, argv, "EpL:")) != -1) {
+        while ( (c = getopt(argc, argv, "ECpl:")) != -1) {
             switch(c) {
             case 'E':
                 isequil = true;
                 break;
-            case 'L':
-                issteplog = false;
+            case 'C':
+                iscoollog = false;
+                break;
+            case 'l':
+                issteplog = true;
                 break;
             case 'p':
                 isprolix = true;
@@ -73,7 +77,9 @@ int main(int argc, char **argv)
         rst_sa.setProlix(file, (outprefix + ".prolix").c_str());
     }
 
-    rst_sa.setCoolLog(file,(basename + ".log").c_str());
+    if (iscoollog){
+        rst_sa.setCoolLog(file,(basename + ".log").c_str());
+    }
 
     if (issteplog) {
         rst_sa.setStepLog(file, (outprefix + ".steplog").c_str());
