@@ -1,0 +1,22 @@
+set(TSP_COMMON tsp.cpp)
+set(MPIBINARIES tsp_expHold-mix tsp_simPLam)
+set(BINARIES ${MPIBINARIES} tsp_printscore solve_tsp 
+    tsp_test tsp_expHold tsp_lam tsp_scramble)
+#set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} -std=gnu++0x)
+add_executable(tsp_printscore tsp_printscore.cpp ${TSP_COMMON})
+add_executable(solve_tsp solve_tsp.cpp ${TSP_COMMON})
+add_executable(tsp_test tsp_test.cpp ${TSP_COMMON})
+add_executable(tsp_expHold tsp_expHold.cpp ${TSP_COMMON})
+add_executable(tsp_expHold-mix tsp_expHold-mix.cpp ${TSP_COMMON})
+add_executable(tsp_lam tsp_lam.cpp ${TSP_COMMON})
+add_executable(tsp_scramble tsp_scramble.cpp ${TSP_COMMON})
+add_executable(tsp_simPLam tsp_simPLam.cpp ${TSP_COMMON})
+#file(COPY br17.xml DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+foreach(bin ${BINARIES})
+	target_link_libraries(${bin} parsa ${LIBXML2_LIBRARIES} ${GSL_LIBRARIES})
+endforeach()
+foreach(mpibin ${MPIBINARIES})
+	target_link_libraries(${mpibin} ${MPI_C_LIBRARIES})
+endforeach()
+
+

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<System>
+	<fly infile="g9-template" solver="Euler" ndigits="16" stepsize="1.25" section="input"/>
+	<annealer_input init_T="10000" lambda="0.0001" init_loop="13000"/>
+	<move interval="100" gain="10.0"/>
+	<mix adaptcoef="1000" interval="100"/>
+	<lam tau="100" memLength_mean="200" memLength_sd="1000" criterion="1e-8" freeze_cnt="5"/>
+	<exponential alpha="0.9999" max_rej="10" log_freq="100"/>
+	<count_criterion freeze_crit="1e-8" freeze_cnt="5"/>
+	<oneStep target="999"/>
+	<maxSteps max_steps="26000"/>
+	<pulseBcast frequency="1"/>
+<annealing_result final_energy="0.000112751" max_count="3356300" time="271.53"/><method cooling-schedule="parallel exponential" move-generation="parallelFeedbackMove" mixing="pulseBcast"/></System>
