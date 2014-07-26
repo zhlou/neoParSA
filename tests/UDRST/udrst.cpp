@@ -1,3 +1,5 @@
+#include "udrst.h"
+
 #include <cmath>
 #include <cstdlib>
 #include <ctime>
@@ -6,17 +8,17 @@
 #include <sstream>
 #include <stdexcept>
 #include <limits>
-#include "rastrigin.h"
+
 #include "unirandom.h"
 #include "utils.h"
 #include <string.h>
 // #include <omp.h>
 
 using namespace std;
-const double rastrigin::VAR_MAX = 5.12;
-const double rastrigin::VAR_MIN = -5.12;
+const double udrst::VAR_MAX = 5.12;
+const double udrst::VAR_MIN = -5.12;
 
-rastrigin::rastrigin(int dimension, unirandom &in_rnd) :
+udrst::udrst(int dimension, unirandom &in_rnd) :
 		dim(dimension), rnd(in_rnd)
 {
 	int i;
@@ -28,12 +30,13 @@ rastrigin::rastrigin(int dimension, unirandom &in_rnd) :
 	section = NULL;
 	prev_x = 0; // to make the compiler happy
 	prev_idx = -1;
+	idx = 0;
 	can_rollback = false;
 	outOfBounds = false;
 
 }
 
-rastrigin::rastrigin(xmlNode *root, unirandom &in_rnd):
+udrst::udrst(xmlNode *root, unirandom &in_rnd):
 		rnd(in_rnd)
 {
 	docroot = root;
@@ -80,11 +83,12 @@ rastrigin::rastrigin(xmlNode *root, unirandom &in_rnd):
 
     prev_x = 0; // to make the compiler happy
     prev_idx = -1;
+    idx = 0;
     can_rollback = false;
     outOfBounds = false;
 }
 
-void rastrigin::write_section(xmlChar *secname)
+void udrst::write_section(xmlChar *secname)
 {
     xmlNode *node;
     node = getSectionByName(docroot, (const char *)secname);
@@ -106,7 +110,7 @@ void rastrigin::write_section(xmlChar *secname)
 	delete[] namebuf;
 }
 
-void rastrigin::print_solution(ostream& o) const
+void udrst::print_solution(ostream& o) const
 {
 	o << "{" << endl;
 	for (int i = 0; i < dim; i++) {
@@ -115,7 +119,7 @@ void rastrigin::print_solution(ostream& o) const
 	o << "}" << endl;
 }
 
-void rastrigin::generateMove(int idx, double theta)
+void udrst::generateMove(int, double theta)
 {
     double x = prev_x = vars[idx];
     x += theta;
@@ -134,26 +138,27 @@ void rastrigin::generateMove(int idx, double theta)
     vars[idx] = x;
     can_rollback = true;
     prev_idx = idx;
+    idx = (idx + 1) % dim;
 }
 
-void rastrigin::restoreMove(int idx)
+void udrst::restoreMove(int)
 {
-    if ((idx != prev_idx) || (!can_rollback))
+    if (!can_rollback)
         throw runtime_error("Rastrigin: Cannot roll back!");
-    vars[idx] = prev_x;
+    vars[prev_idx] = prev_x;
     if (outOfBounds)
         outOfBounds = false;
     can_rollback = false;
 }
 
-rastrigin::~rastrigin()
+udrst::~udrst()
 {
 	if (vars != NULL) {
 		delete[] vars;
 	}
 	vars = NULL;
 }
-double rastrigin::get_score()
+double udrst::get_score()
 {
     if (outOfBounds)
         return numeric_limits<double>::max();
@@ -166,27 +171,27 @@ double rastrigin::get_score()
 	return (10 * dim + tot);
 }
 
-double rastrigin::get_param(int idx) const
+double udrst::get_param(int idx) const
 {
     return vars[idx];
 }
 
-void rastrigin::set_param(int idx, double val)
+void udrst::set_param(int idx, double val)
 {
 	vars[idx] = val;
 }
 
-void rastrigin::serialize(void* buf) const
+void udrst::serialize(void* buf) const
 {
     memcpy(buf, vars, sizeof(double) * dim);
 }
 
-void rastrigin::deserialize(void const *buf)
+void udrst::deserialize(void const *buf)
 {
     memcpy(vars, buf, sizeof(double) * dim);
 }
 
-double rastrigin::scramble()
+double udrst::scramble()
 {
     int i;
     for (i = 0; i < dim; ++i) {

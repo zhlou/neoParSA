@@ -17,7 +17,7 @@
 #include "lam.h"
 #include "feedbackMove.h"
 #include "annealer.h"
-#include "rastrigin.h"
+#include "udrst.h"
 
 using namespace std;
 
@@ -64,10 +64,10 @@ int main(int argc, char **argv)
     xmlNodePtr xmlroot = xmlDocGetRootElement(xmldoc);
 
     unirand48 rnd;
-    rastrigin rst(xmlroot, rnd);
+    udrst rst(xmlroot, rnd);
     lam::Param scheduleParam(xmlroot);
     criCount::Param frozenParam(xmlroot);
-    annealer<rastrigin, lam, criCount, feedbackMove>
+    annealer<udrst, lam, criCount, feedbackMove>
         rst_sa(rst, rnd, scheduleParam, frozenParam, xmlroot);
     string basename(docname);
     size_t sz = basename.size();
