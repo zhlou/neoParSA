@@ -37,10 +37,15 @@ fixedThetaMove<Problem>::fixedThetaMove(Problem & problem,
 }
 
 template<class Problem>
-double fixedThetaMove<Problem>::propose()
+fixedThetaMove<Problem>::~fixedThetaMove()
 {
 
+}
 
+template<class Problem>
+double fixedThetaMove<Problem>::propose()
+{
+    prev_energy = energy;
     double uniform = 2.0 * rnd.random() - 1.0;
     double theta;
     if (uniform >= 0.)
@@ -73,6 +78,7 @@ template<class Problem>
 void fixedThetaMove<Problem>::reject()
 {
     problem.restoreMove(index);
+    energy = prev_energy;
     index ++;
     if (index == nparams)
         index = 0;
@@ -88,6 +94,8 @@ void fixedThetaMove<Problem>::procStats()
 {
     double accRatio = (double)accumAccept / (double)logInterval;
     double avgTheta = accumTheta / logInterval;
+    accumAccept = 0;
+    accumTheta = 0.0;
 
     debugOut << accRatio << "\t" << avgTheta << std::endl;
 }
