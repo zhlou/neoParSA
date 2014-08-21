@@ -61,12 +61,12 @@ mixState pulseBcast<Problem>::Mix(aState& state)
                  << "proc " << root << ": " << energy << " @ " << state.s
                  << " P = " << crit;
         if ((delta <= 0.0) && (crit > randval)) { // adopt the incoming state
-            debugOut << " accepted" << endl;
+            debugOut << " accepted" << std::endl;
             problem.deserialize(state_buf);
             state.energy = energy;
             return mixState(root);
         } else {
-            debugOut << " rejected" << endl;
+            debugOut << " rejected" << std::endl;
         }
     }
 
