@@ -74,7 +74,7 @@ int main(int argc, char **argv)
         std::cerr << "Input incorrect" << std::endl;
         return -1;
     }
-    unirandom rnd;
+    unirandom rnd(mpi.rank);
     rastrigin rst(docroot, rnd);
     expHoldP::Param scheParam(docroot);
     tempCountP::Param frozenParam(docroot);
