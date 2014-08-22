@@ -49,6 +49,7 @@ mixState periodBest<Problem>::Mix(aState &state)
 
     doubleint energyRank;
     energyRank.energy=state.energy;
+    energyRank.rank=mpi.rank;
     MPI_Allreduce(MPI_IN_PLACE, &energyRank, 1, MPI_DOUBLE_INT, MPI_MINLOC,
                   mpi.comm);
     if (mpi.rank == energyRank.rank)
