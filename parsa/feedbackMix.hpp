@@ -53,7 +53,7 @@ mixState feedbackMix<Problem>::Mix(aState &state)
     for (i = 0; i < mpi.nnodes; ++i)
         nadopt+=adoptArray[i];
     double adoptRate = (double)(nadopt) / mpi.nnodes;
-    interval = std::lround(interval * std::exp(C*(adoptRate - target)));
+    interval = lround(interval * std::exp(C*(adoptRate - target)));
     if (interval < 1)
         interval = 1;
     debugOut << state.step_cnt << " " << state.s << " "
