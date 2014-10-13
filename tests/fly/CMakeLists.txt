@@ -5,7 +5,7 @@ set(FLY_COMMON DataLists.cpp flyData.cpp maternal.cpp scoring.cpp solvers.cpp
 	zygotic.cpp fly.cpp)
 set(MPIBINARIES fly_sa-mpi fly_expHold-mpi fly_expHold-IndMove fly_expHold-theta
 	fly_expHold-TA fly_expHold-mixing fly_expHold-mixing-IM fly_expHold-amix
-	fly_simPLam)
+	fly_simPLam fly_simPLam-fbMix)
 set(BINARIES ${MPIBINARIES} printscore scramble fly_sa fly_pulse fly_expHold)
 
 add_executable(printscore printscore.cpp ${FLY_COMMON})
@@ -22,6 +22,7 @@ add_executable(fly_expHold-mixing fly_expHold-mixing.cpp ${FLY_COMMON})
 add_executable(fly_expHold-mixing-IM fly_expHold-mixing-IM.cpp ${FLY_COMMON})
 add_executable(fly_expHold-amix fly_expHold-amix.cpp ${FLY_COMMON})
 add_executable(fly_simPLam fly_simPLam.cpp ${FLY_COMMON})
+add_executable(fly_simPLam-fbMix fly_simPLam-fbMix.cpp ${FLY_COMMON})
 
 foreach(bin ${BINARIES})
 	target_link_libraries(${bin} parsa ${LIBXML2_LIBRARIES} ${GSL_LIBRARIES})
