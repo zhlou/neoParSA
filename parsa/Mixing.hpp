@@ -45,7 +45,8 @@ void Mixing<Problem>::calProbTab(const aState &state)
     norm = 0;
     MPI_Allgather(&energy, 1, MPI_DOUBLE, energy_tab, 1, MPI_DOUBLE,
             mpi.comm);
-    debugOut << mpi.rank << " @ " << state.step_cnt << " " << state.s << " ";
+    //debugOut << mpi.rank << " @ " << state.step_cnt << " " << state.s << " ";
+    debugOut << state.step_cnt << " " << state.s << " ";
     for (i = 0; i < mpi.nnodes; ++i) {
         prob = exp((energy - energy_tab[i]) * state.s);
         if (prob < numeric_limits<double>::min())
@@ -79,7 +80,15 @@ double Mixing<Problem>::adoptState(int Id)
 
         problem.deserialize(recv_buf);
     }
-    return problem.get_score();
+    double energy = problem.get_score();
+    MPI_Allgather(&energy, 1, MPI_DOUBLE, energy_tab, 1, MPI_DOUBLE,
+            mpi.comm);
+    if (! debugOut.isIgnore()) {
+        for (int i = 0; i < mpi.nnodes; ++i)
+            debugOut << " " << energy_tab[i];
+        debugOut << endl;
+    }
+    return energy;
 }
 
 template<typename Problem>
@@ -98,6 +107,6 @@ int Mixing<Problem>::getPartner() const
                   << " rand = " << rand << endl;
         i = mpi.rank;
     }
-    debugOut << " Adopt " << i << endl;
+    //debugOut << " Adopt " << i << endl;
     return i;
 }
