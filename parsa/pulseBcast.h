@@ -24,11 +24,16 @@ private:
     void *state_buf;
     const int buf_size;
     unsigned counter;
-    unsigned frequency;
+    const unsigned frequency;
     dynDebug debugOut;
 public:
+    class Param {
+    public:
+        unsigned frequency;
+        Param(xmlNode *root);
+    };
     pulseBcast(Problem &problem, const MPIState &mpiState,
-               unirandom& in_rnd, xmlNode *docroot);
+               unirandom& in_rnd, const Param &param);
     ~pulseBcast();
     mixState Mix(aState &state);
     void setDebug(debugStatus st, const char* outname=NULL)

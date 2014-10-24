@@ -48,6 +48,7 @@ int main(int argc, char **argv)
     //plsa *pschedule = new plsa(docroot, mpi);
     plsa::Param scheduleParam(docroot);
     criCountP::Param criCntParam(docroot);
+    adaptMix<rastrigin>::Param mixParam(docroot);
 
     //feedbackMove<rastrigin> rst_problem(rst, docroot);
     //lam schedule(docroot);
@@ -55,7 +56,7 @@ int main(int argc, char **argv)
     //        rst_anneal(*pschedule, *rst_problem, rnd, docroot);
     pannealer<rastrigin, plsa, criCountP, parallelFBMove, adaptMix> *rst_anneal =
             new pannealer<rastrigin, plsa, criCountP, parallelFBMove, adaptMix>
-            (rst, rnd, scheduleParam, criCntParam, docroot, mpi);
+            (rst, rnd, scheduleParam, criCntParam, mixParam, docroot, mpi);
     cout << "The initial state is " << endl;
     rst.print_solution(cout);
     cout << "The fininal energy is " << rst_anneal->loop() << endl;

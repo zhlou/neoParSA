@@ -27,8 +27,13 @@ template <class Problem>
 class adaptMix
 {
 public:
+    class Param{
+    public:
+        double adaptCoef;
+        Param(xmlNode *root);
+    };
     adaptMix(Problem &in_problem, const MPIState &mpiState,
-             unirandom& in_rnd, xmlNode *docroot);
+             unirandom& in_rnd, const Param &param);
     ~adaptMix();
     mixState Mix(aState &state);
     static const char *name;
@@ -39,11 +44,11 @@ public:
 private:
     Mixing<Problem> mix;
     unirandom& rnd;
-    xmlNode *root;
+    //xmlNode *root;
     int nnodes;
 
 
-    double adaptCoef;
+    const double adaptCoef;
 };
 
 

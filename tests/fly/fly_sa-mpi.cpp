@@ -75,13 +75,14 @@ int main(int argc, char **argv)
     fly theFly(flyParams);
     plsa::Param scheParam(docroot);
     globalCount::Param frozenParam(docroot);
+    intervalMix<fly>::Param mixParam(docroot);
     // parallelFBMove<fly, debugSTD, adaptMix> *fly_problem =
     //        new parallelFBMove<fly, debugSTD, adaptMix>(theFly, rnd, docroot, mpi);
     // plsa *pschedule = new plsa(docroot, mpi);
     pannealer<fly, plsa, globalCount, parallelFBMove, intervalMix>
             *fly_sa = new pannealer<fly, plsa, globalCount,
                                     parallelFBMove, intervalMix>
-            (theFly, rnd, scheParam, frozenParam, docroot, mpi);
+            (theFly, rnd, scheParam, frozenParam, mixParam, docroot, mpi);
     string outprefix = flyParams.infile_name + "_" +
                 ((ostringstream*)&(ostringstream()<<mpi.rank))->str();
     if (isprolix) {

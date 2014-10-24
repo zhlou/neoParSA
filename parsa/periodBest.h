@@ -23,15 +23,20 @@ private:
     dynDebug debugOut;
     void *state_buf;
     const int buf_size;
-    unsigned frequency;
+    const unsigned frequency;
     unsigned counter;
     struct doubleint{
         double energy;
         int rank;
     };
 public:
+    class Param {
+    public:
+        unsigned frequency;
+        Param(xmlNode *docroot);
+    };
     periodBest(Problem &problem, MPIState const&mpiState,
-               unirandom& in_rnd, xmlNode *docroot);
+               unirandom& in_rnd, const Param &param);
     ~periodBest();
     mixState Mix(aState &state);
     void setDebug(debugStatus st, const char* outname=NULL)

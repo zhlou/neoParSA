@@ -73,10 +73,11 @@ int main(int argc, char **argv)
 
     simPLam::Param scheParam(xmlroot);
     globalCount::Param frozenParam(xmlroot);
+    intervalMix<udrst>::Param mixParam(xmlroot);
     pannealer<udrst, simPLam, globalCount, parallelFBMove, intervalMix>
             *rst_sa = new pannealer<udrst, simPLam, globalCount,
                                     parallelFBMove, intervalMix>
-            (rst, rnd, scheParam, frozenParam, xmlroot, mpi);
+            (rst, rnd, scheParam, frozenParam, mixParam, xmlroot, mpi);
     string basename(docname);
     size_t sz = basename.size();
     basename.resize(sz-4);

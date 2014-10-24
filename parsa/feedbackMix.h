@@ -18,8 +18,14 @@
 template <class Problem>
 class feedbackMix {
 public:
+    class Param {
+    public:
+        int interval;
+        double target;
+        Param(xmlNode *root);
+    };
     feedbackMix(Problem &problem, const MPIState &mpiState,
-                unirandom& rand, xmlNode *docroot);
+                unirandom& rand, const Param &param);
     ~feedbackMix();
     mixState Mix(aState &state);
     static const char * name;
@@ -29,7 +35,7 @@ public:
     }
 private:
     Mixing<Problem> mix;
-    xmlNode *root;
+    //xmlNode *root;
     double target;
     int interval;
     int tau_count;

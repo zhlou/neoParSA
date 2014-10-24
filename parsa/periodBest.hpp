@@ -17,16 +17,23 @@ template <class Problem>
 const char * periodBest<Problem>::name = "periodBest";
 
 template <class Problem>
-periodBest<Problem>::periodBest(Problem &problem, MPIState const&mpiState,
-                                unirandom &, xmlNode *docroot) :
-                                problem(problem), mpi(mpiState),counter(0),
-                                buf_size(problem.getStateSize())
+periodBest<Problem>::Param::Param(xmlNode *docroot)
 {
     xmlNode *section = getSectionByName(docroot, "periodBest");
     if (section == NULL)
         throw std::runtime_error(std::string("Error: cannot find section periodBest"));
 
     frequency = getPropInt(section, "frequency");
+}
+
+template <class Problem>
+periodBest<Problem>::periodBest(Problem &problem, MPIState const&mpiState,
+                                unirandom &, const Param &param) :
+                                problem(problem), mpi(mpiState),
+                                frequency(param.frequency), counter(0),
+                                buf_size(problem.getStateSize())
+{
+
     MPI_Alloc_mem(buf_size, MPI_INFO_NULL, &state_buf);
 }
 

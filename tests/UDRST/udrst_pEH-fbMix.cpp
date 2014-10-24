@@ -78,10 +78,11 @@ int main(int argc, char **argv)
     udrst rst(docroot, rnd);
     expHoldP::Param scheParam(docroot);
     tempCountP::Param frozenParam(docroot);
+    feedbackMix<udrst>::Param mixParam(docroot);
     pannealer<udrst, expHoldP, tempCountP, parallelFBMove, feedbackMix>
             *rst_sa = new pannealer<udrst, expHoldP, tempCountP,
                                     parallelFBMove, feedbackMix>
-            (rst, rnd, scheParam, frozenParam, docroot, mpi);
+            (rst, rnd, scheParam, frozenParam, mixParam, docroot, mpi);
     string basename(docname);
     size_t sz = basename.size();
     basename.resize(sz-4);

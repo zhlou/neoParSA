@@ -78,10 +78,11 @@ int main(int argc, char **argv)
     rastrigin rst(docroot, rnd);
     expHoldP::Param scheParam(docroot);
     tempCountP::Param frozenParam(docroot);
+    feedbackMix<rastrigin>::Param mixParam(docroot);
     pannealer<rastrigin, expHoldP, tempCountP, parallelFBMove, feedbackMix>
             *rst_sa = new pannealer<rastrigin, expHoldP, tempCountP,
                                     parallelFBMove, feedbackMix>
-            (rst, rnd, scheParam, frozenParam, docroot, mpi);
+            (rst, rnd, scheParam, frozenParam, mixParam, docroot, mpi);
     string basename(docname);
     size_t sz = basename.size();
     basename.resize(sz-4);

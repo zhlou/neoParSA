@@ -13,16 +13,22 @@ template <class Problem>
 const char * pulseBcast<Problem>::name = "pulseBcast";
 
 template<class Problem>
-pulseBcast<Problem>::pulseBcast(Problem& in_problem, const MPIState& mpiState,
-                                unirandom& in_rnd, xmlNode* docroot) :
-        problem(in_problem), mpi(mpiState), rnd(in_rnd), counter(0),
-        buf_size(problem.getStateSize())
+pulseBcast<Problem>::Param::Param(xmlNode *docroot)
 {
     xmlNode *section = getSectionByName(docroot, "pulseBcast");
     if (section == NULL) {
         throw std::runtime_error(std::string("Error: cannot find section pulseBcast"));
     }
     frequency = getPropInt(section, "frequency");
+}
+
+template<class Problem>
+pulseBcast<Problem>::pulseBcast(Problem& in_problem, const MPIState& mpiState,
+                                unirandom& in_rnd, const Param &param) :
+        problem(in_problem), mpi(mpiState), rnd(in_rnd), counter(0),
+        buf_size(problem.getStateSize()), frequency(param.frequency)
+{
+
     MPI_Alloc_mem(buf_size,MPI_INFO_NULL, &state_buf);
 
 }

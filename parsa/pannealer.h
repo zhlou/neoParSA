@@ -16,7 +16,9 @@ class pannealer : public annealer<Problem, Schedule, FrozenCnd, Move>
 public:
     pannealer(Problem &problem, unirandom& in_rand,
               typename Schedule::Param scheParam,
-              typename FrozenCnd::Param frozenParam, xmlNode *root,
+              typename FrozenCnd::Param frozenParam,
+              const typename PopBased<Problem>::Param &popParam,
+              xmlNode *root,
               const MPIState &mpiState);
     virtual ~pannealer();
     int getWinner();

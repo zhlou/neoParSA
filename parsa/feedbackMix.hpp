@@ -16,15 +16,19 @@ template<class Problem>
 const char * feedbackMix<Problem>::name = "feedbackMix";
 
 template<class Problem>
-feedbackMix<Problem>::feedbackMix(Problem &problem, const MPIState &mpiState,
-                                  unirandom &rand, xmlNode *docroot):
-        mix(problem, mpiState, rand), root(docroot),tau_count(0),
-        mpi(mpiState), target(0.5)
+feedbackMix<Problem>::Param::Param(xmlNode *root) : target(0.5)
 {
     xmlNode *section = getSectionByName(root, "feedbackMix");
     interval = getPropInt(section, "interval");
-    adoptArray = new int[mpi.nnodes];
+}
 
+template<class Problem>
+feedbackMix<Problem>::feedbackMix(Problem &problem, const MPIState &mpiState,
+                                  unirandom &rand, const Param &param):
+        mix(problem, mpiState, rand), tau_count(0),
+        mpi(mpiState), target(0.5), interval(param.interval)
+{
+    adoptArray = new int[mpi.nnodes];
 }
 
 template<class Problem>

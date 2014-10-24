@@ -72,10 +72,11 @@ int main(int argc, char **argv)
 
     simPLam::Param scheParam(xmlroot);
     globalCount::Param frozenParam(xmlroot);
+    intervalMix<tsp>::Param mixParam(xmlroot);
     pannealer<tsp, simPLam, globalCount, parallelFBMove, intervalMix>
             *tsp_sa = new pannealer<tsp, simPLam, globalCount,
                                     parallelFBMove, intervalMix>
-            (theTSP, rnd, scheParam, frozenParam, xmlroot, mpi);
+            (theTSP, rnd, scheParam, frozenParam, mixParam, xmlroot, mpi);
     string basename(docname);
     size_t sz = basename.size();
     basename.resize(sz-4);

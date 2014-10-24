@@ -17,8 +17,15 @@
 template <class Problem>
 class intervalMix {
 public:
+    class Param{
+    public:
+        int interval;
+        Param(xmlNode *root);
+    };
+    //intervalMix(Problem &in_problem, const MPIState &mpiState,
+    //            unirandom& in_rand, xmlNode *docroot);
     intervalMix(Problem &in_problem, const MPIState &mpiState,
-                unirandom& in_rand, xmlNode *docroot);
+                unirandom& in_rand, const Param &param);
     ~intervalMix();
     mixState Mix(aState &state);
     static const char * name;
@@ -28,7 +35,7 @@ public:
     }
 private:
     Mixing<Problem> mix;
-    xmlNode *root;
+    //xmlNode *root;
     const int interval;
     int tau_count;
 };

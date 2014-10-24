@@ -75,11 +75,12 @@ int main(int argc, char **argv)
     fly theFly(flyParams);
     simPLam::Param schdParam(docroot);
     globalCount::Param frozenParam(docroot);
+    intervalMix<fly>::Param mixParam(docroot);
 
     pannealer<fly, simPLam, globalCount, parallelFBMove, intervalMix>
         *fly_sa = new pannealer<fly, simPLam, globalCount, parallelFBMove,
                                 intervalMix>
-                    (theFly, rnd, schdParam, frozenParam, docroot, mpi);
+                    (theFly, rnd, schdParam, frozenParam, mixParam, docroot, mpi);
     string outprefix = flyParams.infile_name + "_" +
             ((ostringstream*)&(ostringstream()<<mpi.rank))->str();
     if (isprolix) {

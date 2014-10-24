@@ -8,15 +8,25 @@
 #include "utils.h"
 #include <limits>
 using namespace std;
-int readInterval(xmlNode *root);
+//int readInterval(xmlNode *root);
 
 template <class Problem>
 const char * intervalMix<Problem>::name = "intervalMix";
+/*
 template<class Problem>
 intervalMix<Problem>::intervalMix(Problem &in_problem, const MPIState &mpiState,
                                   unirandom& in_rand, xmlNode *docroot) :
         mix(in_problem, mpiState, in_rand), root(docroot),
         interval(readInterval(root)), tau_count(0)
+{
+}
+*/
+
+template<class Problem>
+intervalMix<Problem>::intervalMix(Problem &in_problem, const MPIState &mpiState,
+                                  unirandom& in_rand, const Param &param) :
+        mix(in_problem, mpiState, in_rand),
+        interval(param.interval), tau_count(0)
 {
 }
 
@@ -39,8 +49,18 @@ mixState intervalMix<Problem>::Mix(aState &state)
     return mixState(i);
 }
 
+/*
 inline int readInterval(xmlNode *root)
 {
     xmlNode *section = getSectionByName(root, "mix");
     return getPropInt(section, "interval");
 }
+*/
+
+template <class Problem>
+intervalMix<Problem>::Param::Param(xmlNode *root)
+{
+    xmlNode *section = getSectionByName(root, "mix");
+    interval = getPropInt(section, "interval");
+}
+

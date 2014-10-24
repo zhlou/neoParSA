@@ -50,13 +50,14 @@ int main(int argc, char **argv)
     fly theFly(flyParams);
     expHoldP::Param scheParam(docroot);
     tempCountP::Param frozenParam(docroot);
+    pulseBcast<fly>::Param mixParam(docroot);
     // parallelFBMove<fly, debugSTD, adaptMix> *fly_problem =
     //        new parallelFBMove<fly, debugSTD, adaptMix>(theFly, rnd, docroot, mpi);
     // plsa *pschedule = new plsa(docroot, mpi);
     pannealer<fly, expHoldP, tempCountP, parallelFBMove, pulseBcast>
             *fly_sa = new pannealer<fly, expHoldP, tempCountP,
                                     parallelFBMove, pulseBcast>
-            (theFly, rnd, scheParam, frozenParam, docroot, mpi);
+            (theFly, rnd, scheParam, frozenParam, mixParam, docroot, mpi);
     if (mpi.rank == 0) {
         fly_sa->setCoolLog(file,(flyParams.infile_name + ".log").c_str());
         fly_sa->setProlix(file, (flyParams.infile_name + ".prolix").c_str());

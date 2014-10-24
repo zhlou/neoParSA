@@ -13,13 +13,19 @@ template<class Problem>
 const char *adaptMix<Problem>::name = "adaptiveMixing";
 
 template<class Problem>
-adaptMix<Problem>::adaptMix(Problem& in_problem, const MPIState& mpiState,
-        unirandom& in_rnd, xmlNode *docroot) :
-        mix(in_problem, mpiState, in_rnd), rnd(in_rnd), nnodes(mpiState.nnodes),
-        root(docroot)
+adaptMix<Problem>::Param::Param(xmlNode *root)
 {
     xmlNode *section = getSectionByName(root, "mix");
     adaptCoef = getPropDouble(section, "adaptcoef");
+
+}
+
+template<class Problem>
+adaptMix<Problem>::adaptMix(Problem& in_problem, const MPIState& mpiState,
+        unirandom& in_rnd, const Param &param) :
+        mix(in_problem, mpiState, in_rnd), rnd(in_rnd), nnodes(mpiState.nnodes),
+        adaptCoef(param.adaptCoef)
+{
 
 
 }
