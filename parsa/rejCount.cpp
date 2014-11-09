@@ -6,7 +6,7 @@
  */
 
 #include "rejCount.h"
-#include "utils.h"
+#include "xmlUtils.h"
 
 rejCount::rejCount(const rejCount::Param &param) :
     debugOut(param.st, param.debugname), max_rej(param.max_rej)

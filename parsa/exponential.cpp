@@ -6,7 +6,7 @@
  */
 
 #include "exponential.h"
-#include "utils.h"
+#include "xmlUtils.h"
 #include <stdexcept>
 #include <exception>
 

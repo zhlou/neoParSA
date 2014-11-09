@@ -6,7 +6,7 @@
  */
 
 #include "criCount.h"
-#include "utils.h"
+#include "xmlUtils.h"
 #include <stdexcept>
 #include <string>
 #include <cmath>

@@ -10,7 +10,7 @@
 #include <libxml/tree.h>
 
 #include "tsp.h"
-#include "utils.h"
+#include "xmlUtils.h"
 
 using namespace std;
 

@@ -7,7 +7,7 @@
 
 #include <mpi.h>
 #include <cmath>
-#include "utils.h"
+#include "xmlUtils.h"
 
 template <class Problem>
 const char * pulseBcast<Problem>::name = "pulseBcast";

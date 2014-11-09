@@ -8,7 +8,7 @@
 #ifndef TWOTIERMIX_HPP_
 #define TWOTIERMIX_HPP_
 
-#include "utils.h"
+#include "xmlUtils.h"
 
 template <class Problem>
 twoTierMix<Problem>::Param::Param(xmlNode *docroot)

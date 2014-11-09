@@ -6,7 +6,7 @@
  */
 
 #include "lam.h"
-#include "utils.h"
+#include "xmlUtils.h"
 #include <string>
 #include <stdexcept>
 #include <cmath>

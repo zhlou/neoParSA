@@ -6,7 +6,7 @@
  */
 
 #include "expParallel.h"
-#include "utils.h"
+#include "xmlUtils.h"
 #include <exception>
 
 const char *expParallel::name = "parallel exponential";

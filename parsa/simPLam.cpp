@@ -9,7 +9,7 @@
 #include <exception>
 #include <stdexcept>
 #include "simPLam.h"
-#include "utils.h"
+#include "xmlUtils.h"
 
 
 const char * simPLam::name = "simPLam";

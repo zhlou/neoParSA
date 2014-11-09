@@ -6,7 +6,7 @@
  */
 #include <mpi.h>
 #include <cmath>
-#include "utils.h"
+#include "xmlUtils.h"
 
 template <class Problem>
 const char * pulseNoAdopt<Problem>::name = "pulseNoAdopt";

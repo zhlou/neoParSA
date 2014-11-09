@@ -7,7 +7,7 @@
 
 #include "tempCount.h"
 
-#include "utils.h"
+#include "xmlUtils.h"
 
 tempCount::~tempCount() {
     // TODO Auto-generated destructor stub

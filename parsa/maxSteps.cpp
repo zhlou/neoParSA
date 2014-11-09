@@ -6,7 +6,7 @@
  */
 
 #include "maxSteps.h"
-#include "utils.h"
+#include "xmlUtils.h"
 maxSteps::Param::Param(xmlNode *root, debugStatus in_st, const char *name)
 {
     st = in_st;

@@ -11,7 +11,7 @@
 #include <stdexcept>
 #include <string>
 #include <mpi.h>
-#include "utils.h"
+#include "xmlUtils.h"
 
 template <class Problem>
 const char * periodBest<Problem>::name = "periodBest";

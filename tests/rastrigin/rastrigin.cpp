@@ -8,7 +8,7 @@
 #include <limits>
 #include "rastrigin.h"
 #include "unirandom.h"
-#include "utils.h"
+#include "xmlUtils.h"
 #include <string.h>
 // #include <omp.h>
 
