@@ -1,5 +1,6 @@
 find_package(Boost 1.52)
 include_directories(${Boost_INCLUDE_DIRS})
+add_definitions(-DUSE_BOOST)
 set(TRANSC_COMMON score.cpp coeffects.cpp cooperativity.cpp scalefactor.cpp 
                   fasta.cpp mode.cpp pwm.cpp TF.cpp gene.cpp nuclei.cpp conc.cpp 
                   twobit.cpp parameter.cpp organism.cpp utils.cpp subgroup.cpp 
