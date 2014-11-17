@@ -144,6 +144,23 @@ void annealer<Problem, Schedule, FrozenCnd, Move>::writeMethodText(xmlNode *meth
     xmlNewProp(method, (const xmlChar*)"move-generation",
                (const xmlChar*)Move<Problem>::name);
 }
+
+#ifdef USE_BOOST
+template<class Problem, class Schedule, class FrozenCnd, template<class> class Move>
+void annealer<Problem, Schedule, FrozenCnd, Move>::ptreeGetResult(ptree &pt)
+{
+    std::ostringstream s_energy, s_step, s_time;
+    s_energy << state.energy;
+    s_step << state.step_cnt;
+    s_time << tlaps;
+    pt.put("annealing_result.final_energy",s_energy.str());
+    pt.put("annealing_result.max_count",s_step.str());
+    pt.put("annealing_result.time",s_time.str());
+    pt.put("annealing_method.cooling-schedule",std::string(Schedule::name));
+    pt.put("annealing_method.move-generation",std::string(Move<Problem>::name));
+}
+#endif
+
 template<class Problem, class Schedule, class FrozenCnd, template<class > class Move>
 void annealer<Problem, Schedule, FrozenCnd, Move>::writeResult()
 {

@@ -5,6 +5,7 @@
  *      Author: zhlou
  */
 #include "mixState.h"
+#include "annealer.h"
 template <class Problem, class Schedule, class FrozenCnd,
           template<class> class Move, template<class> class PopBased>
 pannealer<Problem, Schedule, FrozenCnd, Move, PopBased>
@@ -69,3 +70,13 @@ void pannealer<Problem, Schedule, FrozenCnd, Move,
                (const xmlChar*)PopBased<Problem>::name);
 
 }
+#ifdef USE_BOOST
+template <class Problem, class Schedule, class FrozenCnd,
+        template<class> class Move, template<class> class PopBased>
+void pannealer<Problem, Schedule, FrozenCnd, Move, 
+        PopBased>::ptreeGetResult(ptree& pt)
+{
+    annealer<Problem, Schedule, FrozenCnd, Move>::ptreeGetResult(pt);
+    pt.put("annealing_method.mixing",std::string(PopBased<Problem>::name));
+}
+#endif
