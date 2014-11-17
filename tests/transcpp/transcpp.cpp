@@ -70,8 +70,11 @@ int main(int argc, char* argv[])
   
   //embryo.printParameters(cerr);
   
-  ptree output;
+  ptree output, anneal_output;
   embryo.write("Output", output);
+  fly_sa.ptreeGetResult(anneal_output);
+  //ptree& opt = output.get_child("Output");
+  output.put_child("Output.anneal_output",anneal_output);
   boost::property_tree::xml_writer_settings<char> settings(' ', 2);
   write_xml_element(infile, basic_string<ptree::key_type::value_type>(), output, -1, settings);
 
