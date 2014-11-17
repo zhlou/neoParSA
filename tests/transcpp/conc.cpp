@@ -47,6 +47,12 @@ double& ConcContainer::getConcByIndex(const string& n, int idx)
 
 double& ConcContainer::getConcByID(int id, const string& n, bool scaled)
 {
+  if (!hasName(n))
+  {
+    cerr << "ERROR: could not find gene with name " << n << " in rate data" << endl;
+    exit(1);
+  }
+  
   int i;
   int nids = ids.size();
   for (i=0; i<nids; i++)

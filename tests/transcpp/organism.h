@@ -151,7 +151,7 @@ public:
   
   void printRate(ostream& os);
   void printRateData(ostream& os);
-  void printScore(ostream& os) { os << score_out << endl; }
+  void printScore(ostream& os);
   
   
   // Annealing
@@ -159,6 +159,9 @@ public:
   double get_score();
 	void   generateMove(int idx, double theta);
 	void   restoreMove(int idx);
+	void   serialize(void *buf) const;
+	void   deserialize(void const *buf);
+	int    getStateSize();
 };
   
   

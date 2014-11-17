@@ -10,7 +10,6 @@
 #include "pwm.h"
 #include "TF.h"
 #include "gene.h"
-#include "nucleus.h"
 #include "conc.h"
 #include "twobit.h"
 #include "organism.h"

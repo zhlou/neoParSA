@@ -51,6 +51,7 @@ static const struct option longOpts[] = {
     { "tf",          required_argument, NULL,  0 },
     { "rate",        no_argument,       NULL,  0 },
     { "data",        no_argument,       NULL,  0 },
+    { "params",      no_argument,       NULL,  0 },
     { "score",       no_argument,       NULL,  0 }
 };
 
@@ -70,6 +71,7 @@ void display_usage()
        << "\t --scores         prints pwm scores" << endl
        << "\t --rate           prints rate for each gene" << endl
        << "\t --data           prints rate data for each gene" << endl
+       << "\t --params         prints the parameter table" << endl
        << "\t --gene    [name] prints only for gene with name" << endl
        << "\t --tf name [name] prints only for tf with name" << endl << endl;
   exit(1);
@@ -93,6 +95,7 @@ int main(int argc, char* argv[])
   bool modeocc   = false;
   bool effocc    = false;
   bool subgroups = false;
+  bool params    = false;
   
   string infile_name;
   
@@ -133,6 +136,8 @@ int main(int argc, char* argv[])
           subgroups = true;
         if (longOpts[longIndex].name == "section")
           section_name = optarg;
+        if (longOpts[longIndex].name == "params")
+          params = true;
         
         break;
     }
@@ -185,6 +190,8 @@ int main(int argc, char* argv[])
   {
     embryo.printScore(cout);
   }
+  if (params)
+    embryo.printParameters(cout);
 
   if (occupancy)
   {

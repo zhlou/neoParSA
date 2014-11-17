@@ -58,12 +58,12 @@ void ScaleFactor::getParameters(param_ptr_vector& p)
 
 double ScaleFactor::scale(double x)
 {
-  return x * A->getValue() + B->getValue();
+  return max(x * A->getValue() + B->getValue(), 0.0);
 }
 
 double ScaleFactor::unscale(double x)
 {
-  return (x - B->getValue())/A->getValue();
+  return max( (x - B->getValue())/A->getValue(), 0.0);
 }
 
 

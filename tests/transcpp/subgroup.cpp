@@ -353,7 +353,7 @@ void Subgroup::occupancy()
   
  
   for (int i=0; i<nsites; i++)
-  {
+  { 
     int f_idx = i;
     int r_idx = f2r[i];
     

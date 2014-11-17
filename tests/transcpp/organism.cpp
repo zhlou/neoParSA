@@ -219,6 +219,11 @@ void Organism::score()
   score_out = score_class->getScore();
 }
 
+void Organism::printScore(ostream& os)
+{
+  score_class->print(os);
+}
+
 
 /*    Output    */
 
@@ -747,6 +752,27 @@ void Organism::moveQ(int idx)
 
 /*    Annealing   */
 
+void Organism::serialize(void *buf) const
+{
+  int nparams = params.size();
+  double *dest = static_cast<double *>(buf); // new style cast
+  for (int i = 0; i < nparams; ++i)
+      dest[i] = params[i]->getValue();
+}
+
+void Organism::deserialize(void const *buf)
+{
+  int nparams = params.size();
+  double const *from = static_cast<double const *>(buf);
+  for (int i = 0; i < nparams; ++i) 
+      params[i]->set(from[i]);
+}
+
+int    Organism::getStateSize() 
+{
+  return params.size() * sizeof(double);
+}
+
 int    Organism::getDimension() const
 {
   return params.size();
@@ -793,5 +819,8 @@ void Organism::printParameters(ostream& os)
 {
   int nparams = params.size();
   for (int i=0; i<nparams; i++)
+  {
+    os << setw(5) << i;
     params[i]->print(os);
+  }
 }

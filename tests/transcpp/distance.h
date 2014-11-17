@@ -16,6 +16,7 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
+#include <iostream>
 
 
 
@@ -27,16 +28,16 @@ they can be pointed to by any of the interactions */
 
 
 // returns 1 if less than or equal to max, else return 0
-double Uniform(double distance, double max);
+//double Uniform(double distance, double max);
 
 // returns 1 up to a, then linear decay to b
-double Trapezoid(double distance, double a, double b);
+//double Trapezoid(double distance, double a, double b);
 
 // linear decay
-double Linear(double distance, double max);
+//double Linear(double distance, double max);
 
 // A linearly decaying sine wave
-double Sin(double distance, double period, double offset, double max);
+//double Sin(double distance, double period, double offset, double max);
   
 
 /************************    Distance Class   ***********************************/
@@ -54,8 +55,6 @@ private:
   
   boost::function<double (double)> distFunc;
   
-  void read(ptree& pt);
-  
 public:
   Distance();
   Distance(ptree& pt);
@@ -68,6 +67,7 @@ public:
   void setDistFunc(string funcname);
   
   void print(ostream& os);
+  void read(ptree& pt);
   void write(ptree&);
 };
 

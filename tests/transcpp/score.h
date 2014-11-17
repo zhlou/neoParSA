@@ -24,7 +24,7 @@ class Organism;
 /* Each scoring function takes two vectors of double pointers and outputs a single
 double representing the score of that function */
 
-double sse(vector<double*>& data, vector<double*>& prediction, scale_factor_ptr);
+//double sse(vector<double*>& data, vector<double*>& prediction, scale_factor_ptr);
 
 class Score
 {
@@ -41,11 +41,21 @@ private:
   
   vector<double> scores;
   vector<double> weights;
+  int min_weight;
   
   double score;
   
-  boost::function<double (vector<double*>&, vector<double*>&, scale_factor_ptr) > scoreFunc;
-  boost::function<double (vector<double*>&) > weightFunc;
+  // weighting functions
+  typedef void (Score::*WFP)();
+  vector<WFP> weight_functs;
+  void area();
+  void height();
+  void height2();
+  void gene_number();
+  void nuc_number();
+  
+  boost::function<double (vector<double*>&, vector<double*>&, scale_factor_ptr, int) > scoreFunc;
+  
   
 public:
   
@@ -59,6 +69,9 @@ public:
   // Setters
   void set(Organism* parent);
   void setWeights();
+  
+  // I/O
+  void print(ostream& os);
 };
   
  
