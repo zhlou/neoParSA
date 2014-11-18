@@ -224,6 +224,11 @@ void Organism::printScore(ostream& os)
   score_class->print(os);
 }
 
+void Organism::checkScale(ostream& os)
+{
+  score_class->checkScale(os);
+}
+
 
 /*    Output    */
 
@@ -448,7 +453,7 @@ void Organism::calc_f()
 
 void Organism::moveScaleFactor(int idx)
 {
-  ratedata->scale_data();
+  //ratedata->scale_data();
   score_class->setWeights();
 }
 

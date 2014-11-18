@@ -54,7 +54,15 @@ private:
   void gene_number();
   void nuc_number();
   
-  boost::function<double (vector<double*>&, vector<double*>&, scale_factor_ptr, int) > scoreFunc;
+  // scoring functions
+  typedef void (Score::*SFP)();
+  SFP scoreFunc;
+  void sse();
+  void chisq();
+  void pdiff();
+  void rms();
+  void arkim();
+  void sum_slope_squares();
   
   
 public:
@@ -69,6 +77,9 @@ public:
   // Setters
   void set(Organism* parent);
   void setWeights();
+  
+  // Method
+  void checkScale(ostream& os);
   
   // I/O
   void print(ostream& os);

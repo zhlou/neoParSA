@@ -129,6 +129,7 @@ public:
   void score();
   void calc_f();
   void scramble();
+  void checkScale(ostream&);
 
   
   void moveKcoop(int);

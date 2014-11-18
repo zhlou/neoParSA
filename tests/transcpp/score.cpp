@@ -14,62 +14,187 @@
 
 /*****************  Scoring Functions  ******************************************/
 
-double sse(vector<double*>& x, vector<double*>& y, scale_factor_ptr s, int min_weight)
+void Score::sse()
 {
-  int length = x.size();
-  double sse=0;
-  for (unsigned int i=0; i<length; i++)
-  { 
-    double tx = *x[i];
-    double ty = *y[i];
-    ty = s->unscale(ty);
+  int ngenes = genes->size();
+  
+  for (int i=0; i<ngenes; i++)
+  {
+    scale_factor_ptr tscale = scale[i];
+    double A = tscale->getA()->getValue();
+    vector<double*>& gdata  = data[i];
+    vector<double*>& gpred  = prediction[i];
     
-    double diff = tx-ty;
-    sse += diff*diff;
+    int length = gdata.size();
+    double sse = 0;
+    
+    for (int j=0; j<length; j++)
+    {
+      double tdata = *gdata[j];
+      double tpred = *gpred[j];
+
+      tpred = tscale->unscale(tpred);
+      
+      double diff = tdata - tpred;
+      sse += diff*diff;
+    }
+    sse *= A*A;
+    scores[i] = sse;
   }
-  return sse;
 }
 
-double chi_sq(vector<double*>& x, vector<double*>& y, scale_factor_ptr s, int min_weight)
+void Score::chisq()
 {
-  double tmin = s->unscale(min_weight);
-  int length = x.size();
-  double chisq = 0.0;
+  int ngenes = genes->size();
   
-  for (unsigned int i=0; i<length; i++)
+  for (int i=0; i<ngenes; i++)
   {
-    double tx = *x[i];
-    double ty = *y[i];
-    ty = s->unscale(ty);
+    scale_factor_ptr tscale = scale[i];
+    double mw = tscale->unscale(min_weight);
+    vector<double*>& gdata  = data[i];
+    vector<double*>& gpred  = prediction[i];
     
-    tx <- max(tx, tmin);
-    ty <- max(ty, tmin);
+    int length = gdata.size();
+    double chisq = 0;
     
-    double diff = tx-ty;
-    chisq += (diff*diff)/tx;
+    for (int j=0; j<length; j++)
+    {
+      double tdata = *gdata[j];
+      double tpred = *gpred[j];
+      
+      tpred = tscale->unscale(tpred);
+      tdata = max(tdata, mw);
+      tpred = max(tpred, mw);
+      
+      double diff = tdata - tpred;
+      chisq += diff*diff/tdata;
+    }
+    scores[i] = chisq;
   }
-  return chisq/length;
 }
 
-double pdiff(vector<double*>& x, vector<double*>& y, scale_factor_ptr s,  int min_weight)
+void Score::pdiff()
 {
-  double tmin = s->unscale(min_weight);
-  int length = x.size();
-  double pdiff=0;
+  int ngenes = genes->size();
   
-  for (unsigned int i=0; i<length; i++)
+  for (int i=0; i<ngenes; i++)
   {
-    double tx = *x[i];
-    double ty = *y[i];
-    ty = s->unscale(ty);
+    scale_factor_ptr tscale = scale[i];
+    double mw = tscale->unscale(min_weight);
+    vector<double*>& gdata  = data[i];
+    vector<double*>& gpred  = prediction[i];
     
-    tx <- max(tx, tmin);
-    ty <- max(ty, tmin);
+    int length = gdata.size();
+    double pdiff = 0;
     
-    double diff = tx-ty;
-    pdiff += abs(diff)/tx;
+    for (int j=0; j<length; j++)
+    {
+      double tdata = *gdata[j];
+      double tpred = *gpred[j];
+
+      tpred = tscale->unscale(tpred);
+      tdata = max(tdata, mw);
+      tpred = max(tpred, mw);
+      
+      double diff = tdata - tpred;
+      pdiff += abs(diff)/tdata;
+    }
+    scores[i] = pdiff;
   }
-  return pdiff/length;
+}
+
+void Score::rms()
+{
+  int ngenes = genes->size();
+  
+  for (int i=0; i<ngenes; i++)
+  {
+    scale_factor_ptr tscale = scale[i];
+    double mw = tscale->unscale(min_weight);
+    vector<double*>& gdata  = data[i];
+    vector<double*>& gpred  = prediction[i];
+    
+    int length = gdata.size();
+    double rms = 0;
+    
+    for (int j=0; j<length; j++)
+    {
+      double tdata = *gdata[j];
+      double tpred = *gpred[j];
+
+      tpred = tscale->unscale(tpred);
+      tdata = max(tdata, mw);
+      tpred = max(tpred, mw);
+      
+      double diff = tdata - tpred;
+      rms += diff*diff;
+    }
+    rms /= length;
+    rms = sqrt(rms);
+    scores[i] = rms;
+  }
+}
+
+// score and weight just as AhRam did in 2013 PLoS Genetics
+void Score::arkim()
+{
+  int ngenes = genes->size();
+  
+  double max_area = 0;
+  vector<double> area;
+  area.resize(ngenes);
+  
+  for (int i=0; i<ngenes; i++)
+  {
+    scale_factor_ptr tscale = scale[i];
+    vector<double*>& gdata  = data[i];
+    vector<double*>& gpred  = prediction[i];
+    
+    int length  = gdata.size();
+    double sse  = 0;
+    area[i] = 0;
+    for (int j=0; j<length; j++)
+    {
+      double tdata = *gdata[j];
+      double tpred = *gpred[j];
+      
+      tdata = tscale->scale(tdata);
+      
+      area[i] += tdata;
+      
+      double diff = tdata - tpred;
+      sse += diff*diff;
+    }
+    max_area = max(max_area, area[i]);
+    scores[i] = sse;
+  }
+  for (int i=0; i<ngenes; i++)
+    scores[i] *= max_area/area[i];
+}
+
+// score based on slopes
+void Score::sum_slope_squares()
+{
+  int ngenes = genes->size();
+  
+  for (int i=0; i<ngenes; i++)
+  {
+    vector<double*>& gdata  = data[i];
+    vector<double*>& gpred  = prediction[i];
+    
+    int length = gdata.size();
+    double sss = 0;
+    
+    for (int j=1; j<length; j++)
+    {
+      double delta_data = (*gdata[j]) - (*gdata[j-1]);
+      double delta_pred = (*gpred[j]) - (*gpred[j-1]);
+      
+      double diff = delta_data - delta_pred;
+      sss += diff*diff;
+    }
+    scores[i] = sss;
+  }
 }
 
 
@@ -85,36 +210,20 @@ void Score::area()
   for (int i=0; i<ngenes; i++)
   {
     double tmin = scale[i]->unscale(min_weight);
+    
     int ndata = data[i].size();
     for (int j=0; j<ndata; j++)
       gene_area[i] += max(*data[i][j], tmin);
     max_area = max(max_area, gene_area[i]);
   }
   for (int i=0; i<ngenes; i++)
-    weights[i] *= max_area/gene_area[i];
+  {
+    double A = scale[i]->getA()->getValue();
+    weights[i] *= (max_area)/(gene_area[i]);
+  }
 }
 
 void Score::height()
-{
-  double max_height = 0.0;
-  int    ngenes   = genes->size();
-  vector<double> gene_height;
-  gene_height.resize(ngenes,0.0);
-  
-  
-  for (int i=0; i<ngenes; i++)
-  {
-    int ndata = data[i].size();
-    gene_height[i] = scale[i]->unscale(min_weight);
-    for (int j=0; j<ndata; j++)
-      gene_height[i] = max(gene_height[i],*data[i][j]);
-    max_height = max(max_height, gene_height[i]);
-  }
-  for (int i=0; i<ngenes; i++)
-    weights[i] *= 1/gene_height[i];
-}
-
-void Score::height2()
 {
   double max_height = 0.0;
   int    ngenes   = genes->size();
@@ -131,8 +240,29 @@ void Score::height2()
     max_height = max(max_height, gene_height[i]);
   }
   for (int i=0; i<ngenes; i++)
+    weights[i] *= max_height/gene_height[i];
+}
+
+void Score::height2()
+{
+  double max_height = 0.0;
+  int    ngenes   = genes->size();
+  vector<double> gene_height;
+  gene_height.resize(ngenes,0.0);
+  
+  
+  for (int i=0; i<ngenes; i++)
+  {
+    int ndata = data[i].size();
+    gene_height[i] = scale[i]->unscale(min_weight);
+    for (int j=0; j<ndata; j++)
+      gene_height[i] = max(gene_height[i], *data[i][j] );
+    max_height = max(max_height, gene_height[i]);
+  }
+  for (int i=0; i<ngenes; i++)
   {
     weights[i] *= 1/(gene_height[i]*gene_height[i]);
+    //cerr << "weight for " << genes->getGene(i).getName() << ": " << weights[i] << endl;
   }
 }
 
@@ -198,7 +328,17 @@ void Score::set(Organism* parent)
   }
   
   if (mode->scoreFunction() == "sse")
-    scoreFunc = bind(&sse, _1, _2, _3, _4);
+    scoreFunc = &Score::sse;
+  else if (mode->scoreFunction() == "chisq")
+    scoreFunc = &Score::chisq;
+  else if (mode->scoreFunction() == "pdiff")
+    scoreFunc = &Score::pdiff;
+  else if (mode->scoreFunction() == "rms")
+    scoreFunc = &Score::rms;
+  else if (mode->scoreFunction() == "arkim")
+    scoreFunc = &Score::arkim;
+  else if (mode->scoreFunction() == "sss")
+    scoreFunc = &Score::sum_slope_squares;
   else
   {
     cerr << "ERROR: could not find score function with name " << mode->scoreFunction() << endl;
@@ -234,21 +374,56 @@ void Score::setWeights()
   {
     WFP fp = weight_functs[i];
     (this->*fp)();
-  }
-  
-  
+  } 
 }
  
+
+void Score::checkScale(ostream& os)
+{
+  
+  int ngenes = genes->size();
+  
+  // store old data
+  vector<vector <double> > saved_data;
+  vector<vector <double> > saved_pred;
+  saved_data.resize(ngenes);
+  saved_pred.resize(ngenes);
+  for (int i=0; i<ngenes; i++)
+  {
+    int length = data[i].size();
+    for (int j=0; j<length; j++)
+    {
+      saved_data[i].push_back(*data[i][j]);
+      saved_pred[i].push_back(*prediction[i][j]);
+    }
+  }
+  
+  // test mutiplying data and prediction by 1 through 5
+  for (int i=1; i<6; i++)
+  {
+    for (int j=0; j<ngenes; j++)
+    {
+      scale[j]->getA()->set(i);
+      int length = data[j].size();
+      for (int k=0; k<length; k++)
+        *data[j][k] = scale[j]->unscale(saved_data[j][k]);
+    }
+    setWeights();
+    os << "when scale factor is " << i << " score is " << getScore() << endl;
+  }
+}
+    
   
 double Score::getScore()
 {
   int ngenes = genes->size();
   score = 0;
   
+  (this->*scoreFunc)();
+  
   for (int i=0; i<ngenes; i++)
   {   
-    double tmpscore = scoreFunc(data[i],prediction[i],scale[i],min_weight) * weights[i];
-    scores[i] = tmpscore;
+    double tmpscore = scores[i] * weights[i];
     score += tmpscore;
   }
   return score;

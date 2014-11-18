@@ -22,8 +22,7 @@ class ScaleFactor
 private:
   /* I use an affine ( ax + b ) transformation for scaling data. I generally
   assume that b=0, but some users set offset lower or are more or less 
-  conservative in background removal, so realistically b could be in the range
-  -10 to 10. */
+  conservative in background removal */
   param_ptr A;
   param_ptr B;
   
@@ -36,6 +35,8 @@ public:
   
   // Getters
   void getParameters(param_ptr_vector& p);
+  param_ptr getA()  { return A;    }
+  param_ptr getB()  { return B;    }
   string& getName() { return name; }
   
   // Method

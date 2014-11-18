@@ -52,6 +52,7 @@ static const struct option longOpts[] = {
     { "rate",        no_argument,       NULL,  0 },
     { "data",        no_argument,       NULL,  0 },
     { "params",      no_argument,       NULL,  0 },
+    { "check-scale", no_argument,       NULL,  0 },
     { "score",       no_argument,       NULL,  0 }
 };
 
@@ -72,6 +73,7 @@ void display_usage()
        << "\t --rate           prints rate for each gene" << endl
        << "\t --data           prints rate data for each gene" << endl
        << "\t --params         prints the parameter table" << endl
+       << "\t --check-scale    checks that the scale function works with the scoring function" << endl
        << "\t --gene    [name] prints only for gene with name" << endl
        << "\t --tf name [name] prints only for tf with name" << endl << endl;
   exit(1);
@@ -87,15 +89,16 @@ int main(int argc, char* argv[])
   string gene_name("");
   string tf_name("");
   
-  bool rate      = false;
-  bool sites     = false;
-  bool data      = false;
-  bool score     = false;
-  bool occupancy = false;
-  bool modeocc   = false;
-  bool effocc    = false;
-  bool subgroups = false;
-  bool params    = false;
+  bool rate       = false;
+  bool sites      = false;
+  bool data       = false;
+  bool score      = false;
+  bool occupancy  = false;
+  bool modeocc    = false;
+  bool effocc     = false;
+  bool subgroups  = false;
+  bool params     = false;
+  bool checkscale = false;
   
   string infile_name;
   
@@ -138,6 +141,8 @@ int main(int argc, char* argv[])
           section_name = optarg;
         if (longOpts[longIndex].name == "params")
           params = true;
+        if (longOpts[longIndex].name == "check-scale")
+          checkscale = true;
         
         break;
     }
@@ -183,6 +188,10 @@ int main(int argc, char* argv[])
   if (rate)
   {
     embryo.printRate(cout);
+  }
+  if (checkscale)
+  {
+    embryo.checkScale(cout);
   }
   if (data)
     embryo.printRateData(cout);
