@@ -6,9 +6,10 @@ set(TRANSC_COMMON score.cpp coeffects.cpp cooperativity.cpp scalefactor.cpp
                   twobit.cpp parameter.cpp organism.cpp utils.cpp subgroup.cpp 
                   bindings.cpp bindingsite.cpp distance.cpp promoter.cpp 
                   quenching.cpp)
-set(BINARIES transc_lam transc_scramble transc_unfold parsefasta getsequence)
+set(BINARIES transc_lam transcpp_expHold transc_scramble transc_unfold parsefasta getsequence)
 
 add_executable(transc_lam transcpp.cpp ${TRANSC_COMMON})
+add_executable(transcpp_expHold transcpp_expHold.cpp ${TRANSC_COMMON})
 add_executable(transc_scramble scramble.cpp ${TRANSC_COMMON})
 add_executable(transc_unfold unfold.cpp ${TRANSC_COMMON})
 add_executable(parsefasta fasta.cpp parsefasta.cpp)
