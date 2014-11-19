@@ -37,3 +37,10 @@ double expHold::updateS(const aState &state) {
     else
         return target_s;
 }
+
+void expHold::updateSegment(const aState& state)
+{
+    debugOut << state.step_cnt << " " << state.s << " "
+             << energyStat.getMean() << " " 
+             << energyStat.getVar() << std::endl;
+}
