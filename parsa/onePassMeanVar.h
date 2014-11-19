@@ -26,7 +26,7 @@ public:
         m2 += delta * (data - mean);
     }
     double getMean() const {return mean;}
-    double getVar(size_t type=0) const {return (n<2) ? 0 : m2/(n-1+type);}
+    double getVar(size_t ddof=1) const {return (n<2) ? 0 : m2/(n-ddof);}
     void reset(){mean = 0; m2 = 0; n = 0;}
 };
 
