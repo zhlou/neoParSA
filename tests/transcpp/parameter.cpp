@@ -8,6 +8,7 @@
 
 
 #include "parameter.h"
+#include <iostream>
 
 /* for now paramters will be of type double, but I will consider templating this
 in the future */

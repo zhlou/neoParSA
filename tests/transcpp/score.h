@@ -41,7 +41,7 @@ private:
   
   vector<double> scores;
   vector<double> weights;
-  int min_weight;
+  double min_weight;
   
   double score;
   

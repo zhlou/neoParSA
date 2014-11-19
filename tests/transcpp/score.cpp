@@ -209,11 +209,11 @@ void Score::area()
   
   for (int i=0; i<ngenes; i++)
   {
-    double tmin = scale[i]->unscale(min_weight);
+    //double tmin = scale[i]->unscale(min_weight);
     
     int ndata = data[i].size();
     for (int j=0; j<ndata; j++)
-      gene_area[i] += max(*data[i][j], tmin);
+      gene_area[i] += max(scale[i]->scale(*data[i][j]), min_weight);
     max_area = max(max_area, gene_area[i]);
   }
   for (int i=0; i<ngenes; i++)
@@ -234,9 +234,9 @@ void Score::height()
   for (int i=0; i<ngenes; i++)
   {
     int ndata = data[i].size();
-    gene_height[i] = scale[i]->unscale(min_weight);
+    gene_height[i] = min_weight;
     for (int j=0; j<ndata; j++)
-      gene_height[i] = max(gene_height[i],(*data[i][j]));
+      gene_height[i] = max(gene_height[i],scale[i]->scale(*data[i][j]));
     max_height = max(max_height, gene_height[i]);
   }
   for (int i=0; i<ngenes; i++)
@@ -432,14 +432,28 @@ double Score::getScore()
 void Score::print(ostream& os)
 {
   int ngenes = genes->size();
+  
+  os << setw(14) << "Name";
+  os << setw(14) << "Score";
+  os << setw(14) << "Weight";
+  os << setw(14) << "Product" << endl;
+  
+  double total = 0.0;
+  
   for (int i=0; i<ngenes; i++)
   {
+    total += scores[i];
     os << setw(14) << genes->getGene(i).getName();
-    os << setw(14) << setprecision(5) << scores[i] << endl;
+    os << setw(14) << setprecision(5) << scores[i];
+    os << setw(14) << setprecision(5) << weights[i];
+    os << setw(14) << setprecision(5) << scores[i]*weights[i] << endl;
   }
-  os << "-----------------------------" << endl;
+  double weighted_score = getScore();
+  os << "----------------------------------------------------------" << endl;
   os << setw(14) << "Total";
-  os << setw(14) << setprecision(5) << getScore() << endl;
+  os << setw(14) << setprecision(5) << total;
+  os << setw(14) << " ";
+  os << setw(14) << setprecision(5) << weighted_score << endl;
 }
     
    
