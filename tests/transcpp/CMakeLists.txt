@@ -6,16 +6,22 @@ set(TRANSC_COMMON score.cpp coeffects.cpp cooperativity.cpp scalefactor.cpp
                   twobit.cpp parameter.cpp organism.cpp utils.cpp subgroup.cpp 
                   bindings.cpp bindingsite.cpp distance.cpp promoter.cpp 
                   quenching.cpp)
-set(BINARIES transc_lam transcpp_expHold transc_scramble transc_unfold parsefasta getsequence)
+set(MPIBINARIES transcpp_pEH-fbMix)
+set(BINARIES ${MPIBINARIES} transc_lam transcpp_expHold transc_scramble 
+             transc_unfold parsefasta getsequence)
 
 add_executable(transc_lam transcpp.cpp ${TRANSC_COMMON})
 add_executable(transcpp_expHold transcpp_expHold.cpp ${TRANSC_COMMON})
 add_executable(transc_scramble scramble.cpp ${TRANSC_COMMON})
 add_executable(transc_unfold unfold.cpp ${TRANSC_COMMON})
+add_executable(transcpp_pEH-fbMix transcpp_pEH-fbMix.cpp ${TRANSC_COMMON})
 add_executable(parsefasta fasta.cpp parsefasta.cpp)
 add_executable(getsequence twobit.cpp getsequence.cpp)
 
 foreach(bin ${BINARIES})
 	target_link_libraries(${bin} parsa ${LIBXML2_LIBRARIES} ${BOOST_LIBRARIES})
+endforeach()
+foreach(mpibin ${MPIBINARIES})
+	target_link_libraries(${mpibin} ${MPI_C_LIBRARIES})
 endforeach()
 add_custom_target(transcpp DEPENDS ${BINARIES})
