@@ -82,7 +82,7 @@ int main(int argc, char** argv)
     Organism embryo(input);
     //embryo.printParameters(cerr);
 
-    unirand48 rnd;
+    unirand48 rnd(mpiState.rank);
     //rnd.setSeed(getpid());
 
     xmlDoc *doc = xmlParseFile(xmlname.c_str());
