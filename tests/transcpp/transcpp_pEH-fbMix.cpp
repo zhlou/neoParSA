@@ -96,10 +96,11 @@ int main(int argc, char** argv)
             mixParam, docroot, mpiState);
     string outprefix = xmlname + "_" +
             ((ostringstream*)&(ostringstream() << mpiState.rank))->str();
-    if (isprolix)
-        annealer->setProlix(file, (outprefix + ".prolix").c_str());
+
     if (0 == mpiState.rank) {
         annealer->setCoolLog(file, (xmlname + ".log").c_str());
+        if (isprolix)
+            annealer->setProlix(file, (xmlname + ".prolix").c_str());
         if (isverbose) {
             annealer->setMixLog(file, (xmlname + ".mixlog").c_str());
         }
