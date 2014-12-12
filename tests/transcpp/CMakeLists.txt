@@ -7,11 +7,13 @@ set(TRANSC_COMMON score.cpp coeffects.cpp cooperativity.cpp scalefactor.cpp
                   bindings.cpp bindingsite.cpp distance.cpp promoter.cpp 
                   quenching.cpp)
 set(MPIBINARIES transcpp_pEH-fbMix transcpp_pEH-mix)
-set(BINARIES ${MPIBINARIES} transc_lam transcpp_expHold transc_scramble 
+set(BINARIES ${MPIBINARIES} transc_lam transcpp_expHold transcpp_expFrozen 
+             transc_scramble 
              transc_unfold parsefasta getsequence)
 
 add_executable(transc_lam transcpp.cpp ${TRANSC_COMMON})
 add_executable(transcpp_expHold transcpp_expHold.cpp ${TRANSC_COMMON})
+add_executable(transcpp_expFrozen transcpp_expFrozen.cpp ${TRANSC_COMMON})
 add_executable(transc_scramble scramble.cpp ${TRANSC_COMMON})
 add_executable(transc_unfold unfold.cpp ${TRANSC_COMMON})
 add_executable(transcpp_pEH-fbMix transcpp_pEH-fbMix.cpp ${TRANSC_COMMON})
