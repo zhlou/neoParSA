@@ -22,8 +22,15 @@ public:
     unirandom(unsigned int disp);
     unirandom(xmlNode *section);
     virtual double random();
+    double randn();
+    double randn(double mu, double sigma) {return sigma*randn()+mu;}
+    double laplace(double theta);
+    double lognormal(double mean, double var);
 protected:
     unsigned int seed;
+private:
+    double v1, v2, s;
+    int phase;
 };
 
 class unirand48: public unirandom
