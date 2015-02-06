@@ -5,6 +5,7 @@
  *      Author: zhlou
  */
 #include <cmath>
+#include <limits>
 #include <mpi.h>
 using namespace std;
 
