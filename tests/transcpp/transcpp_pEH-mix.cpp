@@ -43,13 +43,17 @@ int main(int argc, char** argv)
     bool isprolix = false;
     bool issteplog = false;
     bool isverbose = false;
+    bool iscoollog = true;
     std::string binname(basename(argv[0]));
     try {
         char c;
-        while ((c = getopt(argc, argv, "plv")) != -1) {
+        while ((c = getopt(argc, argv, "plvN")) != -1) {
             switch (c) {
             case 'l':
                 issteplog = true;
+                break;
+            case 'N':
+                iscoollog = false;
                 break;
             case 'p':
                 isprolix = true;
@@ -98,7 +102,8 @@ int main(int argc, char** argv)
             ((ostringstream*)&(ostringstream() << mpiState.rank))->str();
 
     if (0 == mpiState.rank) {
-        annealer->setCoolLog(file, (xmlname + ".log").c_str());
+        if (iscoollog)
+            annealer->setCoolLog(file, (xmlname + ".log").c_str());
         if (isprolix)
             annealer->setProlix(file, (xmlname + ".prolix").c_str());
         if (isverbose) {
