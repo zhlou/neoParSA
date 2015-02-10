@@ -67,7 +67,7 @@ void moveControlCore::moveControl()
 
 void moveControlCore::setActualTheta(int index)
 {
-    actualThetas[index] = rnd.lognormal(thetaBars[index], varTheta);
+    actualThetas[index] = std::exp(rnd.randn(std::log(thetaBars[index]), varTheta));
     if (actualThetas[index] < thetaMins[index])
         actualThetas[index] = thetaMins[index];
     if (actualThetas[index] > thetaMaxs[index])

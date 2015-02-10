@@ -152,6 +152,8 @@ void FBMoveIntervalMix<Problem>::move_control()
     if (!debugOut.isIgnore()) {
         for (int i = 0; i < nparams; ++i) {
             debugOut << "\t" << moveCore.getThetaBar(i);
+            debugOut << "\t" << moveCore.getVarTheta();
+            debugOut << "\t" << moveCore.getActualTheta(i);
         }
     }
 

@@ -26,6 +26,7 @@ public:
     double randn(double mu, double sigma) {return sigma*randn()+mu;}
     double laplace(double theta);
     double lognormal(double mean, double var);
+    double exponential(double theta);
 protected:
     unsigned int seed;
 private:

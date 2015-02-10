@@ -70,6 +70,12 @@ double unirandom::laplace(double theta)
         return theta * std::log(-1*uniform);
 }
 
+double unirandom::exponential(double theta) {
+
+    return -1 * theta * std::log(random());
+}
+
+
 double unirandom::lognormal(double mean, double var) 
 {
     if (0.0 == var)

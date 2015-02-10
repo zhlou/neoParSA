@@ -46,6 +46,7 @@ public:
     double getVarTheta() const {return varTheta;}
     void setThetaBar(int index, double thetaBar);
     double getThetaBar(int index) const {return thetaBars[index];}
+    double getActualTheta(int index) const {return actualThetas[index];}
     void moveControl();
     
 };
