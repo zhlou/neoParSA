@@ -30,9 +30,9 @@ FBMoveIntervalMix<Problem>::Param::Param(xmlNode *root) : mix_interval(100),
         move_interval(100), move_gain(0.03), target(0.44), initTheta(1.0),
         thetaMin(0.), thetaMax(numeric_limits<double>::max()), mix_target(0.5)
 {
-    if (!root) {
+    if (root) {
         xmlNode *section = getSectionByName(root, "moveMix");
-        if (!section) {
+        if (section) {
             try {
                 mix_interval = getPropInt(section, "mix_interval");
             } catch (const std::exception &e) {
@@ -185,6 +185,15 @@ mixState FBMoveIntervalMix<Problem>::Mix(aState& state)
         moveCore.setVarTheta(1.0 / adoptRate - 1 / mix_target);
     } else {
         moveCore.setVarTheta(0.);
+    }
+    if (!debugOut.isIgnore()) {
+        debugOut << state.step_cnt << "\t";
+        for (int i = 0; i < nparams; ++i) {
+            debugOut << "\t" << moveCore.getThetaBar(i);
+            debugOut << "\t" << moveCore.getVarTheta();
+            debugOut << "\t" << moveCore.getActualTheta(i);
+        }
+        debugOut << endl;
     }
 
 
