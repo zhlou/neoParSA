@@ -180,6 +180,7 @@ mixState FBMoveIntervalMix<Problem>::Mix(aState& state)
     mix.calProbTab(state);
     p = mix.getPartner();
     state.energy = mix.adoptState(i);
+    energy = state.energy;
     for (i = 0; i < mpi.nnodes; ++i) {
         adoptArray[i] = 0;
     }
