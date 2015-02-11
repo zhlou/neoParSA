@@ -30,6 +30,7 @@ public:
         double thetaMin;
         double thetaMax;
         double mix_target;
+        double varConst;
         Param();
         Param(xmlNode *root);
 
@@ -64,6 +65,7 @@ private:
     Mixing<Problem> mix;
     moveControlCore moveCore;
     double mix_target;
+    double varConst;
     int *adoptArray;
 
     void move_control();

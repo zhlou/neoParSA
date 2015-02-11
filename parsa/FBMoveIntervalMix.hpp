@@ -20,7 +20,8 @@ const char * FBMoveIntervalMix<Problem>::name = "FeedbackMove+IntervalMix";
 template<class Problem>
 FBMoveIntervalMix<Problem>::Param::Param() : mix_interval(100),
         move_interval(100), move_gain(0.03), target(0.44), initTheta(1.0),
-        thetaMin(0.), thetaMax(numeric_limits<double>::max()), mix_target(0.5)
+        thetaMin(0.), thetaMax(numeric_limits<double>::max()), mix_target(0.5),
+        varConst(1.)
 {
 
 }
@@ -28,7 +29,8 @@ FBMoveIntervalMix<Problem>::Param::Param() : mix_interval(100),
 template<class Problem>
 FBMoveIntervalMix<Problem>::Param::Param(xmlNode *root) : mix_interval(100),
         move_interval(100), move_gain(0.03), target(0.44), initTheta(1.0),
-        thetaMin(0.), thetaMax(numeric_limits<double>::max()), mix_target(0.5)
+        thetaMin(0.), thetaMax(numeric_limits<double>::max()), mix_target(0.5),
+        varConst(1.)
 {
     if (root) {
         xmlNode *section = getSectionByName(root, "moveMix");
@@ -73,6 +75,11 @@ FBMoveIntervalMix<Problem>::Param::Param(xmlNode *root) : mix_interval(100),
             } catch (const std::exception &e) {
 
             }
+            try {
+                varConst = getPropDouble(section, "varConst");
+            } catch (const std::exception &e) {
+
+            }
 
         }
     }
@@ -96,7 +103,8 @@ FBMoveIntervalMix<Problem>::FBMoveIntervalMix(Problem& in_problem,
         sweep(0),
         tau_count(0),
         mix(in_problem, mpiState, in_rnd),
-        mix_target(param.mix_target)
+        mix_target(param.mix_target),
+        varConst(param.varConst)
 {
     energy = problem.get_score();
     prev_energy = energy;
@@ -182,7 +190,7 @@ mixState FBMoveIntervalMix<Problem>::Mix(aState& state)
         nadopt += adoptArray[i];
     double adoptRate = (double) (nadopt) / mpi.nnodes;
     if (adoptRate < mix_target) {
-        moveCore.setVarTheta(1.0 / adoptRate - 1 / mix_target);
+        moveCore.setVarTheta(varConst*(1.0 / adoptRate - 1 / mix_target));
     } else {
         moveCore.setVarTheta(0.);
     }
