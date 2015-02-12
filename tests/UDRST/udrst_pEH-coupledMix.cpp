@@ -39,14 +39,14 @@ int main(int argc, char** argv)
     MPI_Comm_group(MPI_COMM_WORLD, &mpi.group);
     mpi.comm = MPI_COMM_WORLD;
     bool isprolix = false;
-    //bool isverbose = false;
+    bool isverbose = false;
     bool issteplog = true;
 
     std::string section;
     std::string binname(basename(argv[0]));
     try {
         char c;
-        while ( (c = getopt(argc, argv, "pL")) != -1) {
+        while ( (c = getopt(argc, argv, "pvL")) != -1) {
             switch(c) {
             case 'L':
                 issteplog = false;
@@ -54,9 +54,9 @@ int main(int argc, char** argv)
             case 'p':
                 isprolix = true;
                 break;
-//            case 'v':
-//                isverbose = true;
-//                break;
+            case 'v':
+                isverbose = true;
+                break;
             default:
                 throw std::runtime_error("Unrecognized option");
             }
@@ -100,9 +100,9 @@ int main(int argc, char** argv)
 
     if (mpi.rank == 0) {
         rst_sa->setCoolLog(file,(basename + ".log").c_str());
-//        if (isverbose) {
-//            rst_sa->setMixLog(file, (basename + ".mixlog").c_str());
-//        }
+        if (isverbose) {
+            rst_sa->setMixLog(file, (basename + ".mixlog").c_str());
+        }
         // fly_sa->setProlix(file, (flyParams.infile_name + ".prolix").c_str());
     }
     if (issteplog) {
