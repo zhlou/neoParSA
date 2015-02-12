@@ -195,14 +195,14 @@ mixState FBMoveIntervalMix<Problem>::Mix(aState& state)
     } else {
         moveCore.setVarTheta(0.);
     }
-    if (!debugOut.isIgnore()) {
-        debugOut << state.step_cnt << "\t";
+    if (!mixLog.isIgnore()) {
+        mixLog << state.step_cnt << "\t" << state.s << "\t" << adoptRate
+                << "\t" << moveCore.getVarTheta();
         for (int i = 0; i < nparams; ++i) {
-            debugOut << "\t" << moveCore.getThetaBar(i);
-            debugOut << "\t" << moveCore.getVarTheta();
-            debugOut << "\t" << moveCore.getActualTheta(i);
+            mixLog << "\t" << moveCore.getThetaBar(i);
+            mixLog << "\t" << moveCore.getActualTheta(i);
         }
-        debugOut << endl;
+        mixLog << endl;
     }
 
 

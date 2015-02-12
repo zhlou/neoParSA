@@ -24,6 +24,9 @@ public:
             const MPIState &mpiState);
     virtual ~coupledAnnealer();
     int getWinner();
+    void setMixLog(debugStatus st, const char* outname=NULL) {
+        this->move->setMixLog(st, outname);
+    }
 
 protected:
     const MPIState &mpi;

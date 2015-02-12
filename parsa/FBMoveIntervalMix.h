@@ -45,12 +45,16 @@ public:
     mixState Mix(aState &state);
     void setDebug(debugStatus st, const char* outname=NULL) {
         debugOut.setDebug(st, outname);}
+    void setMixLog(debugStatus st, const char* outname=NULL) {
+        mixLog.setDebug(st, outname);
+    }
     static const char * name;
 private:
     Problem &problem;
     unirandom& rnd;
     const MPIState &mpi;
     dynDebug debugOut;
+    dynDebug mixLog;
     const int nparams;
     const int mix_interval;
     const int move_interval;
