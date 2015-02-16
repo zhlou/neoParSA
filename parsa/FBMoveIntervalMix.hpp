@@ -173,11 +173,14 @@ template<class Problem>
 mixState FBMoveIntervalMix<Problem>::Mix(aState& state)
 {
     ++tau_count;
+    double energyVar;
     if ((tau_count % mix_interval) != 0)
         return mixState();
     int i, p, nadopt = 0;
     tau_count = 0;
     mix.calProbTab(state);
+    if (!mixLog.isIgnore())
+        energyVar = mix.getEnergyVar();
     p = mix.getPartner();
     state.energy = mix.adoptState(p);
     energy = state.energy;
@@ -197,6 +200,7 @@ mixState FBMoveIntervalMix<Problem>::Mix(aState& state)
     }
     if (!mixLog.isIgnore()) {
         mixLog << state.step_cnt << "\t" << state.s << "\t" << adoptRate
+                << "\t" << energyVar
                 << "\t" << moveCore.getVarTheta();
         for (int i = 0; i < nparams; ++i) {
             mixLog << "\t" << moveCore.getThetaBar(i);

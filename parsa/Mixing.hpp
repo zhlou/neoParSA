@@ -102,3 +102,20 @@ int Mixing<Problem>::getPartner() const
     debugOut << " Adopt " << i << endl;
     return i;
 }
+
+template<typename Problem>
+double Mixing<Problem>::getEnergyVar(size_t ddof) const
+{
+    if (mpi.nnodes < 2)
+        return 0.;
+    double m=0.;
+    double s=0.;
+    double delta, dat;
+    for (int i = 0; i < mpi.nnodes; ++i) {
+        dat = energy_tab[i];
+        delta = dat - m;
+        m += delta / (i+1);
+        s += delta * (dat - m);
+    }
+    return s/(mpi.nnodes-ddof);
+}
