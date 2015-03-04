@@ -104,18 +104,42 @@ int Mixing<Problem>::getPartner() const
 }
 
 template<typename Problem>
+int Mixing<Problem>::getBest() const
+{
+    int curBest = 0;
+    double bestEnergy = energy_tab[0];
+    for (int i = 1; i < mpi.nnodes; ++i) {
+        if (energy_tab[i] < bestEnergy) {
+            bestEnergy = energy_tab[i];
+            curBest = i;
+        }
+    }
+    return curBest;
+}
+
+template<typename Problem>
 double Mixing<Problem>::getEnergyVar(size_t ddof) const
 {
-    if (mpi.nnodes < 2)
+    // Calculating variance using two-pass with correction a la A. Bjorck
+    const int N = mpi.nnodes;
+    if (N < 2)
         return 0.;
+
+    int i = 0;
+    
     double m=0.;
-    double s=0.;
-    double delta, dat;
-    for (int i = 0; i < mpi.nnodes; ++i) {
-        dat = energy_tab[i];
-        delta = dat - m;
-        m += delta / (i+1);
-        s += delta * (dat - m);
+    for (i = 0; i < N; ++i) {
+        m += energy_tab[i];
     }
-    return s/(mpi.nnodes-ddof);
+    m = m/N;
+    double s=0.;
+    double e=0.;
+    double delta;
+    for (i = 0; i < N; ++i) {
+        delta = energy_tab[i] - m;
+        s+= delta*delta;
+        e+= delta;
+    }
+    s -= (e*e)/N;
+    return s/(N-ddof);
 }

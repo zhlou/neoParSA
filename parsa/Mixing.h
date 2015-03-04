@@ -34,6 +34,7 @@ public:
     double adoptState(int id);
     double adoptState(){return adoptState(mpi.rank);}
     int getPartner() const;
+    int getBest() const;
     double getEnergyVar(size_t ddof=1) const;
     mutable dynDebug debugOut;
 };
