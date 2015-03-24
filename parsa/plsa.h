@@ -37,6 +37,7 @@ protected:
     //void updateS();
     //void initStats();
     void collectInitStats(unsigned long init_loop);
+    void collectInitStats(double initMean, double initVar, double initAccRatio);
     void updateEstimators(double s);
     //bool global_frozen();
 

@@ -191,3 +191,48 @@ void feedbackMove<Problem>::move_control()
 
     debugOut << endl;
 }
+
+template<class Problem>
+void feedbackMove<Problem>::writeState(xmlNodePtr docroot) const
+{
+    xmlNodePtr moveNode = xmlNewChild(docroot, NULL, BAD_CAST"moveSize", NULL);
+    char *paramNumString = NULL;
+    char *thetaString = NULL;
+    xmlNodePtr paramIter = NULL;
+    int i;
+    for (i = 0; i < nparams; ++i) {
+        asprintf(&paramNumString, "%d", i);
+        paramIter = xmlNewChild(moveNode, NULL, BAD_CAST "param", 
+                BAD_CAST paramNumString);
+        free(paramNumString);
+        asprintf(&thetaString, "%.15g", theta_bars[i]);
+        xmlNewProp(paramIter, BAD_CAST "theta", BAD_CAST "thetaString");
+        free(thetaString);
+    }
+}
+
+template<class Problem>
+void feedbackMove<Problem>::readState(xmlNodePtr docroot)
+{
+    xmlNodePtr moveNode = getSectionByName(docroot, "moveSize");
+    if (!moveNode) {
+        cerr << "Warning: fail to read moveSize from state file" << endl;
+        return;
+    }
+    int i;
+    xmlNodePtr paramIter;
+    char *paramNumString;
+    for (paramIter = moveNode->children; paramIter != NULL; 
+            paramIter = paramIter->next) {
+        if (xmlStrcmp(paramIter->name, BAD_CAST "param"))
+            continue;
+        paramNumString = (char *)xmlNodeGetContent(paramIter);
+        sscanf(paramNumString,"%d",&i);
+        xmlFree(paramNumString);
+        if (i < nparams) {
+            theta_bars[i] = getPropDouble(paramIter,"theta");
+        }
+    }
+        
+    
+}

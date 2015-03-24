@@ -166,19 +166,32 @@ void lam::initStats(aState state)
 {
     collectInitStats(state.step_cnt);
 
+    initStatsCore(state);
+
+
+
+    //cout << state.step_cnt << ": " << mean << "\t" << sd << "\t" << alpha
+    //        <<endl;
+    //resetSegmentStats(); // we don't need this since it is called automatically
+                           // before every segment
+}
+
+void lam::initStats(double initMean, double initVar, double initAccRatio, aState state)
+{
+
+    collectInitStats(initMean, initVar, initAccRatio);
+    initStatsCore(state);
+}
+
+void lam::initStatsCore(const aState& state) 
+{
     double sd = sqrt(vari);
-
-
     fit_mean = new invLinearFit(w_mean, mean, state.s, vari / (mean * mean));
     fit_sd = new invLinearFit(w_sd, sd, state.s, sd / mean);
 
     double d = (1.0 - acc_ratio) / (2.0 - acc_ratio);
     alpha = 4.0 * acc_ratio * d * d;
     old_energy = state.energy;
-    //cout << state.step_cnt << ": " << mean << "\t" << sd << "\t" << alpha
-    //        <<endl;
-    //resetSegmentStats(); // we don't need this since it is called automatically
-                           // before every segment
 }
 
 void lam::updateInitStep(bool accept, aState state)
@@ -195,6 +208,14 @@ void lam::collectStats()
     vari /= proc_tau;
     acc_ratio = (double) success / proc_tau;
 }
+
+void lam::collectInitStats(double initMean, double initVar, double initAccRatio) 
+{
+    mean = initMean;
+    vari = initVar;
+    acc_ratio = initAccRatio;
+}
+
 
 void lam::collectInitStats(unsigned long init_loop)
 {

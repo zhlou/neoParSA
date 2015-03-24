@@ -1,6 +1,7 @@
 #ifndef MOVABLE_H
 #define MOVABLE_H
 #include <libxml/parser.h>
+#include "xmlUtils.h"
 #include "unirandom.h"
 #include "dynDebug.h"
 #include "aState.h"
@@ -37,6 +38,8 @@ public:
     static const char *name;
     void setDebug(debugStatus st, const char*outname=NULL)
     {debugOut.setDebug(st, outname);}
+    void writeState(xmlNodePtr docroot) const;
+    void readState(xmlNodePtr docroot);
 protected:
     int nparams;
     Problem &problem;

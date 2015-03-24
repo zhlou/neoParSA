@@ -58,6 +58,19 @@ void simPLam::initStats(const aState& state)
     calcStats(state.step_cnt);
 }
 
+void simPLam::initStats(double initMean, double initVar, double initAccRatio, 
+        const aState& state) 
+{
+    double data[3] = {initMean, initVar, initAccRatio};
+    MPI_Allreduce(MPI_IN_PLACE, data, 3, MPI_DOUBLE, MPI_SUM, mpiState.comm);
+    mean = data[0] / mpiState.nnodes;
+    sd = std::sqrt(data[1] / mpiState.nnodes);
+    acc_ratio = data[2] / mpiState.nnodes;
+    double d = (1.0 - acc_ratio) / (2.0 - acc_ratio);
+    alpha = 4.0 * acc_ratio * d * d;
+    
+}
+
 void simPLam::updateInitStep(bool accept, const aState &state)
 {
     updateStep(accept, state);

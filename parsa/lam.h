@@ -38,6 +38,7 @@ public:
     //bool frozen(const aState state);
     void updateInitStep(bool accept, aState state);
     void initStats(aState state);
+    void initStats(double initMean, double initVar, double initAccRatio, aState state);
     void resetSegmentStats();
     void updateStep(bool accept, aState state);
     double updateS(aState state);
@@ -79,8 +80,10 @@ protected:
 
     void collectStats();
     virtual void collectInitStats(unsigned long init_loop);
+    virtual void collectInitStats(double initMean, double initVar, double initAccRatio);
     void resetLam();
     void updateLam();
+    void initStatsCore(const aState &state);
     virtual void updateEstimators(double s);
     //void local_frozen(const aState& state);
     //virtual bool global_frozen();

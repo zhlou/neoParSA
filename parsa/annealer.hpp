@@ -22,6 +22,7 @@ annealer<Problem, Schedule, FrozenCnd, Move>::annealer(Problem &problem,
         unirandom& in_rand, typename Schedule::Param scheParam,
         typename FrozenCnd::Param frozenParam,
         xmlNode *root) :
+        problem(problem), 
         rand(in_rand), xmlroot(root)
 {
     initState(root);
@@ -39,6 +40,7 @@ annealer<Problem, Schedule, FrozenCnd, Move>::annealer(Problem &problem,
 template<class Problem, class Schedule, class FrozenCnd, template<class> class Move>
 annealer<Problem, Schedule, FrozenCnd, Move>::annealer(unirandom& in_rand,
         xmlNode *root) :
+        problem(problem),
         rand(in_rand), xmlroot(root)
 {
     initState(root);
@@ -104,11 +106,18 @@ double annealer<Problem, Schedule, FrozenCnd, Move>::initMoves()
 {
     fixedTMoves(state.s, initLoop);
     bool accepted;
+    int nAccept = 0;
+    onePassMeanVar energyMeanVar;
     for (state.step_cnt = 0; state.step_cnt < initLoop; ++ state.step_cnt) {
-        accepted = step();
+        nAccept += (accepted = step());
+        energyMeanVar.update(state.energy);
         cooling->updateInitStep(accepted, state);
     }
     cooling->initStats(state);
+    initMean = energyMeanVar.getMean();
+    initVar = energyMeanVar.getVar();
+    initAccRatio = double(nAccept)/initLoop;
+    
     is_init = true;
     return move->get_score();
 
@@ -219,4 +228,82 @@ bool annealer<Problem, Schedule, FrozenCnd, Move>::step()
     debugOut << state.step_cnt << " " << state.s << " "
              << state.energy << " " << state.proposed << endl;
     return flag;
+}
+
+template<class Problem, class Schedule, class FrozenCnd, template<class> class Move>
+void annealer<Problem, Schedule, FrozenCnd, Move>::saveUnifiedInitState(const char* filename)
+{
+    char * stateName;
+    char * xmlName;
+    asprintf(&stateName, "%s.state", filename);
+    asprintf(&xmlName, "%s.xml", filename);
+    
+    int buf_size = problem.getStateSize();
+    char * state_buf = new char[buf_size];
+    problem.serialize(state_buf);
+    ofstream stateFile(stateName, ios::out | ios::binary);
+    stateFile.write(state_buf, buf_size);
+    stateFile.close();
+    delete[] state_buf;
+    free(stateName);
+    
+    xmlDocPtr doc = xmlNewDoc(BAD_CAST "1.0");
+    xmlNodePtr docroot = xmlNewNode(NULL, BAD_CAST "root");
+    xmlDocSetRootElement(doc, docroot);
+    
+    xmlNodePtr initStatNode = xmlNewChild(docroot, NULL, BAD_CAST"initStat", NULL);
+    char * initMeanString;
+    char * initVarString;
+    char * initAccRatioString;
+    asprintf(&initMeanString, "%.16g", initMean);
+    asprintf(&initVarString, "%.16g", initVar);
+    asprintf(&initAccRatioString, "%.16g", initAccRatio);
+    xmlNewProp(initStatNode, BAD_CAST "initMean", BAD_CAST initMeanString);
+    xmlNewProp(initStatNode, BAD_CAST "initVar", BAD_CAST initVarString);
+    xmlNewProp(initStatNode, BAD_CAST "initAccRatio", BAD_CAST initAccRatioString);
+    
+    move->writeState(docroot);
+    
+    xmlSaveFormatFile(xmlName, doc, 1);
+    xmlFreeDoc(doc);
+    free(initMeanString);
+    free(initVarString);
+    free(initAccRatioString);
+    free(xmlName);    
+}
+
+template<class Problem, class Schedule, class FrozenCnd, template<class> class Move>
+double annealer<Problem, Schedule, FrozenCnd, Move>::readUnifiedInitState(const char* filename)
+{
+    char * stateName;
+    char * xmlName;
+    asprintf(&stateName, "%s.state", filename);
+    asprintf(&xmlName, "%s.xml", filename);
+    
+    int bufSize = problem.getStateSize();
+    char * stateBuf = new char[bufSize];
+    ifstream stateFile(stateName, ios::in | ios::binary);
+    stateFile.read(stateBuf, bufSize);
+    stateFile.close();
+    problem.deserialize(stateBuf);
+    state.energy = problem.get_score();
+    delete[] stateBuf;
+    free(stateName);
+    
+    xmlDocPtr doc = xmlParseFile(xmlName);
+    xmlNodePtr docroot = xmlDocGetRootElement(doc);
+    
+    xmlNodePtr initStateNode = getSectionByName(docroot, "initStat");
+    initMean = getPropDouble(initStateNode, "initMean");
+    initVar = getPropDouble(initStateNode, "initVar");
+    initAccRatio = getPropDouble(initStateNode, "initAccRatio");
+    
+    move->readState(docroot);
+    
+    xmlFreeDoc(doc);
+    free(xmlName);
+
+    cooling->initStats(initMean, initVar, initAccRatio, state);
+    is_init = true;
+    return state.energy;
 }

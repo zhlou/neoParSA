@@ -9,6 +9,7 @@ using boost::property_tree::ptree;
 #include "unirandom.h"
 #include "aState.h"
 #include "dynDebug.h"
+#include "onePassMeanVar.h"
 //class movable;
 /*
  * This is the abstract annealer template. All the actual functionalities
@@ -60,6 +61,8 @@ public:
     // fixed T moves with no stats updated for schedule. move part is involved
     // hence likely updated.
     double fixedTMoves(double S, long steps);
+    void saveUnifiedInitState(const char * filename);
+    double readUnifiedInitState(const char * filename);
 #ifdef USE_BOOST
     virtual void ptreeGetResult(ptree &pt);
 #endif
@@ -71,6 +74,7 @@ public:
     void setProlix(debugStatus st, const char*outname=NULL)
     {move->setDebug(st, outname);}
 protected:
+    Problem &problem;
     dynDebug debugOut;
     Schedule *cooling;
     FrozenCnd *frozen;
@@ -82,6 +86,11 @@ protected:
     double initS;
     bool is_init;
     double tlaps;
+    
+    double initMean;
+    double initVar;
+    double initAccRatio;
+    
     annealer(unirandom& in_rand, xmlNode *root);
     virtual void updateSegment(aState &state) {cooling->updateSegment(state);}
 

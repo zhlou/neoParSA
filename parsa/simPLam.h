@@ -46,6 +46,8 @@ public:
     simPLam(Param param, const MPIState &);
     ~simPLam();
     void initStats(const aState &);
+    void initStats(double initMean, double initVar, double initAccRatio, 
+            const aState &state);
     void updateInitStep(bool, const aState &);
     void resetSegmentStats();
     void updateStep(bool, const aState &);
