@@ -12,6 +12,7 @@
 
 #include <unistd.h>
 #include <libgen.h>
+#include <getopt.h>
 #include <libxml/parser.h>
 
 #include "annealer.h"
@@ -27,13 +28,33 @@ int main(int argc, char **argv)
     bool isprolix = false;
     bool issteplog = true;
     bool isequil = false;
+    int saveInitState = 0;
+    int readInitState = 0;
+    int optIndex;
+    char *saveStatePrefix = NULL;
+    char *readStatePrefix = NULL;
 
-    std::string section;
+    struct option long_options[] = {
+        {"save-state", 1, &saveInitState, 1},
+        {"read-state", 1, &readInitState, 1},
+        {0, 0, 0, 0}
+    };
+    
     std::string binname(basename(argv[0]));
     try {
         char c;
-        while ( (c = getopt(argc, argv, "EpL")) != -1) {
+        while ( (c = getopt_long(argc, argv, "EpL", long_options, &optIndex)) != -1) {
             switch(c) {
+            case 0:
+                switch (optIndex) {
+                case 0:
+                    saveStatePrefix = optarg;
+                    break;
+                case 1:
+                    readStatePrefix = optarg;
+                    break;
+                }
+                break;
             case 'E':
                 isequil = true;
                 break;
@@ -87,8 +108,13 @@ int main(int argc, char **argv)
 
     if (isequil) {
         rst_sa->initMovesOnly();
+    } else if (saveInitState) {
+        rst_sa->initMoves();
+        rst_sa->saveUnifiedInitState(saveStatePrefix);
     } else {
-        std::cout << "The initial energy is " << rst.get_score() << std::endl;
+        if (readStatePrefix) {
+            rst_sa->readUnifiedInitState(readStatePrefix);
+        }
         rst_sa->loop();
         std::cout << "The final energy is " << rst.get_score() << std::endl;
         rst.write_section((xmlChar *)"output");
