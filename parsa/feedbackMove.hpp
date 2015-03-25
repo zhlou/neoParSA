@@ -206,7 +206,7 @@ void feedbackMove<Problem>::writeState(xmlNodePtr docroot) const
                 BAD_CAST paramNumString);
         free(paramNumString);
         asprintf(&thetaString, "%.15g", theta_bars[i]);
-        xmlNewProp(paramIter, BAD_CAST "theta", BAD_CAST "thetaString");
+        xmlNewProp(paramIter, BAD_CAST "theta", BAD_CAST thetaString);
         free(thetaString);
     }
 }

@@ -35,6 +35,7 @@ public:
     {};
     virtual ~expHold();
     void initStats(const aState &){}
+    void initStats(double, double, double, const aState &){}
     void updateInitStep(bool, const aState &){}
     void resetSegmentStats(){energyStat.reset();}
     void updateStep(bool, const aState &state) {energyStat.update(state.energy);}
