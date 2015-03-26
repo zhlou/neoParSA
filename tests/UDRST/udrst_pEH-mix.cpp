@@ -9,6 +9,7 @@
 
 
 #include <iostream>
+#include <fstream>
 #include <sstream>
 #include <exception>
 #include <stdexcept>
@@ -16,6 +17,7 @@
 
 #include <unistd.h>
 #include <libgen.h>
+#include <getopt.h>
 #include <libxml/parser.h>
 #include <mpi.h>
 
@@ -39,13 +41,30 @@ int main(int argc, char **argv)
     bool isprolix = false;
     bool isverbose = false;
     bool issteplog = true;
+    int readInitStates = 0;
+    int optIndex;
+    char *stateListFile = NULL;
+    const char *readStatePrefix = NULL;
+    struct option long_options[] = {
+        {"read-state", 1, &readInitStates, 1},
+        {0, 0, 0, 0}
+    };
 
     std::string section;
     std::string binname(basename(argv[0]));
     try {
         char c;
-        while ( (c = getopt(argc, argv, "pvL")) != -1) {
+        while ( (c = getopt_long(argc, argv, "pvL", long_options, &optIndex)) != -1) {
             switch(c) {
+            case 0:
+                switch (optIndex) {
+                case 0:
+                    stateListFile = optarg;
+                    break;
+                default:
+                    throw std::runtime_error("Unrecognized option");
+                }
+                break;
             case 'L':
                 issteplog = false;
                 break;
@@ -105,6 +124,26 @@ int main(int argc, char **argv)
     }
     if (issteplog) {
         rst_sa->setStepLog(file, (outprefix + ".steplog").c_str());
+    }
+    
+    if (readInitStates) {
+        std::string line;
+        std::ifstream is(stateListFile);
+        int i = 0;
+        while (!(std::getline(is,line)).eof()) {
+            if (mpi.rank == i) {
+                readStatePrefix = line.c_str();
+                break;
+            }
+            ++i;
+        }
+
+        if (readStatePrefix) {
+            rst_sa->readUnifiedInitState(readStatePrefix);
+        } else {
+            throw std::runtime_error("unable to find state");
+        }       
+        is.close();
     }
 
     std::cout << "The initial energy is " << rst.get_score() << std::endl;

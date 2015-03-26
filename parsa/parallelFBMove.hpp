@@ -53,3 +53,15 @@ void parallelFBMove<Problem>::collectMoveStats()
     MPI_Allreduce(MPI_IN_PLACE, feedbackMove<Problem>::moves,
             feedbackMove<Problem>::nparams, MPI_LONG, MPI_SUM, mpi.comm);
 }
+
+template<class Problem>
+void parallelFBMove<Problem>::readState(xmlNodePtr docroot)
+{
+    feedbackMove<Problem>::readState(docroot);
+    MPI_Allreduce(MPI_IN_PLACE, feedbackMove<Problem>::theta_bars, 
+            feedbackMove<Problem>::nparams, 
+            MPI_DOUBLE, MPI_SUM, mpi.comm);
+    for (int i = 0; i < feedbackMove<Problem>::nparams; ++i) {
+        feedbackMove<Problem>::theta_bars[i] /= mpi.nnodes;
+    }
+}

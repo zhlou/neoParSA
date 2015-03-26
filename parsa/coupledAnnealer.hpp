@@ -20,7 +20,7 @@ coupledAnnealer<Problem, Schedule, FrozenCnd, CoupledMove>::coupledAnnealer(
         const typename CoupledMove<Problem>::Param& moveParam, 
         xmlNode* root, 
         const MPIState& mpiState) :
-        annealer<Problem, Schedule, FrozenCnd, CoupledMove>::annealer(in_rand,root),
+        annealer<Problem, Schedule, FrozenCnd, CoupledMove>::annealer(problem, in_rand,root),
         mpi(mpiState)
 {
     this->cooling = new Schedule(scheParam, mpiState);

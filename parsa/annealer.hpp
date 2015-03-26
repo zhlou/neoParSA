@@ -38,7 +38,8 @@ annealer<Problem, Schedule, FrozenCnd, Move>::annealer(Problem &problem,
  * of generating cooling schedule and move scheme
  */
 template<class Problem, class Schedule, class FrozenCnd, template<class> class Move>
-annealer<Problem, Schedule, FrozenCnd, Move>::annealer(unirandom& in_rand,
+annealer<Problem, Schedule, FrozenCnd, Move>::annealer(Problem &problem, 
+        unirandom& in_rand,
         xmlNode *root) :
         problem(problem),
         rand(in_rand), xmlroot(root)

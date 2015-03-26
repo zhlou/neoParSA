@@ -25,6 +25,7 @@ public:
     void processMix(const mixState &ms, const aState &state)
     {if (ms.doesMix()) this->energy = state.energy;}
     static const char *name;
+    void readState(xmlNodePtr docroot); // it overrides the base class. bite me
 protected:
     void collectMoveStats();
 private:

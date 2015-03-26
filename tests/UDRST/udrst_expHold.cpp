@@ -112,7 +112,7 @@ int main(int argc, char **argv)
         rst_sa->initMoves();
         rst_sa->saveUnifiedInitState(saveStatePrefix);
     } else {
-        if (readStatePrefix) {
+        if (readInitState) {
             rst_sa->readUnifiedInitState(readStatePrefix);
         }
         rst_sa->loop();

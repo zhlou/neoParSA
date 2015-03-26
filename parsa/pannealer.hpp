@@ -15,7 +15,7 @@ pannealer<Problem, Schedule, FrozenCnd, Move, PopBased>
                     const typename PopBased<Problem>::Param &popParam,
                     xmlNode *root,
                     const MPIState &mpiState) :
-          annealer<Problem, Schedule, FrozenCnd, Move>::annealer(in_rand, root),
+          annealer<Problem, Schedule, FrozenCnd, Move>::annealer(problem, in_rand, root),
           mpi(mpiState), pop(problem, mpiState, in_rand, popParam)
 {
     // this pointer is necessary because otherwise the lookup to parent members
