@@ -287,7 +287,8 @@ double annealer<Problem, Schedule, FrozenCnd, Move>::readUnifiedInitState(const 
     stateFile.read(stateBuf, bufSize);
     stateFile.close();
     problem.deserialize(stateBuf);
-    state.energy = problem.get_score();
+    state.energy = move->forceUpdateEnergy();
+    
     delete[] stateBuf;
     free(stateName);
     
