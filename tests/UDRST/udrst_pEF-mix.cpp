@@ -41,12 +41,14 @@ int main(int argc, char **argv)
     bool isprolix = false;
     bool isverbose = false;
     bool issteplog = true;
+    int iscoollog = 0;
     int readInitStates = 0;
     int optIndex;
     char *stateListFile = NULL;
     const char *readStatePrefix = NULL;
     struct option long_options[] = {
         {"read-state", 1, &readInitStates, 1},
+        {"cool-log", 0, &iscoollog, 1},
         {0, 0, 0, 0}
     };
 
@@ -60,6 +62,8 @@ int main(int argc, char **argv)
                 switch (optIndex) {
                 case 0:
                     stateListFile = optarg;
+                    break;
+                case 1:
                     break;
                 default:
                     throw std::runtime_error("Unrecognized option");
@@ -115,7 +119,8 @@ int main(int argc, char **argv)
     }
 
     if (mpi.rank == 0) {
-        rst_sa->setCoolLog(file,(basename + ".log").c_str());
+        if (iscoollog)
+            rst_sa->setCoolLog(file,(basename + ".log").c_str());
         if (isprolix) {
             rst_sa->setProlix(file, (basename + ".prolix").c_str());
         }
