@@ -40,6 +40,7 @@ public:
     {debugOut.setDebug(st, outname);}
     void writeState(xmlNodePtr docroot) const;
     void readState(xmlNodePtr docroot);
+    double forceUpdateEnergy() {return energy = problem.get_score();}
 protected:
     int nparams;
     Problem &problem;

@@ -1,19 +1,23 @@
 set(UDRST_COMMON udrst.cpp)
 #set(MPIBINARIES psolve_rst rst_pEH-mix rst_simPLam)
 #set(BINARIES ${MPIBINARIES} rst_scramble solve_rst test_rst rst_expHold rst_lam)
-set(MPIBINARIES udrst_simPLam udrst_pEH-mix udrst_pEH-fbMix udrst_pEH-twoTier
-                udrst_pEH-coupledMix udrst_pEH-mixOnce)
-set(BINARIES ${MPIBINARIES} udrst_expHold udrst_lam udrst_scramble)
+set(MPIBINARIES udrst_simPLam udrst_pEH-mix udrst_pEF-mix udrst_pEH-fbMix
+                udrst_pEF-fbMix udrst_pEH-twoTier udrst_pEH-coupledMix 
+                udrst_pEH-mixOnce)
+set(BINARIES ${MPIBINARIES} udrst_expHold udrst_expFrozen udrst_lam udrst_scramble)
 
 #add_executable(test_rst test_rst.cpp ${RST_COMMON})
 #add_executable(solve_rst solve_rastrigin.cpp ${RST_COMMON})
 #add_executable(psolve_rst psolve_rst.cpp ${RST_COMMON})
 add_executable(udrst_expHold udrst_expHold.cpp ${UDRST_COMMON})
+add_executable(udrst_expFrozen udrst_expFrozen.cpp ${UDRST_COMMON})
 #add_executable(rst_pEH-mix rst_pEH-mix.cpp ${RST_COMMON})
 add_executable(udrst_lam udrst_lam.cpp ${UDRST_COMMON})
 add_executable(udrst_simPLam udrst_simPLam.cpp ${UDRST_COMMON})
 add_executable(udrst_pEH-mix udrst_pEH-mix.cpp ${UDRST_COMMON})
+add_executable(udrst_pEF-mix udrst_pEF-mix.cpp ${UDRST_COMMON})
 add_executable(udrst_pEH-fbMix udrst_pEH-fbMix.cpp ${UDRST_COMMON})
+add_executable(udrst_pEF-fbMix udrst_pEF-fbMix.cpp ${UDRST_COMMON})
 add_executable(udrst_pEH-twoTier udrst_pEH-twoTier.cpp ${UDRST_COMMON})
 add_executable(udrst_scramble udrst_scramble.cpp ${UDRST_COMMON})
 add_executable(udrst_pEH-coupledMix udrst_pEH-coupledMix.cpp ${UDRST_COMMON})
