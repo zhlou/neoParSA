@@ -92,7 +92,7 @@ protected:
     double initAccRatio;
     
     annealer(Problem &problem, unirandom& in_rand, xmlNode *root);
-    virtual void updateSegment(aState &state) {cooling->updateSegment(state);}
+    virtual void updateStats(aState &state) {cooling->updateStats(state);}
 
     bool step();
     void initState(xmlNode* root);

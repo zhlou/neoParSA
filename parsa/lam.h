@@ -39,12 +39,13 @@ public:
     void updateInitStep(bool accept, aState state);
     void initStats(aState state);
     void initStats(double initMean, double initVar, double initAccRatio, aState state);
-    void resetSegmentStats();
+
     void updateStep(bool accept, aState state);
     double updateS(aState state);
     bool inSegment(aState state){return !((state.step_cnt % proc_tau) == 0);}
-    void updateSegment(aState state);
-    virtual bool needMix(){return false;}
+    void updateStats(aState state);
+
+//    virtual bool needMix(){return false;}
     void setDebug(debugStatus st, const char*outname=NULL)
         {debugOut.setDebug(st, outname);}
     static const char* name;
@@ -69,6 +70,7 @@ protected:
     int success;
     double old_energy;
     int freeze_cnt;
+    int tau_count;
 
     //double energy;
     //double s;
@@ -77,7 +79,9 @@ protected:
 
     static const double UNINITIALIZED;
 
-
+    void updateSegment(aState state);
+    void resetSegmentStats();
+    
     void collectStats();
     virtual void collectInitStats(unsigned long init_loop);
     virtual void collectInitStats(double initMean, double initVar, double initAccRatio);

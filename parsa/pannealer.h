@@ -30,7 +30,7 @@ public:
 protected:
     const MPIState &mpi;
     PopBased<Problem> pop;
-    virtual void updateSegment(aState &state);
+    virtual void updateStats(aState &state);
     virtual void writeMethodText(xmlNode *method);
 
 };

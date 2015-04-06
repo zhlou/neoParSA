@@ -30,7 +30,7 @@ public:
 
 protected:
     const MPIState &mpi;
-    virtual void updateSegment(aState &state);
+    virtual void updateStats(aState &state);
 
         
         

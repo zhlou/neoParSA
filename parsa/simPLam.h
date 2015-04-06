@@ -28,6 +28,7 @@ private:
     double sum;
     double sumsq;
     int success;
+    int count;
     const int proc_tau;
     const double lambda;
     const MPIState &mpiState;
@@ -54,6 +55,7 @@ public:
     double updateS(const aState &state);
     bool inSegment(aState state){return !((state.step_cnt % proc_tau) == 0);}
     void updateSegment(const aState &);
+    void updateStats(const aState &state);
     void setDebug(debugStatus st, const char* outname=NULL)
         {debugOut.setDebug(st, outname);}
     static const char * name;

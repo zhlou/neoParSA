@@ -54,7 +54,7 @@ lam::lam(Param param) : proc_tau(param.proc_tau),
         lambda(param.lambda), w_mean(param.w_mean), w_sd(param.w_sd),
         acc_ratio(0.), success(0), vari(0.), mean(0.), fit_mean(NULL),
         fit_sd(NULL), old_energy(UNINITIALIZED), alpha(UNINITIALIZED),
-        freeze_cnt(0)
+        freeze_cnt(0), tau_count(0)
 {
     debugOut << "iterations S\t dS/S\t meanE\tsdE\t(e)meanE\t(e)sdE\tacc\talpha"
              << endl;
@@ -167,7 +167,7 @@ void lam::initStats(aState state)
     collectInitStats(state.step_cnt);
 
     initStatsCore(state);
-
+    tau_count = 0;
 
 
     //cout << state.step_cnt << ": " << mean << "\t" << sd << "\t" << alpha
@@ -181,6 +181,7 @@ void lam::initStats(double initMean, double initVar, double initAccRatio, aState
 
     collectInitStats(initMean, initVar, initAccRatio);
     initStatsCore(state);
+    tau_count = 0;
 }
 
 void lam::initStatsCore(const aState& state) 
@@ -230,10 +231,21 @@ void lam::updateLam()
     double d = (1.0 - acc_ratio) / (2.0 - acc_ratio);
     alpha = 4.0 * acc_ratio * d * d;
 }
+
 /*
 bool lam::global_frozen()
 {
     return (freeze_cnt >= cnt_crit);
 }
-*/
+ */
 
+
+void lam::updateStats(aState state) 
+{
+    tau_count ++;
+    if (proc_tau == tau_count) {
+        tau_count = 0;
+        updateSegment(state);
+        resetSegmentStats();
+    }
+}

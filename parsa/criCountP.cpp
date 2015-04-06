@@ -8,7 +8,8 @@
 #include "criCountP.h"
 
 criCountP::criCountP(const Param& param, const MPIState& mpiState) :
-    serCount(param.serParam), mpi(mpiState)
+    serCount(param.serParam), mpi(mpiState), interval(param.serParam.interval),
+        step_cnt(0)
 {
 }
 
@@ -18,7 +19,12 @@ criCountP::~criCountP() {
 
 bool criCountP::frozen(const aState &state)
 {
-    int local_freeze = serCount.frozen(state);
+    step_cnt ++;
+    if (interval != step_cnt){
+        return false;
+    }
+    step_cnt = 0;
+    int local_freeze = serCount.checkFrozen(state);
     int global_flag;
     MPI_Allreduce(&local_freeze, &global_flag, 1, MPI_INT, MPI_SUM, mpi.comm);
     return (bool)global_flag;
