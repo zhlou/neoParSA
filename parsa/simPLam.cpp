@@ -44,7 +44,8 @@ simPLam::simPLam(Param param, const MPIState& mpi) :
         sd(0.),
         sum(0.),
         sumsq(0.),
-        success(0)
+        success(0),
+        count(0)
 {
 
 }
@@ -56,6 +57,7 @@ simPLam::~simPLam()
 void simPLam::initStats(const aState& state)
 {
     calcStats(state.step_cnt);
+    count = 0;
 }
 
 void simPLam::initStats(double initMean, double initVar, double initAccRatio, 
@@ -68,7 +70,7 @@ void simPLam::initStats(double initMean, double initVar, double initAccRatio,
     acc_ratio = data[2] / mpiState.nnodes;
     double d = (1.0 - acc_ratio) / (2.0 - acc_ratio);
     alpha = 4.0 * acc_ratio * d * d;
-    
+    count = 0;
 }
 
 void simPLam::updateInitStep(bool accept, const aState &state)
@@ -107,4 +109,14 @@ void simPLam::updateSegment(const aState &state)
              << lambda * alpha / (state.s * state.s * sd * sd * sd)
              << " " << mean << " " << sd << " " << acc_ratio << " "
              << alpha << std::endl;
+}
+
+void simPLam::updateStats(const aState& state) 
+{
+    count ++;
+    if (proc_tau == count) {
+        count = 0;
+        updateSegment(state);
+        resetSegmentStats();
+    }
 }

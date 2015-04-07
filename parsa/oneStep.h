@@ -32,7 +32,7 @@ public:
     void updateStep(bool, aState){}
     double updateS(const aState &state){return state.s;}
     bool inSegment(aState) {return false;}
-    void updateSegment(aState){}
+    void updateStats(aState){}
     void setDebug(debugStatus st, const char* outname=NULL)
     {debugOut.setDebug(st,outname);}
     static const char * name;

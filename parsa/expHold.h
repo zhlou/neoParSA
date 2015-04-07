@@ -20,6 +20,7 @@ private:
     double alpha;
     dynDebug debugOut;
     onePassMeanVar energyStat;
+    unsigned step_cnt;
 public:
     class Param {
     public:
@@ -31,7 +32,8 @@ public:
         Param(xmlNode *root, debugStatus in_st=ignore, const char *name=NULL);
     };
     expHold(Param param) : segLength(param.segLength), target_s(param.target_s),
-            alpha(param.alpha), debugOut(param.st, param.outname), energyStat()
+            alpha(param.alpha), debugOut(param.st, param.outname), energyStat(),
+            step_cnt(0)
     {};
     virtual ~expHold();
     void initStats(const aState &){}
@@ -40,8 +42,9 @@ public:
     void resetSegmentStats(){energyStat.reset();}
     void updateStep(bool, const aState &state) {energyStat.update(state.energy);}
     double updateS(const aState &state);
-    bool inSegment(aState state) {return (state.step_cnt % segLength);}
+    // bool inSegment(aState state) {return (state.step_cnt % segLength);}
     void updateSegment(const aState &state);
+    void updateStats(const aState &state);
     void setDebug(debugStatus st, const char* outname=NULL)
     {
         debugOut.setDebug(st, outname);

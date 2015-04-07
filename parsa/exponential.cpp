@@ -35,7 +35,7 @@ exponential::Param::Param(xmlNode* root, debugStatus in_st, const char *name):
 
 }
 
-exponential::exponential(const Param& param) : debugOut(param.st,param.outname)
+exponential::exponential(const Param& param) : debugOut(param.st,param.outname), step_cnt(0)
 {
     alpha = param.alpha;
     segLength = param.segLength;
@@ -79,4 +79,12 @@ void exponential::updateSegment(aState state) {
             << state.energy << std::endl;
 }
 
-
+void exponential::updateStats(aState state) 
+{
+    step_cnt++;
+    if (segLength == step_cnt) {
+        step_cnt = 0;
+        updateSegment(state);
+        resetSegmentStats();
+    }
+}

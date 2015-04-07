@@ -68,18 +68,21 @@ double annealer<Problem, Schedule, FrozenCnd, Move>::loop()
     bool accepted;
     // state.step_cnt = 0;
     do { // while not frozen
-        cooling->resetSegmentStats();
+//        cooling->resetSegmentStats();
 
-        do { // while in segment
+        //do { // while in segment
             accepted = step();
 
             cooling->updateStep(accepted, state);
             frozen->updateStep(accepted, state);
             state.s = cooling->updateS(state);
             ++ (state.step_cnt);
-        } while (cooling->inSegment(state));
+            updateStats(state);
+//            cooling->updateStats(state);
+//            move->updateStats(state);
+        //} while (cooling->inSegment(state));
 
-        updateSegment(state);
+//        updateSegment(state);
     } while (!frozen->frozen(state));
 
     clock_t end = clock();

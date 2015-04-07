@@ -51,10 +51,10 @@ int pannealer<Problem, Schedule, FrozenCnd, Move, PopBased>::getWinner()
 
 template <class Problem, class Schedule, class FrozenCnd,
           template<class> class Move, template<class> class PopBased>
-void pannealer<Problem, Schedule, FrozenCnd, Move, PopBased>::updateSegment(aState &state)
+void pannealer<Problem, Schedule, FrozenCnd, Move, PopBased>::updateStats(aState &state)
 {
 
-    annealer<Problem, Schedule, FrozenCnd, Move>::updateSegment(state);
+    annealer<Problem, Schedule, FrozenCnd, Move>::updateStats(state);
     mixState ms = pop.Mix(state);
     this->move->processMix(ms, state);
 

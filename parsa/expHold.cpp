@@ -44,3 +44,13 @@ void expHold::updateSegment(const aState& state)
              << energyStat.getMean() << " " 
              << energyStat.getVar() << std::endl;
 }
+
+void expHold::updateStats(const aState& state)
+{
+    step_cnt++;
+    if (segLength == step_cnt) {
+        step_cnt = 0;
+        updateSegment(state);
+        resetSegmentStats();
+    }
+}

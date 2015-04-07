@@ -54,9 +54,9 @@ int coupledAnnealer<Problem, Schedule, FrozenCnd, CoupledMove>::getWinner()
 
 template<class Problem, class Schedule, class FrozenCnd, 
         template<class> class CoupledMove>
-void coupledAnnealer<Problem, Schedule, FrozenCnd, CoupledMove>::updateSegment(aState& state)
+void coupledAnnealer<Problem, Schedule, FrozenCnd, CoupledMove>::updateStats(aState& state)
 {
-    annealer<Problem, Schedule, FrozenCnd, CoupledMove>::updateSegment(state);
+    annealer<Problem, Schedule, FrozenCnd, CoupledMove>::updateStats(state);
     this->move->Mix(state);
 }
 

@@ -38,6 +38,7 @@ public:
     double updateS(aState state);
     bool inSegment(aState state) {return (state.step_cnt % segLength);}
     void updateSegment(aState state);
+    void updateStats(aState state);
     // bool needMix(){return false;}
     void setDebug(debugStatus st, const char* outname=NULL)
     {debugOut.setDebug(st,outname);}
@@ -48,6 +49,7 @@ private:
     dynDebug debugOut;
     unsigned long max_rej;
     unsigned segLength;
+    unsigned step_cnt;
     //int init_loop;
     //double init_S;
     // xmlNode *xmlsection;

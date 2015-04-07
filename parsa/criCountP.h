@@ -26,6 +26,8 @@ public:
 private:
     criCount serCount;
     const MPIState &mpi;
+    const int interval;
+    int step_cnt;
 };
 
 #endif /* CRICOUNTP_H_ */

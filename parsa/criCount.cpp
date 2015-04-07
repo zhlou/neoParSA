@@ -13,7 +13,8 @@
 #include <limits>
 
 criCount::criCount(const criCount::Param &param) :
-    freeze_crit(param.freeze_crit), cnt_crit(param.cnt_crit)
+    freeze_crit(param.freeze_crit), cnt_crit(param.cnt_crit),
+        interval(param.interval), step_cnt(0)
 {
     old_energy = std::numeric_limits<double>::max();
     freeze_cnt = 0;
@@ -25,6 +26,17 @@ criCount::~criCount() {
 
 bool criCount::frozen(const aState& state)
 {
+    step_cnt ++;
+    if (interval != step_cnt){
+        return false;
+    }
+    step_cnt = 0;
+
+    return checkFrozen(state);
+}
+
+bool criCount::checkFrozen(const aState& state) 
+{
     if (std::abs(old_energy - state.energy) < freeze_crit)
         freeze_cnt++;
     else
@@ -33,6 +45,7 @@ bool criCount::frozen(const aState& state)
     return (freeze_cnt >= cnt_crit);
 }
 
+
 criCount::Param::Param(xmlNode* root)
 {
     xmlNode *xmlsection = getSectionByName(root, "count_criterion");
@@ -40,4 +53,10 @@ criCount::Param::Param(xmlNode* root)
         throw std::runtime_error(std::string("Error: fail to find section count_criterion"));
     freeze_crit = getPropDouble(xmlsection, "freeze_crit");
     cnt_crit = getPropInt(xmlsection, "freeze_cnt");
+    interval = 100;
+    try {
+        interval = getPropInt(xmlsection, "interval");
+    } catch (std::exception &e) {
+        // ignored
+    }
 }
