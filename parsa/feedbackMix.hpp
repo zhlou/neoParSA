@@ -9,6 +9,7 @@
 #define FEEDBACKMIX_HPP_
 
 #include <cmath>
+#include <exception>
 #include <mpi.h>
 #include "xmlUtils.h"
 
@@ -20,13 +21,18 @@ feedbackMix<Problem>::Param::Param(xmlNode *root) : target(0.5)
 {
     xmlNode *section = getSectionByName(root, "feedbackMix");
     interval = getPropInt(section, "interval");
+    try {
+        target = getPropDouble(section, "target");
+    } catch(std::exception &e) {
+        // ignore
+    }
 }
 
 template<class Problem>
 feedbackMix<Problem>::feedbackMix(Problem &problem, const MPIState &mpiState,
                                   unirandom &rand, const Param &param):
         mix(problem, mpiState, rand), tau_count(0),
-        mpi(mpiState), target(0.5), interval(param.interval)
+        mpi(mpiState), target(param.target), interval(param.interval)
 {
     adoptArray = new int[mpi.nnodes];
 }
