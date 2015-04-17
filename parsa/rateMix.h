@@ -21,6 +21,7 @@ public:
     class Param {
     public:
         double factor;
+        double weight;
         Param(xmlNode *root);
     };
     rateMix(Problem &problem, const MPIState &mpiState,
@@ -35,8 +36,11 @@ public:
 private:
     Mixing<Problem> mix;
     const double factor;
+    const double weight;
     int interval;
     int tau_count;
+    double w;
+    double v;
     const MPIState &mpi;
     int *adoptArray;
     dynDebug debugOut;

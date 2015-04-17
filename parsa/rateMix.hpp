@@ -18,18 +18,26 @@ template<class Problem>
 const char * rateMix<Problem>::name = "rateMix";
 
 template<class Problem>
-rateMix<Problem>::Param::Param(xmlNode *root)
+rateMix<Problem>::Param::Param(xmlNode *root) : weight(0.)
 {
     xmlNode *section = getSectionByName(root, "rateMix");
     factor = getPropDouble(section, "factor");
-    
+    double memLength = 0.0;
+    try {
+        memLength = getPropDouble(section, "memLeght");
+    } catch (exception &e) {
+        
+    }
+    if (0.0 != memLength) {
+        weight = std::exp(-7.0/memLength); // exp(-7) ~= 0.001
+    }
 }
 
 template<class Problem>
 rateMix<Problem>::rateMix(Problem &problem, const MPIState &mpiState,
                                   unirandom &rand, const Param &param):
-        mix(problem, mpiState, rand), factor(param.factor), interval(1), 
-        tau_count(0), mpi(mpiState)
+        mix(problem, mpiState, rand), factor(param.factor), weight(param.weight),
+        interval(1), tau_count(0), w(0.), v(0.), mpi(mpiState)
 {
     adoptArray = new int[mpi.nnodes];
 }
@@ -60,7 +68,9 @@ mixState rateMix<Problem>::Mix(aState &state)
     for (i = 0; i < mpi.nnodes; ++i)
         nadopt+=adoptArray[i];
 //    double adoptRate = (double)(nadopt) / mpi.nnodes;
-    interval = lround(factor * nadopt);
+    w = 1.0 + w * weight;
+    v = (double)nadopt + v * weight;
+    interval = lround(factor * v/w);
     if (interval < 1)
         interval = 1;
     debugOut << state.step_cnt << " " << state.s << " "
