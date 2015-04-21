@@ -25,6 +25,7 @@ Mixing<Problem>::Mixing(Problem & in_problem, const MPIState &mpiState,
             &state_win);
     recv_buf = calloc(1, buf_size);
     norm = 0;
+    adoptArray = new int[mpi.nnodes];
 }
 
 template<typename Problem>
@@ -35,6 +36,7 @@ Mixing<Problem>::~Mixing()
     free(recv_buf);
     delete[] energy_tab;
     delete[] prob_tab;
+    delete[] adoptArray;
 }
 
 template<typename Problem>
@@ -142,4 +144,17 @@ double Mixing<Problem>::getEnergyVar(size_t ddof) const
     }
     s -= (e*e)/N;
     return s/(N-ddof);
+}
+
+template<typename Problem>
+int Mixing<Problem>::getNAdopt(int id)
+{
+    int i,nadopt = 0;
+    for (i = 0; i < mpi.nnodes; ++i)
+        adoptArray[i] = 0;
+    adoptArray[id] = 1;
+    MPI_Allreduce(MPI_IN_PLACE, adoptArray, mpi.nnodes, MPI_INT, MPI_LOR, mpi.comm);
+    for (i = 0; i < mpi.nnodes; ++i)
+        nadopt += adoptArray[i];
+    return nadopt;
 }
