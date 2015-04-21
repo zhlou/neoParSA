@@ -31,13 +31,14 @@ public:
     static const char * name;
     void setDebug(debugStatus st, const char* outname=NULL)
     {
-        mix.debugOut.setDebug(st, outname);
+        debugOut.setDebug(st, outname);
     }
 private:
     Mixing<Problem> mix;
     //xmlNode *root;
     const int interval;
     int tau_count;
+    dynDebug debugOut;
 };
 
 #include "intervalMix.hpp"

@@ -46,6 +46,11 @@ mixState intervalMix<Problem>::Mix(aState &state)
     mix.calProbTab(state);
     int i = mix.getPartner();
     state.energy = mix.adoptState(i);
+    if (!debugOut.isIgnore()) {
+        int nAdopt = mix.getNAdopt(i);
+        debugOut << state.step_cnt << " " << state.s << " "
+                << nAdopt << std::endl;
+    }
     return mixState(i);
 }
 
