@@ -114,15 +114,16 @@ int main(int argc, char **argv)
     string outprefix = basename + "_" +
             ((ostringstream*)&(ostringstream()<<mpi.rank))->str();
 
-    if (isverbose) {
-        rst_sa->setMixLog(file, (outprefix + ".mixlog").c_str());
-    }
+
 
     if (mpi.rank == 0) {
         if (iscoollog)
             rst_sa->setCoolLog(file,(basename + ".log").c_str());
         if (isprolix) {
             rst_sa->setProlix(file, (basename + ".prolix").c_str());
+        }
+        if (isverbose) {
+            rst_sa->setMixLog(file, (basename + ".mixlog").c_str());
         }
 
         // fly_sa->setProlix(file, (flyParams.infile_name + ".prolix").c_str());
