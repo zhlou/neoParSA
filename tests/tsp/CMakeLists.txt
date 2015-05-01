@@ -18,5 +18,4 @@ endforeach()
 foreach(mpibin ${MPIBINARIES})
 	target_link_libraries(${mpibin} ${MPI_C_LIBRARIES})
 endforeach()
-
-
+add_custom_target(tsp DEPENDS ${BINARIES})
