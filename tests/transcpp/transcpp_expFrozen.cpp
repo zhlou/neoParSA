@@ -18,6 +18,7 @@
 
 #include <unistd.h>
 #include <libxml/parser.h>
+#include <getopt.h>
 #include "annealer.h"
 #include "feedbackMove.h"
 #include "unirandom.h"
@@ -39,11 +40,39 @@ int main(int argc, char** argv)
 {
     bool isprolix = false;
     bool issteplog = false;
+    int iscoollog = 0;
+    int saveInitState = 0;
+    int readInitState = 0;
+    int optIndex;
+    char *saveStatePrefix = NULL;
+    char *readStatePrefix = NULL;
+    
+    struct option long_options[] = {
+        {"save-state", 1, &saveInitState, 1},
+        {"read-state", 1, &readInitState, 1},
+        {"cool-log", 0, &iscoollog, 1},
+        {0, 0, 0, 0}
+    };
+    
     std::string binname(basename(argv[0]));
     try {
         char c;
-        while ((c = getopt(argc, argv, "pl")) != -1) {
+        while ((c = getopt_long(argc, argv, "pl", long_options, &optIndex)) != -1) {
             switch (c) {
+            case 0:
+                switch (optIndex) {
+                case 0:
+                    saveStatePrefix = optarg;
+                    break;
+                case 1:
+                    readStatePrefix = optarg;
+                    break;
+                case 2:
+                    break;
+                default:
+                    throw std::runtime_error("Unrecognized option");
+                }
+                break;
             case 'l':
                 issteplog = true;
                 break;
@@ -84,28 +113,44 @@ int main(int argc, char** argv)
     criCount::Param frozenParam(docroot);
     annealer<Organism, expHold, criCount, feedbackMove>
             annealer(embryo, rnd, scheParam, frozenParam, docroot);
+    string basename(xmlname);
+    size_t sz = basename.size();
+    basename.resize(sz-4);
+    
     if (isprolix)
-        annealer.setProlix(file, (xmlname + ".prolix").c_str());
-    annealer.setCoolLog(file, (xmlname + ".log").c_str());
+        annealer.setProlix(file, (basename + ".prolix").c_str());
+    if (iscoollog)
+        annealer.setCoolLog(file, (basename + ".log").c_str());
     if (issteplog)
-        annealer.setStepLog(file, (xmlname+".steplog").c_str());
+        annealer.setStepLog(file, (basename + ".steplog").c_str());
+
+    if (saveInitState) {
+        annealer.initMoves();
+        annealer.saveUnifiedInitState(saveStatePrefix);
+    } else {
+        if (readInitState) {
+            annealer.readUnifiedInitState(readStatePrefix);
+        }
+
+        cerr << "The energy is " << embryo.get_score() << endl;
+        annealer.loop();
+        cerr << "The energy is " << embryo.get_score() << " after loop" << endl;
 
 
+        //embryo.printParameters(cerr);
 
-    cerr << "The energy is " << embryo.get_score() << endl;
-    annealer.loop();
-    cerr << "The energy is " << embryo.get_score() << " after loop" << endl;
+        ptree output, anneal_output;
+        embryo.write("Output", output);
+        annealer.ptreeGetResult(output.get_child("Output"));
+        //ptree& opt = output.get_child("Output");
+        output.put_child("Output.anneal_output", anneal_output);
+        boost::property_tree::xml_writer_settings<char> settings(' ', 2);
+        write_xml_element(infile, basic_string<ptree::key_type::value_type>(), 
+                output, -1, settings);
+    }
     xmlFreeDoc(doc);
+    xmlCleanupParser();
 
-    //embryo.printParameters(cerr);
-
-    ptree output, anneal_output;
-    embryo.write("Output", output);
-    annealer.ptreeGetResult(output.get_child("Output"));
-    //ptree& opt = output.get_child("Output");
-    output.put_child("Output.anneal_output", anneal_output);
-    boost::property_tree::xml_writer_settings<char> settings(' ', 2);
-    write_xml_element(infile, basic_string<ptree::key_type::value_type>(), output, -1, settings);
 
     return 0;
 }
