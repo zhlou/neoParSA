@@ -15,7 +15,7 @@
 #include <mpi.h>
 
 #include "pannealer.h"
-#include "parallelFBMove.h"
+#include "move/parallelFBMove.h"
 #include "unirandom.h"
 #include "simPLam.h"
 #include "globalCount.h"

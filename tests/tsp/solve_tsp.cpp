@@ -3,7 +3,7 @@
 #include <libxml/parser.h>
 #include "exponential.h"
 #include "annealer.h"
-#include "feedbackMove.h"
+#include "move/feedbackMove.h"
 #include "tsp.h"
 #include "unirandom.h"
 #include "rejCount.h"

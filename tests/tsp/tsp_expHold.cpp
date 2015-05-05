@@ -14,7 +14,7 @@
 #include "unirandom.h"
 #include "expHold.h"
 #include "tempCount.h"
-#include "feedbackMove.h"
+#include "move/feedbackMove.h"
 #include "annealer.h"
 #include "tsp.h"
 

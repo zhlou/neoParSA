@@ -11,7 +11,7 @@
 #include <mpi.h>
 
 #include "pannealer.h"
-#include "FBNCTheta.h"
+#include "move/FBNCTheta.h"
 #include "unirandom.h"
 #include "plsa.h"
 #include "tempCountP.h"

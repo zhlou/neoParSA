@@ -15,7 +15,7 @@
 #include "unirandom.h"
 #include "expHoldP.h"
 #include "tempCountP.h"
-#include "parallelFBMove.h"
+#include "move/parallelFBMove.h"
 #include "pannealer.h"
 #include "intervalMix.h"
 #include "tsp.h"

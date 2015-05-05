@@ -15,7 +15,7 @@
 #include <libxml/parser.h>
 
 #include "annealer.h"
-#include "feedbackMove.h"
+#include "move/feedbackMove.h"
 #include "unirandom.h"
 #include "tempCount.h"
 #include "dynDebug.h"

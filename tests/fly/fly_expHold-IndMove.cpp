@@ -13,7 +13,7 @@
 #include <unistd.h>
 
 #include "pannealer.h"
-#include "FBMoveNoComm.h"
+#include "move/FBMoveNoComm.h"
 #include "unirandom.h"
 #include "plsa.h"
 #include "tempCountP.h"

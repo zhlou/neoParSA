@@ -20,7 +20,7 @@
 #include <unistd.h>
 #include <libxml/parser.h>
 #include "annealer.h"
-#include "feedbackMove.h"
+#include "move/feedbackMove.h"
 #include "unirandom.h"
 #include "lam.h"
 #include "criCount.h"

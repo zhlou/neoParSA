@@ -14,7 +14,7 @@
  */
 
 #include <mpi.h>
-#include "feedbackMove.h"
+#include "move/feedbackMove.h"
 #include "MPIState.h"
 #include "mixState.h"
 

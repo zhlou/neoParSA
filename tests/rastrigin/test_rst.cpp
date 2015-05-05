@@ -10,7 +10,7 @@
 #include "annealer.h"
 #include "tempCount.h"
 #include "expHold.h"
-#include "feedbackMove.h"
+#include "move/feedbackMove.h"
 #include <string>
 #include <libxml/parser.h>
 #include <iostream>

@@ -3,7 +3,7 @@
 #include "rastrigin.h"
 #include "annealer.h"
 //#include "simpleAnnealer.h"
-#include "feedbackMove.h"
+#include "move/feedbackMove.h"
 //#include "rastrigin_problem.h"
 #include "unirandom.h"
 #include "lam.h"

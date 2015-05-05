@@ -20,7 +20,7 @@
 #include <libxml/parser.h>
 #include <getopt.h>
 #include "annealer.h"
-#include "feedbackMove.h"
+#include "move/feedbackMove.h"
 #include "unirandom.h"
 #include "expHold.h"
 #include "criCount.h"

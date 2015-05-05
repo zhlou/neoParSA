@@ -15,7 +15,7 @@
 #include "unirandom.h"
 #include "criCount.h"
 #include "lam.h"
-#include "feedbackMove.h"
+#include "move/feedbackMove.h"
 #include "annealer.h"
 #include "tsp.h"
 

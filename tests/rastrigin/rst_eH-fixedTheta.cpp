@@ -15,7 +15,7 @@
 #include <libxml/parser.h>
 
 #include "annealer.h"
-#include "fixedThetaMove.h"
+#include "move/fixedThetaMove.h"
 #include "unirandom.h"
 #include "tempCount.h"
 #include "dynDebug.h"

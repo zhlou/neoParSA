@@ -17,7 +17,7 @@
 #include <libxml/parser.h>
 #include <mpi.h>
 #include "pannealer.h"
-#include "parallelFBMove.h"
+#include "move/parallelFBMove.h"
 #include "intervalMix.h"
 #include "unirandom.h"
 #include "expHoldP.h"

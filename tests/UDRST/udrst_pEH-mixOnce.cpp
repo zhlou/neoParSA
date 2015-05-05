@@ -20,7 +20,7 @@
 #include <mpi.h>
 
 #include "pannealer.h"
-#include "parallelFBMove.h"
+#include "move/parallelFBMove.h"
 #include "unirandom.h"
 #include "tempCountP.h"
 #include "dynDebug.h"

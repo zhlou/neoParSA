@@ -16,7 +16,7 @@
 #include "unirandom.h"
 #include "simPLam.h"
 #include "globalCount.h"
-#include "parallelFBMove.h"
+#include "move/parallelFBMove.h"
 #include "pannealer.h"
 #include "intervalMix.h"
 #include "rastrigin.h"

@@ -12,7 +12,7 @@
 #include <mpi.h>
 
 #include "pannealer.h"
-#include "parallelFBMove.h"
+#include "move/parallelFBMove.h"
 #include "unirandom.h"
 #include "plsa.h"
 #include "globalCount.h"
