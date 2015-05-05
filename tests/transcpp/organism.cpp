@@ -771,6 +771,8 @@ void Organism::deserialize(void const *buf)
   double const *from = static_cast<double const *>(buf);
   for (int i = 0; i < nparams; ++i) 
       params[i]->set(from[i]);
+  resetAll();
+  score();
 }
 
 int    Organism::getStateSize() 
