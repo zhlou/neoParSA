@@ -8,10 +8,8 @@
 
 #include "quenching.h"
 #include <boost/foreach.hpp>
-#include <boost/range/adaptor/map.hpp>
 #include <limits>
 
-using namespace boost::adaptors;
 # define foreach_ BOOST_FOREACH
 
 QuenchingInteractions::QuenchingInteractions() {}
@@ -43,6 +41,7 @@ void QuenchingInteractions
       }
     }   
   }
+  //printSummary();
 }
 
 void QuenchingInteractions
@@ -58,12 +57,15 @@ void QuenchingInteractions
   
   for (int i=0; i<nactors; i++)
   {
+    site_ptr actor_ptr  = actorsites[i];
+    int m1 = actor_ptr->m;
+    int n1 = actor_ptr->n;
+    
     for (int j=0; j<ntargets; j++)
     {
-      site_ptr actor_ptr  = actorsites[i];
+      
       site_ptr target_ptr = targetsites[j];
-      int m1 = actor_ptr->m;
-      int n1 = actor_ptr->n;
+      
       int m2 = target_ptr->m;
       int n2 = target_ptr->n;
       double d;
@@ -114,35 +116,37 @@ bool QuenchingInteractions
 void QuenchingInteractions
 ::calc()
 {
-  initialize();
   int ngenes = genes->size();
   for (int k=0; k<ngenes; k++)
   {
-    
     Gene& gene = genes->getGene(k);
-    
-    int ntfs   = tfs->size();
-    for (int i = 0; i<ntfs; i++) // loop through actors
-    {
-      TF& tf1 = tfs->getTF(i);
-      if (tf1.neverQuenches()) continue; // skip if never a quencher
-      for (int j=0; j<ntfs; j++) // loop through targets
-      {
-        TF& tf2 = tfs->getTF(j);
-        if (tf2.neverActivates()) continue; // skip if never an activator
-        calc(gene, tf1, tf2);
-      }
-    } 
+    calc(gene);
   }
+}
+
+void QuenchingInteractions
+::calc(Gene& gene)
+{
+  initialize(gene);
+    
+  int ntfs   = tfs->size();
+  for (int i = 0; i<ntfs; i++) // loop through actors
+  {
+    TF& tf1 = tfs->getTF(i);
+    if (tf1.neverQuenches()) continue; // skip if never a quencher
+    for (int j=0; j<ntfs; j++) // loop through targets
+    {
+      TF& tf2 = tfs->getTF(j);
+      if (tf2.neverActivates()) continue; // skip if never an activator
+      calc(gene, tf1, tf2);
+    }
+  } 
 }
   
 void QuenchingInteractions
 ::calc(Gene& gene, TF& actor, TF& target)
 {
   vector<QuenchingInteraction>& quench_vector = quenches[&gene][&actor][&target];
-  
-  double quenching_efficiency = -actor.getCoef();
-  double modified_efficiency  = -actor.getModifiedCoef();
   
   vector<double> actor_coefs  = actor.getCoefs();
   vector<double> target_coefs = target.getCoefs();
@@ -166,14 +170,14 @@ void QuenchingInteractions
     {
       double efficiency = -actor_coefs[j];
       if (efficiency <= 0) continue;
-      
+      double efd = efficiency * distcoef;
       actor_occupancy = &(actor_site.mode_occupancy[j]);
       for (int k=0; k<n_target_modes; k++)
       {
         if (target_coefs[k] <= 0) continue;
         
         target_occupancy = &(target_site.effective_occupancy[k]);
-        quench_f(*actor_occupancy, *target_occupancy, efficiency, distcoef);
+        quench_f(*actor_occupancy, *target_occupancy, efd);
       }
     }
   }
@@ -181,15 +185,16 @@ void QuenchingInteractions
 
 
 void QuenchingInteractions
-::quench_f(vector<double>& actor_vec, vector<double>& target_vec, double ef, double d)
+::quench_f(vector<double>& actor_vec, vector<double>& target_vec, double efd)
 {
   int n = actor_vec.size();
   for (int i=0; i<n; i++)
   {
     double actor_occupancy = actor_vec[i];
-    double reduction = actor_occupancy * ef * d;
-    double current = target_vec[i];
-    target_vec[i] = current*(1-reduction);
+    double reduction = 1 - actor_occupancy * efd;
+    double* current = &target_vec[i];
+    //target_vec[i] *= reduction;
+    *current = *current * reduction;
   }
 }
 
@@ -200,9 +205,21 @@ void QuenchingInteractions
 }
 
 void QuenchingInteractions
+::save(Gene& gene)
+{
+  saved_quenches[&gene] = quenches[&gene];
+}
+
+void QuenchingInteractions
 ::clear()
 {
   quenches.clear();
+}
+
+void QuenchingInteractions
+::clear(Gene& gene)
+{
+  quenches[&gene].clear();
 }
 
 void QuenchingInteractions
@@ -212,28 +229,68 @@ void QuenchingInteractions
 }
 
 void QuenchingInteractions
+::restore(Gene& gene)
+{
+  quenches[&gene] = saved_quenches[&gene];
+}
+
+void QuenchingInteractions
 ::update()
 {
   int ngenes = genes->size();
+ 
   for (int k=0; k<ngenes; k++)
   {
     Gene& gene = genes->getGene(k);
-    int ntfs   = tfs->size();
-    for (int i = 0; i<ntfs; i++) // loop through actors
-    {
-      TF& tf1 = tfs->getTF(i);
-      if (tf1.neverQuenches()) continue; // skip if not a quencher
-      for (int j=0; j<ntfs; j++) // loop through targets
-      {
-        TF& tf2 = tfs->getTF(j);
-        if (tf2.neverActivates()) continue; // skip if never an activator
-        quenches[&gene][&tf1][&tf2].clear();
-        set(gene, tf1, tf2);
-      }
-    } 
+    update(gene);
   }
 }
+
+void QuenchingInteractions
+::update(Gene& gene)
+{
+  int ntfs   = tfs->size();
+
+  for (int i = 0; i<ntfs; i++) // loop through actors
+  {
+    TF& tf1 = tfs->getTF(i);
+    if (tf1.neverQuenches()) continue; // skip if not a quencher
+    for (int j=0; j<ntfs; j++) // loop through targets
+    {
+      TF& tf2 = tfs->getTF(j);
+      if (tf2.neverActivates()) continue; // skip if never an activator
+      quenches[&gene][&tf1][&tf2].clear();
+      set(gene, tf1, tf2);
+    }
+  } 
+}
   
+
+void QuenchingInteractions
+::printSummary()
+{
+  int ngenes = genes->size();
+  int ntfs   = tfs->size();
+  int total  = 0;
+  for (int i=0; i<ngenes; i++)
+  {
+    Gene& gene = genes->getGene(i);
+    cerr << gene.getName() << endl;
+    for (int j=0; j<ntfs; j++)
+    {
+      TF& tf1 = tfs->getTF(j);
+      for (int k=0; k<ntfs; k++)
+      {
+        TF& tf2 = tfs->getTF(k);
+        int nq = quenches[&gene][&tf1][&tf2].size();
+        cerr << tf1.getName() << " -> " << tf2.getName() << " : " << nq << endl;
+        total += nq;
+      }
+    }
+  }
+  cerr << "Total: " << total << endl << endl;
+}
+
 void QuenchingInteractions
 ::initialize()
 {
@@ -241,12 +298,18 @@ void QuenchingInteractions
   for (int i=0; i<ngenes; i++)
   {
     Gene& gene = genes->getGene(i);
-    int ntfs   = tfs->size();
-    for (int j = 0; j<ntfs; j++) 
-    {
-      TF& tf = tfs->getTF(j);
-      initialize(gene, tf);
-    }
+    initialize(gene);
+  }
+}
+
+void QuenchingInteractions
+::initialize(Gene& gene)
+{
+  int ntfs   = tfs->size();
+  for (int j = 0; j<ntfs; j++) 
+  {
+    TF& tf = tfs->getTF(j);
+    initialize(gene, tf);
   }
 }
       
@@ -304,7 +367,7 @@ void ModifyingInteractions
       TF& tf1 = tfs->getTF(i);
       vector< pair<TF*, coeffect_ptr> >& targets = tf1.getTargets();
       int ntargets = targets.size();
-      for (int j=0; j<targets.size(); j++)
+      for (int j=0; j<ntargets; j++)
       {
         pair<TF*, coeffect_ptr>& tmp_pair = targets[j];
         TF&          tf2      = *(tmp_pair.first);
@@ -323,7 +386,7 @@ void ModifyingInteractions
 
   vector<ModifyingInteraction>& v = mods[&gene][&actor][&target];
   
-  double max_dist     = dist->getMaxDistance();
+  double max_dist     = coef->getMaxDistance();
   int    nactors      = actorsites.size();
   int    ntargets     = targetsites.size();
 
@@ -349,7 +412,7 @@ void ModifyingInteractions
         d = dm;
       
       bool  overlapped = (m1 < n2 && m2 < n1);
-      double df        = dist->getDistFunc(d);
+      double df        = coef->distFunc(d);
       if ( d < max_dist && !overlapped && df > 0)
       {
         ModifyingInteraction mod;
@@ -378,7 +441,7 @@ void ModifyingInteractions
       TF& tf1 = tfs->getTF(i);
       vector< pair<TF*, coeffect_ptr> >& targets = tf1.getTargets();
       int ntargets = targets.size();
-      for (int j=0; j<targets.size(); j++)
+      for (int j=0; j<ntargets; j++)
       {
         pair<TF*, coeffect_ptr>& tmp_pair = targets[j];
         TF&          tf2      = *(tmp_pair.first);
@@ -387,6 +450,28 @@ void ModifyingInteractions
       }
     }   
   }
+}
+
+void ModifyingInteractions
+::calc(Gene& gene)
+{
+  initialize(gene);
+
+  int ntfs   = tfs->size();
+  for (int i = 0; i<ntfs; i++) // loop through actors
+  {
+    TF& tf1 = tfs->getTF(i);
+    vector< pair<TF*, coeffect_ptr> >& targets = tf1.getTargets();
+    int ntargets = targets.size();
+    for (int j=0; j<ntargets; j++)
+    {
+      pair<TF*, coeffect_ptr>& tmp_pair = targets[j];
+      TF&          tf2      = *(tmp_pair.first);
+      coeffect_ptr cur_coef = tmp_pair.second;
+      calc(gene, tf1, tf2, cur_coef);
+    }
+  }   
+
 }
 
 void ModifyingInteractions
@@ -442,12 +527,18 @@ void ModifyingInteractions
   for (int i=0; i<ngenes; i++)
   {
     Gene& gene = genes->getGene(i);
-    int ntfs   = tfs->size();
-    for (int j = 0; j<ntfs; j++) 
-    {
-      TF& tf = tfs->getTF(j);
-      initialize(gene, tf);
-    }
+    initialize(gene);
+  }
+}
+
+void ModifyingInteractions
+::initialize(Gene& gene)
+{
+  int ntfs   = tfs->size();
+  for (int j = 0; j<ntfs; j++) 
+  {
+    TF& tf = tfs->getTF(j);
+    initialize(gene, tf);
   }
 }
       
@@ -479,15 +570,33 @@ void ModifyingInteractions
 
 
 void ModifyingInteractions
+::save(Gene& gene)
+{
+  saved_mods[&gene] = mods[&gene];
+}
+
+void ModifyingInteractions
 ::save()
 {
   saved_mods = mods;
 }
 
 void ModifyingInteractions
+::clear(Gene& gene)
+{
+  mods[&gene].clear();
+}
+
+void ModifyingInteractions
 ::clear()
 {
   mods.clear();
+}
+
+void ModifyingInteractions
+::restore(Gene& gene)
+{
+  mods[&gene] = saved_mods[&gene];
 }
 
 void ModifyingInteractions
@@ -504,22 +613,28 @@ void ModifyingInteractions
   for (int k=0; k<ngenes; k++)
   {
     Gene& gene = genes->getGene(k);
-    int ntfs   = tfs->size();
-    for (int i = 0; i<ntfs; i++) // loop through actors
-    {
-      TF& tf1 = tfs->getTF(i);
-      vector< pair<TF*, coeffect_ptr> >& targets = tf1.getTargets();
-      int ntargets = targets.size();
-      for (int j=0; j<targets.size(); j++)
-      {
-        pair<TF*, coeffect_ptr>& tmp_pair = targets[j];
-        TF&          tf2      = *(tmp_pair.first);
-        coeffect_ptr cur_coef = tmp_pair.second;
-        mods[&gene][&tf1][&tf2].clear();
-        set(gene, tf1, tf2, cur_coef);
-      }
-    }   
+    update(gene);
   }
+}
+
+void ModifyingInteractions
+::update(Gene& gene)
+{
+  int ntfs   = tfs->size();
+  for (int i = 0; i<ntfs; i++) // loop through actors
+  {
+    TF& tf1 = tfs->getTF(i);
+    vector< pair<TF*, coeffect_ptr> >& targets = tf1.getTargets();
+    int ntargets = targets.size();
+    for (int j=0; j<ntargets; j++)
+    {
+      pair<TF*, coeffect_ptr>& tmp_pair = targets[j];
+      TF&          tf2      = *(tmp_pair.first);
+      coeffect_ptr cur_coef = tmp_pair.second;
+      mods[&gene][&tf1][&tf2].clear();
+      set(gene, tf1, tf2, cur_coef);
+    }
+  }   
 }
 
 

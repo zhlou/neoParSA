@@ -27,6 +27,7 @@ class Fasta
 private:
   string file_name;
   int    nseqs;
+  vector<string>      names;
   map<string, string> seqs;
   
 public:
@@ -37,6 +38,7 @@ public:
   // Getters
   string& getSeq(string& name);
   string& getFileName() { return file_name; }
+  vector<string>& getNames() { return names; }
   
   // I/O
   void read(string& fname);

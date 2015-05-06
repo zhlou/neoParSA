@@ -1,0 +1,349 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Root>
+  <annealer_input init_T="100000" lambda="0.0001" init_loop="100000"/>
+  <move interval="100" gain="3"/>
+  <count_criterion freeze_crit="10" freeze_cnt="5"/>
+  <mix adaptcoef="10"/>
+  <lam tau="100" memLength_mean=".200" memLength_sd="100" criterion="10" freeze_cnt="5"/>
+  <Mode>
+    <!-- 0=silent 1=quiet 2=loud 3=insane (prints individual moves) -->
+    <Verbose value="1"/>
+    <!-- exit after initial loop for profiling code -->
+    <Profiling value="false"/>
+    <!-- sse, chisq, pdiff, rms, arkim, sss -->
+    <ScoreFunction value="sse"/>
+    <!-- use p-value threshold for binding instead of score -->
+    <PThresh value="0"/>
+    <!-- scale data to normalize relative weights in the score. can be type=area or type=height -->
+    <ScaleData value="false" type="area" scale_to="2000"/>
+    <!-- the minimum value to use for data, prevents dividing by 0 in score -->
+    <MinData value="0"/>
+    <!-- divide score by number of genes -->
+    <PerGene value="false"/>
+    <!-- divide score by number of nuclei -->
+    <PerNuc value="false"/>
+    <!-- include promoter competition -->
+    <Competition value="false" window="500" shift="50"/>
+    <!-- the default gc content to use, if not spefified in the TF itself -->
+    <GCcontent value="0.41"/>
+    <!-- the number of thread to do when looping over genes -->
+    <NumThreads value="1"/>
+  </Mode>
+  <Input>
+    <Distances>
+      <!-- Distance functions are Trapezoid, Uniform, Linear, Sine -->
+      <!-- ToDo: currently requires a distance function named quenching! -->
+      <Distance name="Quenching" distfunc="Trapezoid">
+        <A value="100" lim_low="50" lim_high="100" anneal="false" move="Quenching"/>
+        <B value="50"  lim_low="50" lim_high="50"  anneal="false" move="Quenching"/>
+      </Distance>
+    </Distances>
+    <Promoters>
+      <Promoter name="basic" function="Arrhenius2">
+        <Q     value="1"      lim_low="1"   lim_high="1"   anneal="false" move="Promoter"/>
+        <Rmax  value="200"    lim_low="200" lim_high="200" anneal="false" move="Promoter"/>
+        <Theta value="12.706" lim_low="5"   lim_high="20"  anneal="true"  move="Promoter"/>
+      </Promoter>
+    </Promoters>
+    <TFs>
+      <TF name="CREB1" bsize="8" include="true">
+        <kmax      value="1.1753" lim_low="1e-06" lim_high="4" anneal="true"  move="Kmax"/>
+        <threshold value="0"    lim_low="0"     lim_high="0" anneal="false" move="Sites"/>
+        <lambda    value="2.3633" lim_low="0.5"   lim_high="5" anneal="true"  move="Lambda"/>
+        <Coefficients>
+          <coef value="14.269" lim_low="0.0001" lim_high="20" anneal="true" move="Promoter"/>
+        </Coefficients>
+        <PWM type="PSSM">
+          <base>A C G T</base>
+          <position> 0.515413; -0.551077;  0.529829; -1.170302</position>
+          <position>-3.897840; -1.189500; -1.937462;  1.693045</position>
+          <position>-7.422196; -1.485720;  1.410597; -0.031167</position>
+          <position> 1.647695; -3.358485; -0.961234; -1.968279</position>
+          <position>-2.925177;  1.738598; -6.519627; -0.942474</position>
+          <position>-1.146237; -2.411315;  1.635434; -1.980495</position>
+          <position>-0.715948; -0.024357; -1.522081;  1.042471</position>
+          <position> 0.435278;  0.074907; -0.126864; -0.559122</position>
+          <position> 0.214634; -0.376242;  0.027256;  0.070495</position>
+        </PWM>
+      </TF>
+    </TFs>
+    <Interactions/>
+    <Genes>
+      <Source name="MRPA" file="sequences/MRPA_baseM.fa" type="fasta">
+        <Gene name="synCRE_Promega_0" header="synCRE_Promega_0" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_0_A" header="scanmut_single_pos_0_A" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_0_C" header="scanmut_single_pos_0_C" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_0_T" header="scanmut_single_pos_0_T" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_1_A" header="scanmut_single_pos_1_A" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_1_G" header="scanmut_single_pos_1_G" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_2_C" header="scanmut_single_pos_2_C" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_2_G" header="scanmut_single_pos_2_G" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_2_T" header="scanmut_single_pos_2_T" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_3_A" header="scanmut_single_pos_3_A" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_3_G" header="scanmut_single_pos_3_G" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_3_T" header="scanmut_single_pos_3_T" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_4_A" header="scanmut_single_pos_4_A" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_4_G" header="scanmut_single_pos_4_G" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_4_T" header="scanmut_single_pos_4_T" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_5_C" header="scanmut_single_pos_5_C" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_5_G" header="scanmut_single_pos_5_G" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_5_T" header="scanmut_single_pos_5_T" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_6_A" header="scanmut_single_pos_6_A" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_6_C" header="scanmut_single_pos_6_C" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_6_T" header="scanmut_single_pos_6_T" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_7_C" header="scanmut_single_pos_7_C" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_7_G" header="scanmut_single_pos_7_G" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_7_T" header="scanmut_single_pos_7_T" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_8_A" header="scanmut_single_pos_8_A" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_8_G" header="scanmut_single_pos_8_G" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_8_T" header="scanmut_single_pos_8_T" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_9_C" header="scanmut_single_pos_9_C" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_9_G" header="scanmut_single_pos_9_G" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_9_T" header="scanmut_single_pos_9_T" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_10_A" header="scanmut_single_pos_10_A" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_10_C" header="scanmut_single_pos_10_C" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_10_T" header="scanmut_single_pos_10_T" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_11_A" header="scanmut_single_pos_11_A" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_11_C" header="scanmut_single_pos_11_C" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_11_G" header="scanmut_single_pos_11_G" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_12_A" header="scanmut_single_pos_12_A" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_12_C" header="scanmut_single_pos_12_C" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_12_T" header="scanmut_single_pos_12_T" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_13_C" header="scanmut_single_pos_13_C" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_13_G" header="scanmut_single_pos_13_G" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_13_T" header="scanmut_single_pos_13_T" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_14_A" header="scanmut_single_pos_14_A" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_14_G" header="scanmut_single_pos_14_G" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_14_T" header="scanmut_single_pos_14_T" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_15_A" header="scanmut_single_pos_15_A" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_15_C" header="scanmut_single_pos_15_C" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_15_T" header="scanmut_single_pos_15_T" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_16_A" header="scanmut_single_pos_16_A" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_16_C" header="scanmut_single_pos_16_C" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_16_G" header="scanmut_single_pos_16_G" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_17_A" header="scanmut_single_pos_17_A" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_17_G" header="scanmut_single_pos_17_G" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_17_T" header="scanmut_single_pos_17_T" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_18_C" header="scanmut_single_pos_18_C" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_18_G" header="scanmut_single_pos_18_G" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_18_T" header="scanmut_single_pos_18_T" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_19_A" header="scanmut_single_pos_19_A" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_19_C" header="scanmut_single_pos_19_C" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_19_T" header="scanmut_single_pos_19_T" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_20_A" header="scanmut_single_pos_20_A" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_20_G" header="scanmut_single_pos_20_G" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_20_T" header="scanmut_single_pos_20_T" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_21_A" header="scanmut_single_pos_21_A" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_21_C" header="scanmut_single_pos_21_C" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_21_G" header="scanmut_single_pos_21_G" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_22_A" header="scanmut_single_pos_22_A" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_22_C" header="scanmut_single_pos_22_C" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_22_T" header="scanmut_single_pos_22_T" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_23_A" header="scanmut_single_pos_23_A" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_23_G" header="scanmut_single_pos_23_G" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_23_T" header="scanmut_single_pos_23_T" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_24_A" header="scanmut_single_pos_24_A" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_24_G" header="scanmut_single_pos_24_G" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_24_T" header="scanmut_single_pos_24_T" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_25_C" header="scanmut_single_pos_25_C" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_25_G" header="scanmut_single_pos_25_G" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_25_T" header="scanmut_single_pos_25_T" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_26_A" header="scanmut_single_pos_26_A" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_26_C" header="scanmut_single_pos_26_C" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_26_T" header="scanmut_single_pos_26_T" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_27_C" header="scanmut_single_pos_27_C" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_27_G" header="scanmut_single_pos_27_G" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_27_T" header="scanmut_single_pos_27_T" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_28_A" header="scanmut_single_pos_28_A" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_28_C" header="scanmut_single_pos_28_C" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_28_G" header="scanmut_single_pos_28_G" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_29_A" header="scanmut_single_pos_29_A" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_29_G" header="scanmut_single_pos_29_G" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_29_T" header="scanmut_single_pos_29_T" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_30_A" header="scanmut_single_pos_30_A" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_30_G" header="scanmut_single_pos_30_G" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_30_T" header="scanmut_single_pos_30_T" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_31_A" header="scanmut_single_pos_31_A" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_31_G" header="scanmut_single_pos_31_G" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_31_T" header="scanmut_single_pos_31_T" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_32_C" header="scanmut_single_pos_32_C" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_32_G" header="scanmut_single_pos_32_G" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_32_T" header="scanmut_single_pos_32_T" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_33_A" header="scanmut_single_pos_33_A" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_33_C" header="scanmut_single_pos_33_C" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_33_G" header="scanmut_single_pos_33_G" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_34_A" header="scanmut_single_pos_34_A" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_34_C" header="scanmut_single_pos_34_C" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_34_T" header="scanmut_single_pos_34_T" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_35_A" header="scanmut_single_pos_35_A" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_35_C" header="scanmut_single_pos_35_C" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_35_T" header="scanmut_single_pos_35_T" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_36_A" header="scanmut_single_pos_36_A" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_36_G" header="scanmut_single_pos_36_G" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_36_T" header="scanmut_single_pos_36_T" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_37_A" header="scanmut_single_pos_37_A" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_37_G" header="scanmut_single_pos_37_G" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_37_T" header="scanmut_single_pos_37_T" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_38_A" header="scanmut_single_pos_38_A" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_38_C" header="scanmut_single_pos_38_C" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_38_T" header="scanmut_single_pos_38_T" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_39_A" header="scanmut_single_pos_39_A" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_39_C" header="scanmut_single_pos_39_C" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_39_G" header="scanmut_single_pos_39_G" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_40_A" header="scanmut_single_pos_40_A" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_40_G" header="scanmut_single_pos_40_G" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_40_T" header="scanmut_single_pos_40_T" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_41_C" header="scanmut_single_pos_41_C" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_41_G" header="scanmut_single_pos_41_G" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_41_T" header="scanmut_single_pos_41_T" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_42_A" header="scanmut_single_pos_42_A" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_42_C" header="scanmut_single_pos_42_C" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_42_G" header="scanmut_single_pos_42_G" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_43_C" header="scanmut_single_pos_43_C" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_43_G" header="scanmut_single_pos_43_G" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_43_T" header="scanmut_single_pos_43_T" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_44_A" header="scanmut_single_pos_44_A" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_44_G" header="scanmut_single_pos_44_G" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_44_T" header="scanmut_single_pos_44_T" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_45_A" header="scanmut_single_pos_45_A" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_45_C" header="scanmut_single_pos_45_C" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_45_G" header="scanmut_single_pos_45_G" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_46_A" header="scanmut_single_pos_46_A" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_46_C" header="scanmut_single_pos_46_C" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_46_T" header="scanmut_single_pos_46_T" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_47_A" header="scanmut_single_pos_47_A" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_47_C" header="scanmut_single_pos_47_C" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_47_G" header="scanmut_single_pos_47_G" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_48_A" header="scanmut_single_pos_48_A" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_48_C" header="scanmut_single_pos_48_C" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_48_T" header="scanmut_single_pos_48_T" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_49_C" header="scanmut_single_pos_49_C" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_49_G" header="scanmut_single_pos_49_G" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_49_T" header="scanmut_single_pos_49_T" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_50_A" header="scanmut_single_pos_50_A" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_50_G" header="scanmut_single_pos_50_G" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_50_T" header="scanmut_single_pos_50_T" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_51_A" header="scanmut_single_pos_51_A" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_51_C" header="scanmut_single_pos_51_C" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_51_T" header="scanmut_single_pos_51_T" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_52_A" header="scanmut_single_pos_52_A" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_52_C" header="scanmut_single_pos_52_C" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_52_G" header="scanmut_single_pos_52_G" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_53_A" header="scanmut_single_pos_53_A" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_53_G" header="scanmut_single_pos_53_G" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_53_T" header="scanmut_single_pos_53_T" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_54_A" header="scanmut_single_pos_54_A" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_54_C" header="scanmut_single_pos_54_C" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_54_G" header="scanmut_single_pos_54_G" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_55_A" header="scanmut_single_pos_55_A" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_55_C" header="scanmut_single_pos_55_C" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_55_G" header="scanmut_single_pos_55_G" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_56_A" header="scanmut_single_pos_56_A" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_56_C" header="scanmut_single_pos_56_C" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_56_G" header="scanmut_single_pos_56_G" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_57_A" header="scanmut_single_pos_57_A" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_57_G" header="scanmut_single_pos_57_G" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_57_T" header="scanmut_single_pos_57_T" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_58_C" header="scanmut_single_pos_58_C" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_58_G" header="scanmut_single_pos_58_G" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_58_T" header="scanmut_single_pos_58_T" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_59_A" header="scanmut_single_pos_59_A" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_59_C" header="scanmut_single_pos_59_C" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_59_T" header="scanmut_single_pos_59_T" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_60_C" header="scanmut_single_pos_60_C" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_60_G" header="scanmut_single_pos_60_G" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_60_T" header="scanmut_single_pos_60_T" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_61_A" header="scanmut_single_pos_61_A" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_61_G" header="scanmut_single_pos_61_G" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_61_T" header="scanmut_single_pos_61_T" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_62_C" header="scanmut_single_pos_62_C" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_62_G" header="scanmut_single_pos_62_G" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_62_T" header="scanmut_single_pos_62_T" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_63_A" header="scanmut_single_pos_63_A" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_63_G" header="scanmut_single_pos_63_G" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_63_T" header="scanmut_single_pos_63_T" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_64_A" header="scanmut_single_pos_64_A" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_64_G" header="scanmut_single_pos_64_G" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_64_T" header="scanmut_single_pos_64_T" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_65_A" header="scanmut_single_pos_65_A" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_65_G" header="scanmut_single_pos_65_G" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_65_T" header="scanmut_single_pos_65_T" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_66_A" header="scanmut_single_pos_66_A" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_66_G" header="scanmut_single_pos_66_G" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_66_T" header="scanmut_single_pos_66_T" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_67_C" header="scanmut_single_pos_67_C" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_67_G" header="scanmut_single_pos_67_G" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_67_T" header="scanmut_single_pos_67_T" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_68_A" header="scanmut_single_pos_68_A" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_68_C" header="scanmut_single_pos_68_C" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_68_G" header="scanmut_single_pos_68_G" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_69_A" header="scanmut_single_pos_69_A" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_69_C" header="scanmut_single_pos_69_C" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_69_G" header="scanmut_single_pos_69_G" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_70_A" header="scanmut_single_pos_70_A" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_70_C" header="scanmut_single_pos_70_C" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_70_T" header="scanmut_single_pos_70_T" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_71_C" header="scanmut_single_pos_71_C" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_71_G" header="scanmut_single_pos_71_G" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_71_T" header="scanmut_single_pos_71_T" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_72_A" header="scanmut_single_pos_72_A" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_72_G" header="scanmut_single_pos_72_G" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_72_T" header="scanmut_single_pos_72_T" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_73_A" header="scanmut_single_pos_73_A" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_73_C" header="scanmut_single_pos_73_C" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_73_T" header="scanmut_single_pos_73_T" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_74_A" header="scanmut_single_pos_74_A" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_74_C" header="scanmut_single_pos_74_C" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_74_G" header="scanmut_single_pos_74_G" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_75_A" header="scanmut_single_pos_75_A" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_75_G" header="scanmut_single_pos_75_G" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_75_T" header="scanmut_single_pos_75_T" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_76_C" header="scanmut_single_pos_76_C" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_76_G" header="scanmut_single_pos_76_G" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_76_T" header="scanmut_single_pos_76_T" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_77_C" header="scanmut_single_pos_77_C" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_77_G" header="scanmut_single_pos_77_G" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_77_T" header="scanmut_single_pos_77_T" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_78_A" header="scanmut_single_pos_78_A" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_78_C" header="scanmut_single_pos_78_C" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_78_G" header="scanmut_single_pos_78_G" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_79_A" header="scanmut_single_pos_79_A" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_79_C" header="scanmut_single_pos_79_C" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_79_T" header="scanmut_single_pos_79_T" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_80_A" header="scanmut_single_pos_80_A" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_80_C" header="scanmut_single_pos_80_C" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_80_T" header="scanmut_single_pos_80_T" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_81_A" header="scanmut_single_pos_81_A" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_81_C" header="scanmut_single_pos_81_C" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_81_T" header="scanmut_single_pos_81_T" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_82_C" header="scanmut_single_pos_82_C" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_82_G" header="scanmut_single_pos_82_G" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_82_T" header="scanmut_single_pos_82_T" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_83_A" header="scanmut_single_pos_83_A" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_83_C" header="scanmut_single_pos_83_C" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_83_T" header="scanmut_single_pos_83_T" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_84_C" header="scanmut_single_pos_84_C" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_84_G" header="scanmut_single_pos_84_G" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_84_T" header="scanmut_single_pos_84_T" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_85_C" header="scanmut_single_pos_85_C" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_85_G" header="scanmut_single_pos_85_G" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_85_T" header="scanmut_single_pos_85_T" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_86_A" header="scanmut_single_pos_86_A" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_86_G" header="scanmut_single_pos_86_G" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+        <Gene name="scanmut_single_pos_86_T" header="scanmut_single_pos_86_T" left_bound="-235" right_bound="-38" TSS="-1" promoter="basic"/>
+      </Source>
+    </Genes>
+    <ScaleFactors>
+      <ScaleFactor name="default">
+        <A value="1" lim_low="1" lim_high="1" anneal="false"/>
+        <B value="0" lim_low="0" lim_high="0" anneal="false"/>
+      </ScaleFactor>
+    </ScaleFactors>
+    <RateData row="ID" col="gene">
+      <TableRow ID="theonlyone" synCRE_Promega_0="96.0000" scanmut_single_pos_0_A="105.0000" scanmut_single_pos_0_C="89.0000" scanmut_single_pos_0_T="75.0000" scanmut_single_pos_1_A="90.0000" scanmut_single_pos_1_G="76.0000" scanmut_single_pos_2_C="103.0000" scanmut_single_pos_2_G="157.0000" scanmut_single_pos_2_T="102.0000" scanmut_single_pos_3_A="92.0000" scanmut_single_pos_3_G="90.0000" scanmut_single_pos_3_T="99.0000" scanmut_single_pos_4_A="82.0000" scanmut_single_pos_4_G="127.0000" scanmut_single_pos_4_T="88.0000" scanmut_single_pos_5_C="81.0000" scanmut_single_pos_5_G="77.0000" scanmut_single_pos_5_T="103.0000" scanmut_single_pos_6_A="71.0000" scanmut_single_pos_6_C="74.0000" scanmut_single_pos_6_T="75.0000" scanmut_single_pos_7_C="73.0000" scanmut_single_pos_7_G="78.0000" scanmut_single_pos_7_T="83.0000" scanmut_single_pos_8_A="83.0000" scanmut_single_pos_8_G="79.0000" scanmut_single_pos_8_T="77.0000" scanmut_single_pos_9_C="76.0000" scanmut_single_pos_9_G="90.0000" scanmut_single_pos_9_T="73.0000" scanmut_single_pos_10_A="94.0000" scanmut_single_pos_10_C="133.0000" scanmut_single_pos_10_T="140.0000" scanmut_single_pos_11_A="104.0000" scanmut_single_pos_11_C="97.0000" scanmut_single_pos_11_G="86.0000" scanmut_single_pos_12_A="93.0000" scanmut_single_pos_12_C="102.0000" scanmut_single_pos_12_T="111.0000" scanmut_single_pos_13_C="73.0000" scanmut_single_pos_13_G="92.0000" scanmut_single_pos_13_T="90.0000" scanmut_single_pos_14_A="81.0000" scanmut_single_pos_14_G="80.0000" scanmut_single_pos_14_T="77.0000" scanmut_single_pos_15_A="90.0000" scanmut_single_pos_15_C="82.0000" scanmut_single_pos_15_T="62.0000" scanmut_single_pos_16_A="89.0000" scanmut_single_pos_16_C="78.0000" scanmut_single_pos_16_G="78.0000" scanmut_single_pos_17_A="87.0000" scanmut_single_pos_17_G="82.0000" scanmut_single_pos_17_T="97.0000" scanmut_single_pos_18_C="86.0000" scanmut_single_pos_18_G="90.0000" scanmut_single_pos_18_T="96.0000" scanmut_single_pos_19_A="98.0000" scanmut_single_pos_19_C="88.0000" scanmut_single_pos_19_T="77.0000" scanmut_single_pos_20_A="74.0000" scanmut_single_pos_20_G="85.0000" scanmut_single_pos_20_T="104.0000" scanmut_single_pos_21_A="90.0000" scanmut_single_pos_21_C="106.0000" scanmut_single_pos_21_G="71.0000" scanmut_single_pos_22_A="91.0000" scanmut_single_pos_22_C="102.0000" scanmut_single_pos_22_T="92.0000" scanmut_single_pos_23_A="101.0000" scanmut_single_pos_23_G="104.0000" scanmut_single_pos_23_T="99.0000" scanmut_single_pos_24_A="101.0000" scanmut_single_pos_24_G="97.0000" scanmut_single_pos_24_T="101.0000" scanmut_single_pos_25_C="106.0000" scanmut_single_pos_25_G="96.0000" scanmut_single_pos_25_T="107.0000" scanmut_single_pos_26_A="123.0000" scanmut_single_pos_26_C="106.0000" scanmut_single_pos_26_T="115.0000" scanmut_single_pos_27_C="99.0000" scanmut_single_pos_27_G="85.0000" scanmut_single_pos_27_T="102.0000" scanmut_single_pos_28_A="91.0000" scanmut_single_pos_28_C="87.0000" scanmut_single_pos_28_G="92.0000" scanmut_single_pos_29_A="91.0000" scanmut_single_pos_29_G="93.0000" scanmut_single_pos_29_T="96.0000" scanmut_single_pos_30_A="107.0000" scanmut_single_pos_30_G="75.0000" scanmut_single_pos_30_T="88.0000" scanmut_single_pos_31_A="89.0000" scanmut_single_pos_31_G="80.0000" scanmut_single_pos_31_T="94.0000" scanmut_single_pos_32_C="78.0000" scanmut_single_pos_32_G="90.0000" scanmut_single_pos_32_T="90.0000" scanmut_single_pos_33_A="82.0000" scanmut_single_pos_33_C="89.0000" scanmut_single_pos_33_G="84.0000" scanmut_single_pos_34_A="102.0000" scanmut_single_pos_34_C="95.0000" scanmut_single_pos_34_T="122.0000" scanmut_single_pos_35_A="134.0000" scanmut_single_pos_35_C="99.0000" scanmut_single_pos_35_T="94.0000" scanmut_single_pos_36_A="109.0000" scanmut_single_pos_36_G="110.0000" scanmut_single_pos_36_T="103.0000" scanmut_single_pos_37_A="72.0000" scanmut_single_pos_37_G="68.0000" scanmut_single_pos_37_T="66.0000" scanmut_single_pos_38_A="69.0000" scanmut_single_pos_38_C="76.0000" scanmut_single_pos_38_T="61.0000" scanmut_single_pos_39_A="64.0000" scanmut_single_pos_39_C="62.0000" scanmut_single_pos_39_G="63.0000" scanmut_single_pos_40_A="75.0000" scanmut_single_pos_40_G="59.0000" scanmut_single_pos_40_T="59.0000" scanmut_single_pos_41_C="73.0000" scanmut_single_pos_41_G="65.0000" scanmut_single_pos_41_T="66.0000" scanmut_single_pos_42_A="66.0000" scanmut_single_pos_42_C="96.0000" scanmut_single_pos_42_G="95.0000" scanmut_single_pos_43_C="108.0000" scanmut_single_pos_43_G="102.0000" scanmut_single_pos_43_T="102.0000" scanmut_single_pos_44_A="100.0000" scanmut_single_pos_44_G="98.0000" scanmut_single_pos_44_T="86.0000" scanmut_single_pos_45_A="114.0000" scanmut_single_pos_45_C="99.0000" scanmut_single_pos_45_G="117.0000" scanmut_single_pos_46_A="78.0000" scanmut_single_pos_46_C="120.0000" scanmut_single_pos_46_T="97.0000" scanmut_single_pos_47_A="75.0000" scanmut_single_pos_47_C="69.0000" scanmut_single_pos_47_G="65.0000" scanmut_single_pos_48_A="60.0000" scanmut_single_pos_48_C="64.0000" scanmut_single_pos_48_T="79.0000" scanmut_single_pos_49_C="49.0000" scanmut_single_pos_49_G="79.0000" scanmut_single_pos_49_T="62.0000" scanmut_single_pos_50_A="49.0000" scanmut_single_pos_50_G="58.0000" scanmut_single_pos_50_T="63.0000" scanmut_single_pos_51_A="65.0000" scanmut_single_pos_51_C="64.0000" scanmut_single_pos_51_T="50.0000" scanmut_single_pos_52_A="84.0000" scanmut_single_pos_52_C="101.0000" scanmut_single_pos_52_G="82.0000" scanmut_single_pos_53_A="92.0000" scanmut_single_pos_53_G="93.0000" scanmut_single_pos_53_T="77.0000" scanmut_single_pos_54_A="54.0000" scanmut_single_pos_54_C="78.0000" scanmut_single_pos_54_G="67.0000" scanmut_single_pos_55_A="104.0000" scanmut_single_pos_55_C="89.0000" scanmut_single_pos_55_G="126.0000" scanmut_single_pos_56_A="78.0000" scanmut_single_pos_56_C="80.0000" scanmut_single_pos_56_G="79.0000" scanmut_single_pos_57_A="98.0000" scanmut_single_pos_57_G="108.0000" scanmut_single_pos_57_T="102.0000" scanmut_single_pos_58_C="90.0000" scanmut_single_pos_58_G="90.0000" scanmut_single_pos_58_T="122.0000" scanmut_single_pos_59_A="105.0000" scanmut_single_pos_59_C="143.0000" scanmut_single_pos_59_T="108.0000" scanmut_single_pos_60_C="122.0000" scanmut_single_pos_60_G="87.0000" scanmut_single_pos_60_T="109.0000" scanmut_single_pos_61_A="102.0000" scanmut_single_pos_61_G="106.0000" scanmut_single_pos_61_T="100.0000" scanmut_single_pos_62_C="109.0000" scanmut_single_pos_62_G="139.0000" scanmut_single_pos_62_T="106.0000" scanmut_single_pos_63_A="122.0000" scanmut_single_pos_63_G="136.0000" scanmut_single_pos_63_T="134.0000" scanmut_single_pos_64_A="124.0000" scanmut_single_pos_64_G="141.0000" scanmut_single_pos_64_T="131.0000" scanmut_single_pos_65_A="108.0000" scanmut_single_pos_65_G="118.0000" scanmut_single_pos_65_T="104.0000" scanmut_single_pos_66_A="127.0000" scanmut_single_pos_66_G="134.0000" scanmut_single_pos_66_T="111.0000" scanmut_single_pos_67_C="70.0000" scanmut_single_pos_67_G="74.0000" scanmut_single_pos_67_T="85.0000" scanmut_single_pos_68_A="54.0000" scanmut_single_pos_68_C="81.0000" scanmut_single_pos_68_G="54.0000" scanmut_single_pos_69_A="60.0000" scanmut_single_pos_69_C="56.0000" scanmut_single_pos_69_G="56.0000" scanmut_single_pos_70_A="42.0000" scanmut_single_pos_70_C="49.0000" scanmut_single_pos_70_T="73.0000" scanmut_single_pos_71_C="39.0000" scanmut_single_pos_71_G="53.0000" scanmut_single_pos_71_T="50.0000" scanmut_single_pos_72_A="27.0000" scanmut_single_pos_72_G="36.0000" scanmut_single_pos_72_T="37.0000" scanmut_single_pos_73_A="47.0000" scanmut_single_pos_73_C="40.0000" scanmut_single_pos_73_T="29.0000" scanmut_single_pos_74_A="49.0000" scanmut_single_pos_74_C="52.0000" scanmut_single_pos_74_G="34.0000" scanmut_single_pos_75_A="76.0000" scanmut_single_pos_75_G="52.0000" scanmut_single_pos_75_T="50.0000" scanmut_single_pos_76_C="51.0000" scanmut_single_pos_76_G="56.0000" scanmut_single_pos_76_T="59.0000" scanmut_single_pos_77_C="50.0000" scanmut_single_pos_77_G="80.0000" scanmut_single_pos_77_T="54.0000" scanmut_single_pos_78_A="59.0000" scanmut_single_pos_78_C="73.0000" scanmut_single_pos_78_G="57.0000" scanmut_single_pos_79_A="88.0000" scanmut_single_pos_79_C="94.0000" scanmut_single_pos_79_T="93.0000" scanmut_single_pos_80_A="92.0000" scanmut_single_pos_80_C="101.0000" scanmut_single_pos_80_T="92.0000" scanmut_single_pos_81_A="94.0000" scanmut_single_pos_81_C="92.0000" scanmut_single_pos_81_T="89.0000" scanmut_single_pos_82_C="106.0000" scanmut_single_pos_82_G="95.0000" scanmut_single_pos_82_T="97.0000" scanmut_single_pos_83_A="101.0000" scanmut_single_pos_83_C="96.0000" scanmut_single_pos_83_T="103.0000" scanmut_single_pos_84_C="121.0000" scanmut_single_pos_84_G="138.0000" scanmut_single_pos_84_T="106.0000" scanmut_single_pos_85_C="106.0000" scanmut_single_pos_85_G="100.0000" scanmut_single_pos_85_T="98.0000" scanmut_single_pos_86_A="102.0000" scanmut_single_pos_86_G="100.0000" scanmut_single_pos_86_T="98.0000"/>
+    </RateData>
+    <TFData row="ID" col="TF">
+      <TableRow ID="theonlyone" CREB1="100.0000"/>
+    </TFData>
+  </Input>     
+</Root>

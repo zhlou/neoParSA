@@ -5,12 +5,11 @@
 *     Reads output and allows user to print various data                         *
 *                                                                                *
 *********************************************************************************/
-#include "flags.h"
 #include "pwm.h"
 #include "TF.h"
 #include "gene.h"
 
-#include "conc.h"
+#include "datatable.h"
 #include "twobit.h"
 #include "organism.h"
 
@@ -23,7 +22,7 @@
 
 #include <libxml/parser.h>
 #include "annealer.h"
-#include "move/feedbackMove.h"
+#include "feedbackMove.h"
 #include "unirandom.h"
 #include "lam.h"
 #include "criCount.h"
@@ -45,15 +44,19 @@ static const struct option longOpts[] = {
     { "modeocc",     no_argument,       NULL,  0  },
     { "effocc",      no_argument,       NULL,  0  },
     { "subgroups",   no_argument,       NULL,  0  },
-    { "scores",      required_argument, NULL, 's' },
+    { "scores",      no_argument,       NULL,  0  },
     { "section",     required_argument, NULL, 's' },
-    { "gene",        required_argument, NULL,  0 },
-    { "tf",          required_argument, NULL,  0 },
-    { "rate",        no_argument,       NULL,  0 },
-    { "data",        no_argument,       NULL,  0 },
-    { "params",      no_argument,       NULL,  0 },
-    { "check-scale", no_argument,       NULL,  0 },
-    { "score",       no_argument,       NULL,  0 }
+    { "gene",        required_argument, NULL,  0  },
+    { "tf",          required_argument, NULL,  0  },
+    { "rate",        no_argument,       NULL,  0  },
+    { "R2D",         no_argument,       NULL,  0  },
+    { "N2D",         no_argument,       NULL,  0  },
+    { "data",        no_argument,       NULL,  0  },
+    { "params",      no_argument,       NULL,  0  },
+    { "check-scale", no_argument,       NULL,  0  },
+    { "invert",      no_argument,       NULL,  0  },
+    { "score",       no_argument,       NULL,  0  },
+    { 0, 0, 0, 0}
 };
 
 void display_usage()
@@ -71,9 +74,12 @@ void display_usage()
        << "\t --subgroups      prints subgroups" << endl
        << "\t --scores         prints pwm scores" << endl
        << "\t --rate           prints rate for each gene" << endl
+       << "\t --R2D            prints R for each subsequence" << endl
+       << "\t --N2D            prints N for each subsequence" << endl
        << "\t --data           prints rate data for each gene" << endl
        << "\t --params         prints the parameter table" << endl
        << "\t --check-scale    checks that the scale function works with the scoring function" << endl
+       << "\t --invert         if result is a data table, inverts the axes" << endl
        << "\t --gene    [name] prints only for gene with name" << endl
        << "\t --tf name [name] prints only for tf with name" << endl << endl;
   exit(1);
@@ -93,12 +99,17 @@ int main(int argc, char* argv[])
   bool sites      = false;
   bool data       = false;
   bool score      = false;
+  bool scores     = false;
   bool occupancy  = false;
   bool modeocc    = false;
   bool effocc     = false;
   bool subgroups  = false;
   bool params     = false;
   bool checkscale = false;
+  bool R2D        = false;
+  bool N2D        = false;
+  bool invert     = false;
+  
   
   string infile_name;
   
@@ -119,31 +130,43 @@ int main(int argc, char* argv[])
       case 0: 
         if (longOpts[longIndex].name == "sites")
           sites = true;
-        if (longOpts[longIndex].name == "score")
+        else if (longOpts[longIndex].name == "score")
           score = true;
-        if (longOpts[longIndex].name == "rate")
+        else if (longOpts[longIndex].name == "scores")
+          scores = true;
+        else if (longOpts[longIndex].name == "rate")
           rate = true;
-        if (longOpts[longIndex].name == "data")
+        else if (longOpts[longIndex].name == "data")
           data = true;
-        if (longOpts[longIndex].name == "gene")
+        else if (longOpts[longIndex].name == "gene")
           gene_name = optarg;
-        if (longOpts[longIndex].name == "tf")
+        else if (longOpts[longIndex].name == "tf")
           tf_name = optarg;
-        if (longOpts[longIndex].name == "occupancy")
+        else if (longOpts[longIndex].name == "occupancy")
           occupancy = true;
-        if (longOpts[longIndex].name == "modeocc")
+        else if (longOpts[longIndex].name == "modeocc")
           modeocc = true;
-        if (longOpts[longIndex].name == "effocc")
+        else if (longOpts[longIndex].name == "effocc")
           effocc = true;
-        if (longOpts[longIndex].name == "subgroups")
+        else if (longOpts[longIndex].name == "subgroups")
           subgroups = true;
-        if (longOpts[longIndex].name == "section")
+        else if (longOpts[longIndex].name == "section")
           section_name = optarg;
-        if (longOpts[longIndex].name == "params")
+        else if (longOpts[longIndex].name == "params")
           params = true;
-        if (longOpts[longIndex].name == "check-scale")
+        else if (longOpts[longIndex].name == "check-scale")
           checkscale = true;
-        
+        else if (longOpts[longIndex].name == "R2D")
+          R2D = true;
+        else if (longOpts[longIndex].name == "N2D")
+          N2D = true;
+        else if (longOpts[longIndex].name == "invert")
+          invert = true;
+        else
+          display_usage();
+        break;
+      case '?':
+        display_usage();
         break;
     }
     opt = getopt_long( argc, argv, optString, longOpts, &longIndex );
@@ -156,10 +179,15 @@ int main(int argc, char* argv[])
 
   ptree pt;
   read_xml(infile, pt, boost::property_tree::xml_parser::trim_whitespace);
-  ptree& section = pt.get_child(section_name);
+  
+  ptree& root_node   = pt.get_child("Root");
+  ptree& mode_node   = root_node.get_child("Mode");
+  ptree& section_node = root_node.get_child(section_name);
+  
+  mode_ptr mode(new Mode(infile_name,mode_node));
 
-  Organism embryo(section);
-
+  mode->setVerbose(0);
+  Organism embryo(section_node, mode);
   
   tfs_ptr   tfs   = embryo.getTFs();
   genes_ptr genes = embryo.getGenes();
@@ -186,19 +214,23 @@ int main(int argc, char* argv[])
   }
   
   if (rate)
-  {
-    embryo.printRate(cout);
-  }
+    embryo.printRate(cout, invert);
+
+  if (R2D)
+    embryo.printR2D(cout);
+  
+  if (N2D)
+    embryo.printN2D(cout);
+  
   if (checkscale)
-  {
     embryo.checkScale(cout);
-  }
+
   if (data)
-    embryo.printRateData(cout);
+    embryo.printRateData(cout, invert);
+  
   if (score)
-  {
     embryo.printScore(cout);
-  }
+  
   if (params)
     embryo.printParameters(cout);
 
@@ -206,31 +238,47 @@ int main(int argc, char* argv[])
   {
     if (gene_name == "")
     {
-      cerr << "ERROR: must specify a gene to print occupancy!" << endl;
-      exit(1);
+      stringstream err;
+      err << "ERROR: must specify a gene to print occupancy!" << endl;
+      error(err.str());
     }
     Gene& gene = genes->getGene(gene_name);
-    embryo.printOccupancy(gene, cout);
+    embryo.printOccupancy(gene, cout, invert);
   }
+  
+  if (scores)
+  {
+    if (gene_name == "")
+    {
+      stringstream err;
+      err << "ERROR: must specify a gene to print scores!" << endl;
+      error(err.str());
+    }
+    Gene& gene = genes->getGene(gene_name);
+    embryo.printScores(gene, cout);
+  }
+  
   if (modeocc)
   {
     if (gene_name == "")
     {
-      cerr << "ERROR: must specify a gene to print occupancy!" << endl;
-      exit(1);
+      stringstream err;
+      err << "ERROR: must specify a gene to print occupancy!" << endl;
+      error(err.str());
     }
     Gene& gene = genes->getGene(gene_name);
-    embryo.printModeOccupancy(gene, cout);
+    embryo.printModeOccupancy(gene, cout, invert);
   }
   if (effocc)
   {
     if (gene_name == "")
     {
-      cerr << "ERROR: must specify a gene to print occupancy!" << endl;
-      exit(1);
+      stringstream err;
+      err << "ERROR: must specify a gene to print occupancy!" << endl;
+      error(err.str());
     }
     Gene& gene = genes->getGene(gene_name);
-    embryo.printEffectiveOccupancy(gene, cout);
+    embryo.printEffectiveOccupancy(gene, cout, invert);
   }
   
   
@@ -238,8 +286,9 @@ int main(int argc, char* argv[])
   {
     if (gene_name == "")
     {
+      stringstream err;
       cerr << "ERROR: must specify a gene to print subgroups!" << endl;
-      exit(1);
+      error(err.str());
     }
     Gene& gene = genes->getGene(gene_name);
     embryo.printSubgroups(gene, cout);

@@ -32,27 +32,30 @@ private:
   mode_ptr  mode;
   genes_ptr genes;
   
-  vector<int> ids;
+  vector<string> ids;
   
   vector<vector <double*> > data;
+  vector<vector <double> >  weighted_data;
   vector<vector <double*> > prediction;
 
   vector<scale_factor_ptr> scale;
   
   vector<double> scores;
   vector<double> weights;
-  double min_weight;
+  
+  double scale_to;
+  double min_data;
+  double divisor;
   
   double score;
   
-  // weighting functions
-  typedef void (Score::*WFP)();
-  vector<WFP> weight_functs;
+  // data scaling functions
   void area();
   void height();
-  void height2();
-  void gene_number();
-  void nuc_number();
+  void none();
+  
+  void per_gene();
+  void per_nuc();
   
   // scoring functions
   typedef void (Score::*SFP)();

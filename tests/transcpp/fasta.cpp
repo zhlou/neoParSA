@@ -9,13 +9,14 @@
 #include "fasta.h"
 
 #include <boost/foreach.hpp>
-#include <boost/range/adaptor/map.hpp>
+//#include <boost/range/adaptor/map.hpp>
 #include <limits>
 #include <map>
+#include <sstream>
 
 #define foreach_ BOOST_FOREACH
 
-using namespace boost::adaptors;
+typedef map<string, string>::iterator seqs_iter_type;
 
 /*    Constructors    */
 
@@ -35,8 +36,10 @@ string& Fasta::getSeq(string& name)
   
   if (seqs.find(name) == seqs.end())
   {
-    cerr << "ERROR: could not find seq with name " << name << endl;
-    exit(1);
+    stringstream err;
+    err << "ERROR: could not find seq with name " << name << endl;
+    error(err.str());
+    return seqs.end()->second;  // you will never get here!
   }
   else
     return seqs[name];
@@ -49,6 +52,12 @@ void Fasta::read(string& fname)
 {
   string line;
   ifstream file(fname.c_str());
+  if (!file.good()) {
+    stringstream err;
+    err << "ERROR: Could not open file " << fname << endl;
+    error(err.str());
+  }
+	
   string seq_name;
   
   if (file.is_open())
@@ -61,6 +70,7 @@ void Fasta::read(string& fname)
         {
           nseqs++;
           seq_name = line.substr(1,line.length()-1);
+          names.push_back(seq_name);
         } 
         else
         {
@@ -73,10 +83,11 @@ void Fasta::read(string& fname)
 
 void Fasta::print(ostream& os)
 {
-  foreach_(string seq_name, seqs | map_keys)
+  for(seqs_iter_type it = seqs.begin(); it != seqs.end(); it++)
   {
-    os << '>' << seq_name << endl;
-    os << seqs[seq_name] << endl;
+    
+    os << '>' << it->first << endl;
+    os << it->second << endl;
   }
 }
           

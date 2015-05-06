@@ -17,11 +17,11 @@
 
 
 Cooperativity::Cooperativity():
-  Kcoop(param_ptr(new Parameter))
+  Kcoop(double_param_ptr(new Parameter<double>))
 {}
 
 Cooperativity::Cooperativity(distances_ptr distances, ptree& pt):
-  Kcoop(param_ptr(new Parameter))
+  Kcoop(double_param_ptr(new Parameter<double>))
 { 
   this->distances = distances;
   read(pt); 
@@ -34,6 +34,11 @@ void Cooperativity::getParameters(param_ptr_vector& p)
 {
   if (Kcoop->isAnnealed())
     p.push_back(Kcoop);
+}
+
+void Cooperativity::getAllParameters(param_ptr_vector& p)
+{
+  p.push_back(Kcoop);
 }
 
 pair<string,string> Cooperativity::getTFs()
@@ -74,7 +79,7 @@ void Cooperativity::write(ptree& pt)
   orientation_node.put("<xmlattr>.TT", TT);
   
   ptree& kcoop_node = coop_node.add("Kcoop", "");
-  Kcoop->write(kcoop_node);
+  Kcoop->write(kcoop_node, mode->getPrecision());
   
   coop_node.put("<xmlattr>.distance", dist->getName());
 }
@@ -126,6 +131,13 @@ void CooperativityContainer::getParameters(param_ptr_vector& p)
     coops[i]->getParameters(p);
 }
 
+void CooperativityContainer::getAllParameters(param_ptr_vector& p)
+{
+  int ncoops = coops.size();
+  for (int i=0; i<ncoops; i++)
+    coops[i]->getAllParameters(p);
+}
+
 
 /*    I/O   */
 
@@ -141,6 +153,7 @@ void CooperativityContainer::read(ptree& pt, distances_ptr distances)
     if ( !node.second.get<bool>("<xmlattr>.include", true) ) continue;
     
     coop_ptr cur_coop(new Cooperativity(distances, (ptree&) node.second));
+    cur_coop->setMode(mode);
     coops.push_back(cur_coop);
   }
 }

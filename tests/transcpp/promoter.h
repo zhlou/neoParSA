@@ -10,6 +10,7 @@
 #define PROMOTER_H
 
 #include "parameter.h"
+#include "mode.h"
 
 #include <map>
 #include <boost/property_tree/xml_parser.hpp>
@@ -22,7 +23,7 @@
 /************************   Functions   ****************************************/
 
 // Sigmoid shaped diffusion limited Arrhenius rate law
-double Arrhenius(double M, double max, double theta, double Q);
+//double Arrhenius(double M, double max, double theta, double Q);
 
 
 /************************    Promoter Class   ***********************************/
@@ -34,7 +35,8 @@ private:
   string name;
   string func_name;
   
-  map<string, param_ptr> params;
+  map<string, double_param_ptr> params;
+  mode_ptr mode;
   
   boost::function<double (double)> rateFunc;
   
@@ -46,9 +48,11 @@ public:
   // Getters
   string& getName() {return name;}
   void    getParameters(param_ptr_vector& p);
+  void    getAllParameters(param_ptr_vector& p);
   double  getRate(double M) { return rateFunc(M); }
   
   // Setters
+  void setMode(mode_ptr mode) { this->mode = mode; }
   
   // I/O
   void read(ptree& pt);
@@ -64,6 +68,7 @@ class PromoterContainer
 {
 private:
   map<string, promoter_ptr> promoters;
+  mode_ptr mode;
   
 public:
   //Constructors
@@ -73,8 +78,10 @@ public:
   // Getters
   promoter_ptr getPromoter(string& name) {return promoters[name];}
   void         getParameters(param_ptr_vector& p);
+  void         getAllParameters(param_ptr_vector& p);
   
   // Setters
+  void setMode(mode_ptr mode) { this->mode = mode; }
   
   // I/O
   void read(ptree& pt);

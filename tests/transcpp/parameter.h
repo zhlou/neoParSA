@@ -13,78 +13,140 @@
 #include <boost/property_tree/xml_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/any.hpp>
+
+#include "sequence.h"
+#include "pwm.h"
 
 using namespace std;
 using boost::property_tree::ptree;
 
-/* for now paramters will be of type double, but I will consider templating this
-in the future */
 
+/* 
+Ok, this class got a lot more sophisticated! Parameters are now templated
+and abstracted. The basic functions are handled by an interface class that serves
+as a base class to all the templated classes. This way, we can hold a vector of
+pointers to the individual parameters using the interface class and tweak can
+be called without knowing the actual type of the parameter.
 
-class Parameter
+To add new parameter types the user must override the functions that operate on
+the value itself, such as the get and set value functions, checkLimits, and tweak
+*/
+
+class ParameterInterface
 {
-private:
+protected:
+  ptree* node;            // points to the node used to create this (useful in scrambling)
+
   string param_name;
+  string type;
   string tf_name;
-  
-  double value;           // the value of the parameter
-  double previous_value;  // the last value the parameter had
-  
-  double lim_low;
-  double lim_high;
-  
+  string move_func;
+  string restore_func;
+
   bool out_of_bounds;     // is it outside of the limits?
   bool anneal;            // are we ever tweaking it?
   
-  bool checkLimits();
-  
   bool tf_name_set;
+  
+  unsigned int seed;      // seed used for random number generation
+  
+  virtual bool checkLimits() = 0;
+  void setTypeName();
+
+public:
+  
+  // Getters
+  bool isOutOfBounds() { return out_of_bounds; }
+  bool isAnnealed()    { return anneal;        }
+  bool is_tf_param()   { return tf_name_set;   }
+
+  const string& getParamName() { return param_name;   }
+  const string& getTFName()    { return tf_name;      }
+  const string& getMove()      { return move_func;    }
+  const string& getRestore()   { return restore_func; }  
+  const string& getType()      { return type;         }
+  
+  // Setters
+  void setParamName(const string& s) { this->param_name   = s;   }
+  void setTFName(const string& s)    { this->tf_name      = s; tf_name_set = true; }
+  void setAnnealed(bool b)           { this->anneal       = b;   }
+  void setMove(string s)             { this->move_func    = s;   }
+  void setRestore(string s)          { this->restore_func = s;   }
+  void setType(string type)          { this->type = type;        }
+  
+  // Methods
+  virtual void scramble(double) = 0;
+  virtual void tweak(double)    = 0;
+  virtual void restore()        = 0;
+  
+  // Serialize
+  virtual void   serialize(void *buf) const   = 0;
+  virtual void   deserialize(void const *buf) = 0;
+  virtual size_t getSize()                    = 0;
+  
+  // I/O
+  virtual void write(ptree& pt, int precision) const   = 0;
+  virtual void print(ostream& os)                      = 0;
+  virtual void printHeader(ostream& os)                = 0;
+};
+  
+template< typename T> 
+class Parameter : public ParameterInterface
+{
+private:
+  T value;           // the value of the parameter
+  T previous_value;  // the last value the parameter had
+  
+  double lim_low;
+  double lim_high;
+ 
+  bool checkLimits();
+  void setTypeName();
   
 public:
   // Constructor 
   Parameter();
+  Parameter(string s) { param_name = s; }
   Parameter(ptree& pt);
+  Parameter(string, ptree& pt);
   
   void read(ptree& pt);
   
   // Getters
-  double& getValue();
-  double getPrevious() const;
+  T& getValue();
+  T getPrevious() const;
+  
   double getLimHigh() const;
   double getLimLow() const;
   
-  bool isOutOfBounds();  
-  bool isAnnealed();
-  
-  const string& getParamName();
-  const string& getTFName();
-  
-  bool is_tf_param();
-  
   // Setters
-  void set(double);
-  void setParamName(const string&);
-  void setTFName(const string&);
+  void set(T);
   void setLimits(double low, double high);
-  void setAnnealed(bool b) { anneal = b; }
-  
   
   // Methods
   void scramble(double);
   void tweak(double delta);
   void restore();
   
+  // Serialize
+  void   serialize(void *buf) const;
+  void   deserialize(void const *buf);
+  size_t getSize();                    
+  
   // Output
-  void write(ptree& pt) const;
+  void write(ptree& pt, int precision) const;
   void print(ostream& os);
+  void printHeader(ostream& os);
 };
 
-typedef boost::shared_ptr<Parameter> param_ptr;
-typedef vector<param_ptr> param_ptr_vector;
+typedef boost::shared_ptr<Parameter<double>   > double_param_ptr;
+typedef boost::shared_ptr<Parameter<int>      > int_param_ptr;
+typedef boost::shared_ptr<Parameter<Sequence> > seq_param_ptr;
+typedef boost::shared_ptr<Parameter<PWM>      > pwm_param_ptr;
+typedef boost::shared_ptr<ParameterInterface>   iparam_ptr;
 
-
-
-
+typedef vector<iparam_ptr> param_ptr_vector;
 
 
 #endif

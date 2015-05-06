@@ -9,16 +9,27 @@
 #include "subgroup.h"
 #include <boost/foreach.hpp>
 #include <algorithm>
-#include <boost/range/adaptor/map.hpp>
 #include <limits>
 #include <math.h>
 #include <climits>
-
-using namespace boost::adaptors;
+#include <boost/unordered_map.hpp>
 
 #define foreach_ BOOST_FOREACH
 
 /********************************   Subgroup    *********************************/
+
+
+/*
+bool compareBindingSiteRight(BindingSite* a, BindingSite* b)
+{
+  return(a->n < b->n);
+}
+
+bool compareBindingSiteLeft(BindingSite* a, BindingSite* b)
+{
+  return(a->m > b->m);
+}*/
+
 
 /*    Constructors    */
 
@@ -121,16 +132,6 @@ bool Subgroup::checkCoop(BindingSite* site1)
 bool Subgroup::overlaps(BindingSite* site1, BindingSite* site2)
 {
   return ( site1->m < site2->n && site2->m < site1->n);
-}
-
-bool compareBindingSiteRight(BindingSite* a, BindingSite* b)
-{
-  return(a->n < b->n);
-}
-
-bool compareBindingSiteLeft(BindingSite* a, BindingSite* b)
-{
-  return(a->m > b->m);
 }
 
 void Subgroup::sort()
@@ -281,6 +282,7 @@ iterate_partition(vector<Partition>& p, vector<BindingSite*>& sites, int site_in
       int    coop_site = cur_part.coop_site[j]; // the site it coops with
       int    coop_past = cur_part.coop_past[j];
       double dfunk     = cur_part.dist_coef[j];
+      kcoop *= dfunk;
       
       vector<double>& coopkv = sites[coop_site]->kv;
       
@@ -323,38 +325,11 @@ void Subgroup::occupancy()
     iterate_partition(ZF, sites_f, i); // Z0 now holds all the partitions
     iterate_partition(ZR, sites_r, i);
   }
-  
-  /*
-  for (int i=0; i<nsites+1; i++)
-    cerr << ZF[i].Z[0] << ' ';
-  cerr << endl;
-  
-  for (int i=0; i<nsites+1; i++)
-    cerr << ZR[i].Z[0] << ' ';
-  cerr << endl;
-  
-  for (int i=0; i<nsites+1; i++)
-    cerr << ZF[i].Znc[0] << ' ';
-  cerr << endl;
-  
-  for (int i=0; i<nsites+1; i++)
-    cerr << ZF[i].Zc[0] << ' ';
-  cerr << endl;
-  
-  for (int i=0; i<nsites+1; i++)
-    cerr << ZR[i].Znc[0] << ' ';
-  cerr << endl;
-  
-  for (int i=0; i<nsites+1; i++)
-    cerr << ZR[i].Zc[0] << ' ';
-  cerr << endl;*/
-  
+   
   vector<double>& Z = ZF[nsites].Z;
-  
- 
+
   for (int i=0; i<nsites; i++)
   { 
-    int f_idx = i;
     int r_idx = f2r[i];
     
     vector<double>& zfnc = ZF[i+1].Znc;
@@ -383,24 +358,6 @@ void Subgroup::occupancy()
       }
     }
   }
-  /*
-  for (int i=nsites-1; i>=0; i--) // i indexes the site we are calcing frac occ for
-  {
-    if (sites[i]->tf->getName() == "nucleosome") continue;
-    
-    skip_weight_f(Zf, i);
-    for (int j=i+1; j<nsites; j++) 
-      calc_weight_f(Zf, j); // Z0 now holds the partial partition function of site i
-    
-    for (int j=0; j<nnuc; j++)
-    {
-      double f = 1 - Zf[j][nsites]/Z[j];
-      sites[i]->total_occupancy[j] = f;
-      sites[i]->mode_occupancy[0][j] = f;
-    }
-  }*/
-  
-  
 }
       
 
@@ -438,6 +395,11 @@ void Subgroups::clear()
   groups.clear();
 }
 
+void Subgroups::clear(Gene& gene)
+{
+  groups[&gene].clear();
+}
+
 
 void Subgroups::create(genes_ptr g, tfs_ptr t, bindings_ptr b, mode_ptr m)
 {
@@ -451,13 +413,17 @@ void Subgroups::create(genes_ptr g, tfs_ptr t, bindings_ptr b, mode_ptr m)
 
 void Subgroups::addSites(Gene& gene)
 {
-  map<TF*, site_ptr_vector>& gene_sites = bindings->getSites(gene);
+  boost::unordered_map<TF*, site_ptr_vector>& gene_sites = bindings->getSites(gene);
   list<Subgroup>& gene_groups = groups[&gene];
-  foreach_(site_ptr_vector sites, gene_sites | map_values)
-  {
+  
+  int ntfs = tfs->size();
+  for(int i=0; i<ntfs; i++)
+  {  
+    TF& tf = tfs->getTF(i);
+    site_ptr_vector& sites = gene_sites[&tf];
     int nsites = sites.size();
-    for (int i=0; i<nsites; i++)
-      addSite(gene_groups, sites[i]);
+    for (int j=0; j<nsites; j++)
+      addSite(gene_groups, sites[j]);
   }
   
   list<Subgroup>::iterator i;
@@ -508,32 +474,58 @@ void Subgroups::update()
   for (int i=0; i<ngenes; i++)
   {
     Gene& gene = genes->getGene(i);
-    groups[&gene].clear();
-    addSites(gene);
+    update(gene);
   }
+}
+
+void Subgroups::update(Gene& gene)
+{
+  groups[&gene].clear();
+  addSites(gene);
 }
  
 
 void Subgroups::calc_f()
 {
-  list<Subgroup>::iterator i;
-
-  foreach_(list<Subgroup>& gene_groups, groups | map_values)
+  int ngenes = genes->size();
+  
+  for (int i=0; i<ngenes; i++)
   {
+    Gene& gene = genes->getGene(i);
+    list<Subgroup>& gene_groups = groups[&gene];
     list<Subgroup>::iterator i;
     for (i=gene_groups.begin(); i != gene_groups.end(); ++i)
       i->occupancy();
   }
-} 
+}
+
+void Subgroups::calc_f(Gene& gene)
+{
+  list<Subgroup>& gene_groups = groups[&gene];
+  list<Subgroup>::iterator i;
+  for (i=gene_groups.begin(); i != gene_groups.end(); ++i)
+    i->occupancy();
+}
+
 
 void Subgroups::save()
 {
   saved_groups = groups;
 }
 
+void Subgroups::save(Gene& gene)
+{
+  saved_groups[&gene] = groups[&gene];
+}
+
 void Subgroups::restore()
 {
   groups = saved_groups;
+}
+
+void Subgroups::restore(Gene& gene)
+{
+  groups[&gene] = saved_groups[&gene];
 }
 
 void Subgroups::print(ostream& os)

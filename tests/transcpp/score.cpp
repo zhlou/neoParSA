@@ -10,9 +10,19 @@
 
 
 #include "score.h"
+#include "utils.h"
 
 
 /*****************  Scoring Functions  ******************************************/
+
+/* Be careful when creating scoring functions. These must NEVER SCALE THE DATA!!!
+If the data is scaled during anealing, most score functions will prefer the
+lowest scale factor possible. This is the case of the score function used in 
+Kim2013, which is now provided only for reverse-compatibility */
+
+/* A scale factor says how the data would have to be scaled to fit the rates
+predicted. Unscaling means changing the rates to fit the data, which turns
+out to be a more useful function */
 
 void Score::sse()
 {
@@ -20,28 +30,49 @@ void Score::sse()
   
   for (int i=0; i<ngenes; i++)
   {
+    //cerr << genes->getGene(i).getName() << endl;
+    
     scale_factor_ptr tscale = scale[i];
-    double A = tscale->getA()->getValue();
-    vector<double*>& gdata  = data[i];
+    //double A = tscale->getA()->getValue();
+    //vector<double*>& gdata  = data[i];
+    
+    vector<double>& wgdata  = weighted_data[i];
     vector<double*>& gpred  = prediction[i];
     
-    int length = gdata.size();
+    int length = wgdata.size();
+    double tweight = weights[i];
+    //cerr << tweight << endl;
     double sse = 0;
     
     for (int j=0; j<length; j++)
     {
-      double tdata = *gdata[j];
+      //double tdata = *gdata[j];
+      
+      double tdata = wgdata[j];
       double tpred = *gpred[j];
+      
+      //cerr << *data[i][j] << " ";
+      //cerr << tdata << " ";
+      //cerr << tpred << " ";
+      
+      //tpred = tpred
 
-      tpred = tscale->unscale(tpred);
+      tpred = tscale->unscale(tpred * tweight);
+      
+      //cerr << tpred << endl;
+       
+      //cerr << tdata << " " << tpred << endl;
       
       double diff = tdata - tpred;
       sse += diff*diff;
     }
-    sse *= A*A;
     scores[i] = sse;
   }
 }
+
+/* a real chisq score! Note that this is unstable when the data approaches 0,
+so instead we substitute the minimum weight specified in the mode node for values
+lower than minimum weight */
 
 void Score::chisq()
 {
@@ -49,8 +80,9 @@ void Score::chisq()
   
   for (int i=0; i<ngenes; i++)
   {
+    //cerr << genes->getGene(i).getName() << endl;
+    
     scale_factor_ptr tscale = scale[i];
-    double mw = tscale->unscale(min_weight);
     vector<double*>& gdata  = data[i];
     vector<double*>& gpred  = prediction[i];
     
@@ -63,15 +95,17 @@ void Score::chisq()
       double tpred = *gpred[j];
       
       tpred = tscale->unscale(tpred);
-      tdata = max(tdata, mw);
-      tpred = max(tpred, mw);
       
       double diff = tdata - tpred;
-      chisq += diff*diff/tdata;
+      //cerr << "( " << tdata << " - " << tpred << " )^2 / " << max(tdata, min_data) << " = " << diff*diff/max(tdata, min_data) << endl;
+      chisq += diff*diff/max(tdata, min_data);
     }
     scores[i] = chisq;
   }
 }
+
+/* The percent difference between data and fit. Same as chisq, but with abs() 
+instead of square */
 
 void Score::pdiff()
 {
@@ -80,7 +114,6 @@ void Score::pdiff()
   for (int i=0; i<ngenes; i++)
   {
     scale_factor_ptr tscale = scale[i];
-    double mw = tscale->unscale(min_weight);
     vector<double*>& gdata  = data[i];
     vector<double*>& gpred  = prediction[i];
     
@@ -93,15 +126,15 @@ void Score::pdiff()
       double tpred = *gpred[j];
 
       tpred = tscale->unscale(tpred);
-      tdata = max(tdata, mw);
-      tpred = max(tpred, mw);
       
       double diff = tdata - tpred;
-      pdiff += abs(diff)/tdata;
+      pdiff += abs(diff)/max(tdata, min_data);
     }
     scores[i] = pdiff;
   }
 }
+
+/* root mean squared differences */
 
 void Score::rms()
 {
@@ -110,7 +143,6 @@ void Score::rms()
   for (int i=0; i<ngenes; i++)
   {
     scale_factor_ptr tscale = scale[i];
-    double mw = tscale->unscale(min_weight);
     vector<double*>& gdata  = data[i];
     vector<double*>& gpred  = prediction[i];
     
@@ -123,8 +155,6 @@ void Score::rms()
       double tpred = *gpred[j];
 
       tpred = tscale->unscale(tpred);
-      tdata = max(tdata, mw);
-      tpred = max(tpred, mw);
       
       double diff = tdata - tpred;
       rms += diff*diff;
@@ -172,7 +202,10 @@ void Score::arkim()
     scores[i] *= max_area/area[i];
 }
 
-// score based on slopes
+/* Takes the "slopes" of each pair of data points and finds the sum
+of squared slope differences between data and model. Not sure how well
+this will work for the boundary conditions */
+
 void Score::sum_slope_squares()
 {
   int ngenes = genes->size();
@@ -200,87 +233,81 @@ void Score::sum_slope_squares()
 
 /*****************  Weight Functions  *******************************************/
 
+/* We run into a problem when different constructs have different magnitudes. 
+Higher expressing constructs (or higher bit-content data) result in higher
+scores with many types of scoring functions. The following functions attempt to
+set weights for different genes in the scoring function, each according to 
+different rules. */
+
+/* Multiple weight functions can be used. This might be useful to compare scores
+for fits with multiple constructs and different numbers of nuclei. If we divide
+scores by the number of genes and nuclei, scores will be roughly comparable. */
+
+
+/* score all constructs as if the area under the curve were equal to max_weight */
 void Score::area()
 {
-  double max_area = 0.0;
   int    ngenes   = genes->size();
   vector<double> gene_area;
   gene_area.resize(ngenes,0.0);
   
   for (int i=0; i<ngenes; i++)
-  {
-    //double tmin = scale[i]->unscale(min_weight);
-    
+  {  
     int ndata = data[i].size();
     for (int j=0; j<ndata; j++)
-      gene_area[i] += max(scale[i]->scale(*data[i][j]), min_weight);
-    max_area = max(max_area, gene_area[i]);
+      gene_area[i] += max(*data[i][j], min_data);
   }
   for (int i=0; i<ngenes; i++)
   {
-    double A = scale[i]->getA()->getValue();
-    weights[i] *= (max_area)/(gene_area[i]);
+    Gene& gene = genes->getGene(i);
+    weights[i] = gene.getWeight();
+    weights[i] *= scale_to / gene_area[i];
+    int ndata = data[i].size();
+    for (int j=0; j<ndata; j++)
+      weighted_data[i][j] = *data[i][j] * weights[i];
   }
 }
 
+/* score all constructs as if the maximum height were equal to max_weight */
 void Score::height()
 {
-  double max_height = 0.0;
   int    ngenes   = genes->size();
   vector<double> gene_height;
   gene_height.resize(ngenes,0.0);
-  
-  
+
   for (int i=0; i<ngenes; i++)
   {
     int ndata = data[i].size();
-    gene_height[i] = min_weight;
+    gene_height[i] = min_data;
     for (int j=0; j<ndata; j++)
-      gene_height[i] = max(gene_height[i],scale[i]->scale(*data[i][j]));
-    max_height = max(max_height, gene_height[i]);
+      gene_height[i] = max(gene_height[i],*data[i][j]);
   }
   for (int i=0; i<ngenes; i++)
-    weights[i] *= max_height/gene_height[i];
+  {
+    Gene& gene = genes->getGene(i);
+    weights[i] = gene.getWeight();
+    weights[i] *= scale_to / gene_height[i];
+    int ndata  = data[i].size();
+    for (int j=0; j<ndata; j++)
+      weighted_data[i][j] = *data[i][j] * weights[i];
+  }
 }
 
-void Score::height2()
+/* if we arent scaling the data we still need to populate weights and 
+weighted data for scoring */
+
+void Score::none()
 {
-  double max_height = 0.0;
   int    ngenes   = genes->size();
-  vector<double> gene_height;
-  gene_height.resize(ngenes,0.0);
-  
-  
   for (int i=0; i<ngenes; i++)
   {
-    int ndata = data[i].size();
-    gene_height[i] = scale[i]->unscale(min_weight);
+    Gene& gene = genes->getGene(i);
+    weights[i] = gene.getWeight();
+    int ndata  = data[i].size();
     for (int j=0; j<ndata; j++)
-      gene_height[i] = max(gene_height[i], *data[i][j] );
-    max_height = max(max_height, gene_height[i]);
-  }
-  for (int i=0; i<ngenes; i++)
-  {
-    weights[i] *= 1/(gene_height[i]*gene_height[i]);
-    //cerr << "weight for " << genes->getGene(i).getName() << ": " << weights[i] << endl;
+      weighted_data[i][j] = *data[i][j] * weights[i];
   }
 }
-
-void Score::gene_number()
-{
-  int ngenes = genes->size();
-  for (int i=0; i<ngenes; i++)
-    weights[i] /= ngenes;
-}
-
-void Score::nuc_number()
-{
-  int ngenes = genes->size();
-  int nnuc   = data[0].size();
-  for (int i=0; i<ngenes; i++)
-    weights[i] /= nnuc;
-}
-
 
 /********************************************************************************/
 
@@ -301,12 +328,13 @@ void Score::set(Organism* parent)
   genes = parent->getGenes();
   ids   = parent->getIDs();
   
-  conc_ptr rates = parent->getRateData();
+  table_ptr rates = parent->getRateData();
     
   int ngenes = genes->size();
   int nids   = ids.size();
   
   data.resize(ngenes);
+  weighted_data.resize(ngenes);
   prediction.resize(ngenes);
   scores.resize(ngenes);
   weights.resize(ngenes);
@@ -315,66 +343,65 @@ void Score::set(Organism* parent)
   for (int i=0; i<ngenes; i++)
   {
     Gene& gene = genes->getGene(i);
-    const string& gname = gene.getName();
-    scale[i] = rates->getScale(gname); 
+    if (!gene.getInclude()) continue;
+    scale[i] = gene.getScale(); 
     data[i].resize(nids);
+    weighted_data[i].resize(nids);
     prediction[i].resize(nids);
-
+    
     for (int j=0; j<nids; j++)
     {
-      data[i][j]       = parent->getData(gene, ids[j], false);
+      data[i][j]       = parent->getData(gene, ids[j]);
       prediction[i][j] = parent->getPrediction(gene, ids[j]);
     }
   }
   
-  if (mode->scoreFunction() == "sse")
+  if (mode->getScoreFunction() == "sse")
     scoreFunc = &Score::sse;
-  else if (mode->scoreFunction() == "chisq")
+  else if (mode->getScoreFunction() == "chisq")
     scoreFunc = &Score::chisq;
-  else if (mode->scoreFunction() == "pdiff")
+  else if (mode->getScoreFunction() == "pdiff")
     scoreFunc = &Score::pdiff;
-  else if (mode->scoreFunction() == "rms")
+  else if (mode->getScoreFunction() == "rms")
     scoreFunc = &Score::rms;
-  else if (mode->scoreFunction() == "arkim")
+  else if (mode->getScoreFunction() == "arkim")
     scoreFunc = &Score::arkim;
-  else if (mode->scoreFunction() == "sss")
+  else if (mode->getScoreFunction() == "sss")
     scoreFunc = &Score::sum_slope_squares;
   else
   {
-    cerr << "ERROR: could not find score function with name " << mode->scoreFunction() << endl;
-    exit(1);
+    stringstream err;
+    err << "ERROR: could not find score function with name " << mode->getScoreFunction() << endl;
+    error(err.str());
   }
   
-  min_weight = mode->getMinWeight();
-  if (mode->getWeightFunction("area"))
-    weight_functs.push_back(&Score::area);
-  if (mode->getWeightFunction("height"))
-    weight_functs.push_back(&Score::height);
-  if (mode->getWeightFunction("height2"))
-    weight_functs.push_back(&Score::height2);
-  if (mode->getWeightFunction("ngenes"))
-    weight_functs.push_back(&Score::gene_number);
-  if (mode->getWeightFunction("nnuc"))
-    weight_functs.push_back(&Score::nuc_number);
-
+  min_data = mode->getMinData();
   
-  setWeights();
-}
-
-/* the sum of all weights should always equal 1, that way the optimizer
-does not attempt to lower the weights instead of fit the data! */
-void Score::setWeights()
-{
-  int ngenes = genes->size();
-  for (int i=0; i<ngenes; i++)
-    weights[i] = 1.0;
-  
-  int nfuncs = weight_functs.size();
-  for (int i=0; i<nfuncs; i++)
+  if (mode->getScaleData())
   {
-    WFP fp = weight_functs[i];
-    (this->*fp)();
-  } 
+    string type = mode->getScaleDataType();
+    scale_to    = mode->getScaleTo();
+    if (type == string("area"))
+      area();
+    else if (type == string("height"))
+      height();
+    else
+      none();
+  }
+  else
+    none();
+  
+  divisor = 1.0;
+  if (mode->getPerGene())
+  {
+    int n = 0;
+    for (int i=0; i<genes->size(); i++)
+      if (genes->getGene(i).getInclude()) { n++; }
+    divisor *= n;
+  }
+  if (mode->getPerNuc())
+    divisor *= ids.size();
+  
 }
  
 
@@ -397,20 +424,26 @@ void Score::checkScale(ostream& os)
       saved_pred[i].push_back(*prediction[i][j]);
     }
   }
-  
-  // test mutiplying data and prediction by 1 through 5
-  for (int i=1; i<6; i++)
+    
+  os << "Trying score function when prediction is 0 everywhere" << endl;
+  for (int j=0; j<ngenes; j++)
   {
-    for (int j=0; j<ngenes; j++)
-    {
-      scale[j]->getA()->set(i);
-      int length = data[j].size();
-      for (int k=0; k<length; k++)
-        *data[j][k] = scale[j]->unscale(saved_data[j][k]);
-    }
-    setWeights();
-    os << "when scale factor is " << i << " score is " << getScore() << endl;
+    int length = data[j].size();
+    for (int k=0; k<length; k++)
+      *prediction[j][k] = 0;
   }
+  getScore();
+  print(os);
+  os << "Trying score function when prediction is twice the data" << endl;
+  for (int j=0; j<ngenes; j++)
+  {
+    int length = data[j].size();
+    for (int k=0; k<length; k++)
+      *prediction[j][k] = scale[j]->scale(*data[j][k])*2;
+  }
+  getScore();
+  print(os);
+  
 }
     
   
@@ -423,7 +456,8 @@ double Score::getScore()
   
   for (int i=0; i<ngenes; i++)
   {   
-    double tmpscore = scores[i] * weights[i];
+    double tmpscore = scores[i] / divisor;
+    //cerr << "scores[" << i << "] / divisor = " << scores[i] << " / " << divisor << " = " << tmpscore << endl;
     score += tmpscore;
   }
   return score;
@@ -434,26 +468,20 @@ void Score::print(ostream& os)
   int ngenes = genes->size();
   
   os << setw(14) << "Name";
-  os << setw(14) << "Score";
-  os << setw(14) << "Weight";
-  os << setw(14) << "Product" << endl;
+  os << setw(14) << "Score" << endl;
   
   double total = 0.0;
   
   for (int i=0; i<ngenes; i++)
   {
-    total += scores[i];
+    if (!genes->getGene(i).getInclude()) continue; 
+    total += scores[i] / divisor;
     os << setw(14) << genes->getGene(i).getName();
-    os << setw(14) << setprecision(5) << scores[i];
-    os << setw(14) << setprecision(5) << weights[i];
-    os << setw(14) << setprecision(5) << scores[i]*weights[i] << endl;
+    os << setw(14) << setprecision(5) << scores[i] / divisor << endl;
   }
-  double weighted_score = getScore();
-  os << "----------------------------------------------------------" << endl;
+  os << "-----------------------------" << endl;
   os << setw(14) << "Total";
-  os << setw(14) << setprecision(5) << total;
-  os << setw(14) << " ";
-  os << setw(14) << setprecision(5) << weighted_score << endl;
+  os << setw(14) << setprecision(5) << total << endl;
 }
     
    

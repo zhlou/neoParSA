@@ -16,7 +16,7 @@
 #include "distance.h"
 #include "gene.h"
 #include "TF.h"
-#include "conc.h"
+#include "datatable.h"
 #include "score.h"
 
 #include "nuclei.h"
@@ -26,6 +26,7 @@
 #include "bindings.h"
 #include "scalefactor.h"
 #include "coeffects.h"
+#include "competition.h"
 
 using namespace std;
 
@@ -37,104 +38,127 @@ typedef boost::shared_ptr<Nuclei> nuclei_ptr;
 class Organism
 {
 private:
-  
-  mode_ptr       mode;
-  distances_ptr  distances;
-  tfs_ptr        master_tfs;      // may vary between nuclei
-  genes_ptr      master_genes;    // may vary between nuclei
-  conc_ptr       tfdata;
-  conc_ptr       ratedata;
-  promoters_ptr  promoters;
-  coops_ptr      coops;
-  coeffects_ptr  coeffects;
-  score_ptr      score_class;
-  
+ 
+  mode_ptr          mode;
+  distances_ptr     distances;
+  tfs_ptr           master_tfs;      // may vary between nuclei
+  genes_ptr         master_genes;    // may vary between nuclei
+  table_ptr         tfdata;
+  table_ptr         ratedata;
+  promoters_ptr     promoters;
   scale_factors_ptr scale_factors;
+  coeffects_ptr     coeffects;
+  score_ptr         score_class;
+  coops_ptr         coops;
+  competition_ptr   competition;
   
-  param_ptr_vector params; // typedef in parameter.h
-     
-  vector<nuclei_ptr> nuclei;
+  param_ptr_vector params; 
+  param_ptr_vector all_params;
   
-  ptree annealer_input;
-  ptree move;
-  ptree count_criterion;
-  ptree mix;
-  ptree lam;
-  void readAnnealing(ptree& pt);
+  nuclei_ptr nuclei;
   
   // we need to translate what is in nuclei objects to an array that corresponds
   // to the embryo itself. When we read in we store the order we read 
-  vector<int> ids;
+  vector<string> ids;
   
+  int move_count;
   double score_out;
+  double previous_score_out;
   
-  // move functions
+  /*  Move Functions  */
+  void setMoves();
   typedef void (Organism::*MFP)(int);
+  // just map input string to a move function, used for initialization
   map<string, MFP> move_map;
   map<string, MFP> restore_map;
   
-  void setMoves();
-  void checkParameters();
+  // the move function that gets called during annealing
+  vector<MFP> moves;
+  vector<MFP> restores;
   
-  void moveThreshold(int);
-  void restoreThreshold(int);
-  
-  void moveKmax(int);
-  void restoreKmax(int);
-
+  // the move functions
+  // void ResetAll(int); 
+  void moveScores(int);
+  void movePWM(int);
+  void moveSites(int);
   void moveLambda(int);
-  void restoreLambda(int);
-  
+  void moveKmax(int);
+  void moveCoopD(int);
+  void moveKcoop(int);
   void moveCoef(int);
-  void restoreCoef(int);
-  
-  void moveQuenchingCoef(int);
-  void restoreQuenchingCoef(int);
-  
   void moveQuenching(int);
-  void restoreQuenching(int);
-  
+  void moveQuenchingCoef(int);
   void moveCoeffect(int);
-  void restoreCoeffect(int);
+  void moveCoeffectEff(int);
+  void movePromoter(int);
+  void null_function(int);  
   
-  void moveScaleFactor(int);
-  void moveQ(int);
-    
+  // the restore functions
+  void restoreScores(int);
+  void restorePWM(int);
+  void restoreSites(int);
+  void restoreLambda(int);
+  void restoreKmax(int);
+  void restoreCoopD(int);
+  void restoreKcoop(int);
+  void restoreCoef(int);
+  void restoreQuenching(int);
+  void restoreQuenchingCoef(int);
+  void restoreCoeffect(int); 
+  void restoreCoeffectEff(int);   
+
 public:
   // Constructors
   Organism();
-  Organism(ptree &pt);
+  Organism(ptree &pt, mode_ptr);
+  Organism(string fname, string section);
   
-  void resetAll();
+  void initialize(ptree& pt);
   
   // Getters
-  conc_ptr       getTFData()         {return tfdata;         }
-  conc_ptr       getRateData()       {return ratedata;       }
-  promoters_ptr  getPromoters()      {return promoters;      } 
-  distances_ptr  getDistances()      {return distances;      }
-  genes_ptr      getGenes()          {return master_genes;   }
-  tfs_ptr        getTFs()            {return master_tfs;     }
-  mode_ptr       getMode()           {return mode;           }
-  scale_factors_ptr getScales()      {return scale_factors;  }
-  vector<int>    getIDs()            {return ids;            }
-  double*        getPrediction(Gene&,int);
-  double*        getData(Gene&,int,bool);
+  table_ptr         getTFData()         {return tfdata;         }
+  table_ptr         getRateData()       {return ratedata;       }
+  promoters_ptr     getPromoters()      {return promoters;      } 
+  distances_ptr     getDistances()      {return distances;      }
+  genes_ptr         getGenes()          {return master_genes;   }
+  tfs_ptr           getTFs()            {return master_tfs;     }
+  mode_ptr          getMode()           {return mode;           }
+  scale_factors_ptr getScales()         {return scale_factors;  }
+  nuclei_ptr        getNuclei()         {return nuclei;         }
+  competition_ptr   getCompetition()    {return competition;    }
+  vector<string>    getIDs()            {return ids;            }
+  double*           getPrediction(Gene&,string&);
+  double*           getData(Gene&,string&);
+  int               getNNuc()           {return ratedata->getNames("ID").size();}
+  int               getNGenes()         {return master_genes->size();}
+  double            getTotalScore()     {return get_score();}
+  vector<double>&   getN(int gidx);
+  bindings_ptr      getBindings();
   
   // Setters
   void populate_nuclei();
-  void populate_nuclei_multiple();
-  void populate_nuclei_single();
+  void setMode(mode_ptr mode) {this->mode = mode;}
+  void addTF(tf_ptr tf) { master_tfs->add(tf); Recalculate(); }
   
   // Methods
+  void Recalculate(); 
+  void ResetAll(int); 
   void score();
   void calc_f();
   void scramble();
+  void permute(string& table, string& by);
   void checkScale(ostream&);
+  void move(int idx);
 
+  iparam_ptr getParam(int idx) {return params[idx];}
+  string getParamName(int idx);
+
+  template < typename T >
+  int  getParamValue(int idx);
   
-  void moveKcoop(int);
-  void restoreKcoop(int);
-  void setParam(int idx, double val) {params[idx]->set(val);}
+  // Matlab
+  int test_int;
+  int test() {test_int++; return test_int;}
   
   // I/O
   void write(string, ptree& pt);
@@ -145,32 +169,33 @@ public:
   void printSites(TF& tf, ostream& os);             
   void printSites(Gene& gene, TF& tf, ostream& os); 
   
-  void printSubgroups(Gene& gene, ostream& os);
-  void printOccupancy(Gene& gene, ostream& os);
-  void printModeOccupancy(Gene& gene, ostream& os);
-  void printEffectiveOccupancy(Gene& gene, ostream& os);
+  void printScores(Gene& gene, ostream& os);         
   
-  void printRate(ostream& os);
-  void printRateData(ostream& os);
+  void printSubgroups(Gene& gene, ostream& os);
+  void printOccupancy(Gene& gene, ostream& os, bool invert);
+  void printModeOccupancy(Gene& gene, ostream& os, bool invert);
+  void printEffectiveOccupancy(Gene& gene, ostream& os, bool invert);
+  
+  void printRate(ostream& os, bool invert);
+  void printRateData(ostream& os, bool invert);
   void printScore(ostream& os);
+  
+  void printR2D(ostream& os);
+  void printN2D(ostream& os);
   
   
   // Annealing
   int    getDimension() const; 
   double get_score();
-	void   generateMove(int idx, double theta);
-	void   restoreMove(int idx);
-	void   serialize(void *buf) const;
-	void   deserialize(void const *buf);
-	int    getStateSize();
+  void   generateMove(int idx, double theta);
+  void   restoreMove(int idx);
+  void   serialize(void *buf) const;
+  void   deserialize(void const *buf);
+  int    getStateSize();
 };
   
-  
 
-
-
-
-
+typedef boost::shared_ptr<Organism> organism_ptr;
 
 
 

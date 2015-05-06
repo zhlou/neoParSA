@@ -11,6 +11,7 @@
 
 #include "parameter.h"
 #include "distance.h"
+#include "mode.h"
 
 #include <map>
 #include <boost/property_tree/xml_parser.hpp>
@@ -26,6 +27,7 @@ class Coeffect
 private:
   // sources of information
   distances_ptr distances;
+  mode_ptr      mode;
   
   // tfs involved
   string actor;
@@ -33,7 +35,7 @@ private:
   int    coef_idx; // what coef of the target this causes
   
   // parameters
-  param_ptr    efficiency;
+  double_param_ptr    efficiency;
   distance_ptr dist;
   
   // Orientations
@@ -48,6 +50,7 @@ public:
   
   // Getters
   void   getParameters(param_ptr_vector& p);
+  void   getAllParameters(param_ptr_vector& p);
   
   string& getActor()  { return actor; }
   string& getTarget() { return target; }
@@ -55,9 +58,11 @@ public:
   int     getIdx()        { return coef_idx; }
   
   double distFunc(double d) { return dist->getDistFunc(d); }
+  double getMaxDistance()   { return dist->getMaxDistance(); }
   
   // Setters
-  void setDist(distance_ptr d)    { dist = d;}
+  void setDist(distance_ptr dist) { this->dist = dist;}
+  void setMode(mode_ptr     mode) { this->mode = mode;}
     
   // I/O
   void read(ptree& pt);
@@ -76,6 +81,7 @@ class CoeffectContainer
 private:
   // sources of information
   distances_ptr distances;
+  mode_ptr      mode;
   
   vector<coeffect_ptr> coeffects;
   
@@ -87,10 +93,12 @@ public:
   // Getters
   coeffect_pairs getTargets(string tfname);
   void           getParameters(param_ptr_vector& p);
+  void           getAllParameters(param_ptr_vector& p);
   
   // Setters
   void add(coeffect_ptr c) {coeffects.push_back(c);}
   void setDistances(distances_ptr d) {distances = d;}
+  void setMode(mode_ptr mode) { this->mode = mode;}
   
   // I/O
   void read(ptree& pt, distances_ptr);

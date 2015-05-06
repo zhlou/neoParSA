@@ -38,8 +38,7 @@ struct Partition
   vector<double> Znc; // the partial partition function, non-cooperating 
 };
   
-bool compareBindingSiteRight(BindingSite* a, BindingSite* b);
-bool compareBindingSiteLeft(BindingSite* a, BindingSite* b);
+
 
 /* A subgroup is a collection of pointers to binding sites. */
 
@@ -113,9 +112,15 @@ public:
   void update();
   void restore();
   
+  void clear(Gene&);
+  void save(Gene&);
+  void update(Gene&);
+  void restore(Gene&);
+  
   void create(genes_ptr, tfs_ptr, bindings_ptr, mode_ptr); 
 
   void calc_f();
+  void calc_f(Gene&);
   //void calc_f(int nuc_idx);
   
   void print(ostream& os);

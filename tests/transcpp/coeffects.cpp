@@ -17,11 +17,11 @@
 
 
 Coeffect::Coeffect():
-  efficiency(param_ptr(new Parameter))
+  efficiency(double_param_ptr(new Parameter<double>))
 {}
 
 Coeffect::Coeffect(distances_ptr distances, ptree& pt):
-  efficiency(param_ptr(new Parameter))
+  efficiency(double_param_ptr(new Parameter<double>))
 { 
   this->distances = distances;
   read(pt); 
@@ -34,6 +34,11 @@ void Coeffect::getParameters(param_ptr_vector& p)
 {
   if (efficiency->isAnnealed())
     p.push_back(efficiency);
+}
+
+void Coeffect::getAllParameters(param_ptr_vector& p)
+{
+  p.push_back(efficiency);
 }
 
   
@@ -69,7 +74,7 @@ void Coeffect::write(ptree& pt)
   coeffect_node.put("<xmlattr>.include", true);
   
   ptree& efficiency_node = coeffect_node.add("efficiency", "");
-  efficiency->write(efficiency_node);
+  efficiency->write(efficiency_node, mode->getPrecision());
     
   ptree& orientation_node = coeffect_node.add("Orientation","");
   
@@ -119,6 +124,13 @@ void CoeffectContainer::getParameters(param_ptr_vector& p)
     coeffects[i]->getParameters(p);
 }
 
+void CoeffectContainer::getAllParameters(param_ptr_vector& p)
+{
+  int ncoefs = coeffects.size();
+  for (int i=0; i<ncoefs; i++)
+    coeffects[i]->getAllParameters(p);
+}
+
 
 /*    I/O   */
 
@@ -134,6 +146,7 @@ void CoeffectContainer::read(ptree& pt, distances_ptr distances)
     if ( !node.second.get<bool>("<xmlattr>.include", true) ) continue;
     
     coeffect_ptr cur_coef(new Coeffect(distances, (ptree&) node.second));
+    cur_coef->setMode(mode);
     coeffects.push_back(cur_coef);
   }
 }

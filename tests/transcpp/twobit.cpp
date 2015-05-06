@@ -6,7 +6,9 @@
 *                                                                                *
 *********************************************************************************/
 
-# include "twobit.h"
+#include "twobit.h"
+#include "utils.h"
+#include <sstream>
 
 using namespace std;
     
@@ -40,22 +42,23 @@ void TwoBit::readHeader(void)
   ifstream myFile(filename.c_str(), ios::in | ios::binary);
   uint32_t x;
   
+  stringstream err;
   if (!myFile.read((char*)&x, sizeof(uint32_t)))
   {
-    cerr << "ERROR: readHeader() could not read file " << filename << endl;
-    exit(1);
+    err << "ERROR: readHeader() could not read file " << filename << endl;
+    error(err.str());
   }
   if (x != 0x1A412743)
   {
-    cerr << "ERROR: readHeader() architecture did not return 0x1A412743" << endl;
-    exit(1);
+    err << "ERROR: readHeader() architecture did not return 0x1A412743" << endl;
+    error(err.str());
   }
   header.signature = x;
   myFile.read((char*)&x, sizeof(uint32_t));
   if (x != 0 ) 
   {
-    cerr << "ERROR: readHeader() version (" << x << ") not equal to 0!" << endl;
-    exit(1);
+    err << "ERROR: readHeader() version (" << x << ") not equal to 0!" << endl;
+    error(err.str());
   }
   header.version = x;
   myFile.read((char*)&x, sizeof(uint32_t));
@@ -155,8 +158,10 @@ int TwoBit::getN(string & chr)
     if (records[i].name == chr)
       return(i);
   }
-  cerr << "ERROR: getN() could not find chromosome " << chr << " in genome" << endl;
-  exit(1);
+  stringstream err;
+  err << "ERROR: getN() could not find chromosome " << chr << " in genome" << endl;
+  error(err.str());
+  return 0; // you will not get here!
 }
 
 
@@ -201,13 +206,15 @@ string TwoBit::getSequence(string& chr, int start, int end)
   }
   if ( (start < 0) | (end < 0) )
   {
-    cerr << "ERROR: getSequence() attempted to return negative coordinates" << endl;
-    exit(1);
+    stringstream err;
+    err << "ERROR: getSequence() attempted to return negative coordinates" << endl;
+    error(err.str());
   }
   if ( (end > records[idx].dnaSize) | (start > records[idx].dnaSize) )
   {
-    cerr << "ERROR: getSequence() attempted to return sequence longer than chromosome" << endl;
-    exit(1);
+    stringstream err;
+    err << "ERROR: getSequence() attempted to return sequence longer than chromosome" << endl;
+    error(err.str());
   }
   
   unsigned long fstart; // file starting read position 

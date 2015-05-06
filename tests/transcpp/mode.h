@@ -22,38 +22,99 @@
 using namespace std;
 using boost::property_tree::ptree;
 
+enum annealing_schedules { LAM = 0, EXP = 1};
+
 class Mode
 {
 private:
-  bool   multiple_subgroups;
+  string filename;         // the file name in the command line
+  
+  double scale_to;         // the value to scale to
+  double min_data;         // for functions that divide by data, the minimum to use
+  double p_thresh;         // for using p-value thresholds for pwms
+  double gc;               // the default gc content to use if unspecified in input
   string occupancy_method; // dynamic, combinations, sampling
-  string score_function;   // see, cc
-  map<string, bool> weight_functions; 
-  int min_weight;
+  string score_function;   // see, chisq, cc, etc
+  string scale_data_type;  // what function to use when scaling data
+  string seed_string;      // the seed string in the mode
+  bool   scale_data;       // do we want to scale the data?
+  bool   per_gene;         // report the score per gene
+  bool   per_nuc;          // report the score per nuc
+  bool   profiling;        // if true, just do initial loop and exit
+  bool   self_competition; // whether a TF can compete with itself
+  int    verbose;          // how much info to print during running
+  int    num_threads;      // if parallel, the number of threads to use
+  int    schedule;         // the annealing schhedule to use
+  int    precision;        // the precision of printed numbers in output
+  unsigned int seed;       // the seed after processing
+  
+  // promoter competition
+  bool   competition; // whether to use this mode
+  int    window;      // the window size
+  int    shift;       // the shift size
+  int    n;           // selectivity coefficient 
+  double t;           // threshold for interaction
   
   template< typename T> 
   void readNode(ptree&, string, T*, T);
-  void readWeightFunc(ptree&);
-  void writeWeightFunc(ptree&);
-  
+  void readScaleData(ptree&);
+  void readCompetition(ptree&);
+  void writeScaleData(ptree&);
+  void process_seed_string();
   
 public:
   // Constructors
   Mode();
-  Mode(ptree& pt);
+  Mode(string fname, ptree& pt);
+  Mode(string fname);
   
   // Getters
-  bool   multipleSubgroups() { return multiple_subgroups; }
-  string occupancyMethod()   { return occupancy_method;   }
-  string scoreFunction()     { return score_function;     }
-  
-  bool getWeightFunction(string);
-  bool getMinWeight() {return min_weight;}
+  string       getOccupancyMethod()    { return occupancy_method;   }
+  string       getScoreFunction()      { return score_function;     }
+  string       getScaleDataType()      { return scale_data_type;    }
+  double       getScaleTo()            { return scale_to;           }
+  double       getMinData()            { return min_data;           }
+  double       getPThresh()            { return p_thresh;           }
+  double       getGC()                 { return gc;                 }
+  bool         getPerGene()            { return per_gene;           }
+  bool         getPerNuc()             { return per_nuc;            }
+  bool         getProfiling()          { return profiling;          }
+  bool         getCompetition()        { return competition;        }
+  bool         getSelfCompetition()    { return self_competition;   }
+  bool         getScaleData()          { return scale_data;         }
+  int          getWindow()             { return window;             }
+  int          getShift()              { return shift;              }
+  int          getNumThreads()         { return num_threads;        }
+  int          getSchedule()           { return schedule;           }
+  int          getVerbose()            { return verbose;            }
+  int          getPrecision()          { return precision;          }
+  int          getN()                  { return n;                  }
+  int          getT()                  { return t;                  }
+  unsigned int getSeed()               { return seed;               }
   
   // Setters
-  void setMultipleSubgroups(bool v) { multiple_subgroups = v; }
-  void setOccupancyMethod(string v) { occupancy_method   = v; }
-  void setScoreFunction(string v)   { score_function     = v; }
+  void setOccupancyMethod(string occupancy_method) { this->occupancy_method = occupancy_method;   }
+  void setScoreFunction(string score_function)     { this->score_function   = score_function;     }
+  void setScaleDataType(string scale_data_type)    { this->scale_data_type  = scale_data_type;    }
+  void setScaleTo(double scale_to)                 { this->scale_to         = scale_to;           }
+  void setMinData(double min_data)                 { this->min_data         = min_data;           }
+  void setPThresh(double p_thresh)                 { this->p_thresh         = p_thresh;           }
+  void setGC(double gc)                            { this->gc               = gc;                 }
+  void setPerGene(bool per_gene)                   { this->per_gene         = per_gene;           }
+  void setPerNuc(bool per_nuc)                     { this->per_nuc          = per_nuc;            }
+  void setProfiling(bool profiling)                { this->profiling        = profiling;          }
+  void setCompetition(bool competition)            { this->competition      = competition;        }
+  void setSelfCompetition(bool self_competition)   { this->self_competition = self_competition;   }
+  void setScaleData(bool scale_data)               { this->scale_data       = scale_data;         }
+  void setWindow(int window)                       { this->window           = window;             }
+  void setShift(int shift)                         { this->shift            = shift;              }
+  void setNumThreads(int num_threads)              { this->num_threads      = num_threads;        }
+  void setSchedule(int schedule)                   { this->schedule         = schedule;           }
+  void setVerbose(int verbose)                     { this->verbose          = verbose;            }
+  void setPrecision(int precision)                 { this->precision        = precision;          }
+  void setN(int n)                                 { this->n                = n;                  }
+  void setT(int t)                                 { this->t                = t;                  }
+  void setSeed(unsigned int seed)                  { this->seed             = seed;               }
   
   // I/O
   void read(ptree& pt);

@@ -12,19 +12,20 @@
 #include "TF.h"
 #include "gene.h"
 #include "bindingsite.h"
-#include "conc.h"
+#include "datatable.h"
 
 #include <boost/shared_ptr.hpp>
+#include <boost/unordered_map.hpp>
 
 using namespace std;
 
 /* Binding sites were initialized as poitners because it makes it simple to
 ensure that subgroups and quenching interactions never point to null. This
-may or may not be what we actually want and should be considered in the
+may or may not be what we actually want and should be reconsidered in the
 future */
 
 
-typedef map<Gene*, map<TF*, site_ptr_vector> > site_map;
+typedef boost::unordered_map<Gene*, boost::unordered_map<TF*, site_ptr_vector> > site_map;
 typedef map<Gene*, map<TF*, TFscore> >         scores_map;
 
 
@@ -35,11 +36,14 @@ private:
   
   genes_ptr genes;
   tfs_ptr   tfs;
-  conc_ptr  tfdata;
+  table_ptr tfdata;
+  mode_ptr  mode;
   
+  vector<string> IDs;
+  /* // dont think i need these anymore
   map<int, int> id_2_idx;
   map<int, int> idx_2_id;
-  
+  */
   
   //scores[gene][tf] = TFscore
   scores_map scores;
@@ -48,6 +52,17 @@ private:
   // sites[gene][tf] -> BindingSite
   site_map sites;                    
   site_map saved_sites;
+  
+  /* it may be useful at some points to access sites according to their
+  order on DNA. I have done that here in the Bindings class so that many
+  other classes can get this information if necessary */
+  map<Gene*, vector<BindingSite*> > ordered_sites_f;
+  map<Gene*, vector<BindingSite*> > ordered_sites_r;
+
+  void order_sites(Gene&);
+  void add_to_ordered(Gene& gene, TF& tf);
+  void eraseTF(Gene& gene, TF& tf);
+  void verify_order(Gene& gene, TF& tf);
   
   map<TF*, vector<double> > conc;
   
@@ -58,21 +73,41 @@ private:
                   double lambda, double kmax, double maxscore,
                   vector<double>& v, int nmodes);
   
+  void trimOverlaps();
+  void trimOverlaps(Gene& gene, TF& tf);
+  
 public:
   
   // Constructors
   Bindings();
   
+  // Getters
+  vector<BindingSite*>& getFsites(Gene& gene) { return ordered_sites_f[&gene]; }
+  vector<BindingSite*>& getRsites(Gene& gene) { return ordered_sites_r[&gene]; }
+  site_ptr_vector& getSites(Gene&, TF&);
+  boost::unordered_map<TF*, site_ptr_vector>& getSites(Gene&);
+  TFscore& getScores(Gene& gene, TF& tf) { return scores[&gene][&tf]; }
+  
+  genes_ptr getGenes()  { return genes ; }
+  tfs_ptr getTFs()      { return tfs   ; }
+
   // Setters
-  void setGenes(genes_ptr g) {genes = g;  }  
-  void setTFs(tfs_ptr t)     {tfs = t;    }
-  void setTFData(conc_ptr c) {tfdata = c; }
+  void setGenes(genes_ptr g)  {genes  = g; }  
+  void setTFs(tfs_ptr t)      {tfs    = t; }
+  void setTFData(table_ptr c) {tfdata = c; }
+  void setMode(mode_ptr c)    {mode   = c; }
   
   void create();
   void clear();
   
   void createScores();
   void createSites();
+  
+  void create(Gene&);
+  void clear(Gene&);
+  
+  void createScores(Gene&);
+  void createSites(Gene&);
   
   void createScores(Gene&, TF&);  // score a gene for a tf 
   void createSites(Gene&, TF&);          
@@ -105,22 +140,49 @@ public:
   void saveEffectiveOccupancy();
   void restoreEffectiveOccupancy();
   
-  site_ptr_vector& getSites(Gene&, TF&);
-  map<TF*, site_ptr_vector>& getSites(Gene&);
+  // for moving one gene
+  void saveScores(Gene&, TF&);
+  void updateScores(Gene&, TF&);
+  void updateScores(Gene&);
+  void restoreScores(Gene&, TF&);
   
-  void addNuc(int nuc_id);
+  void saveSites(Gene&, TF&);
+  void updateSites(Gene&, TF&);
+  void updateSites(Gene&);
+  void restoreSites(Gene&, TF&);
+  
+  void updateK(Gene&, TF&);
+  void updateKandLambda(Gene&, TF&);
+  
+  void saveAllOccupancy(Gene&);
+  void restoreAllOccupancy(Gene&);
+  
+  void saveOccupancy(Gene&);
+  void restoreOccupancy(Gene&);
+  
+  void saveModeOccupancy(Gene&);
+  void restoreModeOccupancy(Gene&);
+  
+  void saveEffectiveOccupancy(Gene&);
+  void restoreEffectiveOccupancy(Gene&);
+  
+  void addNuc(string& nuc_id);
   int  getNnuc() {return nnuc; }
+  
+  bool isEqual(Bindings& bindings);
   
   void printSites(ostream& os);
   void printSites(Gene& gene, ostream& os);
   void printSites(TF& tf,     ostream& os);
   void printSites(Gene& gene, TF& tf, ostream& os);
+  void printSites(Gene& gene, TF& tf, ostream& os, int, int);
   
   void printScores(ostream& os);
+  void printScores(Gene& gene, ostream& os);
   
-  void printTotalOccupancy(Gene& gene, ostream& os);
-  void printModeOccupancy(Gene& gene, ostream& os);
-  void printEffectiveOccupancy(Gene& gene, ostream& os);
+  void printTotalOccupancy(Gene& gene, ostream& os, bool invert);
+  void printModeOccupancy(Gene& gene, ostream& os, bool invert);
+  void printEffectiveOccupancy(Gene& gene, ostream& os, bool invert);
   
   
 };

@@ -26,6 +26,11 @@ struct BindingSite
   double score;
   double K_exp_part;  // a number from 0-1 where 0 is worst, 1 is best
   double K_exp_part_times_kmax;
+
+  // just keep track of where sites are in each structure;  
+  int index_in_site_map;
+  int index_in_ordered_f;
+  int index_in_ordered_r;
   
   /* we need to have information very accessible from binding sites so it is more
   convenient to store some information here on binding site creation */
@@ -41,6 +46,11 @@ struct BindingSite
   vector< vector<double> > saved_mode_occupancy;
   vector< vector<double> > saved_effective_occupancy;
 };
+
+bool compareBindingSiteRight(BindingSite* a, BindingSite* b);
+bool compareBindingSiteLeft(BindingSite* a, BindingSite* b);
+bool overlaps(BindingSite& site1, BindingSite& site2);
+bool bad_overlap_function(BindingSite& site1, BindingSite& site2);
 
 void printSiteHeader(ostream& os);
 

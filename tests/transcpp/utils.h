@@ -19,6 +19,10 @@ vector<int> string2int(const string& s);
 
 string int2string(const vector<int> & s);
 
+vector<char> int2char(const vector<int>& s);
+
+vector<int> char2int(const vector<char>& s);
+
 // error message
 
 void error(const string & error_message);

@@ -21,7 +21,8 @@ void printSiteHeader(ostream& os)
      << setw(w) << "end"
      << setw(w) << "score"
      << setw(w) << "K"
-     << setw(w) << "K*kmax";
+     << setw(w) << "K*kmax"
+     << setw(w) << "strand";
 }
 
 void printSite(BindingSite& b, ostream& os)
@@ -34,6 +35,86 @@ void printSite(BindingSite& b, ostream& os)
      << setw(w) << b.score 
      << setw(w) << b.K_exp_part
      << setw(w) << b.K_exp_part_times_kmax;
+  if (b.orientation == 'F')
+    os << setw(w) << "+";
+  else 
+    os << setw(w) << "-";
 }
 
 void printSite(BindingSite* b, ostream& os) { printSite(*b, os); }
+
+/*
+bool compareBindingSiteRight(BindingSite* a, BindingSite* b)
+{
+  return(a->n < b->n);
+}
+*/
+
+bool compareBindingSiteRight(BindingSite* a, BindingSite* b)
+{
+  int A = a->n;
+  int B = b->n;
+  
+  if (A < B)
+    return true;
+  else if (A > B)
+    return false;
+  else
+  {
+    TF& tfa = *(a->tf);
+    TF& tfb = *(b->tf);
+    int idxa = tfa.getIndex();
+    int idxb = tfb.getIndex();
+    if (idxa < idxb)
+      return true;
+    else if (idxa > idxb)
+      return false;
+    else if (a->orientation == 'F')
+      return true;
+    else
+      return false;
+  }
+}
+
+/*
+bool compareBindingSiteLeft(BindingSite* a, BindingSite* b)
+{
+  return(a->m > b->m);
+}
+*/
+
+bool compareBindingSiteLeft(BindingSite* a, BindingSite* b)
+{
+  int A = a->m;
+  int B = b->m;
+  
+  if (A > B)
+    return true;
+  else if (A < B)
+    return false;
+  else
+  {
+    TF& tfa = *(a->tf);
+    TF& tfb = *(b->tf);
+    int idxa = tfa.getIndex();
+    int idxb = tfb.getIndex();
+    if (idxa < idxb)
+      return true;
+    else if (idxa > idxb)
+      return false;
+    else if (a->orientation == 'F')
+      return true;
+    else
+      return false;
+  }
+}
+
+bool overlaps(BindingSite& site1, BindingSite& site2)
+{
+  return ( site1.m < site2.n && site2.m < site1.n);
+}
+
+bool bad_overlap_function(BindingSite& site1, BindingSite& site2)
+{
+  return ( site1.m <= site2.n && site2.m <= site1.n);
+}

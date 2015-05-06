@@ -12,6 +12,7 @@
 #include "parameter.h"
 #include "cooperativity.h"
 #include "coeffects.h"
+#include "mode.h"
 #include <vector>
 #include <string>
 #include <cstdlib>
@@ -25,53 +26,42 @@
 using namespace std;
 using boost::property_tree::ptree;
 
-
-/* struct holding the score of a TF over sequence */
-struct TFscore 
-{
-  //TF* tf;
-  vector<double> fscore;
-  vector<double> rscore;
-  vector<double> mscore;
-  double maxscore;
-};
-
 class TF : boost::noncopyable
 {
 private: 
-  vector< vector<double> > energy; // binding energy model
+  mode_ptr  mode;
+  
+  int    index;         // which index is this TF within an organism?
+  
+  pwm_param_ptr energy; // binding energy model
   string tfname;
-  int       pwmlen;
-  int       bsize;
-  double    gc;        // if the pwm was obtained from drosophila sequence it has a bias
-                       // against gc. This corrects for said bias.  
+  int       bsize;      // the footprint size of the TF
+  int       offset;     // the offset of the motif within a footprint (NOT IMPLEMENTED YET)
                        
-  param_ptr kmax;      // true binding affinity confounded with relative protein levels
-  param_ptr threshold;
-  param_ptr lambda;
+  double_param_ptr kmax;      // true binding affinity confounded with relative protein levels
+  double_param_ptr threshold; // a somewhat arbitrary cutoff to use for calling a binding site
+  double_param_ptr lambda;    // how much a mutation away from consensus effects ddG
   
-  vector<param_ptr> coefs;
+  vector<double_param_ptr> coefs;
   
-  double    maxscore;  // maximum score a TF can give
-  int       Nbehavior; // how to treat Ns in sequence 1: conservative (min) 2: median 3: aggressive (max)
+  // index is -log10(pval)*precision
+  vector<double> s2p;
 
   vector< pair<TF*, coop_ptr> >     coops;
   vector< pair<TF*, coeffect_ptr> > coeffects;
   
-  void subscore(const vector<int> & s, double* out); // for scoring sequence of pwmlen
+  //void subscore(const vector<int> & s, double* out); // for scoring sequence of pwmlen
   void readPWM(ptree& pt);
-  void PCM2PFM(double pseudo);
-  void PFM2PSSM();
-  void PSSM2BEM();
-  void setNscore();
   
 public:
   // constructors
   TF();           // empty constructor
-  TF(ptree& pt);  // create from property tree
+  TF(ptree& pt, mode_ptr);  // create from property tree
   
   // getters
   const string&  getName() const;
+  const string&  getPWMSource() const {return energy->getValue().getSource();}
+  int            getPWMLength() const {return energy->getValue().length();   }
   double         getThreshold();
   int            getBindingSize() const;
   double         getKmax();
@@ -79,32 +69,41 @@ public:
   double         getModifiedCoef();
   double         getLambda();
   double         getMaxScore() const;
-  bool           hasChanged() const;
   void           getParameters(param_ptr_vector& p); // pushes parameters onto argument
+  void           getAllParameters(param_ptr_vector& p); // pushes parameters onto argument
   bool           checkCoops(TF*, char, char); // check if this cooperates with tf
   coop_ptr       getCoop(TF*);
   bool           neverActivates();
   bool           neverQuenches();
   vector<double> getCoefs();
   int            getNumModes() { return coefs.size(); }
+  int            getIndex()    { return index; }
+  
+  double_param_ptr getThresholdParam() { return threshold; }
+  pwm_param_ptr    getPWMParam()       { return energy;    }
   
   vector< pair<TF*, coeffect_ptr> >& getTargets() { return coeffects; }   
   
   // setters
+  void setPWMSource(string source) { energy->getValue().setSource(source); }
+  void setNscore();
   void set(ptree& pt); // set entire TF
   void setName(string n);
-  void setPwm(vector< vector<double> > p);
+  void setPWM(vector<vector<double> >& t, int type);
+  void setPWM(vector<vector<double> >& t, int type, double gc, double pseudo);
   void setKmax(double k);
   void setLambda(double l);
   void setThreshold(double t);
   void setBindingSize(int b);
   void setCoops(vector< pair<TF*,coop_ptr> > p) { coops = p; }
   void setCoeffects(vector< pair<TF*, coeffect_ptr> > p) { coeffects = p; }
+  void setIndex(int index) { this->index = index; }
+  void setCoefs(vector<double>);
   
   // methods
   TFscore score(const string & s);     // score a string with tf
   TFscore score(const vector<int>& s); // score an int vector (faster) 
-  void    score(const vector<int>& s, TFscore &t); // pass by reference (fastest)
+  void    score(const vector<int>& s, TFscore &t); // pass by reference (fastest) , 
   
   // I/O
   void print(ostream& os);
@@ -120,11 +119,12 @@ class TFContainer
 {
 private:
   tf_ptr_vector tfs;
+  mode_ptr      mode;
 
 public:
   // Constructor
   TFContainer();
-  TFContainer(ptree& pt);
+  TFContainer(ptree& pt, mode_ptr);
   
   // Getters
   TF& getTF(const string& n);
@@ -133,9 +133,10 @@ public:
   tf_ptr getTFptr(const string& n);
   int size() const;
   void getParameters(param_ptr_vector& p);
+  void getAllParameters(param_ptr_vector& p);
   
   // Setters
-  void add(ptree& pt);
+  void add(ptree& pt, mode_ptr);
   void add(tf_ptr t);
   void setCoops(coops_ptr);
   void setCoeffects(coeffects_ptr);

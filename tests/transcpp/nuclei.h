@@ -17,12 +17,13 @@
 #include "organism.h"
 
 #include "gene.h"
-#include "conc.h"
+#include "datatable.h"
 #include "promoter.h"
 #include "subgroup.h"
 #include "quenching.h"
 #include "TF.h"
 #include "mode.h"
+#include "competition.h"
 
 /* For the most part, nuclei does not own the private data inside it. It simply
 points to the data from it's parent class (Organism). The notable exceptions
@@ -33,15 +34,16 @@ class Organism;
 class Nuclei
 {
 private:
-  int           n;
+  int            n;
   
   // owned by parent object (organism)
-  genes_ptr     genes;
-  tfs_ptr       tfs;
-  conc_ptr      tfdata;
-  distances_ptr distances;
-  promoters_ptr promoters;
-  mode_ptr      mode;
+  genes_ptr       genes;
+  tfs_ptr         tfs;
+  table_ptr       tfdata;
+  distances_ptr   distances;
+  promoters_ptr   promoters;
+  mode_ptr        mode;
+  competition_ptr competition;
   
   // owned by Nuclei
   bindings_ptr  bindings;
@@ -49,24 +51,43 @@ private:
   quenching_ptr quenching;
   modifying_ptr coeffects;
   
-  vector<int> IDs;
+  vector<string> IDs;
 
+  
+  
+  // if not using promoter competition
   map<Gene*, vector<double> > Ns;
   map<Gene*, vector<double> > Rs;
   
+  // if using promoter competition
+  bool competition_mode;
+  struct competition_data
+  {
+    int nwindows;
+    vector< vector<double> > N_2D;
+    vector< vector<double> > T_2D;
+    vector< vector<double> > R_2D;
+    vector< double> delta_N;
+    vector< double> total_N;
+  };
+  map<Gene*, competition_data> competition_map;
+  
+  
 public:
   // Constructors
+  Nuclei();
   Nuclei(Organism* parent, tfs_ptr);
   
   //  Setters
+  void setParent(Organism* parent);
   void setTFs(tfs_ptr);
   void setGenes(genes_ptr);
   void setBindings(bindings_ptr);
-  void setTFData(conc_ptr);
+  void setTFData(table_ptr);
   void setDistances(distances_ptr);
   void setPromoters(promoters_ptr);
   
-  void addNuc(int id);
+  void addNuc(string id);
   
   void create();
   void createBindings();
@@ -75,20 +96,30 @@ public:
   void createCoeffects();
   void createQuenching();
   
+  void clear();
+  
   //  Getters
   tfs_ptr       getTFs();
   genes_ptr     getGenes();
   bindings_ptr  getBindings();
-  conc_ptr      getTFData();
+  table_ptr     getTFData();
   distances_ptr getDistances();
   promoters_ptr getPromoters();
   subgroups_ptr getSubgroups();
   quenching_ptr getQuenching();
   
-  vector<double>& getRate(Gene& gene) {return Rs[&gene];}
-  double&         getRate(Gene& gene, int id);
-  vector<int>&    getIDs() {return IDs;}
-
+  vector<double>&          getRate(Gene& gene) {return Rs[&gene];}
+  vector<double>&          getN(Gene& gene)    {return Ns[&gene];}
+  double&                  getRate(Gene& gene, string& id);
+  vector<string>&          getIDs() {return IDs;}
+  
+  vector< vector<double> >& getR2D(Gene& gene)      { return competition_map[&gene].R_2D; }
+  vector< vector<double> >& getN2D(Gene& gene)      { return competition_map[&gene].N_2D; }
+  vector< vector<double> >& getT2D(Gene& gene)      { return competition_map[&gene].T_2D; }
+  int                       getNWindows(Gene& gene) { return competition_map[&gene].nwindows; }
+  int                       getWindow() { return competition->getWindow(); }
+  int                       getShift()  { return competition->getShift();  }
+  
   int size() {return n;}
   
   // Methods
@@ -97,7 +128,6 @@ public:
   void saveSubgroups()    {subgroups->save();}
   void saveQuenching()    {quenching->save();}
   void saveCoeffects()    {coeffects->save();}
-  
   
   void updateSubgroups()  {subgroups->update();}
   void updateQuenching()  {quenching->update();}
@@ -109,12 +139,31 @@ public:
   
   void calcQuenching()    { quenching->calc();}
   void calcCoeffects()    { coeffects->calc();}
-  void calc_f()           { subgroups->calc_f();}
+  void calcOccupancy()    { subgroups->calc_f();}
   
-  void calcN();
+  // Methods by gene
+  void saveSubgroups(Gene& gene)    {subgroups->save(gene);}
+  void saveQuenching(Gene& gene)    {quenching->save(gene);}
+  void saveCoeffects(Gene& gene)    {coeffects->save(gene);}
+  
+  void updateSubgroups(Gene& gene)  {subgroups->update(gene);}
+  void updateQuenching(Gene& gene)  {quenching->update(gene);}
+  void updateCoeffects(Gene& gene)  {coeffects->update(gene);}
+  
+  void restoreSubgroups(Gene& gene) {subgroups->restore(gene);}
+  void restoreQuenching(Gene& gene) {quenching->restore(gene);}
+  void restoreCoeffects(Gene& gene) {coeffects->restore(gene);}
+  
+  void calcQuenching(Gene& gene)    { quenching->calc(gene);}
+  void calcCoeffects(Gene& gene)    { coeffects->calc(gene);}
+  void calcOccupancy(Gene& gene)    { subgroups->calc_f(gene);}
+  
+  //void calcN();
   void calcR();
   void calcN(Gene&);
   void calcR(Gene&);
+  
+  void calcR2(Gene&);
   
   void saveSites(TF& tf)           { bindings->saveSites(tf);          }
   void saveScores(TF& tf)          { bindings->saveScores(tf);         }
@@ -124,34 +173,64 @@ public:
   void updateSites()               { bindings->updateSites();          }
   void updateK(TF& tf)             { bindings->updateK(tf);            }
   void updateKandLambda(TF& tf)    { bindings->updateKandLambda(tf);   }
+  
+  void saveSites(Gene& gene, TF& tf)        { bindings->saveSites(gene, tf);        }
+  void saveScores(Gene& gene, TF& tf)       { bindings->saveScores(gene, tf);       }
+  void updateScores(Gene& gene, TF& tf)     { bindings->updateScores(gene, tf);     }
+  void updateScores(Gene& gene)             { bindings->updateScores(gene);         }
+  void updateSites(Gene& gene, TF& tf)      { bindings->updateSites(gene, tf);      }
+  void updateSites(Gene& gene)              { bindings->updateSites(gene);          }
+  void updateK(Gene& gene, TF& tf)          { bindings->updateK(gene, tf);          }
+  void updateKandLambda(Gene& gene, TF& tf) { bindings->updateKandLambda(gene, tf); }
                                    
   void restoreScores(TF& tf)       { bindings->restoreScores(tf);      }
   void restoreSites(TF& tf)        { bindings->restoreSites(tf);       }
+  
+  void restoreScores(Gene& gene, TF& tf)       { bindings->restoreScores(gene, tf);    }
+  void restoreSites(Gene& gene, TF& tf)        { bindings->restoreSites(gene, tf);     }
                                 
   void saveAllOccupancy()          { bindings->saveAllOccupancy();          }
   void restoreAllOccupancy()       { bindings->restoreAllOccupancy();       }
   
+  void saveAllOccupancy(Gene& gene)          { bindings->saveAllOccupancy(gene);          }
+  void restoreAllOccupancy(Gene& gene)       { bindings->restoreAllOccupancy(gene);       }
+  
   void saveModeOccupancy()    { bindings->saveModeOccupancy();    }
   void restoreModeOccupancy() { bindings->restoreModeOccupancy(); }
+  
+  void saveModeOccupancy(Gene& gene)    { bindings->saveModeOccupancy(gene);    }
+  void restoreModeOccupancy(Gene& gene) { bindings->restoreModeOccupancy(gene); }
   
   void saveEffectiveOccupancy()    { bindings->saveEffectiveOccupancy();    }
   void restoreEffectiveOccupancy() { bindings->restoreEffectiveOccupancy(); }
   
-  void updateN() {calcN();}
+  void saveEffectiveOccupancy(Gene& gene)    { bindings->saveEffectiveOccupancy(gene);    }
+  void restoreEffectiveOccupancy(Gene& gene) { bindings->restoreEffectiveOccupancy(gene); }
+  
+  //void updateN() {}
+  
   void updateR() {calcR();}
+  
+  void updateR(Gene& gene) {calcR(gene);}
   
   
   // I/O
   void printSubgroups(Gene& g, ostream& os) {subgroups->print(g, os);}
   
-  void printOccupancy(Gene& g, ostream& os)          {bindings->printTotalOccupancy(g,os);    }
-  void printModeOccupancy(Gene& g, ostream& os)      {bindings->printModeOccupancy(g,os);     }
-  void printEffectiveOccupancy(Gene& g, ostream& os) {bindings->printEffectiveOccupancy(g,os);}
+  void printOccupancy(Gene& g, ostream& os, bool invert)          {bindings->printTotalOccupancy(g,os, invert);    }
+  void printModeOccupancy(Gene& g, ostream& os, bool invert)      {bindings->printModeOccupancy(g,os, invert);     }
+  void printEffectiveOccupancy(Gene& g, ostream& os, bool invert) {bindings->printEffectiveOccupancy(g,os, invert);}
   
   void printSites(ostream& os)                     { bindings->printSites(os);}                    
   void printSites(Gene& gene, ostream& os)         { bindings->printSites(gene, os);}             
   void printSites(TF& tf, ostream& os)             { bindings->printSites(tf, os);}            
   void printSites(Gene& gene, TF& tf, ostream& os) { bindings->printSites(gene, tf, os);}
+  
+  void printScores(Gene& gene, ostream& os)        { bindings->printScores(gene, os); }
+  
+  void printR2D(Gene& gene, ostream& os);
+  void printN2D(Gene& gene, ostream& os);
+  
 };
 
 

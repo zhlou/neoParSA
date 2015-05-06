@@ -1,93 +1,103 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Root>
-  <annealer_input init_T="100000" lambda="0.0001" init_loop="100000"/>
-  <move interval="100" gain="3"/>
+  <annealer_input init_T="100000" lambda="0.0001" init_loop="10000"/>
+  <move interval="1000" gain="3"/>
   <count_criterion freeze_crit="1" freeze_cnt="5"/>
   <mix adaptcoef="10"/>
-  <lam tau="100" memLength_mean=".200" memLength_sd="100" criterion="1" freeze_cnt="5"/>
+  <lam tau="100" memLength_mean=".200" memLength_sd="1000" criterion="100" freeze_cnt="5"/>
   <Mode>
+    <!-- 0=lam 1=exp -->
+    <Schedule value="0"/>
     <!-- 0=silent 1=quiet 2=loud 3=insane (prints individual moves) -->
-    <Verbose value="0"/>
+    <Verbose value="2"/>
     <!-- exit after initial loop for profiling code -->
     <Profiling value="false"/>
     <!-- sse, chisq, pdiff, rms, arkim, sss -->
-    <ScoreFunction value="sse"/>
+    <ScoreFunction value="arkim"/>
     <!-- use p-value threshold for binding instead of score -->
     <PThresh value="0"/>
     <!-- scale data to normalize relative weights in the score. can be type=area or type=height -->
     <ScaleData value="false" type="area" scale_to="2000"/>
+    <!-- divide score by number of genes -->
+    <PerGene value="false"/>
     <!-- the minimum value to use for data, prevents dividing by 0 in score -->
-    <MinData value="0"/>
+    <MinData value="15"/>
     <!-- include promoter competition -->
-    <Competition value="false" window="500" shift="50"/>
+    <Competition value="false"/>
     <!-- multi-thread program -->
     <NumThreads value="1"/>
+    <!-- do we alow TFs to compete with themselves? -->
+    <SelfCompetition value="true"/>
+    <!-- the precision for output to use -->
+    <Precision value="16"/>
+    <!-- the seed to use in annealing. Can be "pid", "time", "filename", or a number (default is filename) -->
+    <Seed value="0"/>
+    <!-- what is the default gc content to use, if not specified by individual pwm -->
+    <GCcontent value="0.406"/>
   </Mode>
   <Input>
     <Distances>
       <!-- Distance functions are Trapezoid, Uniform, Linear, Sine -->
       <!-- ToDo: currently requires a distance function named quenching! -->
       <Distance name="Cooperativity" distfunc="Trapezoid">
-        <A value="60"      lim_low="50" lim_high="150" anneal="true" move="CoopD"/>
-        <B value="10"      lim_low="50" lim_high="150" anneal="true" move="CoopD"/>
+        <A value="60" lim_low="50" lim_high="150" anneal="true" move="CoopD"/>
+        <B value="10" lim_low="50" lim_high="150" anneal="false" move="CoopD"/>
       </Distance>
       <Distance name="Quenching" distfunc="Trapezoid">
-        <A value="100"     lim_low="50" lim_high="100" anneal="true" move="Quenching"/>
-        <B value="50"      lim_low="50" lim_high="50"  anneal="true" move="Quenching"/>
+        <A value="100" lim_low="50" lim_high="100" anneal="true" move="Quenching"/>
+        <B value="50" lim_low="50" lim_high="50" anneal="false" move="Quenching"/>
       </Distance>
       <Distance name="BcdCoact" distfunc="Trapezoid">
-        <A value="158" lim_low="50" lim_high="150" anneal="true"  move="Coeffect"/>
-        <B value="10"      lim_low="50" lim_high="150" anneal="true" move="Coeffect"/>
+        <A value="118.25" lim_low="1" lim_high="200" anneal="true" move="Coeffect"/>
+        <B value="10" lim_low="50" lim_high="150" anneal="false" move="Coeffect"/>
       </Distance>
       <Distance name="CadCoact" distfunc="Trapezoid">
-        <A value="70.8752" lim_low="50" lim_high="150" anneal="true"  move="Coeffect"/>
-        <B value="10"      lim_low="50" lim_high="150" anneal="true" move="Coeffect"/>
+        <A value="3.0725" lim_low="1" lim_high="200" anneal="true" move="Coeffect"/>
+        <B value="10" lim_low="50" lim_high="150" anneal="false" move="Coeffect"/>
       </Distance>
     </Distances>
     <Promoters>
       <Promoter name="eve" function="Arrhenius2">
-        <Q     value="1"       lim_low="0"   lim_high="30"  anneal="false" move="Promoter"/>
-        <Rmax  value="255"     lim_low="255" lim_high="255" anneal="false" move="Promoter"/>
-        <Theta value="6.08562" lim_low="5"   lim_high="20"  anneal="false" move="Promoter"/>
+        <Q value="1" lim_low="0" lim_high="30" anneal="false" move="Promoter"/>
+        <Rmax value="255" lim_low="255" lim_high="255" anneal="false" move="Promoter"/>
+        <Theta value="9.7465" lim_low="5" lim_high="20" anneal="true" move="Promoter"/>
       </Promoter>
     </Promoters>
     <TFs>
-      <TF name="bcd" bsize="14" gc="0.406" include="true">
-        <kmax      value="0.0629228" lim_low="0.000001" lim_high="4.000000" anneal="true"  move="Kmax"/>
-        <threshold value="5"      lim_low="1.71"     lim_high="2.0"         anneal="false" move="Sites"/>
-        <lambda    value="4.9920311" lim_low="0.5"      lim_high="5"        anneal="true"  move="Lambda"/>
+      <TF name="bcd" bsize="14"  include="true">
+        <kmax value="2.9056" lim_low="0.000001" lim_high="4.000000" anneal="true" move="Kmax"/>
+        <threshold value="1.71" lim_low="1.71" lim_high="2.0" anneal="false" move="Sites"/>
+        <lambda value="2.8882" lim_low="0.5" lim_high="5" anneal="true" move="Lambda"/>
         <Coefficients>
-          <coef value="0.0629228" lim_low="0.0001" lim_high="20.000000" anneal="true" move="Promoter"/>
+          <coef value="13.205" lim_low="0.0001" lim_high="20.000000" anneal="true" move="Promoter"/>
         </Coefficients>
         <!-- Takes 4 types of inputs: -->
         <!-- PCM = position count matrix (expects an xmlattribute pseudo, which defaults to pseudo=1 -->
         <!-- PFM = position frequency matrix (expects columns to sum to 1. careful of having 0's, which give -inf scores) -->
         <!-- PSSM = position scoring matrix (log-likelihood transformed matrix) -->
-        <!-- BEM = binding energy model (consensus base is 0, others represent ddGs) -->
-        <!-- ToDo: allow user to chose output type, currently defaults to BEM -->
-        <PWM type="PCM" pseudo="1" anneal="true">
-          <position> 83; 114; 106;  80</position>
-          <position> 74; 159;  72;  78</position>
-          <position>108; 127; 114;  34</position>
-          <position> 48; 149;  11; 175</position>
-          <position>  6;   1;   0; 376</position>
-          <position>381;   0;   2;   0</position>
-          <position>379;   0;   4;   0</position>
-          <position>  5;   0;   4; 374</position>
-          <position>  0; 383;   0;   0</position>
-          <position>  6; 340;   3;  34</position>
-          <position> 72; 136; 132;  43</position>
-          <position> 61; 174;  60;  88</position>
-          <position> 65; 166;  52; 100</position>
-          <position> 68; 158;  49; 108</position>
+        <PWM type="PCM" pseudo="1" gc="0.406">
+          <position>83; 114; 106; 80</position>
+          <position>74; 159; 72; 78</position>
+          <position>108; 127; 114; 34</position>
+          <position>48; 149; 11; 175</position>
+          <position>6; 1; 0; 376</position>
+          <position>381; 0; 2; 0</position>
+          <position>379; 0; 4; 0</position>
+          <position>5; 0; 4; 374</position>
+          <position>0; 383; 0; 0</position>
+          <position>6; 340; 3; 34</position>
+          <position>72; 136; 132; 43</position>
+          <position>61; 174; 60; 88</position>
+          <position>65; 166; 52; 100</position>
+          <position>68; 158; 49; 108</position>
         </PWM>
       </TF>
       <TF name="cad" bsize="14" gc="0.406" include="true">
-        <kmax      value="0.052367107" lim_low="0.000001" lim_high="4.000000" anneal="true" move="Kmax"/>
-        <threshold value="5"   lim_low="1.93"     lim_high="3.75"     anneal="false" move="Sites"/>
-        <lambda    value="4.9769271"   lim_low="0.5"      lim_high="5"        anneal="true" move="Lambda"/>
+        <kmax value="3.0747" lim_low="0.000001" lim_high="4.000000" anneal="true" move="Kmax"/>
+        <threshold value="3.3788" lim_low="1.93" lim_high="3.75" anneal="true" move="Sites"/>
+        <lambda value="3.9895" lim_low="0.5" lim_high="5" anneal="true" move="Lambda"/>
         <Coefficients>
-          <coef value="0.000114854" lim_low="0.0001" lim_high="20.000000" anneal="true" move="Promoter"/>
+          <coef value="14.092" lim_low="0.0001" lim_high="20.000000" anneal="true" move="Promoter"/>
         </Coefficients>
         <PWM type="PCM" pseudo="1">
           <position>9; 10; 4; 11</position>
@@ -103,192 +113,233 @@
         </PWM>
       </TF>
       <TF name="dst" bsize="14" gc="0.406" include="true">
-        <kmax      value="1.0994506" lim_low="0.000001" lim_high="4.000000" anneal="true" move="Kmax"/>
-        <threshold value="5" lim_low="2.3"      lim_high="4.3"      anneal="false" move="Sites"/>
-        <lambda    value="2.585787"  lim_low="0.5"      lim_high="5"        anneal="true" move="Lambda"/>
+        <kmax value="3.0022" lim_low="0.000001" lim_high="4.000000" anneal="true" move="Kmax"/>
+        <threshold value="3.0212" lim_low="2.3" lim_high="4.3" anneal="true" move="Sites"/>
+        <lambda value="0.98161" lim_low="0.5" lim_high="5" anneal="true" move="Lambda"/>
         <Coefficients>
-          <coef value="0.000153511" lim_low="0.0001" lim_high="20.000000" anneal="true" move="Promoter"/>
+          <coef value="3.0176" lim_low="0.0001" lim_high="20.000000" anneal="true" move="Promoter"/>
         </Coefficients>
         <PWM type="PCM" pseudo="1">
-          <position> 1;  0;  0; 29</position>
-          <position> 1;  0;  1; 28</position>
-          <position> 2;  1;  0; 27</position>
-          <position> 1; 27;  1;  1</position>
-          <position> 1; 20;  6;  3</position>
-          <position> 5; 16;  8;  1</position>
-          <position> 3;  3; 22;  2</position>
-          <position> 0;  2; 27;  1</position>
-          <position>24;  3;  1;  2</position>
-          <position>28;  0;  1;  1</position>
-          <position>27;  1;  0;  2</position>
-          <position> 5;  8;  6; 11</position>
+          <position>1; 0; 0; 29</position>
+          <position>1; 0; 1; 28</position>
+          <position>2; 1; 0; 27</position>
+          <position>1; 27; 1; 1</position>
+          <position>1; 20; 6; 3</position>
+          <position>5; 16; 8; 1</position>
+          <position>3; 3; 22; 2</position>
+          <position>0; 2; 27; 1</position>
+          <position>24; 3; 1; 2</position>
+          <position>28; 0; 1; 1</position>
+          <position>27; 1; 0; 2</position>
+          <position>5; 8; 6; 11</position>
         </PWM>
       </TF>
       <TF name="dic" bsize="14" gc="0.406" include="true">
-        <kmax      value="3.8938171" lim_low="0.000001" lim_high="4.000000" anneal="true" move="Kmax"/>
-        <threshold value="5" lim_low="1.43"     lim_high="5.0"      anneal="false" move="Sites"/>
-        <lambda    value="1.9834469" lim_low="0.5"      lim_high="5"        anneal="true" move="Lambda"/>
+        <kmax value="3.9771" lim_low="0.000001" lim_high="4.000000" anneal="true" move="Kmax"/>
+        <threshold value="3.2112" lim_low="1.43" lim_high="5.0" anneal="true" move="Sites"/>
+        <lambda value="4.6765" lim_low="0.5" lim_high="5" anneal="true" move="Lambda"/>
         <Coefficients>
-          <coef value="0.000138628" lim_low="0.0001" lim_high="20.000000" anneal="true" move="Promoter"/>
+          <coef value="4.0669" lim_low="0.0001" lim_high="20.000000" anneal="true" move="Promoter"/>
         </Coefficients>
         <PWM type="PCM" pseudo="1">
-          <position> 1;  8;  7; 13</position>
-          <position> 0; 25;  0;  4</position>
-          <position> 0; 17;  0;  1</position>
-          <position>20;  0;  0;  9</position>
-          <position> 0;  0;  0; 29</position>
-          <position> 0;  0;  3; 26</position>
-          <position> 2;  0; 27;   0</position>
-          <position> 0;  0;  0; 29</position>
-          <position> 1;  2;  4; 22</position>
-          <position> 4; 10;  6;  9</position>
-          <position> 6;  1;  1; 21</position>
-          <position> 1;  8;  7; 13</position>
+          <position>1; 8; 7; 13</position>
+          <position>0; 25; 0; 4</position>
+          <position>0; 17; 0; 1</position>
+          <position>20; 0; 0; 9</position>
+          <position>0; 0; 0; 29</position>
+          <position>0; 0; 3; 26</position>
+          <position>2; 0; 27; 0</position>
+          <position>0; 0; 0; 29</position>
+          <position>1; 2; 4; 22</position>
+          <position>4; 10; 6; 9</position>
+          <position>6; 1; 1; 21</position>
+          <position>1; 8; 7; 13</position>
         </PWM>
       </TF>
       <TF name="hb" bsize="14" gc="0.406" include="true">
-        <kmax      value="2.7242409" lim_low="0.000001" lim_high="4.000000" anneal="true" move="Kmax"/>
-        <threshold value="5"      lim_low="0.07"     lim_high="1.6"      anneal="false" move="Sites"/>
-        <lambda    value="1.8368177" lim_low="0.5"      lim_high="5"        anneal="true" move="Lambda"/>
+        <kmax value="2.2892" lim_low="0.000001" lim_high="4.000000" anneal="true" move="Kmax"/>
+        <threshold value="0.63" lim_low="0.07" lim_high="1.6" anneal="false" move="Sites"/>
+        <lambda value="4.4511" lim_low="0.5" lim_high="5" anneal="true" move="Lambda"/>
         <Coefficients>
-          <coef value="-0.999983" lim_low="-1"     lim_high="-0.0001"   anneal="true" move="QuenchingCoef"/>
-          <coef value="20.4174"   lim_low="0.0001" lim_high="30.000000" anneal="true" move="Promoter"/>
+          <coef value="-0.69358" lim_low="-1" lim_high="-0.0001" anneal="true" move="QuenchingCoef"/>
+          <coef value="27.057" lim_low="0.0001" lim_high="30.000000" anneal="true" move="Promoter"/>
         </Coefficients>
         <PWM type="PCM" pseudo="1">
-          <position> 53;   6; 224;   7</position>
-          <position>  2;   6;   3; 279</position>
-          <position>  0;   2;   0; 288</position>
-          <position>  2;   0;   0; 288</position>
-          <position>  0;   2;   0; 288</position>
-          <position>  0;   3;   0; 287</position>
-          <position>  0;   2;   0; 288</position>
-          <position>281;   0;   3;   6</position>
-          <position> 31;  43;  78; 138</position>
-          <position> 20; 100; 109;  61</position>
+          <position>53; 6; 224; 7</position>
+          <position>2; 6; 3; 279</position>
+          <position>0; 2; 0; 288</position>
+          <position>2; 0; 0; 288</position>
+          <position>0; 2; 0; 288</position>
+          <position>0; 3; 0; 287</position>
+          <position>0; 2; 0; 288</position>
+          <position>281; 0; 3; 6</position>
+          <position>31; 43; 78; 138</position>
+          <position>20; 100; 109; 61</position>
         </PWM>
       </TF>
       <TF name="Kr" bsize="14" gc="0.406" include="true">
-        <kmax      value="0.038668395" lim_low="0.000001" lim_high="4.000000" anneal="true" move="Kmax"/>
-        <threshold value="5"   lim_low="0.0"      lim_high="3.0"      anneal="false" move="Sites"/>
-        <lambda    value="4.0403175"   lim_low="0.5"      lim_high="5"        anneal="true" move="Lambda"/>
+        <kmax value="0.85969" lim_low="0.000001" lim_high="4.000000" anneal="true" move="Kmax"/>
+        <threshold value="1.5651" lim_low="0.0" lim_high="3.0" anneal="true" move="Sites"/>
+        <lambda value="0.84763" lim_low="0.5" lim_high="5" anneal="true" move="Lambda"/>
         <Coefficients>
-          <coef value="-0.90277" lim_low="-1" lim_high="-0.0001" anneal="true" move="QuenchingCoef"/>
+          <coef value="-0.025308" lim_low="-1" lim_high="-0.0001" anneal="true" move="QuenchingCoef"/>
         </Coefficients>
         <PWM type="PCM" pseudo="1">
-          <position> 17;  73;  6; 101</position>
-          <position>187;   5;  0;   5</position>
-          <position>158;  39;  0;   0</position>
-          <position>  0; 194;  1;   2</position>
-          <position>  1; 194;  0;   2</position>
-          <position>  0; 197;  0;   0</position>
-          <position>  8;  22;  6; 161</position>
-          <position>  0;   2;  0; 195</position>
-          <position>  2;  34;  2; 159</position>
-          <position> 44; 109; 15;  29</position>
+          <position>17; 73; 6; 101</position>
+          <position>187; 5; 0; 5</position>
+          <position>158; 39; 0; 0</position>
+          <position>0; 194; 1; 2</position>
+          <position>1; 194; 0; 2</position>
+          <position>0; 197; 0; 0</position>
+          <position>8; 22; 6; 161</position>
+          <position>0; 2; 0; 195</position>
+          <position>2; 34; 2; 159</position>
+          <position>44; 109; 15; 29</position>
         </PWM>
       </TF>
       <TF name="kni" bsize="14" gc="0.406" include="true">
-        <kmax      value="2.2330736" lim_low="0.000001" lim_high="4.000000" anneal="true" move="Kmax"/>
-        <threshold value="5" lim_low="2.2"      lim_high="5.1"      anneal="false" move="Sites"/>
-        <lambda    value="2.4875364" lim_low="0.5"      lim_high="5"        anneal="true" move="Lambda"/>
+        <kmax value="0.20875" lim_low="0.000001" lim_high="4.000000" anneal="true" move="Kmax"/>
+        <threshold value="2.5318" lim_low="2.2" lim_high="5.1" anneal="true" move="Sites"/>
+        <lambda value="2.336" lim_low="0.5" lim_high="5" anneal="true" move="Lambda"/>
         <Coefficients>
-          <coef value="-0.0637143" lim_low="-1" lim_high="-0.0001" anneal="true" move="QuenchingCoef"/>
+          <coef value="-0.39308" lim_low="-1" lim_high="-0.0001" anneal="true" move="QuenchingCoef"/>
         </Coefficients>
         <PWM type="PCM" pseudo="1">
-          <position>19;  1;  2;  4</position>
-          <position>25;  1;  0;  0</position>
-          <position>16;  0;  0; 10</position>
-          <position> 5;  9;  6;  6</position>
-          <position> 0;  4;  1; 21</position>
-          <position>21;  0;  5;  0</position>
-          <position> 0;  0; 26;  0</position>
-          <position>17;  0;  8;  1</position>
-          <position> 1;  3; 18;  4</position>
-          <position> 0; 26;  0;  0</position>
-          <position>25;  0;  1;  0</position>
-          <position> 5; 12;  7;  2</position>
+          <position>19; 1; 2; 4</position>
+          <position>25; 1; 0; 0</position>
+          <position>16; 0; 0; 10</position>
+          <position>5; 9; 6; 6</position>
+          <position>0; 4; 1; 21</position>
+          <position>21; 0; 5; 0</position>
+          <position>0; 0; 26; 0</position>
+          <position>17; 0; 8; 1</position>
+          <position>1; 3; 18; 4</position>
+          <position>0; 26; 0; 0</position>
+          <position>25; 0; 1; 0</position>
+          <position>5; 12; 7; 2</position>
         </PWM>
       </TF>
       <TF name="gt" bsize="24" gc="0.406" include="true">
-        <kmax      value="2.5308479"  lim_low="0.000001" lim_high="4.000000" anneal="true" move="Kmax"/>
-        <threshold value="5" lim_low="0.5"      lim_high="2.0"      anneal="false" move="Sites"/>
-        <lambda    value="1.7135811"  lim_low="0.5"      lim_high="5"        anneal="true" move="Lambda"/>
+        <kmax value="1.6012" lim_low="0.000001" lim_high="4.000000" anneal="true" move="Kmax"/>
+        <threshold value="0.87178" lim_low="0.5" lim_high="2.0" anneal="true" move="Sites"/>
+        <lambda value="4.8711" lim_low="0.5" lim_high="5" anneal="true" move="Lambda"/>
         <Coefficients>
-          <coef value="-0.723628" lim_low="-1" lim_high="-0.0001" anneal="true" move="QuenchingCoef"/>
+          <coef value="-0.8136" lim_low="-1" lim_high="-0.0001" anneal="true" move="QuenchingCoef"/>
         </Coefficients>
         <PWM type="PCM" pseudo="1">
-          <position>   86;  62;  19; 942</position>
-          <position>   12; 108; 359; 630</position>
-          <position>  776;  25; 275;  33</position>
-          <position>    8; 762;  65; 274</position>
-          <position>   83;  19; 996;  11</position>
-          <position>    0; 556;   0; 553</position>
-          <position> 1020;  88;   1;   0</position>
-          <position> 1106;   0;   0;   3</position>
-          <position>   15; 378;  85; 631</position>
+          <position>86; 62; 19; 942</position>
+          <position>12; 108; 359; 630</position>
+          <position>776; 25; 275; 33</position>
+          <position>8; 762; 65; 274</position>
+          <position>83; 19; 996; 11</position>
+          <position>0; 556; 0; 553</position>
+          <position>1020; 88; 1; 0</position>
+          <position>1106; 0; 0; 3</position>
+          <position>15; 378; 85; 631</position>
         </PWM>
       </TF>
       <TF name="tll" bsize="14" gc="0.406" include="true">
-        <kmax      value="0.023573245" lim_low="0.000001" lim_high="4.000000" anneal="true" move="Kmax"/>
-        <threshold value="5"    lim_low="1.8"      lim_high="4.0"      anneal="false" move="Sites"/>
-        <lambda    value="4.9803955"   lim_low="0.5"      lim_high="5"        anneal="true" move="Lambda"/>
+        <kmax value="2.3625" lim_low="0.000001" lim_high="4.000000" anneal="true" move="Kmax"/>
+        <threshold value="3.2706" lim_low="1.8" lim_high="4.0" anneal="true" move="Sites"/>
+        <lambda value="1.3824" lim_low="0.5" lim_high="5" anneal="true" move="Lambda"/>
         <Coefficients>
-          <coef value="-0.999485" lim_low="-1" lim_high="-0.0001" anneal="true" move="QuenchingCoef"/>
+          <coef value="-0.18648" lim_low="-1" lim_high="-0.0001" anneal="true" move="QuenchingCoef"/>
         </Coefficients>
         <PWM type="PCM" pseudo="1">
-          <position> 12;  8;  0;  0</position>
-          <position>  1;  2;  2; 15</position>
-          <position>  1;  2;  1; 16</position>
-          <position>  5;  1;  0; 14</position>
-          <position>  2;  3; 15;  0</position>
-          <position> 11;  1;  5;  3</position>
-          <position>  1; 17;  0;  2</position>
-          <position>  0;  2;  1; 17</position>
-          <position>  0;  3;  2; 15</position>
+          <position>12; 8; 0; 0</position>
+          <position>1; 2; 2; 15</position>
+          <position>1; 2; 1; 16</position>
+          <position>5; 1; 0; 14</position>
+          <position>2; 3; 15; 0</position>
+          <position>11; 1; 5; 3</position>
+          <position>1; 17; 0; 2</position>
+          <position>0; 2; 1; 17</position>
+          <position>0; 3; 2; 15</position>
+        </PWM>
+      </TF>
+      <TF name="slp" gc="0.406" bsize="14" include="false">
+        <kmax      value="0"   lim_low="0.00001" lim_high="5" anneal="true" move="Kmax"/>
+        <threshold value="0"   lim_low="0" lim_high="4" anneal="false" move="Sites"/>
+        <lambda    value="2.0" lim_low="0.5" lim_high="5" anneal="true" move="Lambda"/>
+        <Coefficients>
+          <coef value="-1" lim_low="-1" lim_high="0" anneal="true" move="QuenchingCoef"/>
+        </Coefficients>
+        <PWM type="PCM" pseudo="1">
+          <position>8; 3; 14; 16</position>
+          <position>0; 0; 0; 41</position>
+          <position>3; 0; 38; 0</position>
+          <position>0; 0; 0; 41</position>
+          <position>0; 0; 1; 40</position>
+          <position>0; 0; 2; 39</position>
+          <position>27; 0; 4; 10</position>
+          <position>1; 22; 7; 11</position>
+          <position>17; 8; 15; 1</position>
+          <position>4; 13; 3; 21</position>
+          <position>15; 3; 4; 19</position>
+        </PWM>
+      </TF>
+      <TF name="zld" bsize="14" gc="0.406" include="false">
+        <kmax           value="3.865428099056663" lim_low="1e-06" lim_high="4" anneal="true" move="Kmax"/>
+        <threshold      value="0" lim_low="1.8" lim_high="4" anneal="false" move="Sites"/>
+        <lambda         value="1.37023842095809" lim_low="0.5" lim_high="5" anneal="true" move="Lambda"/>
+        <Coefficients>
+          <coef value="1" lim_low="0" lim_high="1" anneal="true" move="Promoter"/>
+        </Coefficients>
+        <PWM type="PCM" pseudo="1">
+          <base   >                       A                       C                       G                       T</base   >
+          <position>  28; 629;  61; 282</position>
+          <position>   2;   0;  24; 974</position>
+          <position> 874;   0; 126;   0</position>
+          <position>   0; 996;   2;   2</position>
+          <position>   0; 999;   0;   1</position>
+          <position>   2;   0;   0; 998</position>
+          <position>  48;   7; 994;   1</position>
+          <position> 157; 456;  14; 247</position>
+          <position>  28; 629;  61; 282</position>
         </PWM>
       </TF>
     </TFs>
     <Interactions>
       <Cooperativity factor1="bcd" factor2="bcd" distance="Cooperativity" include="true">
         <Orientation HH="true" HT="true" TT="true"/>
-        <Kcoop value="400" lim_low="0" lim_high="499" anneal="true" move="Kcoop"/>
+        <Kcoop value="451.78" lim_low="0" lim_high="499" anneal="true" move="Kcoop"/>
       </Cooperativity>
       <!-- directional coactivation not implemented yet -->
       <Coeffect actor="bcd" target="hb" distance="BcdCoact" coef_idx="2" include="true">
-        <efficiency value="0.217722" lim_low="0" lim_high="1" anneal="true" move="CoeffectEff"/>
+        <efficiency value="0.63385" lim_low="0" lim_high="1" anneal="true" move="CoeffectEff"/>
         <Orientation HH="true" HT="true" TT="true"/>
       </Coeffect>
       <Coeffect actor="cad" target="hb" distance="CadCoact" coef_idx="2" include="true">
-        <efficiency value="0.337226" lim_low="0" lim_high="1" anneal="true" move="CoeffectEff"/>
+        <efficiency value="0.45623" lim_low="0" lim_high="1" anneal="true" move="CoeffectEff"/>
         <Orientation HH="true" HT="true" TT="true"/>
       </Coeffect>
     </Interactions>
     <Genes>
       <Source name="m06" file="/users/kenneth/Sandbox/transcpp/sequences/m06.fa" type="fasta">
-        <Gene name="M3_2_lox" header="M3_2_lox" left_bound="-1719" right_bound="-1" TSS="-1" promoter="eve" scale="A" anneal="true"/>
-        <Gene name="M32_lox"  header="M32_lox"  left_bound="-1375" right_bound="-1" TSS="-1" promoter="eve" scale="A" anneal="true"/>
-        <Gene name="M23_lox"  header="M23_lox"  left_bound="-1374" right_bound="-1" TSS="-1" promoter="eve" scale="A" anneal="true"/>
-        <Gene name="M2_3_lox" header="M2_3_lox" left_bound="-1531" right_bound="-1" TSS="-1" promoter="eve" scale="A" anneal="true"/>
-        <Gene name="p1700"    header="1700"     left_bound="-1728" right_bound="-1" TSS="-1" promoter="eve" scale="B" anneal="true"/>
-        <Gene name="MSE2"     header="MSE2"     left_bound="-541"  right_bound="-1" TSS="-1" promoter="eve" scale="C" anneal="true"/>
-        <Gene name="MSE3"     header="MSE3"     left_bound="-541"  right_bound="-1" TSS="-1" promoter="eve" scale="D" anneal="true"/>
+        <Gene name="M3_2_lox" header="M3_2_lox" left_bound="-1719" right_bound="-1" TSS="-1" promoter="eve" scale="A" anneal="false"/>
+        <Gene name="M32_lox" header="M32_lox" left_bound="-1375" right_bound="-1" TSS="-1" promoter="eve" scale="A" anneal="false"/>
+        <Gene name="M23_lox" header="M23_lox" left_bound="-1374" right_bound="-1" TSS="-1" promoter="eve" scale="A" anneal="false"/>
+        <Gene name="M2_3_lox" header="M2_3_lox" left_bound="-1531" right_bound="-1" TSS="-1" promoter="eve" scale="A" anneal="false"/>
+        <Gene name="p1700" header="1700" left_bound="-1728" right_bound="-1" TSS="-1" promoter="eve" scale="B" anneal="false"/>
+        <Gene name="MSE2" header="MSE2" left_bound="-541" right_bound="-1" TSS="-1" promoter="eve" scale="C" anneal="false"/>
+        <Gene name="MSE3" header="MSE3" left_bound="-541" right_bound="-1" TSS="-1" promoter="eve" scale="D" anneal="false"/>
       </Source>
     </Genes>
     <ScaleFactors>
       <ScaleFactor name="A">
-        <A value="1" lim_low="0.2" lim_high="5" anneal="false" move="Null"/>
+        <A value="3.3007" lim_low="0.2" lim_high="5" anneal="true" move="Null"/>
         <B value="0" lim_low="0" lim_high="10" anneal="false" move="Null"/>
       </ScaleFactor>
       <ScaleFactor name="B">
-        <A value="0.200084" lim_low="0.2" lim_high="1.5" anneal="false" move="Null"/>
+        <A value="0.44126" lim_low="0.2" lim_high="1.5" anneal="true" move="Null"/>
         <B value="0" lim_low="0" lim_high="10" anneal="false" move="Null"/>
       </ScaleFactor>
       <ScaleFactor name="D">
-        <A value="0.81986" lim_low="0.8" lim_high="11" anneal="false" move="Null"/>
+        <A value="6.9201" lim_low="0.8" lim_high="11" anneal="true" move="Null"/>
         <B value="0" lim_low="0" lim_high="10" anneal="false" move="Null"/>
       </ScaleFactor>
       <ScaleFactor name="C">
-        <A value="0.20003" lim_low="0.2" lim_high="5" anneal="false" move="Null"/>
+        <A value="2.0061" lim_low="0.2" lim_high="5" anneal="true" move="Null"/>
         <B value="0" lim_low="0" lim_high="10" anneal="false" move="Null"/>
       </ScaleFactor>
       <ScaleFactor name="default">
