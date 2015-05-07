@@ -22,7 +22,7 @@
 #include <unistd.h>
 #include <libxml/parser.h>
 #include "annealer.h"
-#include "feedbackMove.h"
+#include "move/feedbackMove.h"
 #include "unirandom.h"
 #include "lam.h"
 #include "expHold.h"
@@ -84,7 +84,7 @@ int main(int argc, char* argv[])
   {
     lam::Param scheParam(docroot);
     criCount::Param criCntParam(docroot);
-    fly_sa = new annealer<Organism, lam, criCount, feedbackMove>(embryo,&rnd, scheParam, criCntParam, docroot);
+    fly_sa = new annealer<Organism, lam, criCount, feedbackMove>(embryo,rnd, scheParam, criCntParam, docroot);
     fly_sa->setCoolLog(file, (xmlname+".log").c_str());
     fly_sa->setProlix(file, (xmlname+".prolix").c_str());
   } 
@@ -92,7 +92,7 @@ int main(int argc, char* argv[])
   {
     expHold::Param scheduleParam(docroot);
     tempCount::Param tmpCntParam(docroot);
-    fly_expHold = new annealer<Organism, expHold, tempCount, feedbackMove>(embryo, &rnd, scheduleParam, tmpCntParam, docroot);
+    fly_expHold = new annealer<Organism, expHold, tempCount, feedbackMove>(embryo, rnd, scheduleParam, tmpCntParam, docroot);
     fly_expHold->setStepLog(file, (xmlname+".steplog").c_str());
     fly_expHold->setProlix(file,(xmlname+".prolix").c_str());
   } 

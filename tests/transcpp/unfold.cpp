@@ -22,7 +22,7 @@
 
 #include <libxml/parser.h>
 #include "annealer.h"
-#include "feedbackMove.h"
+//#include "feedbackMove.h"
 #include "unirandom.h"
 #include "lam.h"
 #include "criCount.h"

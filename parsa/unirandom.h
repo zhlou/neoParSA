@@ -43,6 +43,11 @@ public:
     unirand48();
     unirand48(unsigned int disp);
     unirand48(xmlNode *section);
+    void setSeed(unsigned int newSeed)
+    {
+        seed = newSeed;
+        initFromSeed();
+    }
     virtual double random(){return erand48(xsubi);}
 
 };

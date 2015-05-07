@@ -1427,6 +1427,8 @@ void Organism::deserialize(void const *buf)
     params[i]->deserialize(cbuf);
     cbuf += params[i]->getSize();
   }
+  ResetAll(0);
+  score();
 }
 
 
