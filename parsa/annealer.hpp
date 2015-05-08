@@ -287,6 +287,9 @@ double annealer<Problem, Schedule, FrozenCnd, Move>::readUnifiedInitState(const 
     int bufSize = problem.getStateSize();
     char * stateBuf = new char[bufSize];
     ifstream stateFile(stateName, ios::in | ios::binary);
+    if (!stateFile) {
+        throw std::runtime_error("Fail to open state file");
+    }
     stateFile.read(stateBuf, bufSize);
     stateFile.close();
     problem.deserialize(stateBuf);

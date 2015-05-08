@@ -139,7 +139,7 @@ int main(int argc, char** argv)
     if (saveInitState) {
         annealer.initMoves();
         cerr << "The energy after initMoves is " << embryo.get_score() << endl;
-        embryo.printScore(cout);
+        //embryo.printScore(cout);
         annealer.saveUnifiedInitState(saveStatePrefix);
     } else {
         if (readInitState) {

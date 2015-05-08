@@ -86,7 +86,7 @@ double unirandom::lognormal(double mean, double var)
 }
 
 
-inline void unirand48::initFromSeed()
+void unirand48::initFromSeed()
 {
     xsubi[0] = 0x330E; // follow what srand48 do
     xsubi[1] = static_cast<unsigned short>(seed);
