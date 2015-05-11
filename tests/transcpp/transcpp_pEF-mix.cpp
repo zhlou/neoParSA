@@ -1,16 +1,15 @@
-#include "flags.h"
 #include "pwm.h"
 #include "TF.h"
 #include "gene.h"
-#include "conc.h"
+#include "datatable.h"
 #include "twobit.h"
 #include "organism.h"
+#include "mode.h"
+#include "utils.h"
 #include <fstream>
-#include <stdexcept>
-#include <iostream>
-#include <sstream>
 #include <boost/property_tree/xml_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
+#include <boost/lexical_cast.hpp>
 
 #include <unistd.h>
 #include <getopt.h>
@@ -99,12 +98,18 @@ int main(int argc, char** argv)
     ptree pt;
     read_xml(infile, pt, boost::property_tree::xml_parser::trim_whitespace);
 
-    ptree & input = pt.get_child("Input");
-
-    Organism embryo(input);
+    ptree& root_node = pt.get_child("Root");
+    ptree& mode_node = root_node.get_child("Mode");
+    ptree& input_node = root_node.get_child("Input");
+    mode_ptr mode(new Mode(xmlname, mode_node));
+    
+    Organism embryo(input_node, mode);
     //embryo.printParameters(cerr);
-
-    unirand48 rnd(mpiState.rank);
+    unsigned int seed = mode->getSeed();
+    if (mode->getVerbose() >= 1) 
+        cerr << "Beginning annealing with seed " << seed << endl;
+    unirand48 rnd;
+    rnd.setSeed(seed+mpiState.rank);
     //rnd.setSeed(getpid());
 
     xmlDoc *doc = xmlParseFile(xmlname.c_str());
@@ -163,13 +168,10 @@ int main(int argc, char** argv)
     //embryo.printParameters(cerr);
 
     if (annealer->getWinner() == mpiState.rank) {
-        ptree output, anneal_output;
-        embryo.write("Output", output);
-        annealer->ptreeGetResult(output.get_child("Output"));
-        //ptree& opt = output.get_child("Output");
-        output.put_child("Output.anneal_output", anneal_output);
+        embryo.write("Output", root_node);
+        annealer->ptreeGetResult(root_node);
         boost::property_tree::xml_writer_settings<char> settings(' ', 2);
-        write_xml_element(infile, basic_string<ptree::key_type::value_type>(), output, -1, settings);
+        write_xml(xmlname, pt, std::locale(), settings);
     }
     xmlCleanupParser();
     delete annealer;
