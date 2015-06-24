@@ -493,9 +493,9 @@ void Subgroups::calc_f()
   {
     Gene& gene = genes->getGene(i);
     list<Subgroup>& gene_groups = groups[&gene];
-    list<Subgroup>::iterator i;
-    for (i=gene_groups.begin(); i != gene_groups.end(); ++i)
-      i->occupancy();
+    list<Subgroup>::iterator j;
+    for (j=gene_groups.begin(); j != gene_groups.end(); ++j)
+      j->occupancy();
   }
 }
 
