@@ -38,7 +38,7 @@ int main(int argc, char **argv)
     xmlNodePtr DoSParamNode=getSectionByName(xmlroot,"DoS");
     if (DoSParamNode != NULL) {
         param.initWeight = getPropDouble(DoSParamNode, "weight");
-        param.nSteps = getPropInt(DoSParamNode,"nsteps");
+        param.nSteps = getPropLong(DoSParamNode,"nsteps");
     }
     xmlNodePtr WLENode=getSectionByName(xmlroot, "WLEstimator");
     if (WLENode != NULL) {

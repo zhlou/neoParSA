@@ -28,6 +28,22 @@ double getPropDouble(xmlNode* section, const char* name)
     return val;
 }
 
+// return long value from node "section" with property name "name"
+// throws runtime_error when not found
+long getPropLong(xmlNode* section, const char* name)
+{
+    if (section == NULL)
+        throw runtime_error(string("Error: NULL section"));
+    xmlChar *prop = NULL;
+    prop = xmlGetProp(section, (xmlChar *)name);
+    if (prop == NULL)
+        throw runtime_error(string("Error: fail to find property ")
+                +name+" in xml section "+(char *)(section->name));
+    long val = strtol((char *)prop, NULL, 0);
+    xmlFree(prop);
+    return val;
+}
+
 // return integer value from node "section" with property name "name"
 // throws runtime_error when not found
 int getPropInt(xmlNode* section, const char* name)

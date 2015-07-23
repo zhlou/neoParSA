@@ -15,7 +15,7 @@ class DoS
 {
 public:
     struct Param {
-        int nSteps;
+        long nSteps;
         double initWeight;
         typename Estimator::Param estParam;
     };
@@ -30,7 +30,7 @@ private:
     unirandom& rnd;
     Estimator estm;
     double weight;
-    int nSteps;
+    long nSteps;
     //double energy;
 };
 

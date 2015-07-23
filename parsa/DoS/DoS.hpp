@@ -30,7 +30,7 @@ void DoS<Problem, Move, Estimator>::estimate()
     double Vnew = Vold;
     double energyNew = energy;
     double crit = 0.0, delta = 0.0;
-    for (int i = 0; i < nSteps; ++i) {
+    for (long i = 0; i < nSteps; ++i) {
         energyNew = energy + move.propose();
         Vold = estm.getV(energy);
         Vnew = estm.getV(energyNew);

@@ -10,6 +10,7 @@
 #include <libxml/tree.h>
 double getPropDouble(xmlNode *section, const char *name);
 int getPropInt(xmlNode *section, const char *name);
+long getPropLong(xmlNode *section, const char *name);
 xmlNode *getSectionByName(xmlNode *root, const char *name);
 
 
