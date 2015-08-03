@@ -21,6 +21,7 @@
 #include <unistd.h>
 #include <libxml/parser.h>
 #include <getopt.h>
+#include <libgen.h>
 #include "annealer.h"
 #include "move/feedbackMove.h"
 #include "unirandom.h"

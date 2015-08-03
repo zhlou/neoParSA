@@ -11,6 +11,7 @@
 #include <unistd.h>
 #include <cstring>
 #include <libxml/parser.h>
+#include <libgen.h>
 
 #include "unirandom.h"
 #include "criCount.h"
