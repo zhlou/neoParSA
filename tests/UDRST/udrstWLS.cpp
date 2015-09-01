@@ -2,7 +2,8 @@
  * rstWLS.cpp
  */
 #include <iostream>
-#include<libxml/parser.h>
+#include <libxml/parser.h>
+#include <unistd.h>
 #include "DoS/DoS.h"
 #include "DoS/WLEstimator.h"
 #include "move/feedbackMove.h"
@@ -15,15 +16,35 @@
 int main(int argc, char **argv)
 {
     if (argc <= 1) {
-        std::cerr << "Missing input files" << std::endl;
-        std::cerr << "Usage: udrstWLS input [output]" << std::endl;
-        return 1;
     }
     unirandom rnd;
-    char *docname = argv[1];
     char *outname = NULL;
-    if (argc == 3)
-        outname = argv[2];
+    char *readfile = NULL;
+    char *savefile = NULL;
+    char c;
+    while ( (c = getopt(argc, argv, "o:s:r:")) != -1) {
+        switch(c) {
+        case 'o':
+            outname = optarg;
+            break;
+        case 'r':
+            readfile = optarg;
+            break;
+        case 's':
+            savefile = optarg;
+            break;
+        default:
+            std::cerr << "Unrecognized option " << c << std::endl;
+            break;
+        }
+    }
+    if (argc <= optind) {
+        std::cerr << "Missing input files" << std::endl;
+        std::cerr << "Usage: udrstWLS [-o output] [-s savefile] [-r readfile] input " << std::endl;
+        return 1;
+    }
+
+    char *docname = argv[optind];
     xmlDocPtr xmldoc = xmlParseFile(docname);
     xmlNodePtr xmlroot = xmlDocGetRootElement(xmldoc);
     
@@ -47,14 +68,20 @@ int main(int argc, char **argv)
         param.estParam.nBins = getPropInt(WLENode, "nBins");
     }
     DoS<udrst, feedbackMove, WLEstimator> simulate(rst, rstMove, rnd, param);
-    simulate.estimate();
     WLEstimator &estm=simulate.getEstimator();
+    if (readfile) {
+        estm.readHist(readfile);
+    }
+    simulate.estimate();
     if (outname == NULL)
         estm.printHist(std::cout);
     else {
         ofstream myout(outname);
         estm.printHist(myout);
         myout.close();
+    }
+    if (savefile) {
+        estm.saveHist(savefile);
     }
     return 0;
 }
