@@ -8,7 +8,6 @@
 #ifndef WLESTIMATOR_H
 #define	WLESTIMATOR_H
 
-#include <vector>
 #include <ostream>
 #include <iostream>
 
@@ -21,15 +20,14 @@ public:
     };
     WLEstimator(Param &param);
     WLEstimator(const WLEstimator& orig);
-    ~WLEstimator();
+    virtual ~WLEstimator();
     void update(double eVal, double weight);
 
     double getV(double eVal) const;
     void printHist(std::ostream &out = std::cout) const;
     void saveHist(const char *filename) const;
     void readHist(const char *filename);
-
-private:
+protected:
     const unsigned int nBins;
     const double eMin;
     const double binWidth;
