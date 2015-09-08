@@ -20,14 +20,14 @@ public:
     };
     WLEstimator(Param &param);
     WLEstimator(const WLEstimator& orig);
-    virtual ~WLEstimator();
+    ~WLEstimator();
     void update(double eVal, double weight);
 
     double getV(double eVal) const;
     void printHist(std::ostream &out = std::cout) const;
     void saveHist(const char *filename) const;
     void readHist(const char *filename);
-protected:
+private:
     const unsigned int nBins;
     const double eMin;
     const double binWidth;
