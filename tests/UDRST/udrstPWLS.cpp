@@ -21,7 +21,7 @@ int main(int argc, char **argv)
     MPI_Comm_rank(MPI_COMM_WORLD, &mpi.rank);
     MPI_Comm_group(MPI_COMM_WORLD, &mpi.group);
     mpi.comm = MPI_COMM_WORLD;
-    unirandom rnd;
+
     char *outname = NULL;
     char *readfile = NULL;
     char *savefile = NULL;
@@ -51,7 +51,7 @@ int main(int argc, char **argv)
     char *docname = argv[optind];
     xmlDocPtr xmldoc = xmlParseFile(docname);
     xmlNodePtr xmlroot = xmlDocGetRootElement(xmldoc);
-    
+    unirandom rnd(mpi.rank);
     udrst rst(xmlroot, rnd);
     feedbackMove<udrst> rstMove(rst, rnd, xmlroot);
     DoS<udrst, feedbackMove, PWLE>::Param param;
