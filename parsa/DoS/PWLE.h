@@ -12,6 +12,8 @@ public:
         double binWidth;
         MPIState *mpi;
         unsigned int syncFreq;
+        char* saveName;
+        unsigned int saveFreq;
     };
     PWLE(Param &param);
     PWLE(const PWLE &orig);
@@ -28,8 +30,11 @@ private:
     const double eMin;
     const double binWidth;
     const unsigned int syncFreq;
+    const char* saveName;
+    const unsigned int saveFreq;
     MPIState &mpi;
     unsigned int uSteps;
+    unsigned int syncCount;
     double *histLocal;
     double *histGlobal;
     bool localModified;

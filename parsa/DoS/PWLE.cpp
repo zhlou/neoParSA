@@ -11,7 +11,10 @@ PWLE::PWLE(Param &param):
     syncFreq(syncFreq),
     mpi(*param.mpi),
     uSteps(0),
-    localModified(false)
+    localModified(false),
+    saveName(param.saveName),
+    saveFreq(param.saveFreq),
+    syncCount(0)
 {
     histLocal = new double[nBins];
     histGlobal = new double[nBins];
@@ -28,7 +31,10 @@ PWLE::PWLE(const PWLE &orig) :
     syncFreq(orig.syncFreq),
     mpi(orig.mpi),
     uSteps(orig.uSteps),
-    localModified(orig.localModified)
+    localModified(orig.localModified),
+    saveName(orig.saveName),
+    saveFreq(orig.saveFreq),
+    syncCount(orig.syncCount)
 {
     histLocal = new double[nBins];
     histGlobal = new double[nBins];
@@ -64,6 +70,12 @@ void PWLE::update(double eVal, double weight)
     if (syncFreq == uSteps) {
         uSteps = 0;
         syncHist();
+        ++syncCount;
+        if (saveFreq == syncCount) {
+            syncCount = 0;
+            if (0 == mpi.rank)
+                saveHist(saveName); 
+        }
     }
 }
 

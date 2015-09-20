@@ -98,6 +98,8 @@ int main(int argc, char **argv)
     param.estParam.nBins=4040;
     param.estParam.mpi = &mpi;
     param.estParam.syncFreq = 1000;
+    param.estParam.saveName = NULL;
+    param.estParam.saveFreq = 0;
     xmlNodePtr DoSParamNode=getSectionByName(xmlroot,"DoS");
     if (DoSParamNode != NULL) {
         param.initWeight = getPropDouble(DoSParamNode, "weight");
@@ -109,6 +111,12 @@ int main(int argc, char **argv)
         param.estParam.binWidth = getPropDouble(WLENode,"binWidth");
         param.estParam.nBins = getPropInt(WLENode, "nBins");
         param.estParam.syncFreq = getPropInt(WLENode, "syncFreq");
+        try {
+            param.estParam.saveFreq = getPropInt(WLENode, "saveFreq");
+        } catch (const std::exception &e) {
+            // ignored
+        }
+        param.estParam.saveName = (char *)xmlGetProp(WLENode, BAD_CAST"saveName");
     }
     DoS<Organism, feedbackMove, PWLE> simulate(embryo, transcMove, rnd, param);
     PWLE &estm=simulate.getEstimator();
@@ -128,6 +136,9 @@ int main(int argc, char **argv)
         if (savefile) {
             estm.saveHist(savefile);
         }
+    }
+    if (param.estParam.saveName) {
+        xmlFree(param.estParam.saveName);
     }
 
     xmlFreeDoc(xmldoc);
