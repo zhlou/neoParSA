@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   staticCool.h
  * Author: zhlou
  *
@@ -14,7 +14,6 @@
 
 #include "dynDebug.h"
 #include "aState.h"
-#include "utils/vectorUtils.h"
 
 
 
@@ -23,12 +22,16 @@ class staticCool {
 private:
     std::vector<double> schedule;
     dynDebug debugOut;
+    const unsigned segLength;
+    unsigned step_cnt;
+    std::vector<double>::size_type size, i;
 public:
     class Param {
     public:
         char *scheduleName;
         const char *outname;
         debugStatus st;
+        unsigned segLength;
         Param(xmlNode *root, debugStatus in_st=ignore, const char *logname=NULL);
     };
     staticCool(Param &param);
@@ -46,9 +49,6 @@ public:
         debugOut.setDebug(st, outname);
     }
     static const char * name;
-    
-    
-    
 };
 
 #endif	/* STATICCOOL_H */
