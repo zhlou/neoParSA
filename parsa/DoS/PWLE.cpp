@@ -8,7 +8,7 @@ PWLE::PWLE(Param &param):
     nBins(param.nBins),
     eMin(param.eMin),
     binWidth(param.binWidth),
-    syncFreq(syncFreq),
+    syncFreq(param.syncFreq),
     mpi(*param.mpi),
     uSteps(0),
     localModified(false),
