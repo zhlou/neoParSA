@@ -28,6 +28,8 @@ add_executable(udrstWLS udrstWLS.cpp ${UDRST_COMMON})
 add_executable(udrstPWLS udrstPWLS.cpp ${UDRST_COMMON})
 add_executable(udrst_static udrst_static.cpp ${UDRST_COMMON})
 
+add_executable(doubleVectorConverter doubleVectorConverter)
+
 foreach(bin ${BINARIES})
 	target_link_libraries(${bin} parsa ${LIBXML2_LIBRARIES})
 endforeach()

@@ -54,5 +54,18 @@ void readDoubleVectorFromText(std::vector<double> &dat, const char* filename)
     is.close();
 }
 
+void readDoubleVectorFromText(std::vector<double> &dat1, std::vector<double> &dat2, 
+                              const char* filename)
+{
+    std::ifstream is(filename);
+    double val1, val2;
+    while ((is >> val1) && (is >> val2)) {
+        dat1.push_back(val1);
+        dat2.push_back(val2);
+
+    }
+    is.close();
+}
+
 #endif	/* VECTORUTILS_H */
 
