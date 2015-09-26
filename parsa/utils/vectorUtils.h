@@ -62,7 +62,6 @@ void readDoubleVectorFromText(std::vector<double> &dat1, std::vector<double> &da
     while ((is >> val1) && (is >> val2)) {
         dat1.push_back(val1);
         dat2.push_back(val2);
-
     }
     is.close();
 }
