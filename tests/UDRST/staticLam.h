@@ -18,36 +18,40 @@
 
 class staticLam {
 private:
-    std::vector<double> energy;
+    std::vector<double> betaVec;
     std::vector<double> variance;
     dynDebug debugOut;
     const unsigned segLength;
-    unsigned step_cnt;
-    std::vector<double>::size_type size, i;
     const double lambda;
+    unsigned count;
+    unsigned success;
+    std::vector<double>::size_type size, i;
+    double b0, bEnd, v0, cEnd;
+    double alpha;
+
     double getVar(double beta);
 
 public:
     class Param {
     public:
-        char *filename;
-        const char *logname;
         debugStatus st;
+        const char *logname;
         unsigned segLength;
         double lambda;
+        char *filename;
         Param(xmlNode *root, debugStatus in_st=ignore, const char *logname=NULL);
     }
     staticLam(Param &param);
     ~staticLam();
     void initStats(const aState &){}
     void initStats(double, double, double, const aState&){}
-    void updateInitStep(bool, const aState &){}
+    void updateInitStep(bool accept, const aState &state){updateStep(accept, state);}
     void resetSegmentStats(){}
-    void updateStep(bool, const aState &state){}
+    void updateStep(bool accept, const aState &state);
     double updateS(const aState &state);
     void updateSegment(const aState &state);
     void updateStats(const aState &state);
-    void  setDebug(debugStatus st, const char *outname=NULL)
+    void setDebug(debugStatus st, const char *outname=NULL)
     {
         debugOut.setDebug(st, outname);
     }
