@@ -6,37 +6,43 @@
 
 #include "staticLam.h"
 
-const char * staticLam::name = "staticLam"
+const char * staticLam::name = "staticLam";
 
-staticLam::Param:Param(xmlNode *root, debugStatus in_st, const char *name) :
+staticLam::Param::Param(xmlNode *root, debugStatus in_st, const char *name) :
         st(in_st), logname(name)
 {
     xmlNode *section = getSectionByName(root, "staticLam");
     segLength = 100;
     try {
-        segLength = getPropInt(xmlsection, "segLength");
+        segLength = getPropInt(section, "segLength");
     } catch (const std::exception &e) {
         // ignored
     }
     adjustAlpha=0;
     try {
-        adjustAlpha = getPropInt(xmlsection, "adjustAlpha");
+        adjustAlpha = getPropInt(section, "adjustAlpha");
     } catch (const std::exception &e) {
         // ignored
     }
     lambda = getPropDouble(section, "lambda");
+    minRate = 1e-15;
+    try {
+        minRate = getPropDouble(section, "minRate");
+    } catch (const std::exception &e) {
+        // ignored
+    }
     filename = (char *)xmlGetProp(section, (xmlChar *)"filename");
     if (NULL == filename) {
-        throw runtime_error(string("Error: fail to find filename in staticLam"));
+        throw std::runtime_error("Error: fail to find filename in staticLam");
     }
 }
 
 staticLam::staticLam(Param &param) : 
         debugOut(param.st, param.logname), segLength(param.segLength),
-        lambda(param.lambda), count(0), i(0), alpha(0.23), success(0), 
-        adjustAlpha(param.adjustAlpha)
+        lambda(param.lambda), minRate(param.minRate), count(0), i(0), 
+        alpha(0.23), success(0), adjustAlpha(param.adjustAlpha)
 {
-    readDoubleVectorFromText(betaVec, variance, filename);
+    readDoubleVectorFromText(betaVec, variance, param.filename);
     size = betaVec.size();
     b0=betaVec[0];
     bEnd=betaVec.back();
@@ -62,7 +68,11 @@ double staticLam::updateS(const aState &state)
 {
     double b = state.s;
     double var = getVar(b);
-    return b + lambda * alpha / (var * std::sqrt(var) * b * b);
+    double delta = lambda * alpha / (var * std::sqrt(var) * b * b);
+    if (delta < minRate * b)
+        return b + minRate * b;
+    else
+        return b + delta;
 }
 
 void staticLam::updateStep(bool accept, const aState &)
@@ -75,13 +85,32 @@ void staticLam::updateStats(const aState &state)
     ++ count;
     if (segLength == count) {
         count = 0;
-        double ar = (double)success / (double)segLength;
-        success = 0;
-        if (adjustAlpha) {
-            double d = (1.0 - ar) / (2.0 - ar);
-            alpha = 4.0 * ar * d * d;
-        }
-        debugOut << state.step_cnt << " " << state.s << " " 
-                 << ar << std::endl;
+        calcStats(segLength, state);
     }
+}
+
+void staticLam::calcStats(unsigned nsteps, const aState &state)
+{
+    double ar = (double)success / (double)nsteps;
+    success = 0;
+    if (adjustAlpha) {
+        double d = (1.0 - ar) / (2.0 - ar);
+        alpha = 4.0 * ar * d * d;
+    }
+    debugOut << state.step_cnt << " " << state.s << " " 
+             << getVar(state.s) << " " << ar << std::endl;
+
+}
+
+void staticLam::initStats(double, double, double initAccRatio, const aState& state)
+{
+    if (adjustAlpha) {
+        double d = (1.0 - initAccRatio) / (2.0 - initAccRatio);
+        alpha = 4.0 * initAccRatio * d * d;
+    }
+}
+
+void staticLam::initStats(const aState &state)
+{
+    calcStats(state.step_cnt, state);
 }

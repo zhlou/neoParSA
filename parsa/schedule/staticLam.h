@@ -3,13 +3,15 @@
  *        Created:  09/24/2015 03:47:26 PM
  *         Author:  Zhihao Lou
  *
- *           Note:  This cooling schedule relies on the properties
- *                  that the variance is constant at high temperature
- *                  (small s or beta) and is proportional to 
- *                  constant/beta^2 for low temperature (large s).
- *                  This behavior is consistant with Gamma energy
- *                  density model and also theoretical values from
- *                  the Rastrigin functions.
+ *                  This cooling schedule takes a text file with two columns
+ *                  each line representing inverse temperature and 
+ *
+ *           Note:  This cooling schedule relies on the properties that the
+ *                  variance is constant at high temperature (small s or beta)
+ *                  and is proportional to constant/beta^2 for low temperature
+ *                  (large s).  This behavior is consistant with Gamma energy
+ *                  density model and also theoretical values from the
+ *                  Rastrigin functions.
  */
 
 #ifndef STATICLAM_H
@@ -28,6 +30,7 @@ private:
     dynDebug debugOut;
     const unsigned segLength;
     const double lambda;
+    const double minRate;
     unsigned count;
     unsigned success;
     std::vector<double>::size_type size, i;
@@ -36,6 +39,7 @@ private:
     const int adjustAlpha;
 
     double getVar(double beta);
+    void calcStats(unsigned nsteps, const aState &state);
 
 public:
     class Param {
@@ -44,14 +48,15 @@ public:
         const char *logname;
         unsigned segLength;
         double lambda;
+        double minRate;
         int adjustAlpha;
         char *filename;
         Param(xmlNode *root, debugStatus in_st=ignore, const char *logname=NULL);
-    }
+    };
     staticLam(Param &param);
-    ~staticLam();
-    void initStats(const aState &){}
-    void initStats(double, double, double, const aState&){}
+    ~staticLam(){}
+    void initStats(const aState &);
+    void initStats(double, double, double, const aState&);
     void updateInitStep(bool accept, const aState &state){updateStep(accept, state);}
     void updateStep(bool accept, const aState &state);
     double updateS(const aState &state);
@@ -63,7 +68,7 @@ public:
         debugOut.setDebug(st, outname);
     }
     static const char * name;
-}
+};
 
 
 

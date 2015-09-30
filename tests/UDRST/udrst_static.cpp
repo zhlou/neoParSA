@@ -20,7 +20,7 @@
 #include "unirandom.h"
 #include "tempCount.h"
 #include "dynDebug.h"
-#include "schedule/staticCool.h"
+#include "schedule/staticLam.h"
 #include "udrst.h"
 
 int main(int argc, char **argv)
@@ -86,10 +86,10 @@ int main(int argc, char **argv)
     }
     unirandom rnd;
     udrst rst(docroot, rnd);
-    staticCool::Param scheParam(docroot);
+    staticLam::Param scheParam(docroot);
     tempCount::Param frozenParam(docroot);
-    annealer<udrst, staticCool, tempCount, feedbackMove>*rst_sa
-            = new annealer<udrst, staticCool, tempCount, feedbackMove>
+    annealer<udrst, staticLam, tempCount, feedbackMove>*rst_sa
+            = new annealer<udrst, staticLam, tempCount, feedbackMove>
                   (rst, rnd, scheParam, frozenParam, docroot);
     string basename(docname);
     size_t sz = basename.size();
