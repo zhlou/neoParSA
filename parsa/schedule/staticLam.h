@@ -3,8 +3,13 @@
  *        Created:  09/24/2015 03:47:26 PM
  *         Author:  Zhihao Lou
  *
- *           Note:  This cooling schedule relies heavily on the properties
- *                  of Rastrigin function so it has to be here.
+ *           Note:  This cooling schedule relies on the properties
+ *                  that the variance is constant at high temperature
+ *                  (small s or beta) and is proportional to 
+ *                  constant/beta^2 for low temperature (large s).
+ *                  This behavior is consistant with Gamma energy
+ *                  density model and also theoretical values from
+ *                  the Rastrigin functions.
  */
 
 #ifndef STATICLAM_H
@@ -28,6 +33,7 @@ private:
     std::vector<double>::size_type size, i;
     double b0, bEnd, v0, cEnd;
     double alpha;
+    const int adjustAlpha;
 
     double getVar(double beta);
 
@@ -38,6 +44,7 @@ public:
         const char *logname;
         unsigned segLength;
         double lambda;
+        int adjustAlpha;
         char *filename;
         Param(xmlNode *root, debugStatus in_st=ignore, const char *logname=NULL);
     }
@@ -46,10 +53,10 @@ public:
     void initStats(const aState &){}
     void initStats(double, double, double, const aState&){}
     void updateInitStep(bool accept, const aState &state){updateStep(accept, state);}
-    void resetSegmentStats(){}
     void updateStep(bool accept, const aState &state);
     double updateS(const aState &state);
-    void updateSegment(const aState &state);
+    //void updateSegment(const aState &state);
+    //void resetSegmentStats(){}
     void updateStats(const aState &state);
     void setDebug(debugStatus st, const char *outname=NULL)
     {

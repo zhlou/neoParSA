@@ -12,10 +12,16 @@ staticLam::Param:Param(xmlNode *root, debugStatus in_st, const char *name) :
         st(in_st), logname(name)
 {
     xmlNode *section = getSectionByName(root, "staticLam");
-    segLength = 1;
+    segLength = 100;
     try {
         segLength = getPropInt(xmlsection, "segLength");
-    } catch (const set::exception &e) {
+    } catch (const std::exception &e) {
+        // ignored
+    }
+    adjustAlpha=0;
+    try {
+        adjustAlpha = getPropInt(xmlsection, "adjustAlpha");
+    } catch (const std::exception &e) {
         // ignored
     }
     lambda = getPropDouble(section, "lambda");
@@ -27,7 +33,8 @@ staticLam::Param:Param(xmlNode *root, debugStatus in_st, const char *name) :
 
 staticLam::staticLam(Param &param) : 
         debugOut(param.st, param.logname), segLength(param.segLength),
-        lambda(param.lambda), count(0), i(0), alpha(0.23), success(0)
+        lambda(param.lambda), count(0), i(0), alpha(0.23), success(0), 
+        adjustAlpha(param.adjustAlpha)
 {
     readDoubleVectorFromText(betaVec, variance, filename);
     size = betaVec.size();
@@ -62,4 +69,19 @@ void staticLam::updateStep(bool accept, const aState &)
 {
     if (accept)
         ++ success;
+}
+void staticLam::updateStats(const aState &state)
+{
+    ++ count;
+    if (segLength == count) {
+        count = 0;
+        double ar = (double)success / (double)segLength;
+        success = 0;
+        if (adjustAlpha) {
+            double d = (1.0 - ar) / (2.0 - ar);
+            alpha = 4.0 * ar * d * d;
+        }
+        debugOut << state.step_cnt << " " << state.s << " " 
+                 << ar << std::endl;
+    }
 }
