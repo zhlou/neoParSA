@@ -46,7 +46,7 @@ staticLam::staticLam(Param &param) :
     size = betaVec.size();
     b0=betaVec[0];
     bEnd=betaVec.back();
-    cEnd=bEnd*bEnd*betaVec.back();
+    cEnd=bEnd*bEnd*variance.back();
 }
 
 double staticLam::getVar(double beta)
@@ -98,7 +98,8 @@ void staticLam::calcStats(unsigned nsteps, const aState &state)
         alpha = 4.0 * ar * d * d;
     }
     debugOut << state.step_cnt << " " << state.s << " " 
-             << getVar(state.s) << " " << ar << std::endl;
+             << state.energy << " " << getVar(state.s) 
+             << " " << ar << std::endl;
 
 }
 
