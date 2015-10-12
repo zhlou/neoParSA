@@ -88,8 +88,8 @@ double annealer<Problem, Schedule, FrozenCnd, Move>::loop()
     clock_t end = clock();
     tlaps = (double)(end - start)/CLOCKS_PER_SEC;
 
-    std::cout << "Annealing stopped at s = " << state.s << std::endl
-            << "Total steps is " << state.step_cnt << std::endl;
+    //std::cout << "Annealing stopped at s = " << state.s << std::endl
+    //        << "Total steps is " << state.step_cnt << std::endl;
     return move->get_score();
 }
 
