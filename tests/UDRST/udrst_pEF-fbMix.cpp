@@ -97,6 +97,13 @@ int main(int argc, char **argv)
         return -1;
     }
     unirandom rnd(mpi.rank);
+    unsigned int seed;
+    try {
+        seed = getPropInt(docroot, "seed");
+        rnd.setSeed(seed + mpi.rank);
+    } catch (std::exception &e) {
+        // ignore
+    }
     udrst rst(docroot, rnd);
     expHoldP::Param scheParam(docroot);
     criCountP::Param frozenParam(docroot);
