@@ -19,14 +19,16 @@ private:
     const MPIState &mpi;
     unirandom& rnd;
 
-    MPI_Win state_win;
-    void *state_buf;
+//    MPI_Win state_win;
+
+    void *send_buf;
     void *recv_buf;
     int buf_size;
     double *energy_tab;
     double *prob_tab;
     double norm;
     int *adoptArray;
+    int *dance_partner;
 public:
     Mixing(Problem &problem, const MPIState &mpiState, unirandom& in_rnd);
     ~Mixing();
