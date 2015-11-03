@@ -27,6 +27,10 @@ public:
     double laplace(double theta);
     double lognormal(double mean, double var);
     double exponential(double theta);
+    virtual void setSeed(unsigned int newSeed)
+    {
+        seed = newSeed;
+    }
 protected:
     unsigned int seed;
 private:

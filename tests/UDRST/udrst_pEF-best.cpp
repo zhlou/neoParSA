@@ -1,11 +1,15 @@
 /*
- * rst_pEH-fbMix.cpp
+ * udrst_pEH-mix.cpp
  *
- *  Created on: Aug 27, 2014
+ *  Created on: Aug 29, 2014
  *      Author: zhlou
  */
 
+
+
+
 #include <iostream>
+#include <fstream>
 #include <sstream>
 #include <exception>
 #include <stdexcept>
@@ -22,11 +26,9 @@
 #include "unirandom.h"
 #include "criCountP.h"
 #include "dynDebug.h"
-#include "feedbackMix.h"
+#include "intervalBest.h"
 #include "expHoldP.h"
-
 #include "udrst.h"
-
 
 int main(int argc, char **argv)
 {
@@ -97,20 +99,13 @@ int main(int argc, char **argv)
         return -1;
     }
     unirandom rnd(mpi.rank);
-    unsigned int seed;
-    try {
-        seed = getPropInt(docroot, "seed");
-        rnd.setSeed(seed + mpi.rank);
-    } catch (std::exception &e) {
-        // ignore
-    }
     udrst rst(docroot, rnd);
     expHoldP::Param scheParam(docroot);
     criCountP::Param frozenParam(docroot);
-    feedbackMix<udrst>::Param mixParam(docroot);
-    pannealer<udrst, expHoldP, criCountP, parallelFBMove, feedbackMix>
+    intervalBest<udrst>::Param mixParam(docroot);
+    pannealer<udrst, expHoldP, criCountP, parallelFBMove, intervalBest>
             *rst_sa = new pannealer<udrst, expHoldP, criCountP,
-                                    parallelFBMove, feedbackMix>
+                                    parallelFBMove, intervalBest>
             (rst, rnd, scheParam, frozenParam, mixParam, docroot, mpi);
     string basename(docname);
     size_t sz = basename.size();
@@ -118,23 +113,25 @@ int main(int argc, char **argv)
 
     string outprefix = basename + "_" +
             ((ostringstream*)&(ostringstream()<<mpi.rank))->str();
-    if (isprolix) {
-        rst_sa->setProlix(file, (outprefix + ".prolix").c_str());
-    }
 
 
 
     if (mpi.rank == 0) {
         if (iscoollog)
             rst_sa->setCoolLog(file,(basename + ".log").c_str());
+        if (isprolix) {
+            rst_sa->setProlix(file, (basename + ".prolix").c_str());
+        }
         if (isverbose) {
             rst_sa->setMixLog(file, (basename + ".mixlog").c_str());
         }
+
         // fly_sa->setProlix(file, (flyParams.infile_name + ".prolix").c_str());
     }
     if (issteplog) {
         rst_sa->setStepLog(file, (outprefix + ".steplog").c_str());
     }
+    
     if (readInitStates) {
         std::string line;
         std::ifstream is(stateListFile);
@@ -155,9 +152,11 @@ int main(int argc, char **argv)
         is.close();
     }
 
-    std::cout << "The initial energy is " << rst.get_score() << std::endl;
+    if (0 == mpi.rank)
+		std::cout << "The initial energy is " << rst.get_score() << std::endl;
     rst_sa->loop();
-    std::cout << "The final energy is " << rst.get_score() << std::endl;
+    if (0 == mpi.rank)
+		std::cout << "The final energy is " << rst.get_score() << std::endl;
     if (rst_sa->getWinner() == mpi.rank) {
         rst.write_section((xmlChar *)"output");
         rst_sa->writeResult();
