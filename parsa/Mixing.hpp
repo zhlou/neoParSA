@@ -71,7 +71,7 @@ double Mixing<Problem>::adoptState(int Id)
         MPI_Irecv(recv_buf, buf_size, MPI_BYTE, Id, Id, mpi.comm, &req);
     }
     for (int i = 0; i < mpi.nnodes; ++i) {
-        if (dance_partner[i] == mpi.rank) {
+        if ((dance_partner[i] == mpi.rank) && (i != mpi.rank)) {
             MPI_Send(send_buf, buf_size, MPI_BYTE, i, mpi.rank, mpi.comm);
         }
     }
