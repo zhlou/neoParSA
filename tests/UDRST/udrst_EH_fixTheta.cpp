@@ -94,6 +94,13 @@ int main(int argc, char **argv)
         return -1;
     }
     unirandom rnd;
+    unsigned int seed;
+    try {
+        seed = getPropInt(docroot, "seed");
+        rnd.setSeed(seed);
+    } catch (std::exception &e) {
+        // ignore
+    }
     udrst rst(docroot, rnd);
     if (startZero) {
         for (int i = 0; i < rst.get_dim(); ++i) {

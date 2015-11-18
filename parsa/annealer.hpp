@@ -13,6 +13,11 @@
 #include <stdexcept>
 #include "xmlUtils.h"
 
+#ifdef USE_BOOST
+#include <boost/property_tree/ptree.hpp>
+using boost::property_tree::ptree;
+#endif
+
 using namespace std;
 /*
  * When the constructor is called, all other parts should already be set up.
