@@ -5,7 +5,7 @@ set(MPIBINARIES udrst_simPLam udrst_pEH-mix udrst_pEF-mix udrst_pEF-best udrst_p
                 udrst_pEF-fbMix udrst_pEF-rMix udrst_pEH-twoTier udrst_pEH-coupledMix
                 udrst_pEH-mixOnce udrstPWLS udrst_static)
 set(BINARIES ${MPIBINARIES} udrst_expHold udrst_expFrozen udrst_lam udrst_scramble
-                udrstWLS)
+                udrstWLS udrst_EH_fixTheta)
 
 #add_executable(test_rst test_rst.cpp ${RST_COMMON})
 #add_executable(solve_rst solve_rastrigin.cpp ${RST_COMMON})
@@ -28,6 +28,7 @@ add_executable(udrstWLS udrstWLS.cpp ${UDRST_COMMON})
 add_executable(udrstPWLS udrstPWLS.cpp ${UDRST_COMMON})
 add_executable(udrst_static udrst_static.cpp ${UDRST_COMMON})
 add_executable(udrst_pEF-best udrst_pEF-best.cpp ${UDRST_COMMON})
+add_executable(udrst_EH_fixTheta udrst_EH_fixTheta.cpp ${UDRST_COMMON})
 
 add_executable(doubleVectorConverter doubleVectorConverter)
 

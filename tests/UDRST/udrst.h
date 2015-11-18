@@ -15,6 +15,7 @@ public:
 	int getDimension() const {return 1;};
 	double get_param(int idx) const;
 	void set_param(int idx, double val);
+	int get_dim() const {return dim;}
 	unirandom &rnd;
 	//unsigned int* get_seed();
 	double get_score();
