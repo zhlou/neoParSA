@@ -99,3 +99,36 @@ void fixedThetaMove<Problem>::procStats()
 
     debugOut << accRatio << "\t" << avgTheta << std::endl;
 }
+
+
+template<class Problem>
+void fixedThetaMove<Problem>::writeState(xmlNodePtr docroot) const
+{
+    xmlNodePtr moveNode = xmlNewChild(docroot, NULL, BAD_CAST"moveSize", NULL);
+    char *paramNumString = NULL;
+    char *thetaString = NULL;
+    xmlNodePtr paramIter = NULL;
+    /* for now fixedThetaMove only has one theta
+    int i;
+    for (i = 0; i < nparams; ++i) {
+        asprintf(&paramNumString, "%d", i);
+        paramIter = xmlNewChild(moveNode, NULL, BAD_CAST "param",
+                BAD_CAST paramNumString);
+        free(paramNumString);
+        asprintf(&thetaString, "%.15g", theta_bars[i]);
+        xmlNewProp(paramIter, BAD_CAST "theta", BAD_CAST thetaString);
+        free(thetaString);
+
+    }
+    */
+    paramIter = xmlNewChild(moveNode, NULL, BAD_CAST "param", BAD_CAST "0");
+    asprintf(&thetaString, "%.15g", target);
+    xmlNewProp(paramIter, BAD_CAST "theta", BAD_CAST thetaString);
+    free(thetaString);
+}
+
+template<class Problem>
+void fixedThetaMove<Problem>::readState(xmlNodePtr )
+{
+    // doing nothing
+}
