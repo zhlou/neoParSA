@@ -24,6 +24,9 @@ public:
     double propose();
     void accept();
     void reject();
+    void writeState(xmlNodePtr docroot) const;
+    void readState(xmlNodePtr docroot);
+    double forceUpdateEnergy() {return energy = problem.get_score();}
     void setDebug(debugStatus st, const char *outname=NULL)
     {debugOut.setDebug(st, outname);}
 private:

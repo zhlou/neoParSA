@@ -7,6 +7,7 @@
 #include <limits>
 #include <cstdlib>
 #include <cmath>
+#include <libxml/tree.h>
 using namespace std;
 
 //template<class Problem>
