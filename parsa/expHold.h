@@ -13,6 +13,9 @@
 #include "onePassMeanVar.h"
 #include <libxml/tree.h>
 
+#include <boost/property_tree/ptree.hpp>
+using boost::property_tree::ptree;
+
 class expHold {
 private:
     unsigned segLength;
@@ -30,6 +33,7 @@ public:
         debugStatus st;
         const char *outname;
         Param(xmlNode *root, debugStatus in_st=ignore, const char *name=NULL);
+        Param(ptree &root, debugStatus in_st=ignore, const char *name=NULL);
     };
     expHold(Param param) : segLength(param.segLength), target_s(param.target_s),
             alpha(param.alpha), debugOut(param.st, param.outname), energyStat(),

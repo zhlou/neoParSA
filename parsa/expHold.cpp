@@ -27,6 +27,15 @@ expHold::Param::Param(xmlNode* root, debugStatus in_st, const char *name) :
     }
 }
 
+expHold::Param::Param(ptree &root, debugStatus in_st, const char *name) :
+        st(in_st), outname(name)
+{
+    ptree &section = root.get_child("expHold");
+    target_s = 1./section.get<double>("<xmlattr>.target");
+    alpha = section.get<double>("<xmlattr>.alpha");
+    segLength = section.get<unsigned>("<xmlattr>.segLength", 1);
+}
+
 expHold::~expHold() {
     // TODO Auto-generated destructor stub
 }
@@ -41,7 +50,7 @@ double expHold::updateS(const aState &state) {
 void expHold::updateSegment(const aState& state)
 {
     debugOut << state.step_cnt << " " << state.s << " "
-             << energyStat.getMean() << " " 
+             << energyStat.getMean() << " "
              << energyStat.getVar() << std::endl;
 }
 

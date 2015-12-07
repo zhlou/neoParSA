@@ -5,6 +5,7 @@
  *      Author: zhlou
  */
 #include <iostream>
+#include <fstream>
 #include <sstream>
 #include <exception>
 #include <stdexcept>
@@ -14,6 +15,10 @@
 #include <libgen.h>
 #include <getopt.h>
 #include <libxml/parser.h>
+
+#include <boost/property_tree/xml_parser.hpp>
+#include <boost/property_tree/ptree.hpp>
+using boost::property_tree::ptree;
 
 #include "annealer.h"
 #include "move/feedbackMove.h"
@@ -39,7 +44,7 @@ int main(int argc, char **argv)
         {"read-state", 1, &readInitState, 1},
         {0, 0, 0, 0}
     };
-    
+
     std::string binname(basename(argv[0]));
     try {
         char c;
@@ -78,6 +83,10 @@ int main(int argc, char **argv)
         return -1;
     }
     char *docname = argv[optind];
+    fstream infile(docname);
+    ptree pt;
+    read_xml(infile, pt, boost::property_tree::xml_parser::trim_whitespace);
+    ptree &pt_root = pt.begin()->second;
     xmlDoc *doc = xmlParseFile(docname);
     xmlNode *docroot = xmlDocGetRootElement(doc);
     if (docroot == NULL) {
@@ -86,7 +95,8 @@ int main(int argc, char **argv)
     }
     unirandom rnd;
     udrst rst(docroot, rnd);
-    expHold::Param scheParam(docroot);
+    //expHold::Param scheParam(docroot);
+    expHold::Param scheParam(pt_root);
     tempCount::Param frozenParam(docroot);
     annealer<udrst, expHold, tempCount, feedbackMove>*rst_sa
             = new annealer<udrst, expHold, tempCount, feedbackMove>
