@@ -24,9 +24,7 @@ public:
     int getWinner();
     void setMixLog(debugStatus st, const char* outname=NULL)
     {pop.setDebug(st, outname);}
-#ifdef USE_BOOST
     virtual void ptreeGetResult(ptree &pt);
-#endif
 protected:
     const MPIState &mpi;
     PopBased<Problem> pop;

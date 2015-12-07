@@ -13,10 +13,8 @@
 #include <stdexcept>
 #include "xmlUtils.h"
 
-#ifdef USE_BOOST
 #include <boost/property_tree/ptree.hpp>
 using boost::property_tree::ptree;
-#endif
 
 using namespace std;
 /*
@@ -163,7 +161,6 @@ void annealer<Problem, Schedule, FrozenCnd, Move>::writeMethodText(xmlNode *meth
                (const xmlChar*)Move<Problem>::name);
 }
 
-#ifdef USE_BOOST
 template<class Problem, class Schedule, class FrozenCnd, template<class> class Move>
 void annealer<Problem, Schedule, FrozenCnd, Move>::ptreeGetResult(ptree &pt)
 {
@@ -177,7 +174,6 @@ void annealer<Problem, Schedule, FrozenCnd, Move>::ptreeGetResult(ptree &pt)
     pt.put("annealing_method.cooling-schedule",std::string(Schedule::name));
     pt.put("annealing_method.move-generation",std::string(Move<Problem>::name));
 }
-#endif
 
 template<class Problem, class Schedule, class FrozenCnd, template<class > class Move>
 void annealer<Problem, Schedule, FrozenCnd, Move>::writeResult()

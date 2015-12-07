@@ -2,10 +2,8 @@
 #define ANNEALER_H
 
 #include <libxml/parser.h>
-#ifdef USE_BOOST
 #include <boost/property_tree/ptree.hpp>
 using boost::property_tree::ptree;
-#endif
 #include "unirandom.h"
 #include "aState.h"
 #include "dynDebug.h"
@@ -63,9 +61,7 @@ public:
     double fixedTMoves(double S, long steps);
     void saveUnifiedInitState(const char * filename);
     double readUnifiedInitState(const char * filename);
-#ifdef USE_BOOST
     virtual void ptreeGetResult(ptree &pt);
-#endif
     void writeResult();
     void setStepLog(debugStatus st, const char* outname=NULL)
     {debugOut.setDebug(st, outname); debugOut.precision(16);}
