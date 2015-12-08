@@ -11,6 +11,9 @@
 #include <libxml/tree.h>
 #include "aState.h"
 
+#include <boost/property_tree/ptree.hpp>
+using boost::property_tree::ptree;
+
 class criCountP;
 class criCount {
 public:
@@ -21,6 +24,7 @@ public:
         int cnt_crit;
         int interval;
         Param(xmlNode *root);
+        Param(ptree &root);
     };
     criCount(const Param &param);
     ~criCount();
@@ -39,4 +43,3 @@ private:
 };
 
 #endif /* CRICOUNT_H_ */
- 

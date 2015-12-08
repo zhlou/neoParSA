@@ -35,7 +35,7 @@ bool criCount::frozen(const aState& state)
     return checkFrozen(state);
 }
 
-bool criCount::checkFrozen(const aState& state) 
+bool criCount::checkFrozen(const aState& state)
 {
     if (std::abs(old_energy - state.energy) < freeze_crit)
         freeze_cnt++;
@@ -59,4 +59,12 @@ criCount::Param::Param(xmlNode* root)
     } catch (std::exception &e) {
         // ignored
     }
+}
+
+criCount::Param::Param(ptree &root)
+{
+    ptree &section = root.get_child("count_criterion");
+    freeze_crit = section.get<double>("<xmlattr>.freeze_crit");
+    cnt_crit = section.get<int>("<xmlattr>.freeze_cnt");
+    interval = section.get<int>("<xmlattr>.interval", 100);
 }
