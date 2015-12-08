@@ -317,7 +317,7 @@ void DataTable<T>::write(ostream & os, string node_name, int precision)
 {
   ptree pt;
   write(pt, node_name, precision);
-  boost::property_tree::xml_writer_settings<char> settings(' ', 2);
+  boost::property_tree::xml_writer_settings<string> settings(' ', 2);
   write_xml_element(os, basic_string<ptree::key_type::value_type>(), pt, -1, settings);  
 }
 

@@ -66,49 +66,49 @@ void TF::set(ptree& pt)
 
   tfname     = pt.get<string>("<xmlattr>.name");
   bsize      = pt.get<int>("<xmlattr>.bsize");
-  
-  
+
+
   // read in coefficients
   ptree& coefs_node = pt.get_child("Coefficients");
   foreach_(ptree::value_type const& coef_node, coefs_node)
   {
     if (coef_node.first != "coef") continue;
-    
+
     double_param_ptr coef(new Parameter<double>());
     coef->read( (ptree&) coef_node.second);
     coef->setParamName("coef");
     coef->setTFName(tfname);
     coefs.push_back(coef);
   }
-  
+
   ptree& kmax_node = pt.get_child("kmax");
   kmax->read(kmax_node);
   kmax->setParamName("kmax");
   kmax->setTFName(tfname);
-  
+
   ptree& threshold_node = pt.get_child("threshold");
   threshold->read(threshold_node);
   threshold->setParamName("threshold");
   threshold->setTFName(tfname);
-  
+
   ptree& lambda_node = pt.get_child("lambda");
   lambda->read(lambda_node);
   lambda->setParamName("lambda");
   lambda->setTFName(tfname);
-  
+
   ptree& pwm_node = pt.get_child("PWM");
   readPWM(pwm_node);
-  
+
   double pThresh = mode->getPThresh();
   if (pThresh)
   {
     PWM& pwm = energy->getValue();
     threshold->set(pwm.pval2score(pThresh));
     threshold->setAnnealed(false);
-    //cerr << pThresh << " p-value cuttoff for " << tfname << " is " << threshold->getValue() << endl; 
+    //cerr << pThresh << " p-value cuttoff for " << tfname << " is " << threshold->getValue() << endl;
   }
-    
-  
+
+
 }
 
 void TF::readPWM(ptree& pwm_node)
@@ -116,42 +116,42 @@ void TF::readPWM(ptree& pwm_node)
   // first read in the pwm
   string            token;
   vector<double> line;
-  
+
   string pwm_source = pwm_node.get<string>("<xmlattr>.source","");
   double gc         = pwm_node.get<double>("<xmlattr>.gc", mode->getGC());
-  
+
   energy->setAnnealed(pwm_node.get<bool>("<xmlattr>.anneal", false));
   energy->setParamName(tfname + "_pwm");
   energy->setMove("ResetAll");
   energy->setRestore("ResetAll");
-  
+
   PWM& pwm = energy->getValue();
   double pseudo = pwm_node.get<double>("<xmlattr>.pseudo", 1.0);
   pwm.setGC(gc);
   pwm.setPseudo(pseudo);
   pwm.setSource(pwm_source);
-  
+
   vector<vector<double> > mat;
-  
+
   foreach_(ptree::value_type const& v, pwm_node)
   {
     if (v.first == "position")
     {
     line.clear();
-    
+
     stringstream s(v.second.data());
-      
+
 
     while( getline(s, token, ';'))
     {
       line.push_back(atof(token.c_str()));
     }
     line.push_back(0);
-    
+
     mat.push_back(line);
     }
   }
-  
+
   string type = pwm_node.get<string>("<xmlattr>.type");
   if (type == "PCM")
     pwm.setPWM(mat, PCM);
@@ -169,7 +169,7 @@ void TF::readPWM(ptree& pwm_node)
   }
   pwm.setNscore();
 }
-    
+
 
 
 
@@ -188,7 +188,7 @@ void TF::setPWM(vector<vector<double> >& t, int type, double gc, double pseudo)
   PWM& pwm = energy->getValue();
   pwm.setPWM(t, type, gc, pseudo);
 }
- 
+
 void TF::setKmax(double k) { kmax->set(k); }
 
 void TF::setLambda(double l) { lambda->set(l); }
@@ -196,11 +196,11 @@ void TF::setLambda(double l) { lambda->set(l); }
 void TF::setThreshold(double t) {threshold->set(t); }
 
 void TF::setBindingSize(int b) { bsize = b; }
-  
+
 void TF::setCoefs(vector<double> c)
 {
   int input_size = c.size();
-  
+
   for (int i=0; i<input_size; i++)
   {
     if (i < coefs.size())
@@ -220,7 +220,7 @@ void TF::setCoefs(vector<double> c)
     }
   }
 }
-    
+
 /*    Getters   */
 
 const string& TF::getName() const { return tfname; }
@@ -231,7 +231,7 @@ double TF::getKmax() { return kmax->getValue(); }
 
 double& TF::getCoef() { return coefs[0]->getValue(); }
 
-double TF::getModifiedCoef() 
+double TF::getModifiedCoef()
 {
   if (coefs.size() > 1)
     return coefs[0]->getValue();
@@ -273,10 +273,10 @@ vector<double> TF::getCoefs()
 
 double TF::getLambda() { return lambda->getValue(); }
 
-double TF::getMaxScore() const 
-{ 
+double TF::getMaxScore() const
+{
   PWM& pwm = energy->getValue();
-  return pwm.getMaxScore(); 
+  return pwm.getMaxScore();
 }
 
 int TF::getBindingSize() const { return bsize; }
@@ -289,14 +289,14 @@ void TF::getParameters(param_ptr_vector& p)
     p.push_back(threshold);
   if (lambda->isAnnealed())
     p.push_back(lambda);
-  
+
   int ncoefs = coefs.size();
   for (int i=0; i<ncoefs; i++)
   {
     if (coefs[i]->isAnnealed())
       p.push_back(coefs[i]);
   }
-  
+
   if (energy->isAnnealed())
     p.push_back(energy);
 
@@ -307,13 +307,13 @@ void TF::getAllParameters(param_ptr_vector& p)
   p.push_back(kmax);
   p.push_back(threshold);
   p.push_back(lambda);
-  
+
   int ncoefs = coefs.size();
   for (int i=0; i<ncoefs; i++)
     p.push_back(coefs[i]);
 
   p.push_back(energy);
-  
+
 }
 
 /*bool TF::checkCoops(TF* t)
@@ -328,7 +328,7 @@ void TF::getAllParameters(param_ptr_vector& p)
 }*/
 
 // check if cooporates with orientation
-bool TF::checkCoops(TF* t, char o1, char o2) 
+bool TF::checkCoops(TF* t, char o1, char o2)
 {
   int ncoops = coops.size();
   for (int i=0; i<ncoops; i++)
@@ -342,7 +342,7 @@ bool TF::checkCoops(TF* t, char o1, char o2)
           return true;
         else if (o2 == 'R' && coop->getHH())
           return true;
-      } 
+      }
       else //(o1 == 'R')
       {
         if      (o2 == 'F' && coop->getTT())
@@ -366,7 +366,7 @@ coop_ptr TF::getCoop(TF* t)
   coop_ptr void_coop;
   return void_coop;
 }
-  
+
 
 /*    Methods   */
 
@@ -376,7 +376,7 @@ void TF::score(const vector<int>& s, TFscore &t)
   pwm.score(s,t);
 }
 
-    
+
 TFscore TF::score(const vector<int>& s)
 {
   TFscore t;
@@ -386,16 +386,16 @@ TFscore TF::score(const vector<int>& s)
 
 TFscore TF::score(const string & s)
 {
-  
+
   vector<int> out(s.size());
   out = string2int(s);
   return(score(out));
 }
-  
+
 
 /*    print   */
 
-void TF::print(ostream& os) 
+void TF::print(ostream& os)
 {
   vector< vector<double> >& pwm = energy->getValue().getPWM();
   int w;
@@ -416,7 +416,7 @@ void TF::print(ostream& os)
      << setw(w) << "T"
      << setw(w) << "N"
      << endl;
-     
+
   int pwmlen = pwm.size();
   for (i=0; i<pwmlen; i++)
   {
@@ -430,40 +430,40 @@ void TF::print(ostream& os)
   }
 }
 
-void TF::write(ostream& os) 
+void TF::write(ostream& os)
 {
   ptree pt; // boost property tree
   write(pt);
-  
-  boost::property_tree::xml_writer_settings<char> settings(' ', 2);
+
+  boost::property_tree::xml_writer_settings<string> settings(' ', 2);
   write_xml_element(os, basic_string<ptree::key_type::value_type>(), pt, -1, settings);
 }
 
-void TF::write(ptree& tfsnode) 
+void TF::write(ptree& tfsnode)
 {
   int i;
   int p = mode->getPrecision();
   int w = p + 7;
   stringstream tmp;
   tmp << setprecision(p);
-  
+
   ptree & tfnode = tfsnode.add("TF","");
   tfnode.put("<xmlattr>.name",      tfname);
-  
+
   ptree & kmax_node      = tfnode.add("kmax          ","");
   kmax->write(kmax_node, mode->getPrecision());
-  
+
   // convert thresholds back if we are printing a different type
   PWM& pwm = energy->getValue();
-  
+
   int input_type = pwm.getInputType();
-  
+
   ptree & threshold_node = tfnode.add("threshold     ","");
   threshold->write(threshold_node, mode->getPrecision());
 
   ptree & lambda_node    = tfnode.add("lambda        ","");
   lambda->write(lambda_node, mode->getPrecision());
-  
+
   ptree& coefs_node = tfnode.add("Coefficients", "");
   int ncoefs = coefs.size();
   for (int i=0; i<ncoefs; i++)
@@ -471,13 +471,13 @@ void TF::write(ptree& tfsnode)
     ptree& coef_node = coefs_node.add("coef","");
     coefs[i]->write(coef_node, mode->getPrecision());
   }
-  
+
   tfnode.put("<xmlattr>.bsize",   bsize);
   tfnode.put("<xmlattr>.include", "true");
-  
-  
+
+
   ptree & pwmnode = tfnode.add("PWM","");
-  
+
   switch (input_type)
   {
   case PCM:
@@ -497,14 +497,14 @@ void TF::write(ptree& tfsnode)
     error("TF::write() unrecognized pwm type");
     break;
   }
-    
+
   if (energy->isAnnealed())
     pwmnode.put("<xmlattr>.anneal", "true");
   if (pwm.getSource() != string(""))
     pwmnode.put("<xmlattr>.source", pwm.getSource());
   if (pwm.getGC() != mode->getGC())
     pwmnode.put("<xmlattr>.gc", pwm.getGC());
-  
+
   tmp.str("");
   tmp << setw(w+1) << "A"
       << setw(w+1) << "C"
@@ -534,8 +534,8 @@ void TF::write(ptree& tfsnode)
     pwmnode.add("position",tmp.str());
   }
 }
-  
-    
+
+
 
 /*********************************   TFContainer    *********************************/
 
@@ -544,12 +544,12 @@ void TF::write(ptree& tfsnode)
 
 TFContainer::TFContainer() {}
 
-TFContainer::TFContainer(ptree& pt, mode_ptr m) 
+TFContainer::TFContainer(ptree& pt, mode_ptr m)
 {
   mode = m;
   add(pt, mode);
 }
-    
+
 
 /*    Getters   */
 
@@ -557,7 +557,7 @@ TF& TFContainer::getTF(const string& n)
 {
   int i;
   int ntfs = tfs.size();
-  
+
   for (i=0; i<ntfs; i++)
   {
     if(tfs[i]->getName() == n) // they are equal
@@ -580,7 +580,7 @@ tf_ptr TFContainer::getTFptr(const string& n)
 {
   int i;
   int ntfs = tfs.size();
-  
+
   for (i=0; i<ntfs; i++)
   {
     if(tfs[i]->getName() == n) // they are equal
@@ -592,7 +592,7 @@ tf_ptr TFContainer::getTFptr(const string& n)
   error(err.str());
   return tfs[0]; // you will never get here!
 }
-  
+
 void TFContainer::getParameters(param_ptr_vector& p)
 {
   int ntfs = tfs.size();
@@ -606,8 +606,8 @@ void TFContainer::getAllParameters(param_ptr_vector& p)
   for (int i=0; i<ntfs; i++)
     tfs[i]->getAllParameters(p);
 }
-  
-  
+
+
 /*  Setters   */
 
 void TFContainer::setCoops(coops_ptr c)
@@ -646,9 +646,9 @@ void TFContainer::setCoeffects(coeffects_ptr c)
     }
     tfs[i]->setCoeffects(tmp_pairs);
   }
-} 
-  
-  
+}
+
+
 // can handle getting a TF node or TFs node for single or multiple add
 void TFContainer::add(ptree& pt, mode_ptr m)
 {
@@ -688,7 +688,7 @@ void TFContainer::add(ptree& pt, mode_ptr m)
         }
       }
     }
-  } 
+  }
   else // this is a TF node
   {
     if (pt.get<bool>("<xmlattr>.include"))
@@ -699,7 +699,7 @@ void TFContainer::add(ptree& pt, mode_ptr m)
       tfs[ntfs-1]->setIndex(ntfs);
     }
   }
-} 
+}
 
 void TFContainer::add(tf_ptr t) {tfs.push_back(t);}
 
@@ -708,8 +708,8 @@ void TFContainer::write(ostream& os) const
 {
   ptree pt;
   write(pt);
-  
-  boost::property_tree::xml_writer_settings<char> settings(' ', 2);
+
+  boost::property_tree::xml_writer_settings<string> settings(' ', 2);
   write_xml_element(os, basic_string<ptree::key_type::value_type>(), pt, -1, settings);
 }
 
@@ -720,7 +720,5 @@ void TFContainer::write(ptree& pt) const
   ptree & tfsnode = pt.add("TFs","");
   for (i=0; i<ntfs; i++)
     tfs[i]->write(tfsnode);
-  
-}
-   
 
+}

@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   transcpp_expHold.cpp
  * Author: zhlou
  *
@@ -37,9 +37,9 @@ using boost::property_tree::ptree;
 int mode_verbose;
 
 /*
- * 
+ *
  */
-int main(int argc, char** argv) 
+int main(int argc, char** argv)
 {
     bool isprolix = false;
     bool issteplog = false;
@@ -49,14 +49,14 @@ int main(int argc, char** argv)
     int optIndex;
     char *saveStatePrefix = NULL;
     char *readStatePrefix = NULL;
-    
+
     struct option long_options[] = {
         {"save-state", 1, &saveInitState, 1},
         {"read-state", 1, &readInitState, 1},
         {"cool-log", 0, &iscoollog, 1},
         {0, 0, 0, 0}
     };
-    
+
     std::string binname(basename(argv[0]));
     try {
         char c;
@@ -111,7 +111,7 @@ int main(int argc, char** argv)
 
     Organism embryo(input_node, mode);
     unsigned int seed = mode->getSeed();
-    if (mode->getVerbose() >= 1) 
+    if (mode->getVerbose() >= 1)
         cerr << "Beginning annealing with seed " << seed << endl;
 
     //embryo.printParameters(cerr);
@@ -129,7 +129,7 @@ int main(int argc, char** argv)
     string basename(xmlname);
     size_t sz = basename.size();
     basename.resize(sz-4);
-    
+
     if (isprolix)
         annealer.setProlix(file, (basename + ".prolix").c_str());
     if (iscoollog)
@@ -159,7 +159,7 @@ int main(int argc, char** argv)
         annealer.ptreeGetResult(root_node);
         //ptree& opt = output.get_child("Output");
         //output.put_child("Output.anneal_output", anneal_output);
-        boost::property_tree::xml_writer_settings<char> settings(' ', 2);
+        boost::property_tree::xml_writer_settings<string> settings(' ', 2);
         write_xml(xmlname, pt, std::locale(), settings);
     }
     xmlFreeDoc(doc);
@@ -168,4 +168,3 @@ int main(int argc, char** argv)
 
     return 0;
 }
-

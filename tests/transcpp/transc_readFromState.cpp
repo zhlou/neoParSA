@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   transc_readFromState.cpp
  * Author: zhlou
  *
@@ -23,7 +23,7 @@
 using namespace std;
 using boost::property_tree::ptree;
 /*
- * 
+ *
  */
 int main(int argc, char** argv)
 {
@@ -45,9 +45,9 @@ int main(int argc, char** argv)
     ptree& input_node = root_node.get_child("Input");
     mode_ptr mode(new Mode(xmlname, mode_node));
     Organism embryo(input_node, mode);
-    
+
     cout << "The initial energy is " << embryo.get_score() << endl;
-    
+
     int bufSize = embryo.getStateSize();
     char * stateBuf = new char[bufSize];
     ifstream stateFile(stateName, ios::in | ios::binary);
@@ -59,13 +59,12 @@ int main(int argc, char** argv)
     stateFile.close();
     embryo.deserialize(stateBuf);
     cout << "The energy after reading from file is " << embryo.get_score() << endl;
-    
+
 
     embryo.write("Output", root_node);
-    boost::property_tree::xml_writer_settings<char> settings(' ', 2);
+    boost::property_tree::xml_writer_settings<string> settings(' ', 2);
     write_xml(xmlname, pt, std::locale(), settings);
-    
+
 
     return 0;
 }
-

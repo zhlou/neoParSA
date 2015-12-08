@@ -170,7 +170,7 @@ int main(int argc, char** argv)
     if (annealer->getWinner() == mpiState.rank) {
         embryo.write("Output", root_node);
         annealer->ptreeGetResult(root_node);
-        boost::property_tree::xml_writer_settings<char> settings(' ', 2);
+        boost::property_tree::xml_writer_settings<string> settings(' ', 2);
         write_xml(xmlname, pt, std::locale(), settings);
     }
     xmlCleanupParser();

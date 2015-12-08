@@ -129,7 +129,7 @@ int main(int argc, char** argv)
         annealer->ptreeGetResult(output.get_child("Output"));
         //ptree& opt = output.get_child("Output");
         output.put_child("Output.anneal_output", anneal_output);
-        boost::property_tree::xml_writer_settings<char> settings(' ', 2);
+        boost::property_tree::xml_writer_settings<string> settings(' ', 2);
         write_xml_element(infile, basic_string<ptree::key_type::value_type>(), output, -1, settings);
     }
     xmlCleanupParser();
