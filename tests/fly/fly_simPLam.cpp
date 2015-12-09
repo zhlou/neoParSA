@@ -99,7 +99,7 @@ int main(int argc, char **argv)
     fly_sa->loop();
     if (mpi.rank == (fly_sa->getWinner())) {
         theFly.writeAnswer("eqparms");
-        fly_sa->writeResult();
+        fly_sa->writeResult(docroot);
         xmlSaveFormatFile(docname, doc, 1);
     }
     xmlFreeDoc(doc);

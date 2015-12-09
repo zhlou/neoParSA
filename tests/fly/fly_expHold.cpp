@@ -66,7 +66,7 @@ int main(int argc, char **argv)
     else {
         fly_expHold.loop();
         theFly.writeAnswer("eqparms");
-        fly_expHold.writeResult();
+        fly_expHold.writeResult(docroot);
         xmlSaveFormatFile(docname, doc, 1);
     }
 

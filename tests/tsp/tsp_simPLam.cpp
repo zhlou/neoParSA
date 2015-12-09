@@ -104,7 +104,7 @@ int main(int argc, char **argv)
     cout << "Actual energy is " << theTSP.calc_tour() << endl;
     if (tsp_sa->getWinner() == mpi.rank) {
         theTSP.write_tour(xmlroot, "tour");
-        tsp_sa->writeResult();
+        tsp_sa->writeResult(xmlroot);
         xmlSaveFormatFile(docname, xmldoc,1);
     }
     xmlFreeDoc(xmldoc);
@@ -113,6 +113,3 @@ int main(int argc, char **argv)
     MPI_Finalize();
 
 }
-
-
-

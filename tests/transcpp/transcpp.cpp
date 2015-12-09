@@ -41,16 +41,16 @@ int main(int argc, char* argv[])
 
   string xmlname(argv[1]);
   fstream infile(xmlname.c_str());
-  
+
   ptree pt;
   read_xml(infile, pt, boost::property_tree::xml_parser::trim_whitespace);
-  
+
   ptree& root_node  = pt.get_child("Root");
   ptree& mode_node  = root_node.get_child("Mode");
   ptree& input_node = root_node.get_child("Input");
-  
+
   mode_ptr mode(new Mode(xmlname, mode_node));
-  
+
   if (mode->getVerbose() >= 1)
   {
     cerr << endl;
@@ -68,18 +68,18 @@ int main(int argc, char* argv[])
 
   Organism embryo(input_node, mode);
   //embryo.printParameters(cerr);
-  
+
   unirand48 rnd;
   unsigned int seed = mode->getSeed();
   if (mode->getVerbose() >= 1) cerr << "Beginning annealing with seed " << seed << endl;
   rnd.setSeed(seed);
-  
+
   xmlDoc *doc = xmlParseFile(xmlname.c_str());
   xmlNode *docroot = xmlDocGetRootElement(doc);
 
   annealer<Organism, lam, criCount, feedbackMove>*      fly_sa;
   annealer<Organism, expHold, tempCount, feedbackMove>* fly_expHold;
-  
+
   if (mode->getSchedule() == LAM)
   {
     lam::Param scheParam(docroot);
@@ -87,7 +87,7 @@ int main(int argc, char* argv[])
     fly_sa = new annealer<Organism, lam, criCount, feedbackMove>(embryo,rnd, scheParam, criCntParam, docroot);
     fly_sa->setCoolLog(file, (xmlname+".log").c_str());
     fly_sa->setProlix(file, (xmlname+".prolix").c_str());
-  } 
+  }
   else if (mode->getSchedule() == EXP)
   {
     expHold::Param scheduleParam(docroot);
@@ -95,7 +95,7 @@ int main(int argc, char* argv[])
     fly_expHold = new annealer<Organism, expHold, tempCount, feedbackMove>(embryo, rnd, scheduleParam, tmpCntParam, docroot);
     fly_expHold->setStepLog(file, (xmlname+".steplog").c_str());
     fly_expHold->setProlix(file,(xmlname+".prolix").c_str());
-  } 
+  }
 
 
   if (mode->getSchedule() == LAM)
@@ -105,78 +105,78 @@ int main(int argc, char* argv[])
       cerr << "The initial score is " << embryo.get_score() << endl;
       cerr << "Running initial moves..." << endl;
     }
-    
+
     fly_sa->initMoves();
 
-    
+
     if (mode->getVerbose() >= 1)
       cerr << "The score is " << embryo.get_score() << " after initial moves" << endl << endl;
   }
-  	
+
   if (!mode->getProfiling())
   {
     if (mode->getSchedule() == LAM)
       fly_sa->loop();
     else if (mode->getSchedule() == EXP)
       fly_expHold->loop();
-    
+
     if (mode->getVerbose() >= 1)
     {
       cerr << "The final score is " << embryo.get_score() << endl << endl;
       if (mode->getSchedule() == LAM)
-        fly_sa->writeResult();
+        fly_sa->writeResult(docroot);
       else if (mode->getSchedule() == EXP)
         fly_expHold->loop();
-     
-    }    
-   
+
+    }
+
     embryo.write("Output", root_node);
     boost::property_tree::xml_writer_settings<string> settings(' ', 2);
     //write_xml_element(infile, basic_string<ptree::key_type::value_type>(), pt, -1, settings);
     write_xml(xmlname, pt, std::locale(), settings);
-    
+
 
     /* check that I can reset everything and get the same correct answer */
     double old_score = embryo.get_score();
     embryo.ResetAll(0);
     double score     = embryo.get_score();
-    
+
     if (score != old_score)
       error("The score was not the same after ResetAll. Something is not being moved properly!");
-    
+
     /* here I double check the output and make sure it gives me the right score*/
-    
+
     if (mode->getVerbose() >= 2)
       cerr << endl << "verifying output..." << endl;
     score = embryo.get_score();
-    
+
     infile.close();
-    
+
     fstream outfile(xmlname.c_str());
-  
+
     ptree pt_out;
     read_xml(outfile, pt_out, boost::property_tree::xml_parser::trim_whitespace);
-  
+
     ptree& root_node_out  = pt_out.get_child("Root");
     ptree& mode_node_out  = root_node_out.get_child("Mode");
     ptree& input_node_out = root_node_out.get_child("Output");
-    
+
     mode_ptr mode_out(new Mode(xmlname, mode_node_out));
 
     Organism embryo_out(input_node_out, mode_out);
-    
+
     //embryo_out.printRate(cerr, 0);
-    
+
     /* this has to be done with some precision because we arent always using 16 bit.
     I am going to round to half the decimal places in precision */
     double digits = mode->getPrecision()/2 * 10;
     double score_out = embryo_out.get_score();
-    
+
     score     = round(score*digits)/digits;
     score_out = round(score_out*digits)/digits;
-    
+
     if (score != score_out)
-      error("The score (" + to_string_(score) + 
+      error("The score (" + to_string_(score) +
         ") was not the same after rerunning the model (" +
         to_string_(score_out) +"). Something may not have been printed!");
     else
@@ -184,10 +184,10 @@ int main(int argc, char* argv[])
       if (mode->getVerbose()>=2)
         cerr << "output verified!" << endl << endl;
     }
-    
+
   }
-  
+
   xmlFreeDoc(doc);
-  
+
   return 0;
 }

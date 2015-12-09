@@ -87,7 +87,7 @@ int main(int argc, char **argv)
     cout << "The final energy is " << theFly.get_score() << endl;
     if (fly_sa->getWinner() == mpi.rank) {
         theFly.writeAnswer("eqparms");
-        fly_sa->writeResult();
+        fly_sa->writeResult(docroot);
         xmlSaveFormatFile(docname, doc, 1);
     }
 
@@ -98,4 +98,3 @@ int main(int argc, char **argv)
 
     return 0;
 }
-
