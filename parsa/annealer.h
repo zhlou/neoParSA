@@ -62,7 +62,7 @@ public:
     void saveUnifiedInitState(const char * filename);
     double readUnifiedInitState(const char * filename);
     virtual void ptreeGetResult(ptree &pt);
-    void writeResult();
+    void writeResult(xmlNode *xmlroot);
     void setStepLog(debugStatus st, const char* outname=NULL)
     {debugOut.setDebug(st, outname); debugOut.precision(16);}
     void setCoolLog(debugStatus st, const char*outname=NULL)
@@ -76,17 +76,17 @@ protected:
     FrozenCnd *frozen;
     Move<Problem> *move;
     unirandom& rand;
-    xmlNode *xmlroot;
+    // xmlNode *xmlroot;
     aState state;
     int initLoop;
     double initS;
     bool is_init;
     double tlaps;
-    
+
     double initMean;
     double initVar;
     double initAccRatio;
-    
+
     annealer(Problem &problem, unirandom& in_rand, xmlNode *root);
     virtual void updateStats(aState &state) {cooling->updateStats(state);}
 

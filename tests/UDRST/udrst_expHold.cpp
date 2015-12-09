@@ -39,7 +39,7 @@ int main(int argc, char **argv)
         {"read-state", 1, &readInitState, 1},
         {0, 0, 0, 0}
     };
-    
+
     std::string binname(basename(argv[0]));
     try {
         char c;
@@ -118,7 +118,7 @@ int main(int argc, char **argv)
         rst_sa->loop();
         std::cout << "The final energy is " << rst.get_score() << std::endl;
         rst.write_section((xmlChar *)"output");
-        rst_sa->writeResult();
+        rst_sa->writeResult(docroot);
         xmlSaveFormatFile(docname, doc, 1);
     }
     xmlFreeDoc(doc);

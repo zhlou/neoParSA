@@ -93,7 +93,7 @@ int main(int argc, char **argv)
         rst_sa.loop();
         cout << "Final energy is " << rst.get_score() << endl;
         rst.write_section((xmlChar *)"output");
-        rst_sa.writeResult();
+        rst_sa.writeResult(xmlroot);
         xmlSaveFormatFile(docname, xmldoc,1);
     }
     xmlFreeDoc(xmldoc);

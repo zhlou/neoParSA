@@ -144,7 +144,7 @@ int main(int argc, char **argv)
             rst_sa->readUnifiedInitState(readStatePrefix);
         } else {
             throw std::runtime_error("unable to find state");
-        }       
+        }
         is.close();
     }
 
@@ -153,7 +153,7 @@ int main(int argc, char **argv)
     std::cout << "The final energy is " << rst.get_score() << std::endl;
     if (rst_sa->getWinner() == mpi.rank) {
         rst.write_section((xmlChar *)"output");
-        rst_sa->writeResult();
+        rst_sa->writeResult(docroot);
         xmlSaveFormatFile(docname, doc, 1);
     }
 
