@@ -36,13 +36,18 @@ unirandom::unirandom(xmlNode* section) : phase(0)
 		seed = time(NULL);
 }
 
+unirandom::unirandom(ptree &root) : phase(0)
+{
+    seed = root.get<unsigned int>("<xmlattr>.seed",time(NULL));
+}
+
 double unirandom::random()
 {
 	return (double)rand_r(&seed)/RAND_MAX;
 }
 
 // normal(0,1) using rejection sampling a la Knuth TAOCP
-double unirandom::randn() 
+double unirandom::randn()
 {
     double x;
     if (0 == phase) {
@@ -61,7 +66,7 @@ double unirandom::randn()
     return x;
 }
 
-double unirandom::laplace(double theta) 
+double unirandom::laplace(double theta)
 {
     double uniform = 2.0 * random() - 1.0;
     if (uniform >= 0.)
@@ -76,7 +81,7 @@ double unirandom::exponential(double theta) {
 }
 
 
-double unirandom::lognormal(double mean, double var) 
+double unirandom::lognormal(double mean, double var)
 {
     if (0.0 == var)
         return mean;
@@ -103,6 +108,11 @@ unirand48::unirand48(unsigned int disp) : unirandom(disp)
 }
 
 unirand48::unirand48(xmlNode *section) : unirandom(section)
+{
+    initFromSeed();
+}
+
+unirand48::unirand48(ptree &root) : unirandom(root)
 {
     initFromSeed();
 }

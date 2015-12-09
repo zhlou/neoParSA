@@ -27,6 +27,12 @@ periodBest<Problem>::Param::Param(xmlNode *docroot)
 }
 
 template <class Problem>
+periodBest<Problem>::Param::Param(ptree &root)
+{
+    frequency = root.get<unsigned>("periodBest.<xmlattr>.frequency");
+}
+
+template <class Problem>
 periodBest<Problem>::periodBest(Problem &problem, MPIState const&mpiState,
                                 unirandom &, const Param &param) :
                                 problem(problem), mpi(mpiState),

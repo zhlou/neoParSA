@@ -11,6 +11,8 @@
 //#include "annealer.h"
 
 #include <libxml/tree.h>
+#include <boost/property_tree/ptree.hpp>
+using boost::property_tree::ptree;
 #include "aState.h"
 #include "invLinearFit.h"
 #include "dynDebug.h"
@@ -29,6 +31,7 @@ public:
         debugStatus st;
         const char * outname;
         Param(xmlNode *root, debugStatus st=ignore, const char *outname=NULL);
+        Param(ptree &root, debugStatus st=ignore, const char *outname=NULL);
     };
     lam(Param param);
     // lam(xmlNode *root);
@@ -81,7 +84,7 @@ protected:
 
     void updateSegment(aState state);
     void resetSegmentStats();
-    
+
     void collectStats();
     virtual void collectInitStats(unsigned long init_loop);
     virtual void collectInitStats(double initMean, double initVar, double initAccRatio);

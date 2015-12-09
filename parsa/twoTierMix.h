@@ -9,6 +9,9 @@
 #define TWOTIERMIX_H_
 
 #include <libxml/tree.h>
+#include <boost/property_tree/ptree.hpp>
+using boost::property_tree::ptree;
+
 #include "dynDebug.h"
 #include "MPIState.h"
 #include "mixState.h"
@@ -24,6 +27,7 @@ public:
         unsigned mixFreq;
         unsigned globalFreq;
         Param(xmlNode *docroot);
+        Param(ptree &root);
     };
     twoTierMix(Problem &in_problem, const MPIState &globalState,
                unirandom& in_rand, const Param &param);

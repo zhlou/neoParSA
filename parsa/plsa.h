@@ -9,6 +9,9 @@
 #define PLSA_H_
 #include <mpi.h>
 #include <libxml/tree.h>
+#include <boost/property_tree/ptree.hpp>
+using boost::property_tree::ptree;
+
 #include "lam.h"
 #include "MPIState.h"
 
@@ -19,6 +22,7 @@ public:
     public:
         lam::Param lamParam;
         Param(xmlNode *root, debugStatus st=ignore, const char *outname=NULL);
+        Param(ptree &root, debugStatus st=ignore, const char *outname=NULL);
     };
     plsa(Param param, const MPIState &mpiState);
     // plsa(xmlNode *root, const MPIState &mpiState);

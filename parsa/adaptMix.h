@@ -13,6 +13,8 @@
 #include "mixState.h"
 #include "Mixing.h"
 #include <libxml/tree.h>
+#include <boost/property_tree/ptree.hpp>
+using boost::property_tree::ptree;
 
 /*
  * In addition to the requirements listed in feedbackMove.h, using adaptMix
@@ -31,6 +33,7 @@ public:
     public:
         double adaptCoef;
         Param(xmlNode *root);
+        Param(ptree &root);
     };
     adaptMix(Problem &in_problem, const MPIState &mpiState,
              unirandom& in_rnd, const Param &param);

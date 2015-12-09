@@ -34,3 +34,8 @@ criCountP::Param::Param(xmlNode* root) :
         serParam(root)
 {
 }
+
+criCountP::Param::Param(ptree &root) :
+        serParam(root)
+{
+}

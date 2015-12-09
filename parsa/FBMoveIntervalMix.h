@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   FBMoveFixedMix.h
  * Author: zhlou
  *
@@ -15,6 +15,9 @@
 #include "Mixing.h"
 #include "unirandom.h"
 #include "moveControlCore.h"
+
+#include <boost/property_tree/ptree.hpp>
+using boost::property_tree::ptree;
 
 template<class Problem>
 class FBMoveIntervalMix {
@@ -33,6 +36,7 @@ public:
         double varConst;
         Param();
         Param(xmlNode *root);
+        Param(ptree &ptree);
 
     };
     FBMoveIntervalMix(Problem &in_problem, const MPIState &mpiState,
@@ -65,7 +69,7 @@ private:
     double prev_energy;
 
     int tau_count;
-    
+
     Mixing<Problem> mix;
     moveControlCore moveCore;
     double mix_target;
@@ -80,4 +84,3 @@ private:
 #include "FBMoveIntervalMix.hpp"
 
 #endif	/* FBMOVEFIXEDMIX_H */
-

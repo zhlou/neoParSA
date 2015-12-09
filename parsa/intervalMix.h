@@ -13,6 +13,8 @@
 #include "MPIState.h"
 #include "mixState.h"
 #include "Mixing.h"
+#include <boost/property_tree/ptree.hpp>
+using boost::property_tree::ptree;
 
 template <class Problem>
 class intervalMix {
@@ -22,6 +24,7 @@ public:
         int interval;
         int reportNAdopt;
         Param(xmlNode *root);
+        Param(ptree &root);
     };
     //intervalMix(Problem &in_problem, const MPIState &mpiState,
     //            unirandom& in_rand, xmlNode *docroot);

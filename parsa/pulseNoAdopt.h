@@ -12,6 +12,9 @@
 #include "unirandom.h"
 #include "mixState.h"
 #include <libxml/tree.h>
+#include <boost/property_tree/ptree.hpp>
+using boost::property_tree::ptree;
+
 
 template <class Problem>
 class pulseNoAdopt
@@ -30,6 +33,7 @@ public:
     public:
         unsigned frequency;
         Param(xmlNode *root);
+        Param(ptree &root);
     };
     pulseNoAdopt(Problem &problem, const MPIState &mpiState,
                  unirandom& in_rnd, const Param &param);

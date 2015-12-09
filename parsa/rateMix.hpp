@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   rateMix.hpp
  * Author: zhlou
  *
@@ -24,13 +24,23 @@ rateMix<Problem>::Param::Param(xmlNode *root) : weight(0.)
     factor = getPropDouble(section, "factor");
     double memLength = 0.0;
     try {
-        memLength = getPropDouble(section, "memLeght");
+        memLength = getPropDouble(section, "memLength");
     } catch (exception &e) {
-        
+
     }
     if (0.0 != memLength) {
         weight = std::exp(-7.0/memLength); // exp(-7) ~= 0.001
     }
+}
+
+template<class Problem>
+rateMix<Problem>::Param::Param(ptree &root) : weight(0.)
+{
+    ptree &sec_attr = root.get_child("rateMix.<xmlattr>");
+    factor = sec_attr.get<double>("factor");
+    double memLength = sec_attr.get<double>("memLength", 0.0);
+    if (0.0 != memLength)
+        weight = std::exp(-7.0/memLength); // exp(-7) ~= 0.001
 }
 
 template<class Problem>
@@ -81,4 +91,3 @@ mixState rateMix<Problem>::Mix(aState &state)
 
 
 #endif	/* RATEMIX_HPP */
-

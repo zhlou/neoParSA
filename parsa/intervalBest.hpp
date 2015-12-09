@@ -22,6 +22,12 @@ intervalBest<Problem>::Param::Param(xmlNode* root)
 }
 
 template<class Problem>
+intervalBest<Problem>::Param::Param(ptree &root)
+{
+    interval = root.get<int>("intervalBest.<xmlattr>.interval");
+}
+
+template<class Problem>
 intervalBest<Problem>::intervalBest(Problem& in_problem,
 		const MPIState& mpiState, unirandom& in_rand, const Param& param) :
 		problem(in_problem),interval(param.interval), mpi(mpiState),

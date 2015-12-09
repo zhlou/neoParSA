@@ -15,7 +15,12 @@ maxSteps::Param::Param(xmlNode *root, debugStatus in_st, const char *name)
     max_steps = getPropInt(xmlsection, "max_steps");
 }
 
+maxSteps::Param::Param(ptree &root, debugStatus in_st, const char *name):
+        st(in_st), debugname(name)
+{
+    max_steps = root.get<int>("maxSteps.<xmlattr>.max_steps");
+}
+
 maxSteps::~maxSteps() {
     // TODO Auto-generated destructor stub
 }
-

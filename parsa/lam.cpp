@@ -47,6 +47,24 @@ lam::Param::Param(xmlNode* root, debugStatus in_st, const char* name) :
     //cnt_crit = getPropInt(section, "freeze_cnt");
 }
 
+lam::Param::Param(ptree &root, debugStatus in_st, const char *name):
+        st(in_st), outname(name)
+{
+    lambda = root.get<double>("annealer_input.<xmlattr>.lambda");
+    ptree &lam_attr = root.get_child("lam.<xmlattr>");
+    proc_tau = lam_attr.get<int>("tau");
+
+    double memlength_mean = lam_attr.get<double>("memLength_mean");
+    double memlength_sd = lam_attr.get<double>("memLength_sd");
+    w_mean = 1.0 - proc_tau / (memlength_mean / lambda);
+    if (w_mean < 0.)
+        w_mean = 0.;
+    w_sd = 1.0 - proc_tau / (memlength_sd / lambda);
+    if (w_sd < 0.)
+        w_sd = 0.;
+
+}
+
 lam::lam(Param param) : proc_tau(param.proc_tau),
         //freeze_crit(param.freeze_crit),
         //cnt_crit(param.cnt_crit),
@@ -184,7 +202,7 @@ void lam::initStats(double initMean, double initVar, double initAccRatio, aState
     tau_count = 0;
 }
 
-void lam::initStatsCore(const aState& state) 
+void lam::initStatsCore(const aState& state)
 {
     double sd = sqrt(vari);
     fit_mean = new invLinearFit(w_mean, mean, state.s, vari / (mean * mean));
@@ -210,7 +228,7 @@ void lam::collectStats()
     acc_ratio = (double) success / proc_tau;
 }
 
-void lam::collectInitStats(double initMean, double initVar, double initAccRatio) 
+void lam::collectInitStats(double initMean, double initVar, double initAccRatio)
 {
     mean = initMean;
     vari = initVar;
@@ -240,7 +258,7 @@ bool lam::global_frozen()
  */
 
 
-void lam::updateStats(aState state) 
+void lam::updateStats(aState state)
 {
     tau_count ++;
     if (proc_tau == tau_count) {

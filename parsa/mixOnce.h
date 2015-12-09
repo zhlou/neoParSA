@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   mixOnce.h
  * Author: zhlou
  *
@@ -9,6 +9,9 @@
 #define	MIXONCE_H
 
 #include <libxml/tree.h>
+#include <boost/property_tree/ptree.hpp>
+using boost::property_tree::ptree;
+
 #include "dynDebug.h"
 #include "MPIState.h"
 #include "mixState.h"
@@ -25,6 +28,7 @@ public:
         bool useBest;
         Param(double target) : target_s(target), interval(1), useBest(true) {}
         Param(xmlNode *root);
+        Param(ptree &root);
     };
     mixOnce(Problem &problem, const MPIState &mpiState,
             unirandom& rnd, const Param &param);
@@ -49,4 +53,3 @@ private:
 #include "mixOnce.hpp"
 
 #endif	/* MIXONCE_H */
-

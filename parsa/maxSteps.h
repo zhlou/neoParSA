@@ -10,6 +10,9 @@
 #include "aState.h"
 #include "dynDebug.h"
 #include <libxml/tree.h>
+#include <boost/property_tree/ptree.hpp>
+using boost::property_tree::ptree;
+
 class maxSteps {
 private:
     int max_steps;
@@ -22,6 +25,7 @@ public:
         const char * debugname;
         Param(xmlNode *root, debugStatus st=ignore,
               const char *debugname = NULL);
+        Param(ptree &root, debugStatus st=ignore, const char *debugname=NULL);
     };
     maxSteps(const Param &param): max_steps(param.max_steps),
             debugOut(param.st, param.debugname){};

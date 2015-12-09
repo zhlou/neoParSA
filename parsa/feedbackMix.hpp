@@ -29,6 +29,14 @@ feedbackMix<Problem>::Param::Param(xmlNode *root) : target(0.5)
 }
 
 template<class Problem>
+feedbackMix<Problem>::Param::Param(ptree &root)
+{
+    ptree &section = root.get_child("feedbackMix");
+    interval = section.get<int>("<xmlattr>.interval");
+    target = section.get<double>("<xmlattr>.target", 0.5);
+}
+
+template<class Problem>
 feedbackMix<Problem>::feedbackMix(Problem &problem, const MPIState &mpiState,
                                   unirandom &rand, const Param &param):
         mix(problem, mpiState, rand), tau_count(0),

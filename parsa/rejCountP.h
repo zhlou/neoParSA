@@ -21,6 +21,8 @@ public:
         const MPIState &mpi;
         Param(xmlNode *root, const MPIState &mpiState, debugStatus st=ignore,
               const char * debugname=NULL);
+        Param(ptree &root, const MPIState &mpiState, debugStatus st=ignore,
+            const char * debugname=NULL);
     };
     rejCountP(const Param &param, const MPIState &mpiState);
     virtual ~rejCountP();

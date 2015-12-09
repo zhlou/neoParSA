@@ -14,6 +14,9 @@
 
 #include <mpi.h>
 #include <libxml/tree.h>
+#include <boost/property_tree/ptree.hpp>
+using boost::property_tree::ptree;
+
 #include "MPIState.h"
 #include "aState.h"
 #include "dynDebug.h"
@@ -39,6 +42,7 @@ public:
     class Param {
     public:
         Param(xmlNode *root, debugStatus in_st=ignore, const char *name=NULL);
+        Param(ptree &root, debugStatus in_st=ignore, const char *name=NULL);
         int proc_tau;
         double lambda;
         debugStatus st;
@@ -47,7 +51,7 @@ public:
     simPLam(Param param, const MPIState &);
     ~simPLam();
     void initStats(const aState &);
-    void initStats(double initMean, double initVar, double initAccRatio, 
+    void initStats(double initMean, double initVar, double initAccRatio,
             const aState &state);
     void updateInitStep(bool, const aState &);
     void resetSegmentStats();

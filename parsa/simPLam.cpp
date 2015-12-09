@@ -26,6 +26,14 @@ simPLam::Param::Param(xmlNode* root, debugStatus in_st, const char* name) :
 
 }
 
+simPLam::Param::Param(ptree &root, debugStatus in_st, const char *name) :
+        st(in_st), outname(name)
+{
+    ptree &sec_attr = root.get_child("simPLam.<xmlattr>");
+    proc_tau = sec_attr.get<int>("tau");
+    lambda = sec_attr.get<double>("lambda");    
+}
+
 void simPLam::updateStep(bool accept, const aState &state)
 {
     if (accept)
@@ -60,8 +68,8 @@ void simPLam::initStats(const aState& state)
     count = 0;
 }
 
-void simPLam::initStats(double initMean, double initVar, double initAccRatio, 
-        const aState& state) 
+void simPLam::initStats(double initMean, double initVar, double initAccRatio,
+        const aState& state)
 {
     double data[3] = {initMean, initVar, initAccRatio};
     MPI_Allreduce(MPI_IN_PLACE, data, 3, MPI_DOUBLE, MPI_SUM, mpiState.comm);
@@ -111,7 +119,7 @@ void simPLam::updateSegment(const aState &state)
              << alpha << std::endl;
 }
 
-void simPLam::updateStats(const aState& state) 
+void simPLam::updateStats(const aState& state)
 {
     count ++;
     if (proc_tau == count) {

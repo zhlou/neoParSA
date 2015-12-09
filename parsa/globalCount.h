@@ -22,6 +22,7 @@ public:
     public:
         criCount::Param serParam;
         Param(xmlNode *root) : serParam(root) {};
+        Param(ptree &root) : serParam(root) {};
     };
     globalCount(const Param &param, const MPIState &mpiState) :
         serCount(param.serParam), mpi(mpiState),

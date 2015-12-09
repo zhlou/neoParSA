@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   rateMix.h
  * Author: zhlou
  *
@@ -9,6 +9,9 @@
 #define	RATEMIX_H
 
 #include <libxml/tree.h>
+#include <boost/property_tree/ptree.hpp>
+using boost::property_tree::ptree;
+
 #include "dynDebug.h"
 #include "MPIState.h"
 #include "mixState.h"
@@ -23,6 +26,7 @@ public:
         double factor;
         double weight;
         Param(xmlNode *root);
+        Param(ptree &root);
     };
     rateMix(Problem &problem, const MPIState &mpiState,
             unirandom &rand, const Param &param);
@@ -49,4 +53,3 @@ private:
 #include "rateMix.hpp"
 
 #endif	/* RATEMIX_H */
-

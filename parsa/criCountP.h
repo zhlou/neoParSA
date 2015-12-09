@@ -18,6 +18,7 @@ public:
     public:
         criCount::Param serParam;
         Param(xmlNode *root);
+        Param(ptree &root);
     };
     criCountP(const Param &param, const MPIState &mpiState);
     ~criCountP();

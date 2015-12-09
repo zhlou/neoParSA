@@ -21,6 +21,13 @@ adaptMix<Problem>::Param::Param(xmlNode *root)
 }
 
 template<class Problem>
+adaptMix<Problem>::Param::Param(ptree &root)
+{
+    ptree &section = root.get_child("mix");
+    adaptCoef = section.get<double>("<xmlattr>.adaptcoef");
+}
+
+template<class Problem>
 adaptMix<Problem>::adaptMix(Problem& in_problem, const MPIState& mpiState,
         unirandom& in_rnd, const Param &param) :
         mix(in_problem, mpiState, in_rnd), rnd(in_rnd), nnodes(mpiState.nnodes),
@@ -51,4 +58,3 @@ mixState adaptMix<Problem>::Mix(aState& state)
         return mixState();
     }
 }
-

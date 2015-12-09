@@ -35,6 +35,15 @@ exponential::Param::Param(xmlNode* root, debugStatus in_st, const char *name):
 
 }
 
+exponential::Param::Param(ptree &root, debugStatus in_st, const char *name):
+        st(in_st), outname(name)
+{
+    ptree &section = root.get_child("exponential");
+    alpha = section.get<double>("<xmlattr>.alpha");
+    max_rej = section.get<unsigned long>("<xmlattr>.max_rej");
+    segLength = section.get<unsigned>("<xmlattr>.log_freq",100);
+}
+
 exponential::exponential(const Param& param) : debugOut(param.st,param.outname), step_cnt(0)
 {
     alpha = param.alpha;
@@ -79,7 +88,7 @@ void exponential::updateSegment(aState state) {
             << state.energy << std::endl;
 }
 
-void exponential::updateStats(aState state) 
+void exponential::updateStats(aState state)
 {
     step_cnt++;
     if (segLength == step_cnt) {

@@ -12,6 +12,8 @@
 #include "aState.h"
 #include "dynDebug.h"
 #include <libxml/tree.h>
+#include <boost/property_tree/ptree.hpp>
+using boost::property_tree::ptree;
 
 class exponential
 {
@@ -24,6 +26,7 @@ public:
         debugStatus st;
         const char *outname;
         Param(xmlNode *root, debugStatus st=ignore, const char *outname=NULL);
+        Param(ptree &root, debugStatus st=ignore, const char *outname=NULL);
     };
     exponential(const Param &param);
     // exponential(xmlNode *root);

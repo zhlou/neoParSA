@@ -21,6 +21,12 @@ oneStep::Param::Param(xmlNode *root, debugStatus in_st, const char *name) :
     target_s = 1./getPropDouble(xmlsection, "target");
 }
 
+oneStep::Param::Param(ptree &root, debugStatus in_st, const char *name) :
+        st(in_st), outname(name)
+{
+    target_s = 1./root.get<double>("oneStep.<xmlattr>.target");
+}
+
 oneStep::oneStep(Param param): target_s(param.target_s),
         debugOut(param.st, param.outname)
 {}
@@ -28,4 +34,3 @@ oneStep::oneStep(Param param): target_s(param.target_s),
 oneStep::~oneStep() {
     // TODO Auto-generated destructor stub
 }
-

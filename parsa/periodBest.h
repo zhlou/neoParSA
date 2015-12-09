@@ -9,6 +9,9 @@
 #define PERIODBEST_H_
 
 #include <libxml/tree.h>
+#include <boost/property_tree/ptree.hpp>
+using boost::property_tree::ptree;
+
 #include "dynDebug.h"
 #include "MPIState.h"
 #include "unirandom.h"
@@ -34,6 +37,7 @@ public:
     public:
         unsigned frequency;
         Param(xmlNode *docroot);
+        Param(ptree &root);
     };
     periodBest(Problem &problem, MPIState const&mpiState,
                unirandom& in_rnd, const Param &param);

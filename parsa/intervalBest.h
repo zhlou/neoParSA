@@ -6,6 +6,8 @@
 #include "dynDebug.h"
 #include "MPIState.h"
 #include "mixState.h"
+#include <boost/property_tree/ptree.hpp>
+using boost::property_tree::ptree;
 
 template <class Problem>
 class intervalBest {
@@ -14,6 +16,7 @@ public:
 	public:
 		int interval;
 		Param(xmlNode *root);
+        Param(ptree &root);
 	};
 	intervalBest(Problem &in_problem, const MPIState &mpiState,
 			unirandom &in_rand, const Param &param);

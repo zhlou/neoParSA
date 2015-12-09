@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   FBMoveIntervalMix.hpp
  * Author: zhlou
  *
@@ -83,6 +83,22 @@ FBMoveIntervalMix<Problem>::Param::Param(xmlNode *root) : mix_interval(100),
 
         }
     }
+
+}
+
+template<class Problem>
+FBMoveIntervalMix<Problem>::Param::Param(ptree &root)
+{
+    ptree section = root.get_child("moveMix");
+    mix_interval = section.get<int>("<xmlattr>.mix_interval", 100);
+    move_interval = section.get<int>("<xmlattr>.move_interval", 100);
+    move_gain = section.get<double>("<xmlattr>.move_gain", 0.03);
+    target = section.get<double>("<xmlattr>.move_target", 0.44);
+    initTheta = section.get<double>("<xmlattr>.initTheta", 1.0);
+    thetaMin = section.get<double>("<xmlattr>.thetaMin", 0.);
+    thetaMax = section.get<double>("<xmlattr>.thetaMax", numeric_limits<double>::max());
+    mix_target = section.get<double>("<xmlattr>.mix_target", 0.5);
+    varConst = section.get<double>("<xmlattr>.varConst", 1.);
 
 }
 
@@ -215,4 +231,3 @@ mixState FBMoveIntervalMix<Problem>::Mix(aState& state)
 }
 
 #endif	/* FBMOVEINTERVALMIX_HPP */
-

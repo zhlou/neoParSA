@@ -38,3 +38,9 @@ rejCount::Param::Param(xmlNode *root, debugStatus in_st, const char *name)
     xmlNode *xmlsection = getSectionByName(root, "count_reject");
     max_rej = getPropInt(xmlsection, "max_rej");
 }
+
+rejCount::Param::Param(ptree &root, debugStatus in_st, const char *name):
+        st(in_st), debugname(name)
+{
+    max_rej = root.get<int>("count_reject.<xmlattr>.max_rej");
+}

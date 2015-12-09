@@ -10,6 +10,13 @@ plsa::Param::Param(xmlNode *root, debugStatus st, const char *outname) :
 
 }
 
+plsa::Param::Param(ptree &root,  debugStatus st, const char *outname) :
+        lamParam(root, st, outname)
+{
+
+}
+
+
 plsa::plsa(Param param, const MPIState &mpiState) :
         lam(param.lamParam), mpi(mpiState)
 {
@@ -101,12 +108,12 @@ void plsa::collectInitStats(unsigned long init_loop)
     vari = vari / total_moves - mean * mean;
 }
 
-void plsa::collectInitStats(double initMean, double initVar, double initAccRatio) 
+void plsa::collectInitStats(double initMean, double initVar, double initAccRatio)
 {
     double var[3] = {initMean, initVar, initAccRatio};
     MPI_Allreduce(MPI_IN_PLACE, var, 3, MPI_DOUBLE, MPI_SUM, mpi.comm);
     mean = var[0] / mpi.nnodes;
     vari = var[1] / mpi.nnodes;
-    acc_ratio = var[2] / mpi.nnodes;   
-    
+    acc_ratio = var[2] / mpi.nnodes;
+
 }

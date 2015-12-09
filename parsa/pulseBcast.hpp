@@ -23,6 +23,12 @@ pulseBcast<Problem>::Param::Param(xmlNode *docroot)
 }
 
 template<class Problem>
+pulseBcast<Problem>::Param::Param(ptree &root)
+{
+    frequency = root.get<unsigned>("pulseBcast.<xmlattr>.frequency");
+}
+
+template<class Problem>
 pulseBcast<Problem>::pulseBcast(Problem& in_problem, const MPIState& mpiState,
                                 unirandom& in_rnd, const Param &param) :
         problem(in_problem), mpi(mpiState), rnd(in_rnd), counter(0),

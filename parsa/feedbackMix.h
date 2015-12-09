@@ -14,6 +14,8 @@
 #include "mixState.h"
 #include "Mixing.h"
 #include "aState.h"
+#include <boost/property_tree/ptree.hpp>
+using boost::property_tree::ptree;
 
 template <class Problem>
 class feedbackMix {
@@ -23,6 +25,7 @@ public:
         int interval;
         double target;
         Param(xmlNode *root);
+        Param(ptree &root);
     };
     feedbackMix(Problem &problem, const MPIState &mpiState,
                 unirandom& rand, const Param &param);

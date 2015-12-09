@@ -32,3 +32,10 @@ rejCountP::Param::Param(xmlNode* root,const MPIState &mpiState, debugStatus st,
         serParam(root, st, name), mpi(mpiState)
 {
 }
+
+rejCountP::Param::Param(ptree &root, const MPIState &mpiState, debugStatus st,
+                        const char *name):
+        serParam(root, st, name), mpi(mpiState)
+{
+    
+}

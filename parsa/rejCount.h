@@ -9,6 +9,9 @@
 #define REJCOUNT_H_
 
 #include <libxml/tree.h>
+#include <boost/property_tree/ptree.hpp>
+using boost::property_tree::ptree;
+
 #include "aState.h"
 #include "dynDebug.h"
 class rejCountP;
@@ -22,6 +25,7 @@ public:
         const char * debugname;
         Param(xmlNode *root, debugStatus st=ignore,
               const char * debugname=NULL);
+        Param(ptree &root, debugStatus st=ignore, const char *debugname=NULL);
     };
     rejCount(const Param &param);
     ~rejCount(){};

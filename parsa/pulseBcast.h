@@ -9,6 +9,9 @@
 #define PULSEBCAST_H_
 
 #include <libxml/tree.h>
+#include <boost/property_tree/ptree.hpp>
+using boost::property_tree::ptree;
+
 #include "dynDebug.h"
 #include "MPIState.h"
 #include "unirandom.h"
@@ -31,6 +34,7 @@ public:
     public:
         unsigned frequency;
         Param(xmlNode *root);
+        Param(ptree &root);
     };
     pulseBcast(Problem &problem, const MPIState &mpiState,
                unirandom& in_rnd, const Param &param);

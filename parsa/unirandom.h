@@ -8,6 +8,9 @@
 #ifndef UNIRANDOM_H_
 #define UNIRANDOM_H_
 #include <libxml/tree.h>
+#include <boost/property_tree/ptree.hpp>
+using boost::property_tree::ptree;
+
 #include <cstdlib>
 using namespace std;
 /*
@@ -21,6 +24,7 @@ public:
     unirandom();
     unirandom(unsigned int disp);
     unirandom(xmlNode *section);
+    unirandom(ptree &root);
     virtual double random();
     double randn();
     double randn(double mu, double sigma) {return sigma*randn()+mu;}
@@ -47,6 +51,7 @@ public:
     unirand48();
     unirand48(unsigned int disp);
     unirand48(xmlNode *section);
+    unirand48(ptree &ptree);
     void setSeed(unsigned int newSeed)
     {
         seed = newSeed;
