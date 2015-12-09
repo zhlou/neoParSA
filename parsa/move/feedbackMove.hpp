@@ -109,6 +109,36 @@ feedbackMove<Problem>::feedbackMove(Problem& in_problem,
 }
 
 template<class Problem>
+feedbackMove<Problem>::feedbackMove(Problem &in_problem, unirandom &in_rand,
+                                    ptree &root) :
+        problem(in_problem), rnd(in_rand), index(-1)
+{
+    nparams = problem.getDimension();
+    energy = problem.get_score();
+    prev_energy = energy;
+    sweep = 0;
+    ptree &sec_attr = root.get_child("move.<xmlattr>");
+    move_gain = sec_attr.get<double>("gain", 0.03);
+    move_interval = sec_attr.get<int>("interval", 100);
+    target = sec_attr.get<double>("target", 0.44);
+    double initTheta = sec_attr.get<double>("init_theta_bar", 1.0);
+    success = new long[nparams];
+    moves = new long[nparams];
+    theta_bars = new double[nparams];
+    theta_mins = new double[nparams];
+    theta_maxs = new double[nparams];
+    for (int i = 0; i < nparams; ++i) {
+        success[i] = 0;
+        moves[i] = 0;
+        theta_bars[i] = initTheta;
+        theta_mins[i] = 0.;
+        theta_maxs[i] = numeric_limits<double>::max();
+    }
+    // now initialize theta_mins and theta_maxs if there're any in the input file
+}
+
+
+template<class Problem>
 inline double feedbackMove<Problem>::get_score()
 {
     return energy;
@@ -203,7 +233,7 @@ void feedbackMove<Problem>::writeState(xmlNodePtr docroot) const
     int i;
     for (i = 0; i < nparams; ++i) {
         asprintf(&paramNumString, "%d", i);
-        paramIter = xmlNewChild(moveNode, NULL, BAD_CAST "param", 
+        paramIter = xmlNewChild(moveNode, NULL, BAD_CAST "param",
                 BAD_CAST paramNumString);
         free(paramNumString);
         asprintf(&thetaString, "%.15g", theta_bars[i]);
@@ -223,7 +253,7 @@ void feedbackMove<Problem>::readState(xmlNodePtr docroot)
     int i;
     xmlNodePtr paramIter;
     char *paramNumString;
-    for (paramIter = moveNode->children; paramIter != NULL; 
+    for (paramIter = moveNode->children; paramIter != NULL;
             paramIter = paramIter->next) {
         if (xmlStrcmp(paramIter->name, BAD_CAST "param"))
             continue;
@@ -234,6 +264,6 @@ void feedbackMove<Problem>::readState(xmlNodePtr docroot)
             theta_bars[i] = getPropDouble(paramIter,"theta");
         }
     }
-        
-    
+
+
 }

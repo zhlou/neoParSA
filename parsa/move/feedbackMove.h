@@ -1,11 +1,14 @@
 #ifndef MOVABLE_H
 #define MOVABLE_H
 #include <libxml/parser.h>
+
 #include "xmlUtils.h"
 #include "unirandom.h"
 #include "dynDebug.h"
 #include "aState.h"
 
+#include <boost/property_tree/ptree.hpp>
+using boost::property_tree::ptree;
 /*
  * This is the feedback move control template. It features perturbation of
  * single parameter at each move and proportion feedback control at the end
@@ -24,11 +27,13 @@
  * };
  *
  */
+
 template <class Problem>
 class feedbackMove
 {
 public:
     feedbackMove(Problem &in_problem, unirandom& in_rnd, xmlNode *root=NULL);
+    feedbackMove(Problem &in_problem, unirandom& in_rnd, ptree &root);
     virtual ~feedbackMove();
     double get_score();
     double propose();
