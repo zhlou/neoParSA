@@ -20,6 +20,17 @@ FBMoveNoComm<Problem>::FBMoveNoComm(Problem& in_problem,
 }
 
 template<class Problem>
+FBMoveNoComm<Problem>::FBMoveNoComm(Problem &in_problem, unirandom &in_rnd,
+        const ptree &root, const MPIState &mpiState) :
+        feedbackMove<Problem>(in_problem, in_rnd, root), mpi(mpiState)
+{
+    theta_buf = new double[this->nparams];
+    int win_size = this->nparams*sizeof(double);
+    MPI_Win_create(theta_buf, win_size, win_size, MPI_INFO_NULL, mpi.comm,
+                   &theta_win);
+}
+
+template<class Problem>
 FBMoveNoComm<Problem>::~FBMoveNoComm()
 {
     MPI_Win_free(&theta_win);

@@ -19,6 +19,8 @@ class parallelFBMove: public feedbackMove<Problem>
 public:
     parallelFBMove(Problem &in_problem, unirandom& in_rnd, xmlNode *root,
                    const MPIState &mpiState);
+    parallelFBMove(Problem &in_problem, unirandom& in_rnd, const ptree &root,
+                const MPIState &mpiState);
     ~parallelFBMove();
     int getWinner();
     // void doMix(aState &state);
@@ -26,6 +28,7 @@ public:
     {if (ms.doesMix()) this->energy = state.energy;}
     static const char *name;
     void readState(xmlNodePtr docroot); // it overrides the base class. bite me
+    void readState(const ptree &root); // and you may want to bite me twice
 protected:
     void collectMoveStats();
 private:

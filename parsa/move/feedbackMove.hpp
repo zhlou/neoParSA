@@ -274,6 +274,24 @@ void feedbackMove<Problem>::readState(xmlNodePtr docroot)
             theta_bars[i] = getPropDouble(paramIter,"theta");
         }
     }
+}
 
-
+template<class Problem>
+void feedbackMove<Problem>::readState(const ptree &root)
+{
+    boost::optional<const ptree &> section = root.get_child_optional("moveSize");
+    if (! section) {
+        cerr << "Warning: fail to read moveSize from state file" << endl;
+        return;
+    }
+    std::pair <ptree::const_assoc_iterator, ptree::const_assoc_iterator> bounds
+            = (*section).equal_range("param");
+    for (ptree::const_assoc_iterator it = bounds.first;
+            it != bounds.second; ++it) {
+        const ptree &node = it->second;
+        int i = node.get_value<int>(0);
+        if (i < 0 || i >= nparams)
+            continue;
+        theta_bars[i] = node.get<double>("<xmlattr>.theta", theta_bars[i]);
+    }
 }

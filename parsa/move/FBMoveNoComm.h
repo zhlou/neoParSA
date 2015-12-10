@@ -23,7 +23,9 @@ class FBMoveNoComm: public feedbackMove<Problem>
 {
 public:
     FBMoveNoComm(Problem &in_problem, unirandom& in_rnd, xmlNode *root,
-                 const MPIState &miState);
+                 const MPIState &mpiState);
+    FBMoveNoComm(Problem &in_problem, unirandom& in_rnd, const ptree &root,
+                 const MPIState &mpiState);
     ~FBMoveNoComm();
     int getWinner();
     void processMix(const mixState &ms, const aState &state);

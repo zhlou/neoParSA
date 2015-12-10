@@ -22,6 +22,19 @@ unirandom& in_rnd, xmlNode* root, const MPIState& mpiState) :
 }
 
 template <class Problem>
+FBNCTheta<Problem>::FBNCTheta(Problem& in_problem,
+unirandom& in_rnd, const ptree &root, const MPIState& mpiState) :
+        feedbackMove<Problem>(in_problem, in_rnd, root), mpi(mpiState),
+        buf_size(in_problem.getStateSize())
+{
+    theta_buf = new double[this->nparams];
+    MPI_Alloc_mem(buf_size,MPI_INFO_NULL, &state_buf);
+    MPI_Win_create(state_buf, buf_size, buf_size, MPI_INFO_NULL, mpi.comm,
+            &state_win);
+    local_buf = malloc(buf_size);
+}
+
+template <class Problem>
 FBNCTheta<Problem>::~FBNCTheta()
 {
     MPI_Win_free(&state_win);

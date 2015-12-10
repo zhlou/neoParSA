@@ -28,6 +28,8 @@ private:
 public:
     FBNCTheta(Problem &in_problem, unirandom& in_rnd, xmlNode *root,
               const MPIState &mpiState);
+    FBNCTheta(Problem &in_problem, unirandom& in_rnd, const ptree &root,
+              const MPIState &mpiState);
     ~FBNCTheta();
     int getWinner();
     void processMix(const mixState &ms, const aState &state);

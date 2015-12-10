@@ -16,6 +16,13 @@ parallelFBMove<Problem>::parallelFBMove(Problem& in_problem,
 }
 
 template<class Problem>
+parallelFBMove<Problem>::parallelFBMove(Problem &in_problem,
+        unirandom &in_rnd, const ptree &root, const MPIState &mpiState) :
+        feedbackMove<Problem>(in_problem, in_rnd, root), mpi(mpiState)
+{
+}
+
+template<class Problem>
 int parallelFBMove<Problem>::getWinner()
 {
     struct
@@ -58,8 +65,20 @@ template<class Problem>
 void parallelFBMove<Problem>::readState(xmlNodePtr docroot)
 {
     feedbackMove<Problem>::readState(docroot);
-    MPI_Allreduce(MPI_IN_PLACE, feedbackMove<Problem>::theta_bars, 
-            feedbackMove<Problem>::nparams, 
+    MPI_Allreduce(MPI_IN_PLACE, feedbackMove<Problem>::theta_bars,
+            feedbackMove<Problem>::nparams,
+            MPI_DOUBLE, MPI_SUM, mpi.comm);
+    for (int i = 0; i < feedbackMove<Problem>::nparams; ++i) {
+        feedbackMove<Problem>::theta_bars[i] /= mpi.nnodes;
+    }
+}
+
+template<class Problem>
+void parallelFBMove<Problem>::readState(const ptree &root)
+{
+    feedbackMove<Problem>::readState(root);
+    MPI_Allreduce(MPI_IN_PLACE, feedbackMove<Problem>::theta_bars,
+            feedbackMove<Problem>::nparams,
             MPI_DOUBLE, MPI_SUM, mpi.comm);
     for (int i = 0; i < feedbackMove<Problem>::nparams; ++i) {
         feedbackMove<Problem>::theta_bars[i] /= mpi.nnodes;
