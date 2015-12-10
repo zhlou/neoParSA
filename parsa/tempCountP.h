@@ -19,7 +19,7 @@ public:
         tempCount::Param param;
         Param(xmlNode *root, debugStatus st=ignore, const char * debugname = NULL) :
             param(root, st, debugname) {}
-        Param(ptree &root, debugStatus st=ignore, const char *debugname=NULL) :
+        Param(const ptree &root, debugStatus st=ignore, const char *debugname=NULL) :
             param(root, st, debugname) {}
     };
     tempCountP(const Param &param, const MPIState &mpiState);

@@ -29,9 +29,9 @@ feedbackMix<Problem>::Param::Param(xmlNode *root) : target(0.5)
 }
 
 template<class Problem>
-feedbackMix<Problem>::Param::Param(ptree &root)
+feedbackMix<Problem>::Param::Param(const ptree &root)
 {
-    ptree &section = root.get_child("feedbackMix");
+    const ptree &section = root.get_child("feedbackMix");
     interval = section.get<int>("<xmlattr>.interval");
     target = section.get<double>("<xmlattr>.target", 0.5);
 }

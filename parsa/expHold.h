@@ -33,7 +33,7 @@ public:
         debugStatus st;
         const char *outname;
         Param(xmlNode *root, debugStatus in_st=ignore, const char *name=NULL);
-        Param(ptree &root, debugStatus in_st=ignore, const char *name=NULL);
+        Param(const ptree &root, debugStatus in_st=ignore, const char *name=NULL);
     };
     expHold(Param param) : segLength(param.segLength), target_s(param.target_s),
             alpha(param.alpha), debugOut(param.st, param.outname), energyStat(),

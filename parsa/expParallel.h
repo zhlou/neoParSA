@@ -22,7 +22,7 @@ public:
     public:
         exponential::Param serParam;
         Param(xmlNode *root);
-        Param(ptree &root);
+        Param(const ptree &root);
     };
     static const char *name;
     expParallel(const Param &param, const MPIState &mpiState);

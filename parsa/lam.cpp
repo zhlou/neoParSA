@@ -47,11 +47,11 @@ lam::Param::Param(xmlNode* root, debugStatus in_st, const char* name) :
     //cnt_crit = getPropInt(section, "freeze_cnt");
 }
 
-lam::Param::Param(ptree &root, debugStatus in_st, const char *name):
+lam::Param::Param(const ptree &root, debugStatus in_st, const char *name):
         st(in_st), outname(name)
 {
     lambda = root.get<double>("annealer_input.<xmlattr>.lambda");
-    ptree &lam_attr = root.get_child("lam.<xmlattr>");
+    const ptree &lam_attr = root.get_child("lam.<xmlattr>");
     proc_tau = lam_attr.get<int>("tau");
 
     double memlength_mean = lam_attr.get<double>("memLength_mean");

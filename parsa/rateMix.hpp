@@ -34,9 +34,9 @@ rateMix<Problem>::Param::Param(xmlNode *root) : weight(0.)
 }
 
 template<class Problem>
-rateMix<Problem>::Param::Param(ptree &root) : weight(0.)
+rateMix<Problem>::Param::Param(const ptree &root) : weight(0.)
 {
-    ptree &sec_attr = root.get_child("rateMix.<xmlattr>");
+    const ptree &sec_attr = root.get_child("rateMix.<xmlattr>");
     factor = sec_attr.get<double>("factor");
     double memLength = sec_attr.get<double>("memLength", 0.0);
     if (0.0 != memLength)

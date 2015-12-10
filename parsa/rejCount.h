@@ -25,7 +25,7 @@ public:
         const char * debugname;
         Param(xmlNode *root, debugStatus st=ignore,
               const char * debugname=NULL);
-        Param(ptree &root, debugStatus st=ignore, const char *debugname=NULL);
+        Param(const ptree &root, debugStatus st=ignore, const char *debugname=NULL);
     };
     rejCount(const Param &param);
     ~rejCount(){};

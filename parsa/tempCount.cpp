@@ -22,10 +22,10 @@ tempCount::Param::Param(xmlNode* root, debugStatus in_st, const char* in_name)
     max_steps = getPropInt(xmlsection, "max_steps");
 }
 
-tempCount::Param::Param(ptree &root, debugStatus in_st, const char *in_name):
+tempCount::Param::Param(const ptree &root, debugStatus in_st, const char *in_name):
         st(in_st), debugname(in_name)
 {
-    ptree &sec_attr = root.get_child("tempCount.<xmlattr>");
+    const ptree &sec_attr = root.get_child("tempCount.<xmlattr>");
     target_s = 1.0 / sec_attr.get<double>("target");
     max_steps = sec_attr.get<int>("max_steps");
 }

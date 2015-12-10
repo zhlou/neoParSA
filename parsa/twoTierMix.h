@@ -27,7 +27,7 @@ public:
         unsigned mixFreq;
         unsigned globalFreq;
         Param(xmlNode *docroot);
-        Param(ptree &root);
+        Param(const ptree &root);
     };
     twoTierMix(Problem &in_problem, const MPIState &globalState,
                unirandom& in_rand, const Param &param);

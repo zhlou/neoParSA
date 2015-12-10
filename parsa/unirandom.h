@@ -24,7 +24,7 @@ public:
     unirandom();
     unirandom(unsigned int disp);
     unirandom(xmlNode *section);
-    unirandom(ptree &root);
+    unirandom(const ptree &root);
     virtual double random();
     double randn();
     double randn(double mu, double sigma) {return sigma*randn()+mu;}

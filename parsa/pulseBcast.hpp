@@ -23,7 +23,7 @@ pulseBcast<Problem>::Param::Param(xmlNode *docroot)
 }
 
 template<class Problem>
-pulseBcast<Problem>::Param::Param(ptree &root)
+pulseBcast<Problem>::Param::Param(const ptree &root)
 {
     frequency = root.get<unsigned>("pulseBcast.<xmlattr>.frequency");
 }

@@ -21,9 +21,9 @@ adaptMix<Problem>::Param::Param(xmlNode *root)
 }
 
 template<class Problem>
-adaptMix<Problem>::Param::Param(ptree &root)
+adaptMix<Problem>::Param::Param(const ptree &root)
 {
-    ptree &section = root.get_child("mix");
+    const ptree &section = root.get_child("mix");
     adaptCoef = section.get<double>("<xmlattr>.adaptcoef");
 }
 

@@ -27,10 +27,10 @@ expHold::Param::Param(xmlNode* root, debugStatus in_st, const char *name) :
     }
 }
 
-expHold::Param::Param(ptree &root, debugStatus in_st, const char *name) :
+expHold::Param::Param(const ptree &root, debugStatus in_st, const char *name) :
         st(in_st), outname(name)
 {
-    ptree &section = root.get_child("expHold");
+    const ptree &section = root.get_child("expHold");
     target_s = 1./section.get<double>("<xmlattr>.target");
     alpha = section.get<double>("<xmlattr>.alpha");
     segLength = section.get<unsigned>("<xmlattr>.segLength", 1);

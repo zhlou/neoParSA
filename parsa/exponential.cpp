@@ -35,10 +35,10 @@ exponential::Param::Param(xmlNode* root, debugStatus in_st, const char *name):
 
 }
 
-exponential::Param::Param(ptree &root, debugStatus in_st, const char *name):
+exponential::Param::Param(const ptree &root, debugStatus in_st, const char *name):
         st(in_st), outname(name)
 {
-    ptree &section = root.get_child("exponential");
+    const ptree &section = root.get_child("exponential");
     alpha = section.get<double>("<xmlattr>.alpha");
     max_rej = section.get<unsigned long>("<xmlattr>.max_rej");
     segLength = section.get<unsigned>("<xmlattr>.log_freq",100);

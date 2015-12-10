@@ -24,7 +24,7 @@ public:
         int cnt_crit;
         int interval;
         Param(xmlNode *root);
-        Param(ptree &root);
+        Param(const ptree &root);
     };
     criCount(const Param &param);
     ~criCount();

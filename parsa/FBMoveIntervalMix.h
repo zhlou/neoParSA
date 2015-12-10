@@ -36,7 +36,7 @@ public:
         double varConst;
         Param();
         Param(xmlNode *root);
-        Param(ptree &ptree);
+        Param(const ptree &root);
 
     };
     FBMoveIntervalMix(Problem &in_problem, const MPIState &mpiState,

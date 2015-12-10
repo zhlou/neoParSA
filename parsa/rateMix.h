@@ -26,7 +26,7 @@ public:
         double factor;
         double weight;
         Param(xmlNode *root);
-        Param(ptree &root);
+        Param(const ptree &root);
     };
     rateMix(Problem &problem, const MPIState &mpiState,
             unirandom &rand, const Param &param);

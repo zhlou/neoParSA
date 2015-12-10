@@ -77,9 +77,9 @@ intervalMix<Problem>::Param::Param(xmlNode *root)
 }
 
 template <class Problem>
-intervalMix<Problem>::Param::Param(ptree &root)
+intervalMix<Problem>::Param::Param(const ptree &root)
 {
-    ptree &sec_attr = root.get_child("mix.<xmlattr>");
+    const ptree &sec_attr = root.get_child("mix.<xmlattr>");
     interval = sec_attr.get<int>("interval");
     reportNAdopt = sec_attr.get<int>("reportNAdopt", 0);
 }

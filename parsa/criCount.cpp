@@ -61,9 +61,9 @@ criCount::Param::Param(xmlNode* root)
     }
 }
 
-criCount::Param::Param(ptree &root)
+criCount::Param::Param(const ptree &root)
 {
-    ptree &section = root.get_child("count_criterion");
+    const ptree &section = root.get_child("count_criterion");
     freeze_crit = section.get<double>("<xmlattr>.freeze_crit");
     cnt_crit = section.get<int>("<xmlattr>.freeze_cnt");
     interval = section.get<int>("<xmlattr>.interval", 100);

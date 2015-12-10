@@ -34,7 +34,7 @@ public:
     public:
         unsigned frequency;
         Param(xmlNode *root);
-        Param(ptree &root);
+        Param(const ptree &root);
     };
     pulseBcast(Problem &problem, const MPIState &mpiState,
                unirandom& in_rnd, const Param &param);

@@ -33,7 +33,7 @@ public:
     public:
         double adaptCoef;
         Param(xmlNode *root);
-        Param(ptree &root);
+        Param(const ptree &root);
     };
     adaptMix(Problem &in_problem, const MPIState &mpiState,
              unirandom& in_rnd, const Param &param);

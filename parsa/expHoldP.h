@@ -19,7 +19,7 @@ public:
         expHold::Param param;
         Param(xmlNode *root, debugStatus in_st=ignore, const char*name=NULL):
             param(root, in_st, name) {}
-        Param(ptree &root, debugStatus in_st=ignore, const char *name=NULL):
+        Param(const ptree &root, debugStatus in_st=ignore, const char *name=NULL):
             param(root, in_st, name) {}
     };
     expHoldP(Param param, const MPIState &);

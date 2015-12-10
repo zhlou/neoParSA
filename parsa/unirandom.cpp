@@ -36,7 +36,7 @@ unirandom::unirandom(xmlNode* section) : phase(0)
 		seed = time(NULL);
 }
 
-unirandom::unirandom(ptree &root) : phase(0)
+unirandom::unirandom(const ptree &root) : phase(0)
 {
     seed = root.get<unsigned int>("<xmlattr>.seed",time(NULL));
 }

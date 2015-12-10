@@ -10,7 +10,7 @@ plsa::Param::Param(xmlNode *root, debugStatus st, const char *outname) :
 
 }
 
-plsa::Param::Param(ptree &root,  debugStatus st, const char *outname) :
+plsa::Param::Param(const ptree &root,  debugStatus st, const char *outname) :
         lamParam(root, st, outname)
 {
 

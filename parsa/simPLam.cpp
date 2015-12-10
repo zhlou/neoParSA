@@ -26,12 +26,12 @@ simPLam::Param::Param(xmlNode* root, debugStatus in_st, const char* name) :
 
 }
 
-simPLam::Param::Param(ptree &root, debugStatus in_st, const char *name) :
+simPLam::Param::Param(const ptree &root, debugStatus in_st, const char *name) :
         st(in_st), outname(name)
 {
-    ptree &sec_attr = root.get_child("simPLam.<xmlattr>");
+    const ptree &sec_attr = root.get_child("simPLam.<xmlattr>");
     proc_tau = sec_attr.get<int>("tau");
-    lambda = sec_attr.get<double>("lambda");    
+    lambda = sec_attr.get<double>("lambda");
 }
 
 void simPLam::updateStep(bool accept, const aState &state)

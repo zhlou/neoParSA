@@ -33,9 +33,9 @@ mixOnce<Problem>::Param::Param(xmlNode* root) : interval(1), useBest(true)
 }
 
 template <class Problem>
-mixOnce<Problem>::Param::Param(ptree &root)
+mixOnce<Problem>::Param::Param(const ptree &root)
 {
-    ptree &sec_attr = root.get_child("mixOnce.<xmlattr>");
+    const ptree &sec_attr = root.get_child("mixOnce.<xmlattr>");
     target_s = 1./sec_attr.get<double>("target");
     interval = sec_attr.get<int>("interval", 1);
     useBest = sec_attr.get<int>("useBest", 1);

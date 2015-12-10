@@ -30,7 +30,7 @@ public:
         const char * debugname;
         Param(xmlNode *root, debugStatus st=ignore,
               const char *debugname = NULL);
-        Param(ptree &root, debugStatus st=ignore, const char *debugname=NULL);
+        Param(const ptree &root, debugStatus st=ignore, const char *debugname=NULL);
     };
     tempCount(const Param &param) : max_steps(param.max_steps),
             step_cnt(0), target_s(param.target_s),

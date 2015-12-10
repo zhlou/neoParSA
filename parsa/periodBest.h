@@ -37,7 +37,7 @@ public:
     public:
         unsigned frequency;
         Param(xmlNode *docroot);
-        Param(ptree &root);
+        Param(const ptree &root);
     };
     periodBest(Problem &problem, MPIState const&mpiState,
                unirandom& in_rnd, const Param &param);

@@ -26,7 +26,7 @@ public:
         debugStatus st;
         const char *outname;
         Param(xmlNode *root, debugStatus st=ignore, const char *outname=NULL);
-        Param(ptree &root, debugStatus st=ignore, const char *outname=NULL);
+        Param(const ptree &root, debugStatus st=ignore, const char *outname=NULL);
     };
     oneStep(Param param);
     ~oneStep();

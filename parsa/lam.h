@@ -31,7 +31,7 @@ public:
         debugStatus st;
         const char * outname;
         Param(xmlNode *root, debugStatus st=ignore, const char *outname=NULL);
-        Param(ptree &root, debugStatus st=ignore, const char *outname=NULL);
+        Param(const ptree &root, debugStatus st=ignore, const char *outname=NULL);
     };
     lam(Param param);
     // lam(xmlNode *root);

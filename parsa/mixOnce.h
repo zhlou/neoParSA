@@ -28,7 +28,7 @@ public:
         bool useBest;
         Param(double target) : target_s(target), interval(1), useBest(true) {}
         Param(xmlNode *root);
-        Param(ptree &root);
+        Param(const ptree &root);
     };
     mixOnce(Problem &problem, const MPIState &mpiState,
             unirandom& rnd, const Param &param);

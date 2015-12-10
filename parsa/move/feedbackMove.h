@@ -33,7 +33,7 @@ class feedbackMove
 {
 public:
     feedbackMove(Problem &in_problem, unirandom& in_rnd, xmlNode *root=NULL);
-    feedbackMove(Problem &in_problem, unirandom& in_rnd, ptree &root);
+    feedbackMove(Problem &in_problem, unirandom& in_rnd, const ptree &root);
     virtual ~feedbackMove();
     double get_score();
     double propose();

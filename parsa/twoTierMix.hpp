@@ -20,9 +20,9 @@ twoTierMix<Problem>::Param::Param(xmlNode *docroot)
 }
 
 template <class Problem>
-twoTierMix<Problem>::Param::Param(ptree &root)
+twoTierMix<Problem>::Param::Param(const ptree &root)
 {
-    ptree &sec_attr = root.get_child("twoTierMix.<xmlattr>");
+    const ptree &sec_attr = root.get_child("twoTierMix.<xmlattr>");
     partSize = sec_attr.get<unsigned>("partSize");
     mixFreq = sec_attr.get<unsigned>("mixFreq");
     globalFreq = sec_attr.get<unsigned>("globalFreq");

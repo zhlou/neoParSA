@@ -110,13 +110,13 @@ feedbackMove<Problem>::feedbackMove(Problem& in_problem,
 
 template<class Problem>
 feedbackMove<Problem>::feedbackMove(Problem &in_problem, unirandom &in_rand,
-                                    ptree &root) :
+                                    const ptree &root) :
         problem(in_problem), rnd(in_rand), index(-1), sweep(0)
 {
     nparams = problem.getDimension();
     energy = problem.get_score();
     prev_energy = energy;
-    ptree &sec_attr = root.get_child("move.<xmlattr>");
+    const ptree &sec_attr = root.get_child("move.<xmlattr>");
     move_gain = sec_attr.get<double>("gain", 0.03);
     move_interval = sec_attr.get<int>("interval", 100);
     target = sec_attr.get<double>("target", 0.44);

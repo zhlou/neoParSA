@@ -24,7 +24,7 @@ public:
         int interval;
         int reportNAdopt;
         Param(xmlNode *root);
-        Param(ptree &root);
+        Param(const ptree &root);
     };
     //intervalMix(Problem &in_problem, const MPIState &mpiState,
     //            unirandom& in_rand, xmlNode *docroot);

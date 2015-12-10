@@ -22,7 +22,7 @@ public:
     public:
         lam::Param lamParam;
         Param(xmlNode *root, debugStatus st=ignore, const char *outname=NULL);
-        Param(ptree &root, debugStatus st=ignore, const char *outname=NULL);
+        Param(const ptree &root, debugStatus st=ignore, const char *outname=NULL);
     };
     plsa(Param param, const MPIState &mpiState);
     // plsa(xmlNode *root, const MPIState &mpiState);

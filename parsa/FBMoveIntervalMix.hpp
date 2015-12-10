@@ -87,9 +87,9 @@ FBMoveIntervalMix<Problem>::Param::Param(xmlNode *root) : mix_interval(100),
 }
 
 template<class Problem>
-FBMoveIntervalMix<Problem>::Param::Param(ptree &root)
+FBMoveIntervalMix<Problem>::Param::Param(const ptree &root)
 {
-    ptree section = root.get_child("moveMix");
+    const ptree &section = root.get_child("moveMix");
     mix_interval = section.get<int>("<xmlattr>.mix_interval", 100);
     move_interval = section.get<int>("<xmlattr>.move_interval", 100);
     move_gain = section.get<double>("<xmlattr>.move_gain", 0.03);

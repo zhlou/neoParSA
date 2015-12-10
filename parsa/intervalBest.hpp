@@ -22,7 +22,7 @@ intervalBest<Problem>::Param::Param(xmlNode* root)
 }
 
 template<class Problem>
-intervalBest<Problem>::Param::Param(ptree &root)
+intervalBest<Problem>::Param::Param(const ptree &root)
 {
     interval = root.get<int>("intervalBest.<xmlattr>.interval");
 }
