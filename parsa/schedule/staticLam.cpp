@@ -1,5 +1,6 @@
 
 #include <stdexcept>
+#include <string>
 #include <cmath>
 #include "xmlUtils.h"
 #include "utils/vectorUtils.h"
@@ -31,15 +32,28 @@ staticLam::Param::Param(xmlNode *root, debugStatus in_st, const char *name) :
     } catch (const std::exception &e) {
         // ignored
     }
-    filename = (char *)xmlGetProp(section, (xmlChar *)"filename");
+    filename = (const char *)xmlGetProp(section, (xmlChar *)"filename");
     if (NULL == filename) {
         throw std::runtime_error("Error: fail to find filename in staticLam");
     }
 }
 
-staticLam::staticLam(Param &param) : 
+staticLam::Param::Param(const ptree &root, debugStatus in_st, const char *name):
+        st(in_st), logname(name)
+{
+    const ptree &sec_attr = root.get_child("staticLam.<xmlattr>");
+    segLength = sec_attr.get<unsigned>("segLength", 100);
+    adjustAlpha = sec_attr.get<int>("adjustAlpha", 0);
+    lambda = sec_attr.get<double>("lambda");
+    minRate = sec_attr.get<double>("minRate", 1e-15);
+    std::string fname_str = sec_attr.get<std::string>("filename");
+    filename = fname_str.c_str();
+
+}
+
+staticLam::staticLam(Param &param) :
         debugOut(param.st, param.logname), segLength(param.segLength),
-        lambda(param.lambda), minRate(param.minRate), count(0), i(0), 
+        lambda(param.lambda), minRate(param.minRate), count(0), i(0),
         alpha(0.23), success(0), adjustAlpha(param.adjustAlpha)
 {
     readDoubleVectorFromText(betaVec, variance, param.filename);
@@ -97,8 +111,8 @@ void staticLam::calcStats(unsigned nsteps, const aState &state)
         double d = (1.0 - ar) / (2.0 - ar);
         alpha = 4.0 * ar * d * d;
     }
-    debugOut << state.step_cnt << " " << state.s << " " 
-             << state.energy << " " << getVar(state.s) 
+    debugOut << state.step_cnt << " " << state.s << " "
+             << state.energy << " " << getVar(state.s)
              << " " << ar << std::endl;
 
 }

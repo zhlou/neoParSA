@@ -19,13 +19,22 @@ staticCool::Param::Param(xmlNode *root, debugStatus in_st, const char*name):
     xmlNode *xmlsection = getSectionByName(root, "staticCool");
     if (xmlsection == NULL)
         throw std::runtime_error(std::string("Error: fail to find section staticCool"));
-    scheduleName = (char *)xmlGetProp(xmlsection, BAD_CAST"scheduleName");
+    scheduleName = (const char *)xmlGetProp(xmlsection, BAD_CAST"scheduleName");
     segLength=100;
     try {
         segLength = getPropInt(xmlsection, "segLength");
     } catch (const std::exception &e) {
         //ignored
     }
+}
+
+staticCool::Param::Param(const ptree &root, debugStatus in_st, const char*name):
+    st(in_st), outname(name)
+{
+    const ptree &sec_attr = root.get_child("staticCool.<xmlattr>");
+    std::string sname = sec_attr.get<std::string>("scheduleName");
+    scheduleName = sname.c_str();
+    segLength = sec_attr.get<unsigned>("segLength", 100);
 }
 
 staticCool::staticCool(Param &param) :

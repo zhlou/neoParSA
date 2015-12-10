@@ -4,7 +4,7 @@
  *         Author:  Zhihao Lou
  *
  *                  This cooling schedule takes a text file with two columns
- *                  each line representing inverse temperature and 
+ *                  each line representing inverse temperature and
  *
  *           Note:  This cooling schedule relies on the properties that the
  *                  variance is constant at high temperature (small s or beta)
@@ -19,6 +19,8 @@
 
 #include <vector>
 #include <libxml/tree.h>
+#include <boost/property_tree/ptree.hpp>
+using boost::property_tree::ptree;
 
 #include "dynDebug.h"
 #include "aState.h"
@@ -50,8 +52,9 @@ public:
         double lambda;
         double minRate;
         int adjustAlpha;
-        char *filename;
+        const char *filename;
         Param(xmlNode *root, debugStatus in_st=ignore, const char *logname=NULL);
+        Param(const ptree &root, debugStatus in_st=ignore, const char *logname=NULL);
     };
     staticLam(Param &param);
     ~staticLam(){}
