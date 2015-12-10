@@ -111,12 +111,11 @@ feedbackMove<Problem>::feedbackMove(Problem& in_problem,
 template<class Problem>
 feedbackMove<Problem>::feedbackMove(Problem &in_problem, unirandom &in_rand,
                                     ptree &root) :
-        problem(in_problem), rnd(in_rand), index(-1)
+        problem(in_problem), rnd(in_rand), index(-1), sweep(0)
 {
     nparams = problem.getDimension();
     energy = problem.get_score();
     prev_energy = energy;
-    sweep = 0;
     ptree &sec_attr = root.get_child("move.<xmlattr>");
     move_gain = sec_attr.get<double>("gain", 0.03);
     move_interval = sec_attr.get<int>("interval", 100);
@@ -135,6 +134,17 @@ feedbackMove<Problem>::feedbackMove(Problem &in_problem, unirandom &in_rand,
         theta_maxs[i] = numeric_limits<double>::max();
     }
     // now initialize theta_mins and theta_maxs if there're any in the input file
+    std::pair <ptree::const_assoc_iterator, ptree::const_assoc_iterator> bounds
+            = root.get_child("move").equal_range("theta");
+    for (ptree::const_assoc_iterator it = bounds.first;
+            it != bounds.second; ++it) {
+        const ptree &node = it->second;
+        int i = node.get_value<int>(0);
+        if (i < 0 || i >= nparams)
+            continue;
+        theta_mins[i] = node.get<double>("<xmlattr>.min", theta_mins[i]);
+        theta_maxs[i] = node.get<double>("<xmlattr>.max", theta_maxs[i]);
+    }
 }
 
 
