@@ -54,12 +54,10 @@ int main(int argc, char **argv)
         rst.generateMove(i, udrst::VAR_MAX * 2.0 * rnd.random() - 1.0);
     }
     std::cout << "Final score is " << rst.get_score() << std::endl;
-    rst.write_section(BAD_CAST sectionname);
+    rst.write_section(xmlroot, BAD_CAST sectionname);
     xmlSaveFormatFile(outname, xmldoc, 1);
     xmlFreeDoc(xmldoc);
     xmlCleanupParser();
 
     return 0;
 }
-
-

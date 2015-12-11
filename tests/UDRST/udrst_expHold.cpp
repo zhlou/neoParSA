@@ -128,7 +128,7 @@ int main(int argc, char **argv)
         }
         rst_sa->loop();
         std::cout << "The final energy is " << rst.get_score() << std::endl;
-        rst.write_section((xmlChar *)"output");
+        rst.write_section(docroot, (xmlChar *)"output");
         //xmlSaveFormatFile(docname, doc, 1);
         rst_sa->writeResult(pt_root);
         boost::property_tree::xml_writer_settings<std::string> settings(' ', 2);

@@ -92,7 +92,7 @@ int main(int argc, char **argv)
         cout << "The initial energy is " << rst.get_score() << endl;
         rst_sa.loop();
         cout << "Final energy is " << rst.get_score() << endl;
-        rst.write_section((xmlChar *)"output");
+        rst.write_section(xmlroot, (xmlChar *)"output");
         rst_sa.writeResult(xmlroot);
         xmlSaveFormatFile(docname, xmldoc,1);
     }

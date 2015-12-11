@@ -103,7 +103,7 @@ int main(int argc, char **argv)
     rst_sa->loop();
     cout << "Final energy is " << rst.get_score() << endl;
     if (rst_sa->getWinner() == mpi.rank) {
-        rst.write_section((xmlChar *) "tour");
+        rst.write_section(xmlroot, (xmlChar *) "tour");
         rst_sa->writeResult(xmlroot);
         xmlSaveFormatFile(docname, xmldoc,1);
     }

@@ -140,7 +140,7 @@ int main(int argc, char **argv)
 
         rst_sa->loop();
         std::cout << "The final energy is " << rst.get_score() << std::endl;
-        rst.write_section((xmlChar *)"output");
+        rst.write_section(docroot, (xmlChar *)"output");
         rst_sa->writeResult(docroot);
         xmlSaveFormatFile(docname, doc, 1);
     }

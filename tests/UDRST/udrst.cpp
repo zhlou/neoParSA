@@ -12,6 +12,7 @@
 #include "unirandom.h"
 #include "xmlUtils.h"
 #include <string.h>
+#include <boost/format.hpp>
 // #include <omp.h>
 
 using namespace std;
@@ -26,8 +27,8 @@ udrst::udrst(int dimension, unirandom &in_rnd) :
 	for (i = 0; i < dim; i++) {
 		vars[i] = VAR_MAX * (rnd.random() *2.0 -1.0);
 	}
-	docroot = NULL;
-	section = NULL;
+	//docroot = NULL;
+	//section = NULL;
 	prev_x = 0; // to make the compiler happy
 	prev_idx = -1;
 	idx = 0;
@@ -39,8 +40,8 @@ udrst::udrst(int dimension, unirandom &in_rnd) :
 udrst::udrst(xmlNode *root, unirandom &in_rnd):
 		rnd(in_rnd)
 {
-	docroot = root;
-	section = root->children;
+	//docroot = root;
+	xmlNode *section = root->children;
 	xmlChar *prop = NULL;
 	while (section != NULL) {
 		if (!xmlStrcmp(section->name, (xmlChar *) "rastrigin"))
@@ -88,7 +89,7 @@ udrst::udrst(xmlNode *root, unirandom &in_rnd):
     outOfBounds = false;
 }
 
-void udrst::write_section(xmlChar *secname)
+void udrst::write_section(xmlNode *docroot, xmlChar *secname)
 {
     xmlNode *node;
     node = getSectionByName(docroot, (const char *)secname);
@@ -108,6 +109,16 @@ void udrst::write_section(xmlChar *secname)
 	}
 	delete[] valbuf;
 	delete[] namebuf;
+}
+
+void udrst::write_section(ptree &root, std::string secname)
+{
+    ptree section;
+    section.put("<xmlattr>.dim", (boost::format("%1%") % dim).str());
+	for (int i = 0; i < dim; i++) {
+        section.put((boost::format("<xmlattr>.x%1%") % i).str(),
+            (boost::format("%g") % vars[i]).str());
+	}
 }
 
 void udrst::print_solution(ostream& o) const
