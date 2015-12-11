@@ -88,14 +88,14 @@ int main(int argc, char **argv)
     ptree pt;
     read_xml(filename, pt, boost::property_tree::xml_parser::trim_whitespace);
     ptree &pt_root = pt.begin()->second;
-    xmlDoc *doc = xmlParseFile(docname);
-    xmlNode *docroot = xmlDocGetRootElement(doc);
-    if (docroot == NULL) {
-        std::cerr << "Input incorrect" << std::endl;
-        return -1;
-    }
+    //xmlDoc *doc = xmlParseFile(docname);
+    //xmlNode *docroot = xmlDocGetRootElement(doc);
+    //if (docroot == NULL) {
+    //    std::cerr << "Input incorrect" << std::endl;
+    //    return -1;
+    //}
     unirandom rnd;
-    udrst rst(docroot, rnd);
+    udrst rst(pt_root, rnd);
     //expHold::Param scheParam(docroot);
     expHold::Param scheParam(pt_root);
     tempCount::Param frozenParam(pt_root);
@@ -128,14 +128,14 @@ int main(int argc, char **argv)
         }
         rst_sa->loop();
         std::cout << "The final energy is " << rst.get_score() << std::endl;
-        rst.write_section(docroot, (xmlChar *)"output");
+        rst.write_section(pt_root, std::string("output"));
         //xmlSaveFormatFile(docname, doc, 1);
         rst_sa->writeResult(pt_root);
         boost::property_tree::xml_writer_settings<std::string> settings(' ', 2);
         write_xml(filename, pt, std::locale(), settings);
     }
-    xmlFreeDoc(doc);
-    xmlCleanupParser();
+    //xmlFreeDoc(doc);
+    //xmlCleanupParser();
     delete rst_sa;
 
     return 0;

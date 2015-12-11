@@ -89,6 +89,31 @@ udrst::udrst(xmlNode *root, unirandom &in_rnd):
     outOfBounds = false;
 }
 
+udrst::udrst(ptree &root, unirandom &in_rnd):
+        rnd(in_rnd)
+{
+    ptree &sec_attr = root.get_child("rastrigin.<xmlattr>");
+    dim = sec_attr.get<int>("dim");
+    vars = new double[dim];
+    for (int i = 0; i < dim; i++) {
+        std::string namebuf = (boost::format("x%d") % (i+1)).str();
+        boost::optional<double> xval = sec_attr.get_optional<double>(namebuf);
+        if (xval)
+            vars[i] = *xval;
+        else {
+            vars[i] = VAR_MAX * (2.0 * rnd.random() - 1.0);
+            sec_attr.put(namebuf, boost::format("%g") % vars[i]);
+            // for more accuracy, use the following line
+            // sec_attr.put(namebuf, vars[i]);
+        }
+    }
+    prev_x = 0; // to make the compiler happy
+    prev_idx = -1;
+    idx = 0;
+    can_rollback = false;
+    outOfBounds = false;
+}
+
 void udrst::write_section(xmlNode *docroot, xmlChar *secname)
 {
     xmlNode *node;
@@ -116,9 +141,10 @@ void udrst::write_section(ptree &root, std::string secname)
     ptree section;
     section.put("<xmlattr>.dim", (boost::format("%1%") % dim).str());
 	for (int i = 0; i < dim; i++) {
-        section.put((boost::format("<xmlattr>.x%1%") % i).str(),
+        section.put((boost::format("<xmlattr>.x%1%") % (i+1)).str(),
             (boost::format("%g") % vars[i]).str());
 	}
+    root.put_child(secname, section);
 }
 
 void udrst::print_solution(ostream& o) const

@@ -14,7 +14,9 @@ class udrst
 public:
 	udrst(int dimension, unirandom &in_rnd);
 	udrst(xmlNode *root, unirandom &in_rnd);
-    udrst(const ptree &root, unirandom &in_rnd);
+    // constructor takes a *non-const* ptree as it will fill any
+    // missing vars[i] values in the xml tree
+    udrst(ptree &root, unirandom &in_rnd);
 	int getDimension() const {return 1;};
 	double get_param(int idx) const;
 	void set_param(int idx, double val);
