@@ -13,8 +13,7 @@
 #include <stdexcept>
 #include "xmlUtils.h"
 
-#include <boost/property_tree/ptree.hpp>
-using boost::property_tree::ptree;
+#include <boost/property_tree/xml_parser.hpp>
 
 using namespace std;
 /*
@@ -36,6 +35,21 @@ annealer<Problem, Schedule, FrozenCnd, Move>::annealer(Problem &problem,
     tlaps = -1;
 }
 
+template<class Problem, class Schedule, class FrozenCnd, template<class> class Move>
+annealer<Problem, Schedule, FrozenCnd, Move>::annealer(Problem &problem,
+        unirandom& in_rand, typename Schedule::Param scheParam,
+        typename FrozenCnd::Param frozenParam,
+        const ptree &root) :
+        problem(problem),
+        rand(in_rand)
+{
+    initState(root);
+    cooling = new Schedule(scheParam);
+    move = new Move<Problem>(problem, in_rand, root);
+    frozen = new FrozenCnd(frozenParam);
+    state.energy = move->get_score();
+    tlaps = -1;
+}
 /*
  * This construtor is used only by derived class that have there own way
  * of generating cooling schedule and move scheme
@@ -44,6 +58,21 @@ template<class Problem, class Schedule, class FrozenCnd, template<class> class M
 annealer<Problem, Schedule, FrozenCnd, Move>::annealer(Problem &problem,
         unirandom& in_rand,
         xmlNode *root) :
+        problem(problem),
+        rand(in_rand)
+{
+    initState(root);
+    cooling = NULL;
+    move = NULL;
+    frozen = NULL;
+    tlaps = -1;
+}
+
+
+template<class Problem, class Schedule, class FrozenCnd, template<class> class Move>
+annealer<Problem, Schedule, FrozenCnd, Move>::annealer(Problem &problem,
+        unirandom& in_rand,
+        const ptree &root) :
         problem(problem),
         rand(in_rand)
 {
@@ -153,12 +182,33 @@ void annealer<Problem, Schedule, FrozenCnd, Move>::writeResultData(xmlNode* resu
 }
 
 template<class Problem, class Schedule, class FrozenCnd, template<class > class Move>
+void annealer<Problem, Schedule, FrozenCnd, Move>::writeResultData(ptree &result) const
+{
+    std::ostringstream s_energy, s_step, s_time;
+    s_energy << state.energy;
+    s_step << state.step_cnt;
+    s_time << tlaps;
+    result.put("<xmlattr>.final_energy",s_energy.str());
+    result.put("<xmlattr>.max_count", s_step.str());
+    result.put("<xmlattr>.time", s_time.str());
+
+}
+
+template<class Problem, class Schedule, class FrozenCnd, template<class > class Move>
 void annealer<Problem, Schedule, FrozenCnd, Move>::writeMethodText(xmlNode *method)
 {
     xmlNewProp(method, (const xmlChar*)"cooling-schedule",
                (const xmlChar*)Schedule::name);
     xmlNewProp(method, (const xmlChar*)"move-generation",
                (const xmlChar*)Move<Problem>::name);
+}
+
+
+template<class Problem, class Schedule, class FrozenCnd, template<class > class Move>
+void annealer<Problem, Schedule, FrozenCnd, Move>::writeMethodText(ptree &method) const
+{
+    method.put("<xmlattr>.cooling-schedule", std::string(Schedule::name));
+    method.put("<xmlattr>.move-generation", std::string(Move<Problem>::name));
 }
 
 template<class Problem, class Schedule, class FrozenCnd, template<class> class Move>
@@ -196,6 +246,16 @@ void annealer<Problem, Schedule, FrozenCnd, Move>::writeResult(xmlNode *xmlroot)
 }
 
 template<class Problem, class Schedule, class FrozenCnd, template<class > class Move>
+void annealer<Problem, Schedule, FrozenCnd, Move>::writeResult(ptree &root) const
+{
+    ptree result, method;
+    writeResultData(result);
+    writeMethodText(method);
+    root.put_child("annealing_result", result);
+    root.put_child("annealing_method", method);
+
+}
+template<class Problem, class Schedule, class FrozenCnd, template<class > class Move>
 void annealer<Problem, Schedule, FrozenCnd, Move>::initState(xmlNode* root)
 {
     xmlNode* xmlsection = getSectionByName(root, "annealer_input");
@@ -210,6 +270,16 @@ void annealer<Problem, Schedule, FrozenCnd, Move>::initState(xmlNode* root)
     state.step_cnt = 0;
 }
 
+template<class Problem, class Schedule, class FrozenCnd, template<class > class Move>
+void annealer<Problem, Schedule, FrozenCnd, Move>::initState(const ptree &root)
+{
+    const ptree &sec_attr = root.get_child("annealer_input.<xmlattr>");
+    initS = 1.0 / sec_attr.get<double>("init_T");
+    initLoop = sec_attr.get<int>("init_loop");
+    state.s = initS;
+    is_init = false;
+    state.step_cnt = 0;
+}
 
 template<class Problem, class Schedule, class FrozenCnd, template<class> class Move>
 bool annealer<Problem, Schedule, FrozenCnd, Move>::step()
@@ -311,6 +381,41 @@ double annealer<Problem, Schedule, FrozenCnd, Move>::readUnifiedInitState(const 
 
     xmlFreeDoc(doc);
     free(xmlName);
+
+    cooling->initStats(initMean, initVar, initAccRatio, state);
+    is_init = true;
+    return state.energy;
+}
+
+template<class Problem, class Schedule, class FrozenCnd, template<class> class Move>
+double annealer<Problem, Schedule, FrozenCnd, Move>::readUnifiedInitState(const std::string &filename)
+{
+    std::string stateName = filename + ".state";
+    std::string xmlName = filename + ".xml";
+
+    int bufSize = problem.getStateSize();
+    char * stateBuf = new char[bufSize];
+    ifstream stateFile(stateName.c_str(), ios::in | ios::binary);
+    if (!stateFile) {
+        throw std::runtime_error("Fail to open state file");
+    }
+    stateFile.read(stateBuf, bufSize);
+    stateFile.close();
+    problem.deserialize(stateBuf);
+    state.energy = move->forceUpdateEnergy();
+
+    delete[] stateBuf;
+
+    ptree pt;
+    read_xml(filename, pt, boost::property_tree::xml_parser::trim_whitespace);
+    ptree &root = pt.begin()->second;
+
+    const ptree &sec_attr = root.get_child("initStat.<xmlattr>");
+    initMean = sec_attr.get<double>("initMean");
+    initVar = sec_attr.get<double>("initVar");
+    initAccRatio = sec_attr.get<double>("initAccRatio");
+
+    move->readState(root);
 
     cooling->initStats(initMean, initVar, initAccRatio, state);
     is_init = true;

@@ -37,7 +37,8 @@ int main(int argc, char **argv)
     int readInitState = 0;
     int optIndex;
     char *saveStatePrefix = NULL;
-    char *readStatePrefix = NULL;
+    //char *readStatePrefix = NULL;
+    std::string readStatePrefix;
 
     struct option long_options[] = {
         {"save-state", 1, &saveInitState, 1},
@@ -56,7 +57,7 @@ int main(int argc, char **argv)
                     saveStatePrefix = optarg;
                     break;
                 case 1:
-                    readStatePrefix = optarg;
+                    readStatePrefix = std::string(optarg);
                     break;
                 }
                 break;
@@ -83,9 +84,9 @@ int main(int argc, char **argv)
         return -1;
     }
     char *docname = argv[optind];
-    fstream infile(docname);
+    std::string filename(docname);
     ptree pt;
-    read_xml(infile, pt, boost::property_tree::xml_parser::trim_whitespace);
+    read_xml(filename, pt, boost::property_tree::xml_parser::trim_whitespace);
     ptree &pt_root = pt.begin()->second;
     xmlDoc *doc = xmlParseFile(docname);
     xmlNode *docroot = xmlDocGetRootElement(doc);
@@ -97,10 +98,10 @@ int main(int argc, char **argv)
     udrst rst(docroot, rnd);
     //expHold::Param scheParam(docroot);
     expHold::Param scheParam(pt_root);
-    tempCount::Param frozenParam(docroot);
+    tempCount::Param frozenParam(pt_root);
     annealer<udrst, expHold, tempCount, feedbackMove>*rst_sa
             = new annealer<udrst, expHold, tempCount, feedbackMove>
-                  (rst, rnd, scheParam, frozenParam, docroot);
+                  (rst, rnd, scheParam, frozenParam, pt_root);
     string basename(docname);
     size_t sz = basename.size();
     basename.resize(sz-4);
@@ -128,8 +129,10 @@ int main(int argc, char **argv)
         rst_sa->loop();
         std::cout << "The final energy is " << rst.get_score() << std::endl;
         rst.write_section((xmlChar *)"output");
-        rst_sa->writeResult(docroot);
-        xmlSaveFormatFile(docname, doc, 1);
+        //xmlSaveFormatFile(docname, doc, 1);
+        rst_sa->writeResult(pt_root);
+        boost::property_tree::xml_writer_settings<std::string> settings(' ', 2);
+        write_xml(filename, pt, std::locale(), settings);
     }
     xmlFreeDoc(doc);
     xmlCleanupParser();

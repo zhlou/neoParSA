@@ -26,6 +26,26 @@ pannealer<Problem, Schedule, FrozenCnd, Move, PopBased>
     this->frozen = new FrozenCnd(frozenParam, mpiState);
 }
 
+template <class Problem, class Schedule, class FrozenCnd,
+          template<class> class Move, template<class> class PopBased>
+pannealer<Problem, Schedule, FrozenCnd, Move, PopBased>
+        ::pannealer(Problem &problem, unirandom& in_rand,
+                    typename Schedule::Param scheParam,
+                    typename FrozenCnd::Param frozenParam,
+                    const typename PopBased<Problem>::Param &popParam,
+                    const ptree &root,
+                    const MPIState &mpiState) :
+          annealer<Problem, Schedule, FrozenCnd, Move>::annealer(problem, in_rand, root),
+          mpi(mpiState), pop(problem, mpiState, in_rand, popParam)
+{
+    // this pointer is necessary because otherwise the lookup to parent members
+    // may fail depending on compilers
+    this->cooling = new Schedule(scheParam, mpiState);
+    this->move = new Move<Problem>(problem, in_rand, root, mpiState);
+    this->state.energy = this->move->get_score();
+    this->frozen = new FrozenCnd(frozenParam, mpiState);
+}
+
 template<class Problem, class Schedule, class FrozenCnd,
         template<class > class Move, template<class> class PopBased>
 pannealer<Problem, Schedule, FrozenCnd, Move, PopBased>::~pannealer()
@@ -70,9 +90,20 @@ void pannealer<Problem, Schedule, FrozenCnd, Move,
                (const xmlChar*)PopBased<Problem>::name);
 
 }
+
+template <class Problem, class Schedule, class FrozenCnd,
+          template<class> class Move, template<class> class PopBased>
+void pannealer<Problem, Schedule, FrozenCnd, Move,
+               PopBased>::writeMethodText(ptree &method) const
+{
+    annealer<Problem, Schedule, FrozenCnd, Move>::writeMethodText(method);
+    method.put("<xmlattr>.mixing", std::string(PopBased<Problem>::name));
+
+}
+
 template <class Problem, class Schedule, class FrozenCnd,
         template<class> class Move, template<class> class PopBased>
-void pannealer<Problem, Schedule, FrozenCnd, Move, 
+void pannealer<Problem, Schedule, FrozenCnd, Move,
         PopBased>::ptreeGetResult(ptree& pt)
 {
     annealer<Problem, Schedule, FrozenCnd, Move>::ptreeGetResult(pt);

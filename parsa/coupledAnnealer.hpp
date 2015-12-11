@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   coupledAnnealer.hpp
  * Author: zhlou
  *
@@ -10,15 +10,33 @@
 
 
 
-template <class Problem, class Schedule, class FrozenCnd, 
+template <class Problem, class Schedule, class FrozenCnd,
         template<class> class CoupledMove>
 coupledAnnealer<Problem, Schedule, FrozenCnd, CoupledMove>::coupledAnnealer(
-        Problem& problem, 
-        unirandom& in_rand, 
-        typename Schedule::Param scheParam, 
-        typename FrozenCnd::Param frozenParam, 
-        const typename CoupledMove<Problem>::Param& moveParam, 
-        xmlNode* root, 
+        Problem& problem,
+        unirandom& in_rand,
+        typename Schedule::Param scheParam,
+        typename FrozenCnd::Param frozenParam,
+        const typename CoupledMove<Problem>::Param& moveParam,
+        xmlNode* root,
+        const MPIState& mpiState) :
+        annealer<Problem, Schedule, FrozenCnd, CoupledMove>::annealer(problem, in_rand,root),
+        mpi(mpiState)
+{
+    this->cooling = new Schedule(scheParam, mpiState);
+    this->move = new CoupledMove<Problem>(problem, mpiState, in_rand, moveParam);
+    this->frozen = new FrozenCnd(frozenParam, mpiState);
+    this->state.energy = this->move->get_score();
+}
+template <class Problem, class Schedule, class FrozenCnd,
+        template<class> class CoupledMove>
+coupledAnnealer<Problem, Schedule, FrozenCnd, CoupledMove>::coupledAnnealer(
+        Problem& problem,
+        unirandom& in_rand,
+        typename Schedule::Param scheParam,
+        typename FrozenCnd::Param frozenParam,
+        const typename CoupledMove<Problem>::Param& moveParam,
+        const ptree &root, 
         const MPIState& mpiState) :
         annealer<Problem, Schedule, FrozenCnd, CoupledMove>::annealer(problem, in_rand,root),
         mpi(mpiState)
@@ -29,14 +47,14 @@ coupledAnnealer<Problem, Schedule, FrozenCnd, CoupledMove>::coupledAnnealer(
     this->state.energy = this->move->get_score();
 }
 
-template<class Problem, class Schedule, class FrozenCnd, 
+template<class Problem, class Schedule, class FrozenCnd,
         template<class> class CoupledMove>
 coupledAnnealer<Problem, Schedule, FrozenCnd, CoupledMove>::~coupledAnnealer()
 {
-    
+
 }
 
-template<class Problem, class Schedule, class FrozenCnd, 
+template<class Problem, class Schedule, class FrozenCnd,
         template<class> class CoupledMove>
 int coupledAnnealer<Problem, Schedule, FrozenCnd, CoupledMove>::getWinner()
 {
@@ -52,7 +70,7 @@ int coupledAnnealer<Problem, Schedule, FrozenCnd, CoupledMove>::getWinner()
     return doubleint.rank;
 }
 
-template<class Problem, class Schedule, class FrozenCnd, 
+template<class Problem, class Schedule, class FrozenCnd,
         template<class> class CoupledMove>
 void coupledAnnealer<Problem, Schedule, FrozenCnd, CoupledMove>::updateStats(aState& state)
 {
@@ -61,4 +79,3 @@ void coupledAnnealer<Problem, Schedule, FrozenCnd, CoupledMove>::updateStats(aSt
 }
 
 #endif	/* COUPLEDANNEALER_HPP */
-

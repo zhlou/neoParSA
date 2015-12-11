@@ -52,6 +52,10 @@ public:
     annealer(Problem &problem, unirandom& in_rand,
              typename Schedule::Param scheParam,
              typename FrozenCnd::Param frozenParam, xmlNode *root);
+    annealer(Problem &problem, unirandom& in_rand,
+            typename Schedule::Param scheParam,
+            typename FrozenCnd::Param frozenParam,
+            const ptree &root);
     virtual ~annealer();
     double loop();
     double initMoves();
@@ -61,8 +65,10 @@ public:
     double fixedTMoves(double S, long steps);
     void saveUnifiedInitState(const char * filename);
     double readUnifiedInitState(const char * filename);
+    double readUnifiedInitState(const std::string &filename);
     virtual void ptreeGetResult(ptree &pt);
     void writeResult(xmlNode *xmlroot);
+    void writeResult(ptree &root) const;
     void setStepLog(debugStatus st, const char* outname=NULL)
     {debugOut.setDebug(st, outname); debugOut.precision(16);}
     void setCoolLog(debugStatus st, const char*outname=NULL)
@@ -88,12 +94,16 @@ protected:
     double initAccRatio;
 
     annealer(Problem &problem, unirandom& in_rand, xmlNode *root);
+    annealer(Problem &problem, unirandom& in_rand, const ptree &root);
     virtual void updateStats(aState &state) {cooling->updateStats(state);}
 
     bool step();
     void initState(xmlNode* root);
+    void initState(const ptree &root);
     virtual void writeResultData(xmlNode* result);
+    virtual void writeResultData(ptree &result) const;
     virtual void writeMethodText(xmlNode* method);
+    virtual void writeMethodText(ptree &method) const;
 };
 
 

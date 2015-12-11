@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   coupledAnnealer.h
  * Author: zhlou
  *
@@ -15,12 +15,19 @@ template <class Problem, class Schedule, class FrozenCnd, template<class> class 
 class coupledAnnealer : public annealer<Problem, Schedule, FrozenCnd, CoupledMove>
 {
 public:
-    coupledAnnealer(Problem &problem, 
+    coupledAnnealer(Problem &problem,
             unirandom& in_rand,
             typename Schedule::Param scheParam,
             typename FrozenCnd::Param frozenParam,
             const typename CoupledMove<Problem>::Param &moveParam,
             xmlNode *root,
+            const MPIState &mpiState);
+    coupledAnnealer(Problem &problem,
+            unirandom& in_rand,
+            typename Schedule::Param scheParam,
+            typename FrozenCnd::Param frozenParam,
+            const typename CoupledMove<Problem>::Param &moveParam,
+            const ptree &root,
             const MPIState &mpiState);
     virtual ~coupledAnnealer();
     int getWinner();
@@ -32,11 +39,10 @@ protected:
     const MPIState &mpi;
     virtual void updateStats(aState &state);
 
-        
-        
+
+
 };
 
 #include "coupledAnnealer.hpp"
 
 #endif	/* COUPLEDANNEALER_H */
-
