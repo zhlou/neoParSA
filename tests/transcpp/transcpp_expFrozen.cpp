@@ -19,7 +19,6 @@
 #include <boost/lexical_cast.hpp>
 
 #include <unistd.h>
-#include <libxml/parser.h>
 #include <getopt.h>
 #include <libgen.h>
 #include "annealer.h"
@@ -48,7 +47,8 @@ int main(int argc, char** argv)
     int readInitState = 0;
     int optIndex;
     char *saveStatePrefix = NULL;
-    char *readStatePrefix = NULL;
+    //char *readStatePrefix = NULL;
+    std::string readStatePrefix;
 
     struct option long_options[] = {
         {"save-state", 1, &saveInitState, 1},
@@ -68,7 +68,7 @@ int main(int argc, char** argv)
                     saveStatePrefix = optarg;
                     break;
                 case 1:
-                    readStatePrefix = optarg;
+                    readStatePrefix = std::string(optarg);
                     break;
                 case 2:
                     break;
@@ -120,12 +120,12 @@ int main(int argc, char** argv)
     rnd.setSeed(seed);
     //rnd.setSeed(getpid());
 
-    xmlDoc *doc = xmlParseFile(xmlname.c_str());
-    xmlNode *docroot = xmlDocGetRootElement(doc);
-    expHold::Param scheParam(docroot);
-    criCount::Param frozenParam(docroot);
+    //xmlDoc *doc = xmlParseFile(xmlname.c_str());
+    //xmlNode *docroot = xmlDocGetRootElement(doc);
+    expHold::Param scheParam(root_node);
+    criCount::Param frozenParam(root_node);
     annealer<Organism, expHold, criCount, feedbackMove>
-            annealer(embryo, rnd, scheParam, frozenParam, docroot);
+            annealer(embryo, rnd, scheParam, frozenParam, root_node);
     string basename(xmlname);
     size_t sz = basename.size();
     basename.resize(sz-4);
@@ -162,8 +162,8 @@ int main(int argc, char** argv)
         boost::property_tree::xml_writer_settings<string> settings(' ', 2);
         write_xml(xmlname, pt, std::locale(), settings);
     }
-    xmlFreeDoc(doc);
-    xmlCleanupParser();
+    //xmlFreeDoc(doc);
+    //xmlCleanupParser();
 
 
     return 0;
