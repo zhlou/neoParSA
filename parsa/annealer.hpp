@@ -14,6 +14,7 @@
 #include "xmlUtils.h"
 
 #include <boost/property_tree/xml_parser.hpp>
+#include <boost/format.hpp>
 
 using namespace std;
 /*
@@ -345,6 +346,33 @@ void annealer<Problem, Schedule, FrozenCnd, Move>::saveUnifiedInitState(const ch
     free(initVarString);
     free(initAccRatioString);
     free(xmlName);
+}
+
+template<class Problem, class Schedule, class FrozenCnd, template<class> class Move>
+void annealer<Problem, Schedule, FrozenCnd, Move>
+        ::saveUnifiedInitState(const std::string &statePrefix)
+{
+    std::string stateName = statePrefix + ".state";
+    std::string xmlName = statePrefix + ".xml";
+    int buf_size = problem.getStateSize();
+    char * state_buf = new char[buf_size];
+    problem.serialize(state_buf);
+    ofstream stateFile(stateName.c_str(), ios::out | ios::binary);
+    stateFile.write(state_buf, buf_size);
+    stateFile.close();
+    delete[] state_buf;
+
+    ptree pt;
+    ptree sec_attr;
+    sec_attr.put("initMean", (boost::format("%.16g") % initMean).str());
+    sec_attr.put("initVar", (boost::format("%.16g") % initVar).str());
+    sec_attr.put("initAccRatio", (boost::format("%.16g") % initAccRatio).str());
+    pt.put_child("root.initStat.<xmlattr>", sec_attr);
+    ptree &root = pt.get_child("root");
+    move->writeState(root);
+    boost::property_tree::xml_writer_settings<std::string> settings(' ', 2);
+    write_xml(xmlName, pt, std::locale(), settings);
+
 }
 
 template<class Problem, class Schedule, class FrozenCnd, template<class> class Move>

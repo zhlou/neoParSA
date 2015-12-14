@@ -44,6 +44,7 @@ public:
     void setDebug(debugStatus st, const char*outname=NULL)
     {debugOut.setDebug(st, outname);}
     void writeState(xmlNodePtr docroot) const;
+    void writeState(ptree &root) const;
     void readState(xmlNodePtr docroot);
     void readState(const ptree &root);
     double forceUpdateEnergy() {return energy = problem.get_score();}

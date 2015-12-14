@@ -36,8 +36,9 @@ int main(int argc, char **argv)
     int saveInitState = 0;
     int readInitState = 0;
     int optIndex;
-    char *saveStatePrefix = NULL;
+    //char *saveStatePrefix = NULL;
     //char *readStatePrefix = NULL;
+    std::string saveStatePrefix;
     std::string readStatePrefix;
 
     struct option long_options[] = {
@@ -54,7 +55,7 @@ int main(int argc, char **argv)
             case 0:
                 switch (optIndex) {
                 case 0:
-                    saveStatePrefix = optarg;
+                    saveStatePrefix = std::string(optarg);
                     break;
                 case 1:
                     readStatePrefix = std::string(optarg);

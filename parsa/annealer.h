@@ -64,6 +64,7 @@ public:
     // hence likely updated.
     double fixedTMoves(double S, long steps);
     void saveUnifiedInitState(const char * filename);
+    void saveUnifiedInitState(const std::string &statePrefix);
     double readUnifiedInitState(const char * filename);
     double readUnifiedInitState(const std::string &filename);
     virtual void ptreeGetResult(ptree &pt);

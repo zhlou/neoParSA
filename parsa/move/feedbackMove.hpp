@@ -253,6 +253,17 @@ void feedbackMove<Problem>::writeState(xmlNodePtr docroot) const
 }
 
 template<class Problem>
+void feedbackMove<Problem>::writeState(ptree &root) const
+{
+    ptree node;
+    for (int i = 0; i < nparams; ++i) {
+        ptree &param = node.put("param", i);
+        param.put("<xmlattr>.theta", theta_bars[i]);
+    }
+    root.put_child("moveSize", node);
+}
+
+template<class Problem>
 void feedbackMove<Problem>::readState(xmlNodePtr docroot)
 {
     xmlNodePtr moveNode = getSectionByName(docroot, "moveSize");
