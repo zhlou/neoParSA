@@ -388,10 +388,10 @@ double annealer<Problem, Schedule, FrozenCnd, Move>::readUnifiedInitState(const 
 }
 
 template<class Problem, class Schedule, class FrozenCnd, template<class> class Move>
-double annealer<Problem, Schedule, FrozenCnd, Move>::readUnifiedInitState(const std::string &filename)
+double annealer<Problem, Schedule, FrozenCnd, Move>::readUnifiedInitState(const std::string &prefix)
 {
-    std::string stateName = filename + ".state";
-    std::string xmlName = filename + ".xml";
+    std::string stateName = prefix + ".state";
+    std::string xmlName = prefix + ".xml";
 
     int bufSize = problem.getStateSize();
     char * stateBuf = new char[bufSize];
@@ -407,7 +407,7 @@ double annealer<Problem, Schedule, FrozenCnd, Move>::readUnifiedInitState(const 
     delete[] stateBuf;
 
     ptree pt;
-    read_xml(filename, pt, boost::property_tree::xml_parser::trim_whitespace);
+    read_xml(xmlName, pt, boost::property_tree::xml_parser::trim_whitespace);
     ptree &root = pt.begin()->second;
 
     const ptree &sec_attr = root.get_child("initStat.<xmlattr>");
