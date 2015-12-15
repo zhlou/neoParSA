@@ -40,9 +40,8 @@ template<class Problem>
 fixedThetaMove<Problem>::fixedThetaMove(Problem &in_problem, unirandom &in_rnd,
                                         const ptree &root):
         problem(in_problem), rnd(in_rnd), index(0), counter(0),
-        accumTheta(0.0), accumAccept(0)
+        accumTheta(0.0), accumAccept(0), nparams(in_problem.getDimension())
 {
-    nparams = problem.getDimension();
     energy = problem.get_score();
     prev_energy = energy;
 
