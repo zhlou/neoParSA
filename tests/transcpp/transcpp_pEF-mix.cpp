@@ -14,7 +14,6 @@
 #include <unistd.h>
 #include <getopt.h>
 #include <libgen.h>
-#include <libxml/parser.h>
 #include <mpi.h>
 #include "pannealer.h"
 #include "move/parallelFBMove.h"
@@ -47,7 +46,6 @@ int main(int argc, char** argv)
     int readInitStates = 0;
     int optIndex;
     char *stateListFile = NULL;
-    const char *readStatePrefix = NULL;
     struct option long_options[] = {
         {"read-state", 1, &readInitStates, 1},
         {"cool-log", 0, &iscoollog, 1},
@@ -102,25 +100,23 @@ int main(int argc, char** argv)
     ptree& mode_node = root_node.get_child("Mode");
     ptree& input_node = root_node.get_child("Input");
     mode_ptr mode(new Mode(xmlname, mode_node));
-    
+
     Organism embryo(input_node, mode);
     //embryo.printParameters(cerr);
     unsigned int seed = mode->getSeed();
-    if (mode->getVerbose() >= 1) 
+    if (mode->getVerbose() >= 1)
         cerr << "Beginning annealing with seed " << seed << endl;
     unirand48 rnd;
     rnd.setSeed(seed+mpiState.rank);
     //rnd.setSeed(getpid());
 
-    xmlDoc *doc = xmlParseFile(xmlname.c_str());
-    xmlNode *docroot = xmlDocGetRootElement(doc);
-    expHoldP::Param scheParam(docroot);
-    criCountP::Param frozenParam(docroot);
-    intervalMix<Organism>::Param mixParam(docroot);
+    expHoldP::Param scheParam(root_node);
+    criCountP::Param frozenParam(root_node);
+    intervalMix<Organism>::Param mixParam(root_node);
     pannealer<Organism, expHoldP, criCountP, parallelFBMove, intervalMix>
             *annealer = new pannealer<Organism, expHoldP, criCountP,
             parallelFBMove, intervalMix>(embryo, rnd, scheParam, frozenParam,
-            mixParam, docroot, mpiState);
+            mixParam, root_node, mpiState);
     string bname(xmlname);
     size_t sz=bname.size();
     bname.resize(sz-4);
@@ -142,17 +138,18 @@ int main(int argc, char** argv)
 
 
     if (readInitStates) {
+        std::string readStatePrefix;
         std::string line;
         std::ifstream is(stateListFile);
         int i = 0;
         while (!(std::getline(is,line)).eof()) {
             if (mpiState.rank == i) {
-                readStatePrefix = line.c_str();
+                readStatePrefix = line;
                 break;
             }
             ++i;
         }
-        if (readStatePrefix) {
+        if (! readStatePrefix.empty()) {
             annealer->readUnifiedInitState(readStatePrefix);
         } else {
             throw std::runtime_error("unable to find state");
@@ -163,7 +160,6 @@ int main(int argc, char** argv)
     cerr << "The energy is " << embryo.get_score() << endl;
     annealer->loop();
     cerr << "The energy is " << embryo.get_score() << " after loop" << endl;
-    xmlFreeDoc(doc);
 
     //embryo.printParameters(cerr);
 
@@ -173,11 +169,9 @@ int main(int argc, char** argv)
         boost::property_tree::xml_writer_settings<string> settings(' ', 2);
         write_xml(xmlname, pt, std::locale(), settings);
     }
-    xmlCleanupParser();
     delete annealer;
     MPI_Finalize();
 
 
     return 0;
 }
-
