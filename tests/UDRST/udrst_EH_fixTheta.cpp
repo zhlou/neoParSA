@@ -13,7 +13,11 @@
 #include <unistd.h>
 #include <libgen.h>
 #include <getopt.h>
-#include <libxml/parser.h>
+
+#include <boost/property_tree/xml_parser.hpp>
+#include <boost/property_tree/ptree.hpp>
+using boost::property_tree::ptree;
+#include <boost/optional.hpp>
 
 #include "annealer.h"
 #include "move/fixedThetaMove.h"
@@ -86,33 +90,27 @@ int main(int argc, char **argv)
                   << std::endl;
         return -1;
     }
-    char *docname = argv[optind];
-    xmlDoc *doc = xmlParseFile(docname);
-    xmlNode *docroot = xmlDocGetRootElement(doc);
-    if (docroot == NULL) {
-        std::cerr << "Input incorrect" << std::endl;
-        return -1;
-    }
+    std::string xmlname(argv[optind]);
+    ptree pt;
+    read_xml(xmlname, pt, boost::property_tree::xml_parser::trim_whitespace);
+    ptree &pt_root = pt.begin()->second;
     unirandom rnd;
-    unsigned int seed;
-    try {
-        seed = getPropInt(docroot, "seed");
-        rnd.setSeed(seed);
-    } catch (std::exception &e) {
-        // ignore
+    boost::optional<unsigned int> seed = pt_root.get_optional<unsigned int>("<xmlattr>.seed");
+    if (seed) {
+        rnd.setSeed(*seed);
     }
-    udrst rst(docroot, rnd);
+    udrst rst(pt_root, rnd);
     if (startZero) {
         for (int i = 0; i < rst.get_dim(); ++i) {
             rst.set_param(i, 0.0);
         }
     }
-    expHold::Param scheParam(docroot);
-    tempCount::Param frozenParam(docroot);
+    expHold::Param scheParam(pt_root);
+    tempCount::Param frozenParam(pt_root);
     annealer<udrst, expHold, tempCount, fixedThetaMove>*rst_sa
             = new annealer<udrst, expHold, tempCount, fixedThetaMove>
-                  (rst, rnd, scheParam, frozenParam, docroot);
-    string basename(docname);
+                  (rst, rnd, scheParam, frozenParam, pt_root);
+    string basename(xmlname);
     size_t sz = basename.size();
     basename.resize(sz-4);
 
@@ -140,12 +138,11 @@ int main(int argc, char **argv)
 
         rst_sa->loop();
         std::cout << "The final energy is " << rst.get_score() << std::endl;
-        rst.write_section(docroot, (xmlChar *)"output");
-        rst_sa->writeResult(docroot);
-        xmlSaveFormatFile(docname, doc, 1);
+        rst.write_section(pt_root, std::string("output"));
+        rst_sa->writeResult(pt_root);
+        boost::property_tree::xml_writer_settings<std::string> settings(' ', 2);
+        write_xml(xmlname, pt, std::locale(), settings);
     }
-    xmlFreeDoc(doc);
-    xmlCleanupParser();
     delete rst_sa;
 
     return 0;
