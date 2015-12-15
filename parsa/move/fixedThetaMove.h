@@ -28,6 +28,7 @@ public:
     void accept();
     void reject();
     void writeState(xmlNodePtr docroot) const;
+    void writeState(ptree &root) const;
     void readState(xmlNodePtr docroot);
     void readState(const ptree &root);
     double forceUpdateEnergy() {return energy = problem.get_score();}

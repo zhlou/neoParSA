@@ -143,6 +143,15 @@ void fixedThetaMove<Problem>::writeState(xmlNodePtr docroot) const
 }
 
 template<class Problem>
+void fixedThetaMove<Problem>::writeState(ptree &root) const
+{
+    ptree node;
+    ptree &param = node.put("param", 0);
+    param.put("<xmlattr>.theta", target);
+    root.put_child("moveSize", node);
+}
+
+template<class Problem>
 void fixedThetaMove<Problem>::readState(xmlNodePtr )
 {
     // doing nothing
