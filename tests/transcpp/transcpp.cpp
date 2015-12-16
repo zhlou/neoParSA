@@ -20,7 +20,6 @@
 #include <boost/lexical_cast.hpp>
 
 #include <unistd.h>
-#include <libxml/parser.h>
 #include "annealer.h"
 #include "move/feedbackMove.h"
 #include "unirandom.h"
@@ -74,25 +73,23 @@ int main(int argc, char* argv[])
   if (mode->getVerbose() >= 1) cerr << "Beginning annealing with seed " << seed << endl;
   rnd.setSeed(seed);
 
-  xmlDoc *doc = xmlParseFile(xmlname.c_str());
-  xmlNode *docroot = xmlDocGetRootElement(doc);
 
   annealer<Organism, lam, criCount, feedbackMove>*      fly_sa;
   annealer<Organism, expHold, tempCount, feedbackMove>* fly_expHold;
 
   if (mode->getSchedule() == LAM)
   {
-    lam::Param scheParam(docroot);
-    criCount::Param criCntParam(docroot);
-    fly_sa = new annealer<Organism, lam, criCount, feedbackMove>(embryo,rnd, scheParam, criCntParam, docroot);
+    lam::Param scheParam(root_node);
+    criCount::Param criCntParam(root_node);
+    fly_sa = new annealer<Organism, lam, criCount, feedbackMove>(embryo,rnd, scheParam, criCntParam, root_node);
     fly_sa->setCoolLog(file, (xmlname+".log").c_str());
     fly_sa->setProlix(file, (xmlname+".prolix").c_str());
   }
   else if (mode->getSchedule() == EXP)
   {
-    expHold::Param scheduleParam(docroot);
-    tempCount::Param tmpCntParam(docroot);
-    fly_expHold = new annealer<Organism, expHold, tempCount, feedbackMove>(embryo, rnd, scheduleParam, tmpCntParam, docroot);
+    expHold::Param scheduleParam(root_node);
+    tempCount::Param tmpCntParam(root_node);
+    fly_expHold = new annealer<Organism, expHold, tempCount, feedbackMove>(embryo, rnd, scheduleParam, tmpCntParam, root_node);
     fly_expHold->setStepLog(file, (xmlname+".steplog").c_str());
     fly_expHold->setProlix(file,(xmlname+".prolix").c_str());
   }
@@ -124,7 +121,7 @@ int main(int argc, char* argv[])
     {
       cerr << "The final score is " << embryo.get_score() << endl << endl;
       if (mode->getSchedule() == LAM)
-        fly_sa->writeResult(docroot);
+        fly_sa->writeResult(root_node);
       else if (mode->getSchedule() == EXP)
         fly_expHold->loop();
 
@@ -187,7 +184,6 @@ int main(int argc, char* argv[])
 
   }
 
-  xmlFreeDoc(doc);
 
   return 0;
 }

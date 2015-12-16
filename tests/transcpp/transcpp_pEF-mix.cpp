@@ -91,10 +91,9 @@ int main(int argc, char** argv)
     }
     mode_verbose = 0;
     string xmlname(argv[optind]);
-    fstream infile(xmlname.c_str());
 
     ptree pt;
-    read_xml(infile, pt, boost::property_tree::xml_parser::trim_whitespace);
+    read_xml(xmlname, pt, boost::property_tree::xml_parser::trim_whitespace);
 
     ptree& root_node = pt.get_child("Root");
     ptree& mode_node = root_node.get_child("Mode");
