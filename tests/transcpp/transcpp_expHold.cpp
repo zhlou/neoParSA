@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   transcpp_expHold.cpp
  * Author: zhlou
  *
@@ -18,7 +18,6 @@
 #include <boost/lexical_cast.hpp>
 
 #include <unistd.h>
-#include <libxml/parser.h>
 #include <getopt.h>
 #include <libgen.h>
 #include "annealer.h"
@@ -36,9 +35,9 @@ using boost::property_tree::ptree;
 int mode_verbose;
 
 /*
- * 
+ *
  */
-int main(int argc, char** argv) 
+int main(int argc, char** argv)
 {
     bool isprolix = false;
     bool issteplog = false;
@@ -46,8 +45,8 @@ int main(int argc, char** argv)
     int saveInitState = 0;
     int readInitState = 0;
     int optIndex;
-    char *saveStatePrefix = NULL;
-    char *readStatePrefix = NULL;
+    std::string saveStatePrefix;
+    std::string readStatePrefix;
 
     struct option long_options[] = {
         {"save-state", 1, &saveInitState, 1},
@@ -100,7 +99,7 @@ int main(int argc, char** argv)
     ptree pt;
     read_xml(infile, pt, boost::property_tree::xml_parser::trim_whitespace);
     infile.close();
-    
+
     ptree& root_node = pt.get_child("Root");
     ptree& mode_node = root_node.get_child("Mode");
     ptree& input_node = root_node.get_child("Input");
@@ -112,22 +111,20 @@ int main(int argc, char** argv)
 
     unirand48 rnd;
     unsigned int seed = mode->getSeed();
-    if (mode->getVerbose() >= 1) 
+    if (mode->getVerbose() >= 1)
         cerr << "Beginning annealing with seed " << seed << endl;
     rnd.setSeed(seed);
     //rnd.setSeed(getpid());
 
-    xmlDoc *doc = xmlParseFile(xmlname.c_str());
-    xmlNode *docroot = xmlDocGetRootElement(doc);
-    expHold::Param scheParam(docroot);
-    tempCount::Param frozenParam(docroot);
+    expHold::Param scheParam(root_node);
+    tempCount::Param frozenParam(root_node);
     annealer<Organism, expHold, tempCount, feedbackMove>
-            annealer(embryo, rnd, scheParam, frozenParam, docroot);
-    
+            annealer(embryo, rnd, scheParam, frozenParam, root_node);
+
     string basename(xmlname);
     size_t sz = basename.size();
     basename.resize(sz-4);
-    
+
     if (isprolix)
         annealer.setProlix(file, (basename + ".prolix").c_str());
     if (iscoollog)
@@ -160,9 +157,6 @@ int main(int argc, char** argv)
         boost::property_tree::xml_writer_settings<string> settings(' ', 2);
         write_xml(xmlname, pt, std::locale(), settings);
     }
-    xmlFreeDoc(doc);
-    xmlCleanupParser();
 
     return 0;
 }
-
