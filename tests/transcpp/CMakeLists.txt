@@ -1,17 +1,17 @@
-set(TRANSC_COMMON competition.cpp sequence.cpp score.cpp coeffects.cpp 
-                  cooperativity.cpp scalefactor.cpp fasta.cpp mode.cpp pwm.cpp 
-                  TF.cpp gene.cpp nuclei.cpp datatable.cpp 
-                  twobit.cpp parameter.cpp organism.cpp utils.cpp subgroup.cpp 
-                  bindings.cpp bindingsite.cpp distance.cpp promoter.cpp 
+set(TRANSC_COMMON competition.cpp sequence.cpp score.cpp coeffects.cpp
+                  cooperativity.cpp scalefactor.cpp fasta.cpp mode.cpp pwm.cpp
+                  TF.cpp gene.cpp nuclei.cpp datatable.cpp
+                  twobit.cpp parameter.cpp organism.cpp utils.cpp subgroup.cpp
+                  bindings.cpp bindingsite.cpp distance.cpp promoter.cpp
                   quenching.cpp)
 set(MPIBINARIES transcpp_pEF-mix transcpp_pEF-fbMix transcppPWLS)
-#set(BINARIES ${MPIBINARIES} transc_lam transcpp_expHold transcpp_expFrozen 
-#             transc_scramble 
+#set(BINARIES ${MPIBINARIES} transc_lam transcpp_expHold transcpp_expFrozen
+#             transc_scramble
 #             transc_unfold parsefasta getsequence
 #             transc_readFromState)
 
 set(BINARIES transcpp transc_scramble transc_unfold parsefasta getsequence
-             transc_readFromState 
+             transc_readFromState
              transcpp_expFrozen
              transcpp_expHold
              transcpp_lam
@@ -34,6 +34,7 @@ add_executable(transcppPWLS transcppPWLS.cpp ${TRANSC_COMMON})
 
 foreach(bin ${BINARIES})
 	target_link_libraries(${bin} parsa ${LIBXML2_LIBRARIES} ${BOOST_LIBRARIES})
+    #target_link_libraries(${bin} parsa ${BOOST_LIBRARIES})
 endforeach()
 foreach(mpibin ${MPIBINARIES})
 	target_link_libraries(${mpibin} ${MPI_C_LIBRARIES})

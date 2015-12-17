@@ -14,8 +14,12 @@
 #include <unistd.h>
 #include <libgen.h>
 #include <getopt.h>
-#include <libxml/parser.h>
 #include <mpi.h>
+
+#include <boost/property_tree/xml_parser.hpp>
+#include <boost/property_tree/ptree.hpp>
+using boost::property_tree::ptree;
+#include <boost/optional.hpp>
 
 #include "pannealer.h"
 #include "move/parallelFBMove.h"
@@ -43,7 +47,6 @@ int main(int argc, char **argv)
     int readInitStates = 0;
     int optIndex;
     char *stateListFile = NULL;
-    const char *readStatePrefix = NULL;
     struct option long_options[] = {
         {"read-state", 1, &readInitStates, 1},
         {"cool-log", 0, &iscoollog, 1},
@@ -89,14 +92,16 @@ int main(int argc, char **argv)
                   << std::endl;
         return -1;
     }
-    char *docname = argv[optind];
-    xmlDoc *doc = xmlParseFile(docname);
-    xmlNode *docroot = xmlDocGetRootElement(doc);
-    if (docroot == NULL) {
-        std::cerr << "Input incorrect" << std::endl;
-        return -1;
-    }
+    std::string docname(argv[optind]);
+    ptree pt;
+    read_xml(docname, pt, boost::property_tree::xml_parser::trim_whitespace);
+    ptree &docroot = pt.begin()->second;
+
     unirandom rnd(mpi.rank);
+    boost::optional<unsigned int> seed = docroot.get_optional<unsigned int>("<xmlattr>.seed");
+    if (seed) {
+        rnd.setSeed(*seed + mpi.rank);
+    }
     udrst rst(docroot, rnd);
     expHoldP::Param scheParam(docroot);
     criCountP::Param frozenParam(docroot);
@@ -129,18 +134,20 @@ int main(int argc, char **argv)
         rst_sa->setStepLog(file, (outprefix + ".steplog").c_str());
     }
     if (readInitStates) {
+        std::string readStatePrefix;
+
         std::string line;
         std::ifstream is(stateListFile);
         int i = 0;
         while (!(std::getline(is,line)).eof()) {
             if (mpi.rank == i) {
-                readStatePrefix = line.c_str();
+                readStatePrefix = line;
                 break;
             }
             ++i;
         }
 
-        if (readStatePrefix) {
+        if (! readStatePrefix.empty()) {
             rst_sa->readUnifiedInitState(readStatePrefix);
         } else {
             throw std::runtime_error("unable to find state");
@@ -152,13 +159,12 @@ int main(int argc, char **argv)
     rst_sa->loop();
     std::cout << "The final energy is " << rst.get_score() << std::endl;
     if (rst_sa->getWinner() == mpi.rank) {
-        rst.write_section(docroot, (xmlChar *)"output");
+        rst.write_section(docroot, "output");
         rst_sa->writeResult(docroot);
-        xmlSaveFormatFile(docname, doc, 1);
+        boost::property_tree::xml_writer_settings<std::string> settings(' ', 2);
+        write_xml(docname, pt, std::locale(), settings);
     }
 
-    xmlFreeDoc(doc);
-    xmlCleanupParser();
     delete rst_sa;
     MPI_Finalize();
     return 0;
