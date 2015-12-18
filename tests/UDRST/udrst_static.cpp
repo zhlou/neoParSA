@@ -31,8 +31,8 @@ int main(int argc, char **argv)
     int saveInitState = 0;
     int readInitState = 0;
     int optIndex;
-    char *saveStatePrefix = NULL;
-    char *readStatePrefix = NULL;
+    std::string saveStatePrefix;
+    std::string readStatePrefix;
 
     struct option long_options[] = {
         {"save-state", 1, &saveInitState, 1},
@@ -77,13 +77,12 @@ int main(int argc, char **argv)
                   << std::endl;
         return -1;
     }
-    char *docname = argv[optind];
-    xmlDoc *doc = xmlParseFile(docname);
-    xmlNode *docroot = xmlDocGetRootElement(doc);
-    if (docroot == NULL) {
-        std::cerr << "Input incorrect" << std::endl;
-        return -1;
-    }
+
+    std::string docname(argv[optind]);
+    ptree pt;
+    read_xml(docname, pt, boost::property_tree::xml_parser::trim_whitespace);
+    ptree &docroot = pt.begin()->second;
+
     unirandom rnd;
     udrst rst(docroot, rnd);
     staticLam::Param scheParam(docroot);
@@ -117,12 +116,11 @@ int main(int argc, char **argv)
         }
         rst_sa->loop();
         std::cout << "The final energy is " << rst.get_score() << std::endl;
-        rst.write_section(docroot, (xmlChar *)"output");
+        rst.write_section(docroot, "output");
         rst_sa->writeResult(docroot);
-        xmlSaveFormatFile(docname, doc, 1);
+        boost::property_tree::xml_writer_settings<std::string> settings(' ', 2);
+        write_xml(docname, pt, std::locale(), settings);
     }
-    xmlFreeDoc(doc);
-    xmlCleanupParser();
     delete rst_sa;
 
     return 0;
