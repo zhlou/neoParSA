@@ -22,7 +22,7 @@
 #include "unirandom.h"
 #include "tempCountP.h"
 #include "dynDebug.h"
-#include "intervalMix.h"
+#include "mix/intervalMix.h"
 #include "expHoldP.h"
 #include "rastrigin.h"
 

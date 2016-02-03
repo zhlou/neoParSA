@@ -16,9 +16,7 @@
 #include "plsa.h"
 #include "tempCountP.h"
 #include "dynDebug.h"
-#include "adaptMix.h"
-#include "intervalMix.h"
-#include "pulseNoAdopt.h"
+#include "mix/pulseNoAdopt.h"
 #include "fly.h"
 #include "expHoldP.h"
 

@@ -21,7 +21,7 @@
 #include "unirandom.h"
 #include "tempCountP.h"
 #include "dynDebug.h"
-#include "periodBest.h"
+#include "mix/periodBest.h"
 #include "expHoldP.h"
 
 #include "rastrigin.h"

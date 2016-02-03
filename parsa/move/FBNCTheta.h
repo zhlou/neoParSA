@@ -11,7 +11,7 @@
 #include <mpi.h>
 #include "move/feedbackMove.h"
 #include "MPIState.h"
-#include "mixState.h"
+#include "mix/mixState.h"
 
 // Feedback move, no communication,
 // with theta_bar adjustment

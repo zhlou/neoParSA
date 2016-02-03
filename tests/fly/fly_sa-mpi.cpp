@@ -17,9 +17,7 @@
 #include "plsa.h"
 #include "globalCount.h"
 #include "dynDebug.h"
-#include "adaptMix.h"
-#include "intervalMix.h"
-#include "pulseBcast.h"
+#include "mix/intervalMix.h"
 #include "fly.h"
 #include "expParallel.h"
 

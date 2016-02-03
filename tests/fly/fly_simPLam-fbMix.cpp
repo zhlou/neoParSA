@@ -20,7 +20,7 @@
 #include "simPLam.h"
 #include "globalCount.h"
 #include "dynDebug.h"
-#include "feedbackMix.h"
+#include "mix/feedbackMix.h"
 #include "fly.h"
 
 using namespace std;

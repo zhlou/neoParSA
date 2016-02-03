@@ -30,7 +30,7 @@ using boost::property_tree::ptree;
 #include "unirandom.h"
 #include "criCountP.h"
 #include "dynDebug.h"
-#include "intervalMix.h"
+#include "mix/intervalMix.h"
 #include "expHoldP.h"
 #include "udrst.h"
 

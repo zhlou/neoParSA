@@ -17,7 +17,7 @@
 #include <mpi.h>
 #include "pannealer.h"
 #include "move/parallelFBMove.h"
-#include "feedbackMix.h"
+#include "mix/feedbackMix.h"
 #include "unirandom.h"
 #include "expHoldP.h"
 #include "tempCountP.h"

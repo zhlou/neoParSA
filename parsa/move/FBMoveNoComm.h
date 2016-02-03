@@ -16,7 +16,7 @@
 #include <mpi.h>
 #include "move/feedbackMove.h"
 #include "MPIState.h"
-#include "mixState.h"
+#include "mix/mixState.h"
 
 template<class Problem>
 class FBMoveNoComm: public feedbackMove<Problem>

@@ -9,6 +9,8 @@
 #define PANNEALER_H_
 #include "annealer.h"
 #include "MPIState.h"
+#include "mix/mixState.h"
+
 template <class Problem, class Schedule, class FrozenCnd, template<class> class Move,
           template<class> class PopBased>
 class pannealer : public annealer<Problem, Schedule, FrozenCnd, Move>

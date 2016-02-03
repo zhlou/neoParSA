@@ -20,7 +20,7 @@
 #include "simPLam.h"
 #include "globalCount.h"
 #include "dynDebug.h"
-#include "intervalMix.h"
+#include "mix/intervalMix.h"
 #include "fly.h"
 
 using namespace std;

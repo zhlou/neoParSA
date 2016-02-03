@@ -19,7 +19,7 @@
 #include "globalCount.h"
 #include "move/parallelFBMove.h"
 #include "pannealer.h"
-#include "intervalMix.h"
+#include "mix/intervalMix.h"
 #include "rastrigin.h"
 
 using namespace std;

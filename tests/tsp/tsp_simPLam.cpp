@@ -18,7 +18,7 @@
 #include "globalCount.h"
 #include "move/parallelFBMove.h"
 #include "pannealer.h"
-#include "intervalMix.h"
+#include "mix/intervalMix.h"
 #include "tsp.h"
 
 using namespace std;

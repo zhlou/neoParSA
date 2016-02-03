@@ -12,9 +12,7 @@
 #include "plsa.h"
 #include "tempCountP.h"
 #include "dynDebug.h"
-#include "adaptMix.h"
-#include "intervalMix.h"
-#include "pulseBcast.h"
+#include "mix/intervalMix.h"
 #include "fly.h"
 #include "expHoldP.h"
 

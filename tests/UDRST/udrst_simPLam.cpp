@@ -23,7 +23,7 @@ using boost::property_tree::ptree;
 #include "globalCount.h"
 #include "move/parallelFBMove.h"
 #include "pannealer.h"
-#include "intervalMix.h"
+#include "mix/intervalMix.h"
 #include "udrst.h"
 
 using namespace std;

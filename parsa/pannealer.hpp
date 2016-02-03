@@ -4,7 +4,6 @@
  *  Created on: Mar 5, 2013
  *      Author: zhlou
  */
-#include "mixState.h"
 #include "annealer.h"
 template <class Problem, class Schedule, class FrozenCnd,
           template<class> class Move, template<class> class PopBased>

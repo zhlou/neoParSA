@@ -16,7 +16,7 @@
 #include "unirandom.h"
 #include "plsa.h"
 #include "dynDebug.h"
-#include "adaptMix.h"
+#include "mix/adaptMix.h"
 #include "criCountP.h"
 using namespace std;
 int main(int argc, char **argv)
@@ -73,4 +73,3 @@ int main(int argc, char **argv)
 
     return 0;
 }
-

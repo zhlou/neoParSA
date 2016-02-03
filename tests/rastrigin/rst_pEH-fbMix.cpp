@@ -21,7 +21,7 @@
 #include "unirandom.h"
 #include "tempCountP.h"
 #include "dynDebug.h"
-#include "feedbackMix.h"
+#include "mix/feedbackMix.h"
 #include "expHoldP.h"
 
 #include "rastrigin.h"

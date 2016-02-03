@@ -11,8 +11,8 @@
 #include <libxml/tree.h>
 #include "dynDebug.h"
 #include "MPIState.h"
-#include "mixState.h"
-#include "Mixing.h"
+#include "mix/mixState.h"
+#include "mix/Mixing.h"
 #include "unirandom.h"
 #include "moveControlCore.h"
 

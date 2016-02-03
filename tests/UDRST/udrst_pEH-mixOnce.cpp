@@ -28,7 +28,7 @@ using boost::property_tree::ptree;
 #include "unirandom.h"
 #include "tempCountP.h"
 #include "dynDebug.h"
-#include "mixOnce.h"
+#include "mix/mixOnce.h"
 #include "expHoldP.h"
 #include "udrst.h"
 
