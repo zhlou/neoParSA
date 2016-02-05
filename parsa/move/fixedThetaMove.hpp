@@ -58,7 +58,7 @@ fixedThetaMove<Problem>::~fixedThetaMove()
 }
 
 template<class Problem>
-double fixedThetaMove<Problem>::propose()
+double fixedThetaMove<Problem>::propose(double)
 {
     prev_energy = energy;
     double uniform = 2.0 * rnd.random() - 1.0;

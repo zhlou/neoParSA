@@ -24,7 +24,7 @@ public:
     ~fixedThetaMove();
     static const char *name;
     double get_score(){return energy;}
-    double propose();
+    double propose(double s = 0);
     void accept();
     void reject();
     void writeState(xmlNodePtr docroot) const;

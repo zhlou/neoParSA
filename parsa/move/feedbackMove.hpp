@@ -155,7 +155,7 @@ inline double feedbackMove<Problem>::get_score()
 }
 
 template<class Problem>
-double feedbackMove<Problem>::propose()
+double feedbackMove<Problem>::propose(double)
 {
     index++;
     index %= nparams;

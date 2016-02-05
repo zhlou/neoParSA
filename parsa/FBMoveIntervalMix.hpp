@@ -135,7 +135,7 @@ FBMoveIntervalMix<Problem>::~FBMoveIntervalMix()
 }
 
 template<class Problem>
-double FBMoveIntervalMix<Problem>::propose()
+double FBMoveIntervalMix<Problem>::propose(double)
 {
     index++;
     index %= nparams;
