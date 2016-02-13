@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   vectorUtils.h
  * Author: zhlou
  *
@@ -10,6 +10,21 @@
 
 #include <vector>
 #include <fstream>
+
+template<typename T>
+void readArray(std::vector<std::vector<T> > &dat, std::ifstream &is)
+{
+    std::string line;
+    while (std::getline(is, line)) {
+        std::vector<T> vdat;
+        T val;
+        std::istringstream iss(line);
+        while(iss>>val) {
+            vdat.push_back(val);
+        }
+        dat.push_back(vdat);
+    }
+}
 
 template<typename T>
 void readVector(std::vector<T> &dat, std::ifstream &is)
@@ -54,7 +69,7 @@ void readDoubleVectorFromText(std::vector<double> &dat, const char* filename)
     is.close();
 }
 
-void readDoubleVectorFromText(std::vector<double> &dat1, std::vector<double> &dat2, 
+void readDoubleVectorFromText(std::vector<double> &dat1, std::vector<double> &dat2,
                               const char* filename)
 {
     std::ifstream is(filename);
@@ -67,4 +82,3 @@ void readDoubleVectorFromText(std::vector<double> &dat1, std::vector<double> &da
 }
 
 #endif	/* VECTORUTILS_H */
-
