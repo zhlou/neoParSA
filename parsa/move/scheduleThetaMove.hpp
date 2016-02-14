@@ -48,6 +48,9 @@ double scheduleThetaMove<Problem>::propose(double s)
                 success[i] = 0;
                 moves[i] = 0;
             }
+            for (int i = 0; i < nparams; ++i) {
+                debugOut << "\t" << getThetaByS(s, i);
+            }
             debugOut << std::endl;
         }
     }
