@@ -15,6 +15,7 @@ set(BINARIES transcpp transc_scramble transc_unfold parsefasta getsequence
              transcpp_expFrozen
              transcpp_expHold
              transcpp_lam
+             transcpp_expHold-st
              ${MPIBINARIES})
 add_executable(transcpp transcpp.cpp ${TRANSC_COMMON})
 add_executable(transc_scramble scramble.cpp ${TRANSC_COMMON})
@@ -23,6 +24,7 @@ add_executable(parsefasta fasta.cpp parsefasta.cpp utils.cpp)
 add_executable(getsequence twobit.cpp getsequence.cpp utils.cpp)
 
 add_executable(transcpp_expHold transcpp_expHold.cpp ${TRANSC_COMMON})
+add_executable(transcpp_expHold-st transcpp_expHold-st.cpp ${TRANSC_COMMON})
 add_executable(transcpp_expFrozen transcpp_expFrozen.cpp ${TRANSC_COMMON})
 add_executable(transcpp_lam transcpp_lam.cpp ${TRANSC_COMMON})
 add_executable(transc_readFromState transc_readFromState.cpp ${TRANSC_COMMON})

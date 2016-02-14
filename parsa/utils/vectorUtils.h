@@ -10,6 +10,7 @@
 
 #include <vector>
 #include <fstream>
+#include <string>
 
 template<typename T>
 void readArray(std::vector<std::vector<T> > &dat, std::ifstream &is)
@@ -29,7 +30,7 @@ void readArray(std::vector<std::vector<T> > &dat, std::ifstream &is)
 template<typename T>
 void readArray(std::vector<std::vector<T> > &dat, const char *filename)
 {
-    std::ifstream is(filename)
+    std::ifstream is(filename);
     readArray(dat, is);
     is.close();  
 }

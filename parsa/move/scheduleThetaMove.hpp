@@ -9,7 +9,7 @@ template<class Problem>
 const char *scheduleThetaMove<Problem>::name = "scheduleThetaMove";
 
 template<class Problem>
-scheduleThetaMove(Problem &in_problem, unirandom &in_rnd, const ptree &root) :
+scheduleThetaMove<Problem>::scheduleThetaMove(Problem &in_problem, unirandom &in_rnd, const ptree &root) :
         problem(in_problem),
         rnd(in_rnd),
         index(std::numeric_limits<unsigned>::max()), //UINT_MAX + 1 == 0
@@ -27,7 +27,7 @@ scheduleThetaMove(Problem &in_problem, unirandom &in_rnd, const ptree &root) :
     const ptree &sec_attr = root.get_child("scheduleThetaMove.<xmlattr>");
     std::string filename = sec_attr.get<std::string>("thetaFile");
     readArray(thetaTab, filename.c_str());
-    interval = sec_attr.get_optional<unsigned>("interval", 0);
+    interval = sec_attr.get<unsigned>("interval", 0);
 
 }
 
