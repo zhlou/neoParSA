@@ -27,6 +27,14 @@ void readArray(std::vector<std::vector<T> > &dat, std::ifstream &is)
 }
 
 template<typename T>
+void readArray(std::vector<std::vector<T> > &dat, const char *filename)
+{
+    std::ifstream is(filename)
+    readArray(dat, is);
+    is.close();  
+}
+
+template<typename T>
 void readVector(std::vector<T> &dat, std::ifstream &is)
 {
     typename std::vector<T>::size_type sz;
