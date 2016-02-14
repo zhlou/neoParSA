@@ -16,7 +16,7 @@ class scheduleThetaMove
 {
 public:
     scheduleThetaMove(Problem &in_problem, unirandom &in_rnd, const ptree &root);
-    virtual ~scheduleThetaMove();
+    virtual ~scheduleThetaMove() {}
     double get_score(){return energy;}
     double propose(double s);
     void accept();
