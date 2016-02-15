@@ -4,9 +4,10 @@ set(TRANSC_COMMON competition.cpp sequence.cpp score.cpp coeffects.cpp
                   twobit.cpp parameter.cpp organism.cpp utils.cpp subgroup.cpp
                   bindings.cpp bindingsite.cpp distance.cpp promoter.cpp
                   quenching.cpp)
-set(MPIBINARIES transcpp_pEF-mix 
+set(MPIBINARIES transcpp_pEF-mix
                 transcpp_pEF-st-mix
-                transcpp_pEF-fbMix 
+                transcpp_pEF-fbMix
+                transcpp_pEF-st-fbMix
                 transcppPWLS)
 #set(BINARIES ${MPIBINARIES} transc_lam transcpp_expHold transcpp_expFrozen
 #             transc_scramble
@@ -36,6 +37,7 @@ add_executable(transc_readFromState transc_readFromState.cpp ${TRANSC_COMMON})
 add_executable(transcpp_pEF-mix transcpp_pEF-mix.cpp ${TRANSC_COMMON})
 add_executable(transcpp_pEF-st-mix transcpp_pEF-st-mix.cpp ${TRANSC_COMMON})
 add_executable(transcpp_pEF-fbMix transcpp_pEF-fbMix.cpp ${TRANSC_COMMON})
+add_executable(transcpp_pEF-st-fbMix transcpp_pEF-st-fbMix.cpp ${TRANSC_COMMON})
 add_executable(transcppPWLS transcppPWLS.cpp ${TRANSC_COMMON})
 
 foreach(bin ${BINARIES})
