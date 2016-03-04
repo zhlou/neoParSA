@@ -13,7 +13,9 @@
 #include <unistd.h>
 #include <libgen.h>
 #include <getopt.h>
-#include <libxml/parser.h>
+#include <boost/property_tree/xml_parser.hpp>
+#include <boost/property_tree/ptree.hpp>
+using boost::property_tree::ptree;
 
 #include "annealer.h"
 #include "move/feedbackMove.h"
@@ -77,13 +79,11 @@ int main(int argc, char **argv)
                   << std::endl;
         return -1;
     }
-    char *docname = argv[optind];
-    xmlDoc *doc = xmlParseFile(docname);
-    xmlNode *docroot = xmlDocGetRootElement(doc);
-    if (docroot == NULL) {
-        std::cerr << "Input incorrect" << std::endl;
-        return -1;
-    }
+    ptree pt;
+    std::string docname(argv[optind]);
+    read_xml(docname, pt, boost::property_tree::xml_parser::trim_whitespace);
+    ptree &docroot = pt.begin()->second;
+
     unirandom rnd;
     normSchwefel nsch(docroot, rnd);
     expHold::Param scheParam(docroot);
@@ -117,12 +117,11 @@ int main(int argc, char **argv)
         }
         nsch_sa->loop();
         std::cout << "The final energy is " << nsch.get_score() << std::endl;
-        nsch.writeSection((xmlChar *)"output");
+        nsch.writeSection(docroot, "output");
         nsch_sa->writeResult(docroot);
-        xmlSaveFormatFile(docname, doc, 1);
+        boost::property_tree::xml_writer_settings<std::string> settings(' ', 2);
+        write_xml(docname, pt, std::locale(), settings);
     }
-    xmlFreeDoc(doc);
-    xmlCleanupParser();
     delete nsch_sa;
 
     return 0;

@@ -12,7 +12,10 @@
 #include <cmath>
 #include <cstring>
 #include <stdexcept>
-#include <libxml/tree.h>
+
+#include <boost/format.hpp>
+
+//#include <libxml/tree.h>
 
 #include "unirandom.h"
 #include "xmlUtils.h"
@@ -28,8 +31,8 @@ normSchwefel::normSchwefel(int dimension, unirandom& in_rnd) :
     for (i = 0; i < dim; ++i) {
         vars[i] = VAR_MAX * (rnd.random() * 2.0 - 1.0);
     }
-    docroot = NULL;
-    section = NULL;
+    //docroot = NULL;
+    //section = NULL;
     prev_x = 0;
     prev_idx = -1;
     idx = 0;
@@ -37,11 +40,13 @@ normSchwefel::normSchwefel(int dimension, unirandom& in_rnd) :
     outOfBounds = false;
 }
 
-normSchwefel::normSchwefel(xmlNode* root, unirandom& in_rnd,
+/*
+normSchwefel::normSchwefel(xmlNode* docroot, unirandom& in_rnd,
                            const char* secName) :
-        docroot(root), rnd(in_rnd)
+        //docroot(root),
+        rnd(in_rnd)
 {
-    section = getSectionByName(docroot, secName);
+    xmlNode *section = getSectionByName(docroot, secName);
     if (section == NULL)
         throw 1;
     dim = getPropInt(section, "dim");
@@ -62,6 +67,32 @@ normSchwefel::normSchwefel(xmlNode* root, unirandom& in_rnd,
         }
         free(namebuf);
         namebuf = NULL;
+    }
+
+    prev_x = 0;
+    prev_idx = -1;
+    idx = 0;
+    can_rollback = false;
+    outOfBounds = false;
+}
+*/
+
+normSchwefel::normSchwefel(ptree &root, unirandom &in_rnd,
+                           std::string secName) :
+        rnd(in_rnd)
+{
+    ptree &sec_attr = root.get_child(secName);
+    dim = sec_attr.get<int>("dim");
+    vars = new double[dim];
+    for (int i = 0; i < dim; i++) {
+        std::string namebuf = (boost::format("x%d") % (i+1)).str();
+        boost::optional<double> xval = sec_attr.get_optional<double>(namebuf);
+        if (xval) {
+            vars[i] = *xval;
+        } else {
+            vars[i] =VAR_MAX * (2.0 * rnd.random() - 1.0);
+            sec_attr.put(namebuf, boost::format("%g") % vars[i]);
+        }
     }
 
     prev_x = 0;
@@ -135,7 +166,8 @@ void normSchwefel::printSolution(std::ostream& o) const
     o << "}" << std::endl;
 }
 
-void normSchwefel::writeSection(xmlChar* secname)
+/*
+void normSchwefel::writeSection(xmlNode *docroot, xmlChar* secname)
 {
     xmlNode *node;
     node = getSectionByName(docroot, (const char *)secname);
@@ -155,6 +187,18 @@ void normSchwefel::writeSection(xmlChar* secname)
     }
     delete[] valbuf;
     delete[] namebuf;
+}
+*/
+
+void normSchwefel::writeSection(ptree &root, std::string secname)
+{
+    ptree section;
+    section.put("<xmlattr>.dim", (boost::format("%1%") % dim).str());
+    for (int i = 0; i < dim; i++) {
+        section.put((boost::format("<xmlattr>.x%1%") % (i+1)).str(),
+            (boost::format("%g") % vars[i]).str());
+    }
+    root.put_child(secname, section);
 }
 
 void normSchwefel::serialize(void* buf) const

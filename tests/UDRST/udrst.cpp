@@ -34,59 +34,6 @@ udrst::udrst(int dimension, unirandom &in_rnd) :
 	outOfBounds = false;
 
 }
-/*
-udrst::udrst(xmlNode *root, unirandom &in_rnd):
-		rnd(in_rnd)
-{
-	//docroot = root;
-	xmlNode *section = root->children;
-	xmlChar *prop = NULL;
-	while (section != NULL) {
-		if (!xmlStrcmp(section->name, (xmlChar *) "rastrigin"))
-			break;
-		section = section->next;
-	}
-	if (section == NULL) {
-		throw 1;
-	}
-	if ((prop = xmlGetProp(section, (xmlChar *) "dim")) != NULL) {
-		dim = atoi((char *) prop);
-		xmlFree(prop);
-		prop = NULL;
-	} else {
-		throw 2;
-	}
-	vars = new double[dim];
-	char *namebuf = NULL;
-	for (int i = 0; i < dim; i++) {
-		asprintf(&namebuf, "x%d", i+1);
-		if ((prop = xmlGetProp(section, (xmlChar *)namebuf))
-				!= NULL) {
-			vars[i] = strtod((char *) prop, NULL);
-			xmlFree(prop);
-			prop = NULL;
-		} else {
-			vars[i] = VAR_MAX * (2.0 * rnd.random() - 1.0);
-			// write the value back into xml file
-			char *valbuf = NULL;
-			asprintf(&valbuf, "%g", vars[i]);
-			xmlNewProp(section, (const xmlChar *)namebuf,
-			        (const xmlChar*)valbuf);
-			free(valbuf);
-		}
-		free(namebuf);
-		namebuf = NULL;
-
-	}
-
-
-    prev_x = 0; // to make the compiler happy
-    prev_idx = -1;
-    idx = 0;
-    can_rollback = false;
-    outOfBounds = false;
-}
-*/
 
 udrst::udrst(ptree &root, unirandom &in_rnd):
         rnd(in_rnd)
@@ -112,29 +59,7 @@ udrst::udrst(ptree &root, unirandom &in_rnd):
     can_rollback = false;
     outOfBounds = false;
 }
-/*
-void udrst::write_section(xmlNode *docroot, xmlChar *secname)
-{
-    xmlNode *node;
-    node = getSectionByName(docroot, (const char *)secname);
-    if (node != NULL) {
-        xmlUnlinkNode(node);
-        xmlFreeNode(node);
-    }
-	node = xmlNewChild(docroot, NULL, secname, NULL);
-	char *namebuf = new char[255];
-	char *valbuf = new char[255];
-	sprintf(namebuf, "%d", dim);
-	xmlNewProp(node, (xmlChar *) "dim", (xmlChar *) namebuf);
-	for (int i = 0; i < dim; i++) {
-		sprintf(namebuf, "x%d", i + 1);
-		sprintf(valbuf, "%g", vars[i]);
-		xmlNewProp(node, (xmlChar *) namebuf, (xmlChar *) valbuf);
-	}
-	delete[] valbuf;
-	delete[] namebuf;
-}
-*/
+
 
 void udrst::write_section(ptree &root, std::string secname)
 {

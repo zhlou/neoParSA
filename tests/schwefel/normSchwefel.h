@@ -10,12 +10,15 @@
 
 #include <iostream>
 #include <libxml/tree.h>
+#include <boost/property_tree/ptree.hpp>
+using boost::property_tree::ptree;
 class unirandom;
 
 class normSchwefel {
 public:
 	normSchwefel(int dimension, unirandom &in_rnd);
-	normSchwefel(xmlNode *root, unirandom &in_rnd, const char *secName="Schwefel");
+	//normSchwefel(xmlNode *root, unirandom &in_rnd, const char *secName="Schwefel");
+    normSchwefel(ptree &root, unirandom &in_rnd, std::string secName="Schwefel");
 	~normSchwefel();
 	int getDimension() const {return 1;}
 	double getParam(int idx) const;
@@ -25,7 +28,8 @@ public:
 	void generateMove(int, double theta);
 	void restoreMove(int);
 	void printSolution(std::ostream &o) const;
-	void writeSection(xmlChar *secname);
+	//void writeSection(xmlNode *docroot, xmlChar *secname);
+    void writeSection(ptree &root, std::string secname);
 
 	int getStateSize() const {return sizeof(double)*dim;}
 	void serialize(void *buf) const;
@@ -36,8 +40,8 @@ public:
 	static const double VAR_MIN;
 
 private:
-	xmlNode *docroot;
-	xmlNode *section;
+	//xmlNode *docroot;
+	//xmlNode *section;
 	int dim;
 	int idx;
 	double *vars;

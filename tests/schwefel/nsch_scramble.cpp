@@ -8,7 +8,10 @@
 #include <iostream>
 #include <unistd.h>
 #include <stdexcept>
-#include <libxml/parser.h>
+
+#include <boost/property_tree/xml_parser.hpp>
+#include <boost/property_tree/ptree.hpp>
+using boost::property_tree::ptree;
 
 #include "normSchwefel.h"
 #include "unirandom.h"
@@ -42,22 +45,20 @@ int main(int argc, char **argv)
                 << " [-x section_name] [-f output_name] input_file" << std::endl;
         return -1;
     }
-    const char *xmlname = argv[optind];
+    ptree pt;
+    std::string xmlname(argv[optind]);
+    read_xml(xmlname, pt, boost::property_tree::xml_parser::trim_whitespace);
     if (NULL == outname)
-        outname = xmlname;
-    xmlDocPtr xmldoc = xmlParseFile(xmlname);
-    xmlNodePtr xmlroot = xmlDocGetRootElement(xmldoc);
+        outname = xmlname.c_str();
+    ptree &xmlroot = pt.begin()->second;
 
     unirandom rnd;
     normSchwefel nsch(xmlroot, rnd);
     nsch.scramble();
     std::cout << "Final score is " << nsch.get_score() << std::endl;
-    nsch.writeSection(BAD_CAST sectionname);
-    xmlSaveFormatFile(outname, xmldoc, 1);
-    xmlFreeDoc(xmldoc);
-    xmlCleanupParser();
+    nsch.writeSection(xmlroot, sectionname);
+    boost::property_tree::xml_writer_settings<std::string> settings(' ', 2);
+    write_xml(outname, pt, std::locale(), settings);
 
     return 0;
 }
-
-
