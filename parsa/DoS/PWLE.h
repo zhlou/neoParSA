@@ -12,7 +12,7 @@ public:
         double binWidth;
         MPIState *mpi;
         unsigned int syncFreq;
-        char* saveName;
+        const char* saveName;
         unsigned int saveFreq;
     };
     PWLE(Param &param);
@@ -38,7 +38,7 @@ private:
     double *histLocal;
     double *histGlobal;
     bool localModified;
-    int getBinNum(double eVal) const {return (int)((eVal-eMin)/binWidth);} 
+    int getBinNum(double eVal) const {return (int)((eVal-eMin)/binWidth);}
 
 };
 

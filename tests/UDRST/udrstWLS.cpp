@@ -2,8 +2,13 @@
  * rstWLS.cpp
  */
 #include <iostream>
-#include <libxml/parser.h>
 #include <unistd.h>
+
+#include <boost/property_tree/xml_parser.hpp>
+#include <boost/property_tree/ptree.hpp>
+using boost::property_tree::ptree;
+#include <boost/optional.hpp>
+
 #include "DoS/DoS.h"
 #include "DoS/WLEstimator.h"
 #include "move/feedbackMove.h"
@@ -15,7 +20,7 @@
 
 int main(int argc, char **argv)
 {
- 
+
     unirandom rnd;
     char *outname = NULL;
     char *readfile = NULL;
@@ -43,10 +48,12 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    char *docname = argv[optind];
-    xmlDocPtr xmldoc = xmlParseFile(docname);
-    xmlNodePtr xmlroot = xmlDocGetRootElement(xmldoc);
-    
+    fstream infile(argv[optind]);
+    ptree pt;
+    read_xml(infile, pt, boost::property_tree::xml_parser::trim_whitespace);
+    infile.close();
+    ptree &xmlroot = pt.begin()->second;
+
     udrst rst(xmlroot, rnd);
     feedbackMove<udrst> rstMove(rst, rnd, xmlroot);
     DoS<udrst, feedbackMove, WLEstimator>::Param param;
@@ -55,17 +62,19 @@ int main(int argc, char **argv)
     param.estParam.eMin=0;
     param.estParam.binWidth=0.01;
     param.estParam.nBins=4040;
-    xmlNodePtr DoSParamNode=getSectionByName(xmlroot,"DoS");
-    if (DoSParamNode != NULL) {
-        param.initWeight = getPropDouble(DoSParamNode, "weight");
-        param.nSteps = getPropLong(DoSParamNode,"nsteps");
+    boost::optional<ptree &> dos_attr = xmlroot.get_child_optional("DoS.<xmlattr>");
+    if (dos_attr) {
+        param.initWeight = dos_attr->get<double>("weight", 1e-2);
+        param.nSteps = dos_attr->get<long>("nsteps", 100000);
     }
-    xmlNodePtr WLENode=getSectionByName(xmlroot, "WLEstimator");
-    if (WLENode != NULL) {
-        param.estParam.eMin = getPropDouble(WLENode,"eMin");
-        param.estParam.binWidth = getPropDouble(WLENode,"binWidth");
-        param.estParam.nBins = getPropInt(WLENode, "nBins");
+
+    boost::optional<ptree &> wle_attr = xmlroot.get_child("WLEstimator.<xmlattr>");
+    {
+        param.estParam.eMin = wle_attr->get<double>("eMin", 0);
+        param.estParam.binWidth = wle_attr->get<double>("binWidth", 0.01);
+        param.estParam.nBins = wle_attr->get<unsigned int>("nBins", 4040);
     }
+
     DoS<udrst, feedbackMove, WLEstimator> simulate(rst, rstMove, rnd, param);
     WLEstimator &estm=simulate.getEstimator();
     if (readfile) {

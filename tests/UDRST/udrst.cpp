@@ -3,14 +3,12 @@
 #include <cmath>
 #include <cstdlib>
 #include <ctime>
-#include <libxml/tree.h>
 #include <string>
 #include <sstream>
 #include <stdexcept>
 #include <limits>
 
 #include "unirandom.h"
-#include "xmlUtils.h"
 #include <string.h>
 #include <boost/format.hpp>
 // #include <omp.h>
@@ -36,7 +34,7 @@ udrst::udrst(int dimension, unirandom &in_rnd) :
 	outOfBounds = false;
 
 }
-
+/*
 udrst::udrst(xmlNode *root, unirandom &in_rnd):
 		rnd(in_rnd)
 {
@@ -88,6 +86,7 @@ udrst::udrst(xmlNode *root, unirandom &in_rnd):
     can_rollback = false;
     outOfBounds = false;
 }
+*/
 
 udrst::udrst(ptree &root, unirandom &in_rnd):
         rnd(in_rnd)
@@ -113,7 +112,7 @@ udrst::udrst(ptree &root, unirandom &in_rnd):
     can_rollback = false;
     outOfBounds = false;
 }
-
+/*
 void udrst::write_section(xmlNode *docroot, xmlChar *secname)
 {
     xmlNode *node;
@@ -135,6 +134,7 @@ void udrst::write_section(xmlNode *docroot, xmlChar *secname)
 	delete[] valbuf;
 	delete[] namebuf;
 }
+*/
 
 void udrst::write_section(ptree &root, std::string secname)
 {

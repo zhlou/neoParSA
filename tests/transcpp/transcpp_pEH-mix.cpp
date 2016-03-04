@@ -89,15 +89,14 @@ int main(int argc, char** argv)
     unirand48 rnd(mpiState.rank);
     //rnd.setSeed(getpid());
 
-    xmlDoc *doc = xmlParseFile(xmlname.c_str());
-    xmlNode *docroot = xmlDocGetRootElement(doc);
-    expHoldP::Param scheParam(docroot);
-    tempCountP::Param frozenParam(docroot);
-    intervalMix<Organism>::Param mixParam(docroot);
+
+    expHoldP::Param scheParam(input);
+    tempCountP::Param frozenParam(input);
+    intervalMix<Organism>::Param mixParam(input);
     pannealer<Organism, expHoldP, tempCountP, parallelFBMove, intervalMix>
             *annealer = new pannealer<Organism, expHoldP, tempCountP,
             parallelFBMove, intervalMix>(embryo, rnd, scheParam, frozenParam,
-            mixParam, docroot, mpiState);
+            mixParam, input, mpiState);
     string outprefix = xmlname + "_" +
             ((ostringstream*)&(ostringstream() << mpiState.rank))->str();
 
@@ -119,7 +118,6 @@ int main(int argc, char** argv)
     cerr << "The energy is " << embryo.get_score() << endl;
     annealer->loop();
     cerr << "The energy is " << embryo.get_score() << " after loop" << endl;
-    xmlFreeDoc(doc);
 
     //embryo.printParameters(cerr);
 
@@ -132,7 +130,6 @@ int main(int argc, char** argv)
         boost::property_tree::xml_writer_settings<string> settings(' ', 2);
         write_xml_element(infile, basic_string<ptree::key_type::value_type>(), output, -1, settings);
     }
-    xmlCleanupParser();
     delete annealer;
     MPI_Finalize();
 

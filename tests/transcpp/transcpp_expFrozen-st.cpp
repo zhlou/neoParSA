@@ -119,8 +119,6 @@ int main(int argc, char** argv)
     rnd.setSeed(seed);
     //rnd.setSeed(getpid());
 
-    //xmlDoc *doc = xmlParseFile(xmlname.c_str());
-    //xmlNode *docroot = xmlDocGetRootElement(doc);
     expHold::Param scheParam(root_node);
     criCount::Param frozenParam(root_node);
     annealer<Organism, expHold, criCount, scheduleThetaMove>
@@ -156,13 +154,9 @@ int main(int argc, char** argv)
         //ptree output, anneal_output;
         embryo.write("Output", root_node);
         annealer.ptreeGetResult(root_node);
-        //ptree& opt = output.get_child("Output");
-        //output.put_child("Output.anneal_output", anneal_output);
         boost::property_tree::xml_writer_settings<string> settings(' ', 2);
         write_xml(xmlname, pt, std::locale(), settings);
     }
-    //xmlFreeDoc(doc);
-    //xmlCleanupParser();
 
 
     return 0;

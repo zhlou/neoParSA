@@ -3,8 +3,13 @@
  */
 #include <iostream>
 #include <exception>
-#include <libxml/parser.h>
 #include <unistd.h>
+
+#include <boost/property_tree/xml_parser.hpp>
+#include <boost/property_tree/ptree.hpp>
+using boost::property_tree::ptree;
+#include <boost/optional.hpp>
+
 #include "DoS/DoS.h"
 #include "DoS/PWLE.h"
 #include "move/feedbackMove.h"
@@ -49,39 +54,32 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    char *docname = argv[optind];
-    xmlDocPtr xmldoc = xmlParseFile(docname);
-    xmlNodePtr xmlroot = xmlDocGetRootElement(xmldoc);
+
+    ptree pt;
+    fstream infile(argv[optind]);
+    read_xml(infile, pt, boost::property_tree::xml_parser::trim_whitespace);
+    infile.close();
+    ptree &root_node = pt.begin()->second;
+
     unirandom rnd(mpi.rank);
-    udrst rst(xmlroot, rnd);
-    feedbackMove<udrst> rstMove(rst, rnd, xmlroot);
+    udrst rst(root_node, rnd);
+    feedbackMove<udrst> rstMove(rst, rnd, root_node);
     DoS<udrst, feedbackMove, PWLE>::Param param;
-    param.initWeight = 1e-2;
-    param.nSteps = 100000;
-    param.estParam.eMin=0;
-    param.estParam.binWidth=0.01;
-    param.estParam.nBins=4040;
     param.estParam.mpi = &mpi;
-    param.estParam.syncFreq = 1000;
-    param.estParam.saveName = NULL;
-    param.estParam.saveFreq = 0;
-    xmlNodePtr DoSParamNode=getSectionByName(xmlroot,"DoS");
-    if (DoSParamNode != NULL) {
-        param.initWeight = getPropDouble(DoSParamNode, "weight");
-        param.nSteps = getPropLong(DoSParamNode,"nsteps");
+    boost::optional<ptree &> dos_attr = root_node.get_child_optional("DoS.<xmlattr>");
+    if (dos_attr) {
+        param.initWeight = dos_attr->get<double>("weight", 1e-2);
+        param.nSteps = dos_attr->get<long>("nsteps", 100000);
     }
-    xmlNodePtr WLENode=getSectionByName(xmlroot, "WLEstimator");
-    if (WLENode != NULL) {
-        param.estParam.eMin = getPropDouble(WLENode,"eMin");
-        param.estParam.binWidth = getPropDouble(WLENode,"binWidth");
-        param.estParam.nBins = getPropInt(WLENode, "nBins");
-        param.estParam.syncFreq = getPropInt(WLENode, "syncFreq");
-        try {
-            param.estParam.saveFreq = getPropInt(WLENode, "saveFreq");
-        } catch (const std::exception &e) {
-            // ignored
-        }
-        param.estParam.saveName = (char *)xmlGetProp(WLENode, BAD_CAST"saveName");
+
+    boost::optional<ptree &> wle_attr = root_node.get_child("WLEstimator.<xmlattr>");
+    {
+        param.estParam.eMin = wle_attr->get<double>("eMin", 0);
+        param.estParam.binWidth = wle_attr->get<double>("binWidth", 0.01);
+        param.estParam.nBins = wle_attr->get<unsigned int>("nBins", 4040);
+        param.estParam.syncFreq = wle_attr->get<unsigned int>("syncFreq", 1000);
+        param.estParam.saveFreq = wle_attr->get<unsigned int>("saveFreq", 0);
+        param.estParam.saveName = wle_attr->get<std::string>("saveName").c_str();
     }
     DoS<udrst, feedbackMove, PWLE> simulate(rst, rstMove, rnd, param);
     PWLE &estm=simulate.getEstimator();
@@ -103,11 +101,6 @@ int main(int argc, char **argv)
         }
     }
 
-    if (param.estParam.saveName) {
-        xmlFree(param.estParam.saveName);
-    }
-    xmlFreeDoc(xmldoc);
-    xmlCleanupParser();
     MPI_Finalize();
     return 0;
 }
