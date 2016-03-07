@@ -15,7 +15,6 @@
 
 #include <boost/format.hpp>
 
-//#include <libxml/tree.h>
 
 #include "unirandom.h"
 #include "xmlUtils.h"

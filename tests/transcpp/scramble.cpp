@@ -18,7 +18,6 @@
 
 #include <unistd.h>
 #include <getopt.h>
-#include <libxml/parser.h>
 #include "annealer.h"
 //#include "move/feedbackMove.h"
 #include "unirandom.h"
@@ -53,11 +52,11 @@ int main(int argc, char* argv[])
 {
   int opt       = 0;
   int longIndex = 0;
-  
+
   bool permute = false;     // by default, do not permute
   string table("RateData"); // if permuting, by default permute rate
   string by("col");         // if permuting, by default switch columns (Gene or TF, not nuc)
-  
+
   opt = getopt_long( argc, argv, optString, longOpts, &longIndex );
 
   while(opt != -1)
@@ -91,17 +90,17 @@ int main(int argc, char* argv[])
     }
     opt = getopt_long( argc, argv, optString, longOpts, &longIndex );
   }
-  
+
   string xmlname(argv[optind]);
   string xmlname2(argv[optind+1]);
-  
+
   fstream file(xmlname.c_str());
 
-  
+
 
   ptree pt;
   read_xml(file, pt, boost::property_tree::xml_parser::trim_whitespace);
-  
+
   ptree& root_node  = pt.get_child("Root");
   ptree& mode_node  = root_node.get_child("Mode");
   ptree& input_node = root_node.get_child("Input");

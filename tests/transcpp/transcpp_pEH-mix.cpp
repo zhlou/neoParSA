@@ -14,7 +14,6 @@
 
 #include <unistd.h>
 #include <libgen.h>
-#include <libxml/parser.h>
 #include <mpi.h>
 #include "pannealer.h"
 #include "move/parallelFBMove.h"

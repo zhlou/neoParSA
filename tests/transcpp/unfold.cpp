@@ -20,7 +20,6 @@
 #include <unistd.h>
 #include <getopt.h>
 
-#include <libxml/parser.h>
 #include "annealer.h"
 //#include "feedbackMove.h"
 #include "unirandom.h"
@@ -84,17 +83,17 @@ void display_usage()
        << "\t --tf name [name] prints only for tf with name" << endl << endl;
   exit(1);
 }
-       
+
 
 int main(int argc, char* argv[])
 {
   int opt = 0;
   int longIndex = 0;
   string section_name("Output");
-  
+
   string gene_name("");
   string tf_name("");
-  
+
   bool rate       = false;
   bool sites      = false;
   bool data       = false;
@@ -109,10 +108,10 @@ int main(int argc, char* argv[])
   bool R2D        = false;
   bool N2D        = false;
   bool invert     = false;
-  
-  
+
+
   string infile_name;
-  
+
   opt = getopt_long( argc, argv, optString, longOpts, &longIndex );
   while(opt != -1)
   {
@@ -127,7 +126,7 @@ int main(int argc, char* argv[])
       case 's':
         section_name = optarg;
         break;
-      case 0: 
+      case 0:
         if (longOpts[longIndex].name == "sites")
           sites = true;
         else if (longOpts[longIndex].name == "score")
@@ -171,27 +170,27 @@ int main(int argc, char* argv[])
     }
     opt = getopt_long( argc, argv, optString, longOpts, &longIndex );
   }
-  
+
   if (infile_name == "")
     display_usage();
-  
+
   ifstream infile(infile_name.c_str());
 
   ptree pt;
   read_xml(infile, pt, boost::property_tree::xml_parser::trim_whitespace);
-  
+
   ptree& root_node   = pt.get_child("Root");
   ptree& mode_node   = root_node.get_child("Mode");
   ptree& section_node = root_node.get_child(section_name);
-  
+
   mode_ptr mode(new Mode(infile_name,mode_node));
 
   mode->setVerbose(0);
   Organism embryo(section_node, mode);
-  
+
   tfs_ptr   tfs   = embryo.getTFs();
   genes_ptr genes = embryo.getGenes();
-  
+
   if (sites)
   {
     if      (gene_name != "" && tf_name != "")
@@ -199,7 +198,7 @@ int main(int argc, char* argv[])
       Gene& gene = genes->getGene(gene_name);
       TF&   tf   = tfs->getTF(tf_name);
       embryo.printSites(gene, tf, cout);
-    } 
+    }
     else if (gene_name != "" && tf_name == "")
     {
       Gene& gene = genes->getGene(gene_name);
@@ -212,25 +211,25 @@ int main(int argc, char* argv[])
     } else
       embryo.printSites(cout);
   }
-  
+
   if (rate)
     embryo.printRate(cout, invert);
 
   if (R2D)
     embryo.printR2D(cout);
-  
+
   if (N2D)
     embryo.printN2D(cout);
-  
+
   if (checkscale)
     embryo.checkScale(cout);
 
   if (data)
     embryo.printRateData(cout, invert);
-  
+
   if (score)
     embryo.printScore(cout);
-  
+
   if (params)
     embryo.printParameters(cout);
 
@@ -245,7 +244,7 @@ int main(int argc, char* argv[])
     Gene& gene = genes->getGene(gene_name);
     embryo.printOccupancy(gene, cout, invert);
   }
-  
+
   if (scores)
   {
     if (gene_name == "")
@@ -257,7 +256,7 @@ int main(int argc, char* argv[])
     Gene& gene = genes->getGene(gene_name);
     embryo.printScores(gene, cout);
   }
-  
+
   if (modeocc)
   {
     if (gene_name == "")
@@ -280,8 +279,8 @@ int main(int argc, char* argv[])
     Gene& gene = genes->getGene(gene_name);
     embryo.printEffectiveOccupancy(gene, cout, invert);
   }
-  
-  
+
+
   if (subgroups)
   {
     if (gene_name == "")
@@ -293,6 +292,6 @@ int main(int argc, char* argv[])
     Gene& gene = genes->getGene(gene_name);
     embryo.printSubgroups(gene, cout);
   }
-  
+
   return 0;
 }

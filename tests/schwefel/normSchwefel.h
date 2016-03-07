@@ -9,7 +9,6 @@
 #define TESTS_SCHWEFEL_NORMSCHWEFEL_H_
 
 #include <iostream>
-#include <libxml/tree.h>
 #include <boost/property_tree/ptree.hpp>
 using boost::property_tree::ptree;
 class unirandom;
