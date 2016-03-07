@@ -1,5 +1,7 @@
 #include <iostream>
-#include <libxml/parser.h>
+#include <boost/property_tree/xml_parser.hpp>
+#include <boost/property_tree/ptree.hpp>
+using boost::property_tree::ptree;
 #include "rastrigin.h"
 #include "annealer.h"
 //#include "simpleAnnealer.h"
@@ -16,12 +18,9 @@ int main(int argc, char **argv)
 		return 1;
 	}
 	char *docname = argv[1];
-	xmlDoc *doc = xmlParseFile(docname);
-	xmlNode *docroot = xmlDocGetRootElement(doc);
-	if (doc == NULL) {
-		cerr << "Input incorrect" << endl;
-		return 2;
-	}
+    ptree pt;
+    read_xml(docname, pt, boost::property_tree::xml_parser::trim_whitespace);
+    ptree &docroot = pt.begin()->second;
 	unirandom rnd;
 	rastrigin rst(docroot, rnd);
 	//feedbackMove<rastrigin, debugSTD> rst_problem(rst, rnd, docroot);
@@ -38,9 +37,8 @@ int main(int argc, char **argv)
 	cout << "The solution is " << endl;
 	rst.print_solution(cout);
 	rst_anneal.writeResult(docroot);
-	xmlSaveFormatFile(docname, doc, 1);
-	xmlFreeDoc(doc);
-	xmlCleanupParser();
+    boost::property_tree::xml_writer_settings<std::string> settings(' ', 2);
+    write_xml(docname, pt, std::locale(), settings);
 
 	return 0;
 }

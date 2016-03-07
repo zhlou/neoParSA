@@ -14,8 +14,11 @@
 
 #include <unistd.h>
 #include <libgen.h>
-#include <libxml/parser.h>
 #include <mpi.h>
+
+#include <boost/property_tree/xml_parser.hpp>
+#include <boost/property_tree/ptree.hpp>
+using boost::property_tree::ptree;
 
 #include "pannealer.h"
 #include "move/parallelFBMove.h"
@@ -66,13 +69,11 @@ int main(int argc, char **argv)
                   << std::endl;
         return -1;
     }
-    char *docname = argv[optind];
-    xmlDoc *doc = xmlParseFile(docname);
-    xmlNode *docroot = xmlDocGetRootElement(doc);
-    if (docroot == NULL) {
-        std::cerr << "Input incorrect" << std::endl;
-        return -1;
-    }
+    std::string docname(argv[optind]);
+    ptree pt;
+    read_xml(docname, pt, boost::property_tree::xml_parser::trim_whitespace);
+    ptree &docroot = pt.begin()->second;
+
     unirandom rnd(mpi.rank);
     rastrigin rst(docroot, rnd);
     expHoldP::Param scheParam(docroot);
@@ -108,13 +109,11 @@ int main(int argc, char **argv)
     rst_sa->loop();
     std::cout << "The final energy is " << rst.get_score() << std::endl;
     if (rst_sa->getWinner() == mpi.rank) {
-        rst.write_section((xmlChar *)"output");
+        rst.write_section(docroot, "output");
         rst_sa->writeResult(docroot);
-        xmlSaveFormatFile(docname, doc, 1);
+        boost::property_tree::xml_writer_settings<std::string> settings(' ', 2);
+        write_xml(docname, pt, std::locale(), settings);
     }
-
-    xmlFreeDoc(doc);
-    xmlCleanupParser();
     delete rst_sa;
     MPI_Finalize();
     return 0;

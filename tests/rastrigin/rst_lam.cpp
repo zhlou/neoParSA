@@ -10,8 +10,12 @@
 #include <stdexcept>
 #include <unistd.h>
 #include <cstring>
-#include <libxml/parser.h>
 #include <libgen.h>
+
+#include <boost/property_tree/xml_parser.hpp>
+#include <boost/property_tree/ptree.hpp>
+using boost::property_tree::ptree;
+#include <boost/optional.hpp>
 
 #include "unirandom.h"
 #include "criCount.h"
@@ -60,9 +64,10 @@ int main(int argc, char **argv)
                   << std::endl;
         return -1;
     }
-    char *docname = argv[optind];
-    xmlDocPtr xmldoc = xmlParseFile(docname);
-    xmlNodePtr xmlroot = xmlDocGetRootElement(xmldoc);
+    std::string docname(argv[optind]);
+    ptree pt;
+    read_xml(docname, pt, boost::property_tree::xml_parser::trim_whitespace);
+    ptree &xmlroot = pt.begin()->second;
 
     unirand48 rnd;
     rastrigin rst(xmlroot, rnd);
@@ -92,11 +97,10 @@ int main(int argc, char **argv)
         cout << "The initial energy is " << rst.get_score() << endl;
         rst_sa.loop();
         cout << "Final energy is " << rst.get_score() << endl;
-        rst.write_section((xmlChar *)"output");
+        rst.write_section(xmlroot, "output");
         rst_sa.writeResult(xmlroot);
-        xmlSaveFormatFile(docname, xmldoc,1);
+        boost::property_tree::xml_writer_settings<std::string> settings(' ', 2);
+        write_xml(docname, pt, std::locale(), settings);
     }
-    xmlFreeDoc(xmldoc);
-    xmlCleanupParser();
     return 0;
 }

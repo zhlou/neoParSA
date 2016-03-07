@@ -8,7 +8,6 @@
 
 
 #include <iostream>
-#include <libxml/parser.h>
 #include <mpi.h>
 #include "rastrigin.h"
 #include "pannealer.h"
@@ -34,12 +33,9 @@ int main(int argc, char **argv)
         return 1;
     }
     char *docname = argv[1];
-    xmlDoc *doc = xmlParseFile(docname);
-    xmlNode *docroot = xmlDocGetRootElement(doc);
-    if (doc == NULL) {
-        cerr << "Input incorrect" << endl;
-        return 2;
-    }
+    ptree pt;
+    read_xml(docname, pt, boost::property_tree::xml_parser::trim_whitespace);
+    ptree &docroot = pt.begin()->second;
     unirandom rnd(mpi.rank);
     rastrigin rst(docroot, rnd);
     //parallelFBMove<rastrigin, debugIGNORE, adaptMix> *rst_problem =

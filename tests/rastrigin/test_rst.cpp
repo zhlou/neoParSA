@@ -12,7 +12,6 @@
 #include "expHold.h"
 #include "move/feedbackMove.h"
 #include <string>
-#include <libxml/parser.h>
 #include <iostream>
 
 int main(int argc, char **argv)
@@ -23,14 +22,15 @@ int main(int argc, char **argv)
 	}
 	unirandom rnd;
 	char *docname = argv[1];
-	xmlDoc *doc = xmlParseFile(docname);
-	xmlNode *root = xmlDocGetRootElement(doc);
+    ptree pt;
+    read_xml(docname, pt, boost::property_tree::xml_parser::trim_whitespace);
+    ptree &root = pt.begin()->second;
 	rastrigin rst(root, rnd);
 	cout << "The score is " << rst.get_score() << endl;
 	double nScore = rst.scramble();
 	cout << "New score is " << nScore << endl;
 	rst.print_solution(cout);
-	rst.write_section((xmlChar *)"rastrigin");
+	rst.write_section(root, "rastrigin");
 	expHold::Param scheduleParam(root);
 	tempCount::Param tmpCntParam(root);
 	annealer<rastrigin, expHold, tempCount, feedbackMove>
@@ -39,9 +39,7 @@ int main(int argc, char **argv)
 	steplogName.replace(steplogName.end()-4,steplogName.end(),".steplog");
 	rst_anneal.setStepLog(file, steplogName.c_str());
 	rst_anneal.loop();
-	xmlSaveFormatFile(docname, doc,1);
-	xmlFree(doc);
+    boost::property_tree::xml_writer_settings<std::string> settings(' ', 2);
+    write_xml(docname, pt, std::locale(), settings);
 	return 0;
 }
-
-
