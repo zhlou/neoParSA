@@ -8,6 +8,8 @@ set(MPIBINARIES transcpp_pEF-mix
                 transcpp_pEF-st-mix
                 transcpp_pEF-fbMix
                 transcpp_pEF-st-fbMix
+                transcpp_pEF-twoTier
+                transcpp_pEF-st-twoTier
                 transcppPWLS)
 #set(BINARIES ${MPIBINARIES} transc_lam transcpp_expHold transcpp_expFrozen
 #             transc_scramble
@@ -40,6 +42,8 @@ add_executable(transcpp_pEF-mix transcpp_pEF-mix.cpp ${TRANSC_COMMON})
 add_executable(transcpp_pEF-st-mix transcpp_pEF-st-mix.cpp ${TRANSC_COMMON})
 add_executable(transcpp_pEF-fbMix transcpp_pEF-fbMix.cpp ${TRANSC_COMMON})
 add_executable(transcpp_pEF-st-fbMix transcpp_pEF-st-fbMix.cpp ${TRANSC_COMMON})
+add_executable(transcpp_pEF-twoTier transcpp_pEF-twoTier.cpp ${TRANSC_COMMON})
+add_executable(transcpp_pEF-st-twoTier transcpp_pEF-st-twoTier.cpp ${TRANSC_COMMON})
 add_executable(transcppPWLS transcppPWLS.cpp ${TRANSC_COMMON})
 
 foreach(bin ${BINARIES})
