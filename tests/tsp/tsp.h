@@ -8,6 +8,9 @@
 
 #include <libxml/tree.h>
 
+#include <boost/property_tree/ptree.hpp>
+using boost::property_tree::ptree;
+
 using namespace std;
 
 class city {
@@ -67,6 +70,7 @@ public:
     tsp();
     tsp(vector<city>& city_list);
     tsp(xmlNodePtr docroot);
+    tsp(ptree &docroot);
     string print_route() const;
     size_t get_ncities() const {return ncities;}
     double swap(size_t c1, size_t c2);
@@ -78,7 +82,9 @@ public:
     double roll_back();
     void save_tsplib_xml(const char* name) const;
     void write_tour(xmlNodePtr xmlroot, const char *tourname);
+    void write_tour(ptree &xmlroot, const std::string &tourname);
     double read_tour(const xmlNodePtr xmlroot, const char *tourname);
+    double read_tour(const ptree &xmlroot, const std::string &tourname);
     size_t getStateSize() const {return sizeof(size_t)*ncities+sizeof(double);}
     void serialize(void *buf) const;
     void deserialize(void const *buf);

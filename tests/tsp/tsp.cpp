@@ -244,6 +244,10 @@ tsp::tsp(xmlNodePtr docroot)
     seed = time(NULL);
 
 }
+tsp::tsp(ptree &docroot)
+{
+
+}
 
 void tsp::save_tsplib_xml(const char *name) const
 {
