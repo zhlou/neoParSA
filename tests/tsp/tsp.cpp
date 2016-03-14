@@ -246,6 +246,44 @@ tsp::tsp(xmlNodePtr docroot)
 }
 tsp::tsp(ptree &docroot)
 {
+    ptree &section = docroot.get_child("graph");
+    std::pair <ptree::const_assoc_iterator, ptree::const_assoc_iterator> vbounds
+            = section.equal_range("vertex");
+    size_t i = 0, j = 0;
+    for (ptree::const_assoc_iterator it = vbounds.first;
+            it != vbounds.second; ++ it) {
+        const ptree & vnode = it->second;
+        tour.push_back(i);
+        position.push_back(i);
+        edge_wt.push_back(vector<double>());
+        std::pair <ptree::const_assoc_iterator, ptree::const_assoc_iterator> ebounds
+            = vnode.equal_range("edge");
+        for (ptree::const_assoc_iterator e_it = ebounds.first;
+            e_it != ebounds.second; ++ e_it) {
+                const ptree &enode = e_it->second;
+                j = enode.get_value<size_t>();
+                if (j < i) {
+                    double wt = enode.get<double>("<xmlattr>.cost");
+                    edge_wt[i].push_back(wt);
+                }
+            }
+        ++ i;
+    }
+    ncities = tour.size();
+    neighbors.resize(ncities);
+    for (i = 0; i < ncities; ++i) {
+        for (j = 0; j < ncities; ++j) {
+            if (j != i) {
+                neighbors[i].push_back(neighbor_pair(i,j));
+            }
+            sort(neighbors[i].begin(),neighbors[i].end(), pairLess(*this));
+        }
+    }
+    can_rollback = false;
+    route_cost = calc_tour();
+    prev_cost = route_cost;
+    r1 = r2 = 0;
+    seed = time(NULL);
 
 }
 
