@@ -14,7 +14,9 @@
 
 #include <string>
 #include <vector>
-#include <libxml/tree.h>
+#include <boost/property_tree/xml_parser.hpp>
+#include <boost/property_tree/ptree.hpp>
+using boost::property_tree::ptree;
 
 using namespace std;
 
@@ -49,7 +51,8 @@ struct fly_params
 };
 
 // set default parameters and read from xml for any parameters that get override
-fly_params readFlyParams(xmlNode *docroot, const char* default_section="eqparms");
+//fly_params readFlyParams(xmlNode *docroot, const char* default_section="eqparms");
+fly_params readFlyParams(ptree &docroot, const std::string=std::string("eqparms"));
 
 class fly // This class implements the interfaces and has old translate stuff
 {

@@ -7,7 +7,10 @@
 
 #include <iostream>
 #include <unistd.h>
-#include <libxml/parser.h>
+
+#include <boost/property_tree/xml_parser.hpp>
+#include <boost/property_tree/ptree.hpp>
+using boost::property_tree::ptree;
 
 #include "annealer.h"
 #include "move/feedbackMove.h"
@@ -26,13 +29,10 @@ int main(int argc, char **argv)
         return 1;
     }
     char *docname = argv[1];
+    ptree pt;
+    read_xml(docname, pt, boost::property_tree::xml_parser::trim_whitespace);
+    ptree &docroot = pt.begin()->second;
 
-    xmlDoc *doc = xmlParseFile(docname);
-    xmlNode *docroot = xmlDocGetRootElement(doc);
-    if (docroot == NULL) {
-        cerr << "Input incorrect" << endl;
-        return 2;
-    }
     unirand48 rnd;
     fly_params flyParams = readFlyParams(docroot);
     fly theFly(flyParams);
@@ -42,9 +42,5 @@ int main(int argc, char **argv)
         fly_pulse(theFly, rnd, scheduleParam, frozenParam, docroot);
     fly_pulse.setStepLog(file, (flyParams.infile_name+".steplog").c_str());
     fly_pulse.loop();
-    xmlFreeDoc(doc);
-    xmlCleanupParser();
     return 0;
 }
-
-

@@ -6,8 +6,11 @@
  */
 
 #include <iostream>
-#include <libxml/parser.h>
 #include <unistd.h>
+
+#include <boost/property_tree/xml_parser.hpp>
+#include <boost/property_tree/ptree.hpp>
+using boost::property_tree::ptree;
 
 #include "annealer.h"
 #include "move/feedbackMove.h"
@@ -35,12 +38,9 @@ int main(int argc, char **argv)
     	}
     }
     char *docname = argv[optind];
-    xmlDoc *doc = xmlParseFile(docname);
-    xmlNode *docroot = xmlDocGetRootElement(doc);
-    if (docroot == NULL) {
-        cerr << "Input incorrect" << endl;
-        return 2;
-    }
+    ptree pt;
+    read_xml(docname, pt, boost::property_tree::xml_parser::trim_whitespace);
+    ptree &docroot = pt.begin()->second;
     unirand48 rnd;
     fly_params flyParams = readFlyParams(docroot);
     fly theFly(flyParams);
@@ -59,10 +59,9 @@ int main(int argc, char **argv)
         cout << "The final energy is " << theFly.get_score() << endl;
         theFly.writeAnswer("eqparms");
         fly_sa.writeResult(docroot);
-        xmlSaveFormatFile(docname, doc, 1);
+        boost::property_tree::xml_writer_settings<std::string> settings(' ', 2);
+        write_xml(docname, pt, std::locale(), settings);
     }
-    xmlFreeDoc(doc);
-    xmlCleanupParser();
 
 
 

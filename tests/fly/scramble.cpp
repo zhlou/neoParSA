@@ -7,6 +7,11 @@
 #include <iostream>
 #include <stdexcept>
 #include <unistd.h>
+
+#include <boost/property_tree/xml_parser.hpp>
+#include <boost/property_tree/ptree.hpp>
+using boost::property_tree::ptree;
+
 #include "fly.h"
 
 int main(int argc, char **argv)
@@ -24,8 +29,9 @@ int main(int argc, char **argv)
         }
     }
     char *docname = argv[optind];
-    xmlDoc *doc = xmlParseFile(docname);
-    xmlNode *root = xmlDocGetRootElement(doc);
+    ptree pt;
+    read_xml(docname, pt, boost::property_tree::xml_parser::trim_whitespace);
+    ptree &root = pt.begin()->second;
     fly_params flyParams = readFlyParams(root, "input");
     if (!section.empty())
         flyParams.section_title = section;
@@ -36,6 +42,3 @@ int main(int argc, char **argv)
 
 
 }
-
-
-

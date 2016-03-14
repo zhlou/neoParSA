@@ -13,6 +13,7 @@
 
 using namespace std;
 
+/*
 fly_params readFlyParams(xmlNode *docroot, const char* default_section)
 {
     static const double MAX_STEPSIZE = 100.8;
@@ -145,6 +146,77 @@ fly_params readFlyParams(xmlNode *docroot, const char* default_section)
         params.outfile_name = (char *)prop;
         xmlFree(prop);
         prop = NULL;
+    }
+    return params;
+}
+*/
+
+fly_params readFlyParams(ptree &docroot, const std::string default_section)
+{
+    static const double MAX_STEPSIZE = 100.8;
+    fly_params params;
+
+    // put defaults on
+    //params.section_title = default_section;
+    // params.solver_name = string("Rk4");
+    params.ndigits = 12;
+    params.gutndigits = 6;
+    // params.olddivstyle = 0;
+    // params.penaltyflag = 0;
+    // params.rmsflag = 1;
+    params.GofU = Sqrt;
+    // params.gutflag = 0;
+    // params.stepsize = 1.;
+    // params.accuracy = 0.001;
+    params.infile = NULL;
+    params.dumpptr = NULL;
+    params.slog = NULL;
+    params.debug = 0;
+
+    boost::optional<ptree &>section = docroot.get_child_optional("fly.<xmlattr>");
+    if (! section) {
+        throw runtime_error("No fly section specified");
+    }
+    params.infile_name = section->get<std::string>("infile");
+    params.infile = fopen(params.infile_name.c_str(), "r");
+    if (params.infile == NULL)
+        throw runtime_error(string("Unable to open file ")+params.infile_name);
+    params.solver_name = section->get<std::string>("solver","Rk4");
+    boost::optional<int> ndigits = section->get_optional<int>("ndigits");
+    if (ndigits) {
+        params.ndigits = *ndigits;
+        if (params.ndigits < 0)
+            throw runtime_error("ndigits: what exactly would a negative precision be???");
+        params.gutndigits = params.ndigits;
+    }
+    params.gutflag = section->get<int>("gutflag", 0);
+    params.olddivstyle = section->get<int>("olddivstyle", 0);
+    boost::optional<std::string> in_gofu = section->get_optional<std::string>("gofu");
+    if (in_gofu) {
+        if (*in_gofu == "Sqrt")
+            params.GofU = Sqrt;
+        else if (*in_gofu == "Tanh")
+            params.GofU = Tanh;
+        else if (*in_gofu == "Exp")
+            params.GofU = Exp;
+        else if (*in_gofu == "Hvs")
+            params.GofU = Hvs;
+        else
+            throw runtime_error(string("Unrecognized GofU: ") + *in_gofu);
+    }
+    params.stepsize = section->get<double>("stepsize", 1.);
+    if (params.stepsize <= 0)
+        throw runtime_error("stepsize is too small");
+    if (params.stepsize > MAX_STEPSIZE)
+        throw runtime_error("stepsize is too big");
+    params.accuracy = section->get<double>("accuracy", 0.001);
+    if (params.stepsize <= 0)
+        throw runtime_error("accuracy is too small");
+    params.section_title = section->get<std::string>("section", default_section);
+
+    boost::optional<std::string> outfile_name = section->get_optional<std::string>("outfile");
+    if (outfile_name) {
+        params.outfile_name = *outfile_name;
     }
     return params;
 }
