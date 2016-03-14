@@ -6,8 +6,6 @@
 #include <ostream>
 #include <string>
 
-#include <libxml/tree.h>
-
 #include <boost/property_tree/ptree.hpp>
 using boost::property_tree::ptree;
 
@@ -69,7 +67,7 @@ private:
 public:
     tsp();
     tsp(vector<city>& city_list);
-    tsp(xmlNodePtr docroot);
+    //tsp(xmlNodePtr docroot);
     tsp(ptree &docroot);
     string print_route() const;
     size_t get_ncities() const {return ncities;}
@@ -80,10 +78,11 @@ public:
     void restoreMove(int);
     double get_score() const {return route_cost;}
     double roll_back();
-    void save_tsplib_xml(const char* name) const;
-    void write_tour(xmlNodePtr xmlroot, const char *tourname);
+    //void save_tsplib_xml(const char* name) const;
+    void save_tsplib_xml(const std::string &name) const;
+    //void write_tour(xmlNodePtr xmlroot, const char *tourname);
     void write_tour(ptree &xmlroot, const std::string &tourname);
-    double read_tour(const xmlNodePtr xmlroot, const char *tourname);
+    //double read_tour(const xmlNodePtr xmlroot, const char *tourname);
     double read_tour(const ptree &xmlroot, const std::string &tourname);
     size_t getStateSize() const {return sizeof(size_t)*ncities+sizeof(double);}
     void serialize(void *buf) const;

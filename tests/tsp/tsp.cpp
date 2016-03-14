@@ -7,10 +7,9 @@
 #include <algorithm>
 #include <stdexcept>
 
-#include <libxml/tree.h>
+#include <boost/property_tree/xml_parser.hpp>
 
 #include "tsp.h"
-#include "xmlUtils.h"
 
 using namespace std;
 
@@ -195,6 +194,7 @@ tsp::tsp()
     ncities = 0;
 }
 
+/*
 tsp::tsp(xmlNodePtr docroot)
 {
 	xmlNodePtr graph = getSectionByName(docroot, "graph");
@@ -244,6 +244,8 @@ tsp::tsp(xmlNodePtr docroot)
     seed = time(NULL);
 
 }
+*/
+
 tsp::tsp(ptree &docroot)
 {
     ptree &section = docroot.get_child("graph");
@@ -287,6 +289,7 @@ tsp::tsp(ptree &docroot)
 
 }
 
+/*
 void tsp::save_tsplib_xml(const char *name) const
 {
     xmlDocPtr doc = xmlNewDoc(BAD_CAST "1.0");
@@ -314,7 +317,30 @@ void tsp::save_tsplib_xml(const char *name) const
     xmlSaveFormatFile(name, doc, 1);
     xmlFreeDoc(doc);
 }
+*/
 
+void tsp::save_tsplib_xml(const std::string &name) const
+{
+    ptree pt;
+    ptree node;
+    for (size_t i = 0; i < ncities; ++i) {
+        ptree vnode;
+        for (size_t j = 0; j < ncities; ++j) {
+            if (j != i) {
+                ptree enode;
+                enode.put_value(j);
+                enode.put("<xmlattr>.cost", get_edge(i,j));
+                vnode.put_child("edge", enode);
+            }
+        }
+        node.put_child("vertex", vnode);
+    }
+    pt.put_child("travellingSalesmanProblemInstance.graph", node);
+    boost::property_tree::xml_writer_settings<std::string> settings(' ', 2);
+    write_xml(name, pt, std::locale(), settings);
+}
+
+/*
 void tsp::write_tour(xmlNodePtr xmlroot, const char *tourname)
 {
     char text_buf[100];
@@ -329,7 +355,18 @@ void tsp::write_tour(xmlNodePtr xmlroot, const char *tourname)
         xmlNewChild(tourNode, NULL, BAD_CAST "vertex", BAD_CAST text_buf);
     }
 }
+*/
 
+void tsp::write_tour(ptree &xmlroot, const std::string &tourname)
+{
+    ptree tourNode;
+    for (size_t i = 0; i < ncities; ++i) {
+        tourNode.put("vertex", tour[i]);
+    }
+    xmlroot.put_child("tourname", tourNode);
+}
+
+/*
 double tsp::read_tour(const xmlNodePtr xmlroot, const char *tourname)
 {
     xmlNodePtr xmltour = getSectionByName(xmlroot, tourname);
@@ -351,6 +388,40 @@ double tsp::read_tour(const xmlNodePtr xmlroot, const char *tourname)
         tmp_tour[i] = atoi((char *)content);
         xmlFree(content);
         ++i;
+    }
+    if (i < ncities)
+        throw runtime_error(string("Error: not enough vertices in tour"));
+    for (i = 0; i < ncities; ++i) {
+        j = tmp_tour[i];
+        if (tmp_position[j] != -1)
+            throw runtime_error(string("invalid tour"));
+        tmp_position[j] = i;
+    }
+    copy(tmp_tour.begin(),tmp_tour.end(),tour.begin());
+    copy(tmp_position.begin(),tmp_position.end(),position.begin());
+
+    can_rollback = false;
+    return (route_cost = calc_tour());
+}
+*/
+
+double tsp::read_tour(const ptree &xmlroot, const std::string &tourname)
+{
+    boost::optional<const ptree &>xmltour = xmlroot.get_child_optional(tourname);
+    if (! xmltour) {
+        throw runtime_error(string("Error: fail to find tour section"));
+    }
+    vector<size_t> tmp_tour(ncities, 0);
+    vector<size_t> tmp_position(ncities, -1);
+    size_t i = 0, j;
+    std::pair <ptree::const_assoc_iterator, ptree::const_assoc_iterator> bounds
+            = xmltour->equal_range("vertex");
+    for (ptree::const_assoc_iterator it = bounds.first; it != bounds.second; ++it) {
+        if (i >= ncities) //ignore
+            break;
+        const ptree &node = it->second;
+        tmp_tour[i] = node.get_value<int>();
+        ++ i;
     }
     if (i < ncities)
         throw runtime_error(string("Error: not enough vertices in tour"));

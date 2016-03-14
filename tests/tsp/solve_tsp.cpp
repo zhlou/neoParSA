@@ -1,6 +1,10 @@
 #include <iostream>
 #include <fstream>
-#include <libxml/parser.h>
+
+#include <boost/property_tree/xml_parser.hpp>
+#include <boost/property_tree/ptree.hpp>
+using boost::property_tree::ptree;
+
 #include "exponential.h"
 #include "annealer.h"
 #include "move/feedbackMove.h"
@@ -14,8 +18,9 @@ using namespace std;
 int main(int argc, char **argv)
 {
     const char *xmlfile = argv[1];
-    xmlDoc *doc = xmlParseFile(xmlfile);
-    xmlNode *root = xmlDocGetRootElement(doc);
+    ptree pt;
+    read_xml(xmlfile, pt, boost::property_tree::xml_parser::trim_whitespace);
+    ptree &root = pt.begin()->second;
     tsp test_tsp(root);
     unirandom rnd;
     //feedbackMove<tsp, debugIGNORE> tsp_problem(test_tsp, rnd, root);

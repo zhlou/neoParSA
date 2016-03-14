@@ -1,8 +1,12 @@
 #include <fstream>
 #include <iostream>
 #include <vector>
+#include <string>
 
-#include <libxml/parser.h>
+#include <boost/property_tree/xml_parser.hpp>
+#include <boost/property_tree/ptree.hpp>
+using boost::property_tree::ptree;
+
 #include "tsp.h"
 
 using namespace std;
@@ -10,8 +14,9 @@ using namespace std;
 int main (int argc, char **argv)
 {
     char xmlname[] = "test8.xml";
-    xmlDocPtr doc = xmlParseFile(xmlname);
-    xmlNodePtr root = xmlDocGetRootElement(doc);
+    ptree pt;
+    read_xml(xmlname, pt, boost::property_tree::xml_parser::trim_whitespace);
+    ptree &root = pt.begin()->second;
     tsp test_tsp(root);
     /*
     vector<city> clist;
@@ -26,7 +31,7 @@ int main (int argc, char **argv)
 
     tsp test_tsp(clist);
     */
-    test_tsp.save_tsplib_xml("test8.xml");
+    test_tsp.save_tsplib_xml(std::string("test8.xml"));
 
     cout.precision(16);
 
@@ -81,6 +86,3 @@ int main (int argc, char **argv)
 */
     return 0;
 }
-
-
-

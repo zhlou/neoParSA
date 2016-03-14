@@ -8,7 +8,10 @@
 #include <iostream>
 #include <unistd.h>
 #include <stdexcept>
-#include <libxml/parser.h>
+
+#include <boost/property_tree/xml_parser.hpp>
+#include <boost/property_tree/ptree.hpp>
+using boost::property_tree::ptree;
 
 #include "tsp.h"
 
@@ -42,8 +45,9 @@ int main(int argc, char **argv)
     const char *xmlname = argv[optind];
     if (NULL == outname)
         outname = xmlname;
-    xmlDocPtr xmldoc = xmlParseFile(xmlname);
-    xmlNodePtr xmlroot = xmlDocGetRootElement(xmldoc);
+    ptree pt;
+    read_xml(xmlname, pt, boost::property_tree::xml_parser::trim_whitespace);
+    ptree &xmlroot = pt.begin()->second;
 
     tsp theTSP(xmlroot);
     try {
@@ -61,12 +65,8 @@ int main(int argc, char **argv)
     std::cout << "Final tour length is " << theTSP.get_score()
     		<< std::endl;
     theTSP.write_tour(xmlroot, tourname);
-    xmlSaveFormatFile(outname, xmldoc, 1);
-    xmlFreeDoc(xmldoc);
-    xmlCleanupParser();
+    boost::property_tree::xml_writer_settings<std::string> settings(' ', 2);
+    write_xml(xmlname, pt, std::locale(), settings);
 
 	return 0;
 }
-
-
-
