@@ -8,7 +8,6 @@
 #ifndef FBMOVEINTERVALMIX_H
 #define	FBMOVEINTERVALMIX_H
 
-#include <libxml/tree.h>
 #include "dynDebug.h"
 #include "MPIState.h"
 #include "mix/mixState.h"
@@ -35,7 +34,6 @@ public:
         double mix_target;
         double varConst;
         Param();
-        Param(xmlNode *root);
         Param(const ptree &root);
 
     };

@@ -6,7 +6,6 @@
  */
 
 #include "rejCount.h"
-#include "xmlUtils.h"
 
 rejCount::rejCount(const rejCount::Param &param) :
     debugOut(param.st, param.debugname), max_rej(param.max_rej)
@@ -29,14 +28,6 @@ bool rejCount::frozen(const aState &state) const
 {
     debugOut << state.step_cnt << "\t" << "reject_cnt" << std::endl;
     return (reject_cnt >= max_rej);
-}
-
-rejCount::Param::Param(xmlNode *root, debugStatus in_st, const char *name)
-{
-    st = in_st;
-    debugname = name;
-    xmlNode *xmlsection = getSectionByName(root, "count_reject");
-    max_rej = getPropInt(xmlsection, "max_rej");
 }
 
 rejCount::Param::Param(const ptree &root, debugStatus in_st, const char *name):

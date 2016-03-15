@@ -2,7 +2,6 @@
 #ifndef INTERVALBEST_H
 #define INTERVALBEST_H
 
-#include <libxml/tree.h>
 #include "dynDebug.h"
 #include "MPIState.h"
 #include "mixState.h"
@@ -15,7 +14,6 @@ public:
 	class Param {
 	public:
 		int interval;
-		Param(xmlNode *root);
         Param(const ptree &root);
 	};
 	intervalBest(Problem &in_problem, const MPIState &mpiState,

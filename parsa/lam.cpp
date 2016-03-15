@@ -6,7 +6,6 @@
  */
 
 #include "lam.h"
-#include "xmlUtils.h"
 #include <string>
 #include <stdexcept>
 #include <cmath>
@@ -18,34 +17,7 @@ const double lam::UNINITIALIZED = numeric_limits<double>::max();
 const char * lam::name = "Lam";
 // in newer compilers, string constants cast to char * will generate
 // warning messages unless done explicitly.
-lam::Param::Param(xmlNode* root, debugStatus in_st, const char* name) :
-        st(in_st), outname(name)
-{
-    xmlNode *section = getSectionByName(root, "annealer_input");
 
-    if (section == NULL) {
-        throw runtime_error(string("Error: fail to find section annealer_input"));
-    }
-    lambda = getPropDouble(section, "lambda");
-    //init_S = 1.0 / getPropDouble(section, "init_T");
-    //init_loop = getPropInt(section, "init_loop");
-
-    section = getSectionByName(root, "lam");
-    if (section == NULL)
-        throw runtime_error(string("Error: fail to find section lam"));
-    proc_tau = getPropInt(section, "tau");
-
-    double memlength_mean = getPropDouble(section, "memLength_mean");
-    double memlength_sd = getPropDouble(section, "memLength_sd");
-    w_mean = 1.0 - proc_tau / (memlength_mean / lambda);
-    if (w_mean < 0.)
-        w_mean = 0.;
-    w_sd = 1.0 - proc_tau / (memlength_sd / lambda);
-    if (w_sd < 0.)
-        w_sd = 0.;
-    //freeze_crit = getPropDouble(section, "criterion");
-    //cnt_crit = getPropInt(section, "freeze_cnt");
-}
 
 lam::Param::Param(const ptree &root, debugStatus in_st, const char *name):
         st(in_st), outname(name)

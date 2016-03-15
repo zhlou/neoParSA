@@ -30,11 +30,6 @@ bool criCountP::frozen(const aState &state)
     return (bool)global_flag;
 }
 
-criCountP::Param::Param(xmlNode* root) :
-        serParam(root)
-{
-}
-
 criCountP::Param::Param(const ptree &root) :
         serParam(root)
 {

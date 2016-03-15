@@ -8,7 +8,6 @@
 #ifndef CRICOUNT_H_
 #define CRICOUNT_H_
 
-#include <libxml/tree.h>
 #include "aState.h"
 
 #include <boost/property_tree/ptree.hpp>
@@ -23,7 +22,6 @@ public:
         double freeze_crit;
         int cnt_crit;
         int interval;
-        Param(xmlNode *root);
         Param(const ptree &root);
     };
     criCount(const Param &param);

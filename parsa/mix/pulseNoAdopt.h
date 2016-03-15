@@ -11,7 +11,6 @@
 #include "MPIState.h"
 #include "unirandom.h"
 #include "mixState.h"
-#include <libxml/tree.h>
 #include <boost/property_tree/ptree.hpp>
 using boost::property_tree::ptree;
 
@@ -32,7 +31,6 @@ public:
     class Param {
     public:
         unsigned frequency;
-        Param(xmlNode *root);
         Param(const ptree &root);
     };
     pulseNoAdopt(Problem &problem, const MPIState &mpiState,

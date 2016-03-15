@@ -16,15 +16,6 @@
 template <class Problem>
 const char * periodBest<Problem>::name = "periodBest";
 
-template <class Problem>
-periodBest<Problem>::Param::Param(xmlNode *docroot)
-{
-    xmlNode *section = getSectionByName(docroot, "periodBest");
-    if (section == NULL)
-        throw std::runtime_error(std::string("Error: cannot find section periodBest"));
-
-    frequency = getPropInt(section, "frequency");
-}
 
 template <class Problem>
 periodBest<Problem>::Param::Param(const ptree &root)

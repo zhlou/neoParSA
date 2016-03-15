@@ -27,66 +27,6 @@ FBMoveIntervalMix<Problem>::Param::Param() : mix_interval(100),
 }
 
 template<class Problem>
-FBMoveIntervalMix<Problem>::Param::Param(xmlNode *root) : mix_interval(100),
-        move_interval(100), move_gain(0.03), target(0.44), initTheta(1.0),
-        thetaMin(0.), thetaMax(numeric_limits<double>::max()), mix_target(0.5),
-        varConst(1.)
-{
-    if (root) {
-        xmlNode *section = getSectionByName(root, "moveMix");
-        if (section) {
-            try {
-                mix_interval = getPropInt(section, "mix_interval");
-            } catch (const std::exception &e) {
-
-            }
-            try {
-                move_interval = getPropInt(section, "move_interval");
-            } catch (const std::exception &e) {
-
-            }
-            try {
-                move_gain = getPropDouble(section, "move_gain");
-            } catch (const std::exception &e) {
-
-            }
-            try {
-                target = getPropDouble(section, "move_target");
-            } catch (const std::exception &e) {
-
-            }
-            try {
-                initTheta = getPropDouble(section, "initTheta");
-            } catch (const std::exception &e) {
-
-            }
-            try {
-                thetaMin = getPropDouble(section, "thetaMin");
-            } catch (const std::exception &e) {
-
-            }
-            try {
-                thetaMax = getPropDouble(section, "thetaMax");
-            } catch (const std::exception &e) {
-
-            }
-            try {
-                mix_target = getPropDouble(section, "mix_target");
-            } catch (const std::exception &e) {
-
-            }
-            try {
-                varConst = getPropDouble(section, "varConst");
-            } catch (const std::exception &e) {
-
-            }
-
-        }
-    }
-
-}
-
-template<class Problem>
 FBMoveIntervalMix<Problem>::Param::Param(const ptree &root)
 {
     const ptree &section = root.get_child("moveMix");

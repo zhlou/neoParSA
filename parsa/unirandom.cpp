@@ -25,16 +25,6 @@ unirandom::unirandom(unsigned int disp) : phase(0)
 	seed = time(NULL) + disp;
 }
 
-unirandom::unirandom(xmlNode* section) : phase(0)
-{
-	xmlChar *prop = NULL;
-	if ((prop = xmlGetProp(section, (xmlChar *)"seed")) != NULL) {
-		seed = atoi((char * )prop);
-		xmlFree(prop);
-		prop = NULL;
-	} else
-		seed = time(NULL);
-}
 
 unirandom::unirandom(const ptree &root) : phase(0)
 {
@@ -107,10 +97,6 @@ unirand48::unirand48(unsigned int disp) : unirandom(disp)
     initFromSeed();
 }
 
-unirand48::unirand48(xmlNode *section) : unirandom(section)
-{
-    initFromSeed();
-}
 
 unirand48::unirand48(ptree &root) : unirandom(root)
 {

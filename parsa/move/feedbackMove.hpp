@@ -7,7 +7,6 @@
 #include <limits>
 #include <cstdlib>
 #include <cmath>
-#include <libxml/tree.h>
 using namespace std;
 
 //template<class Problem>
@@ -16,6 +15,7 @@ using namespace std;
 template<class Problem>
 const char *feedbackMove<Problem>::name = "feedbackMove";
 
+/*
 template<class Problem>
 feedbackMove<Problem>::feedbackMove(Problem& in_problem,
                                     unirandom& in_rand,
@@ -107,6 +107,7 @@ feedbackMove<Problem>::feedbackMove(Problem& in_problem,
 
     }
 }
+*/
 
 template<class Problem>
 feedbackMove<Problem>::feedbackMove(Problem &in_problem, unirandom &in_rand,
@@ -233,6 +234,7 @@ void feedbackMove<Problem>::move_control()
     debugOut << endl;
 }
 
+/*
 template<class Problem>
 void feedbackMove<Problem>::writeState(xmlNodePtr docroot) const
 {
@@ -251,6 +253,7 @@ void feedbackMove<Problem>::writeState(xmlNodePtr docroot) const
         free(thetaString);
     }
 }
+*/
 
 template<class Problem>
 void feedbackMove<Problem>::writeState(ptree &root) const
@@ -263,6 +266,7 @@ void feedbackMove<Problem>::writeState(ptree &root) const
     root.put_child("moveSize", node);
 }
 
+/*
 template<class Problem>
 void feedbackMove<Problem>::readState(xmlNodePtr docroot)
 {
@@ -286,6 +290,7 @@ void feedbackMove<Problem>::readState(xmlNodePtr docroot)
         }
     }
 }
+*/
 
 template<class Problem>
 void feedbackMove<Problem>::readState(const ptree &root)

@@ -8,7 +8,6 @@
 #ifndef FEEDBACKMIX_H_
 #define FEEDBACKMIX_H_
 
-#include <libxml/tree.h>
 #include "dynDebug.h"
 #include "MPIState.h"
 #include "mixState.h"
@@ -24,7 +23,6 @@ public:
     public:
         int interval;
         double target;
-        Param(xmlNode *root);
         Param(const ptree &root);
     };
     feedbackMix(Problem &problem, const MPIState &mpiState,
@@ -38,7 +36,6 @@ public:
     }
 private:
     Mixing<Problem> mix;
-    //xmlNode *root;
     double target;
     int interval;
     int tau_count;

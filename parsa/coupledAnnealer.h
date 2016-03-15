@@ -20,13 +20,6 @@ public:
             typename Schedule::Param scheParam,
             typename FrozenCnd::Param frozenParam,
             const typename CoupledMove<Problem>::Param &moveParam,
-            xmlNode *root,
-            const MPIState &mpiState);
-    coupledAnnealer(Problem &problem,
-            unirandom& in_rand,
-            typename Schedule::Param scheParam,
-            typename FrozenCnd::Param frozenParam,
-            const typename CoupledMove<Problem>::Param &moveParam,
             const ptree &root,
             const MPIState &mpiState);
     virtual ~coupledAnnealer();

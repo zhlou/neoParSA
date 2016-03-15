@@ -12,7 +12,6 @@
 #include "unirandom.h"
 #include "mixState.h"
 #include "Mixing.h"
-#include <libxml/tree.h>
 #include <boost/property_tree/ptree.hpp>
 using boost::property_tree::ptree;
 
@@ -32,7 +31,6 @@ public:
     class Param{
     public:
         double adaptCoef;
-        Param(xmlNode *root);
         Param(const ptree &root);
     };
     adaptMix(Problem &in_problem, const MPIState &mpiState,
@@ -47,7 +45,6 @@ public:
 private:
     Mixing<Problem> mix;
     unirandom& rnd;
-    //xmlNode *root;
     int nnodes;
 
 

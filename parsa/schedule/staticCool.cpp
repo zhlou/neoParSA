@@ -8,25 +8,10 @@
 
 #include <stdexcept>
 #include <string>
-#include "xmlUtils.h"
 #include "utils/vectorUtils.h"
 
 const char *staticCool::name = "staticCool";
 
-staticCool::Param::Param(xmlNode *root, debugStatus in_st, const char*name):
-    st(in_st), outname(name)
-{
-    xmlNode *xmlsection = getSectionByName(root, "staticCool");
-    if (xmlsection == NULL)
-        throw std::runtime_error(std::string("Error: fail to find section staticCool"));
-    scheduleName = (const char *)xmlGetProp(xmlsection, BAD_CAST"scheduleName");
-    segLength=100;
-    try {
-        segLength = getPropInt(xmlsection, "segLength");
-    } catch (const std::exception &e) {
-        //ignored
-    }
-}
 
 staticCool::Param::Param(const ptree &root, debugStatus in_st, const char*name):
     st(in_st), outname(name)

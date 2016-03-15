@@ -21,7 +21,6 @@ public:
     {
     public:
         criCount::Param serParam;
-        Param(xmlNode *root) : serParam(root) {};
         Param(const ptree &root) : serParam(root) {};
     };
     globalCount(const Param &param, const MPIState &mpiState) :

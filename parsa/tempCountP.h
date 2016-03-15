@@ -17,8 +17,6 @@ public:
     class Param {
     public:
         tempCount::Param param;
-        Param(xmlNode *root, debugStatus st=ignore, const char * debugname = NULL) :
-            param(root, st, debugname) {}
         Param(const ptree &root, debugStatus st=ignore, const char *debugname=NULL) :
             param(root, st, debugname) {}
     };

@@ -23,7 +23,6 @@ public:
     virtual ~unirandom() {}
     unirandom();
     unirandom(unsigned int disp);
-    unirandom(xmlNode *section);
     unirandom(const ptree &root);
     virtual double random();
     double randn();
@@ -50,7 +49,6 @@ private:
 public:
     unirand48();
     unirand48(unsigned int disp);
-    unirand48(xmlNode *section);
     unirand48(ptree &ptree);
     void setSeed(unsigned int newSeed)
     {

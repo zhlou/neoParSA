@@ -8,7 +8,6 @@
 #ifndef TWOTIERMIX_H_
 #define TWOTIERMIX_H_
 
-#include <libxml/tree.h>
 #include <boost/property_tree/ptree.hpp>
 using boost::property_tree::ptree;
 
@@ -26,7 +25,6 @@ public:
         unsigned partSize;
         unsigned mixFreq;
         unsigned globalFreq;
-        Param(xmlNode *docroot);
         Param(const ptree &root);
     };
     twoTierMix(Problem &in_problem, const MPIState &globalState,

@@ -8,7 +8,6 @@
 #ifndef RATEMIX_H
 #define	RATEMIX_H
 
-#include <libxml/tree.h>
 #include <boost/property_tree/ptree.hpp>
 using boost::property_tree::ptree;
 
@@ -25,7 +24,6 @@ public:
     public:
         double factor;
         double weight;
-        Param(xmlNode *root);
         Param(const ptree &root);
     };
     rateMix(Problem &problem, const MPIState &mpiState,

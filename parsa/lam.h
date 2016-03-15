@@ -8,9 +8,7 @@
 #ifndef LAM_H_
 #define LAM_H_
 
-//#include "annealer.h"
 
-#include <libxml/tree.h>
 #include <boost/property_tree/ptree.hpp>
 using boost::property_tree::ptree;
 #include "aState.h"
@@ -30,11 +28,9 @@ public:
         double w_sd;
         debugStatus st;
         const char * outname;
-        Param(xmlNode *root, debugStatus st=ignore, const char *outname=NULL);
         Param(const ptree &root, debugStatus st=ignore, const char *outname=NULL);
     };
     lam(Param param);
-    // lam(xmlNode *root);
     virtual ~lam();
     //double getInitS();
     //int getInitLoop();

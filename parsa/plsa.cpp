@@ -4,11 +4,6 @@ using namespace std;
 
 const char *plsa::name = "parallel Lam";
 
-plsa::Param::Param(xmlNode *root, debugStatus st, const char *outname) :
-        lamParam(root, st, outname)
-{
-
-}
 
 plsa::Param::Param(const ptree &root,  debugStatus st, const char *outname) :
         lamParam(root, st, outname)

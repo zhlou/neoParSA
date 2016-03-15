@@ -20,12 +20,6 @@ public:
               typename Schedule::Param scheParam,
               typename FrozenCnd::Param frozenParam,
               const typename PopBased<Problem>::Param &popParam,
-              xmlNode *root,
-              const MPIState &mpiState);
-    pannealer(Problem &problem, unirandom& in_rand,
-              typename Schedule::Param scheParam,
-              typename FrozenCnd::Param frozenParam,
-              const typename PopBased<Problem>::Param &popParam,
               const ptree &root,
               const MPIState &mpiState);
     virtual ~pannealer();
@@ -37,7 +31,6 @@ protected:
     const MPIState &mpi;
     PopBased<Problem> pop;
     virtual void updateStats(aState &state);
-    virtual void writeMethodText(xmlNode *method);
     virtual void writeMethodText(ptree &method) const;
 
 };

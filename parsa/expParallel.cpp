@@ -16,10 +16,6 @@ expParallel::expParallel(const Param &param, const MPIState &mpiState) :
 {
 }
 
-expParallel::Param::Param(xmlNode* root) : serParam(root)
-{
-}
-
 expParallel::Param::Param(const ptree &root) : serParam(root)
 {
 }

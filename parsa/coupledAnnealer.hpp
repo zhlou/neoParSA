@@ -9,7 +9,6 @@
 #define	COUPLEDANNEALER_HPP
 
 
-
 template <class Problem, class Schedule, class FrozenCnd,
         template<class> class CoupledMove>
 coupledAnnealer<Problem, Schedule, FrozenCnd, CoupledMove>::coupledAnnealer(
@@ -18,25 +17,7 @@ coupledAnnealer<Problem, Schedule, FrozenCnd, CoupledMove>::coupledAnnealer(
         typename Schedule::Param scheParam,
         typename FrozenCnd::Param frozenParam,
         const typename CoupledMove<Problem>::Param& moveParam,
-        xmlNode* root,
-        const MPIState& mpiState) :
-        annealer<Problem, Schedule, FrozenCnd, CoupledMove>::annealer(problem, in_rand,root),
-        mpi(mpiState)
-{
-    this->cooling = new Schedule(scheParam, mpiState);
-    this->move = new CoupledMove<Problem>(problem, mpiState, in_rand, moveParam);
-    this->frozen = new FrozenCnd(frozenParam, mpiState);
-    this->state.energy = this->move->get_score();
-}
-template <class Problem, class Schedule, class FrozenCnd,
-        template<class> class CoupledMove>
-coupledAnnealer<Problem, Schedule, FrozenCnd, CoupledMove>::coupledAnnealer(
-        Problem& problem,
-        unirandom& in_rand,
-        typename Schedule::Param scheParam,
-        typename FrozenCnd::Param frozenParam,
-        const typename CoupledMove<Problem>::Param& moveParam,
-        const ptree &root, 
+        const ptree &root,
         const MPIState& mpiState) :
         annealer<Problem, Schedule, FrozenCnd, CoupledMove>::annealer(problem, in_rand,root),
         mpi(mpiState)

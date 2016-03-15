@@ -6,21 +6,9 @@
  */
 #include <mpi.h>
 #include <cmath>
-#include "xmlUtils.h"
 
 template <class Problem>
 const char * pulseNoAdopt<Problem>::name = "pulseNoAdopt";
-
-template<class Problem>
-pulseNoAdopt<Problem>::Param::Param(xmlNode *docroot)
-{
-    xmlNode *section = getSectionByName(docroot, "pulseBcast");
-    if (section == NULL) {
-        throw std::runtime_error(std::string("Error: cannot find section pulseBcast"));
-    }
-    frequency = getPropInt(section, "frequency");
-
-}
 
 template<class Problem>
 pulseNoAdopt<Problem>::Param::Param(const ptree &root)

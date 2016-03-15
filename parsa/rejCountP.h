@@ -8,7 +8,6 @@
 #ifndef REJCOUNTP_H_
 #define REJCOUNTP_H_
 
-#include <libxml/tree.h>
 #include "rejCount.h"
 #include "MPIState.h"
 
@@ -19,8 +18,6 @@ public:
     public:
         rejCount::Param serParam;
         const MPIState &mpi;
-        Param(xmlNode *root, const MPIState &mpiState, debugStatus st=ignore,
-              const char * debugname=NULL);
         Param(const ptree &root, const MPIState &mpiState, debugStatus st=ignore,
             const char * debugname=NULL);
     };

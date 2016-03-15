@@ -9,17 +9,9 @@
 #define PARSA_INTERVALBEST_HPP_
 
 #include <mpi.h>
-#include "xmlUtils.h"
 
 template <class Problem>
 const char *intervalBest<Problem>::name = "intervalBest";
-
-template<class Problem>
-intervalBest<Problem>::Param::Param(xmlNode* root)
-{
-	xmlNode *section = getSectionByName(root, "intervalBest");
-	interval = getPropInt(section, "interval");
-}
 
 template<class Problem>
 intervalBest<Problem>::Param::Param(const ptree &root)

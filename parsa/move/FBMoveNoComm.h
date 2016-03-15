@@ -22,8 +22,6 @@ template<class Problem>
 class FBMoveNoComm: public feedbackMove<Problem>
 {
 public:
-    FBMoveNoComm(Problem &in_problem, unirandom& in_rnd, xmlNode *root,
-                 const MPIState &mpiState);
     FBMoveNoComm(Problem &in_problem, unirandom& in_rnd, const ptree &root,
                  const MPIState &mpiState);
     ~FBMoveNoComm();

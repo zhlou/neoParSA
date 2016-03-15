@@ -10,7 +10,6 @@
 
 #include "dynDebug.h"
 #include "aState.h"
-#include <libxml/tree.h>
 #include <boost/property_tree/ptree.hpp>
 using boost::property_tree::ptree;
 
@@ -28,8 +27,6 @@ public:
         double target_s;
         debugStatus st;
         const char * debugname;
-        Param(xmlNode *root, debugStatus st=ignore,
-              const char *debugname = NULL);
         Param(const ptree &root, debugStatus st=ignore, const char *debugname=NULL);
     };
     tempCount(const Param &param) : max_steps(param.max_steps),

@@ -11,22 +11,10 @@
 #include <cmath>
 #include <exception>
 #include <mpi.h>
-#include "xmlUtils.h"
 
 template<class Problem>
 const char * feedbackMix<Problem>::name = "feedbackMix";
 
-template<class Problem>
-feedbackMix<Problem>::Param::Param(xmlNode *root) : target(0.5)
-{
-    xmlNode *section = getSectionByName(root, "feedbackMix");
-    interval = getPropInt(section, "interval");
-    try {
-        target = getPropDouble(section, "target");
-    } catch(std::exception &e) {
-        // ignore
-    }
-}
 
 template<class Problem>
 feedbackMix<Problem>::Param::Param(const ptree &root)

@@ -7,20 +7,10 @@
 
 #include <mpi.h>
 #include <cmath>
-#include "xmlUtils.h"
 
 template <class Problem>
 const char * pulseBcast<Problem>::name = "pulseBcast";
 
-template<class Problem>
-pulseBcast<Problem>::Param::Param(xmlNode *docroot)
-{
-    xmlNode *section = getSectionByName(docroot, "pulseBcast");
-    if (section == NULL) {
-        throw std::runtime_error(std::string("Error: cannot find section pulseBcast"));
-    }
-    frequency = getPropInt(section, "frequency");
-}
 
 template<class Problem>
 pulseBcast<Problem>::Param::Param(const ptree &root)

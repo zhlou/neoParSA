@@ -12,26 +12,10 @@
 #include <cmath>
 #include <exception>
 #include <mpi.h>
-#include "xmlUtils.h"
 
 template<class Problem>
 const char * rateMix<Problem>::name = "rateMix";
 
-template<class Problem>
-rateMix<Problem>::Param::Param(xmlNode *root) : weight(0.)
-{
-    xmlNode *section = getSectionByName(root, "rateMix");
-    factor = getPropDouble(section, "factor");
-    double memLength = 0.0;
-    try {
-        memLength = getPropDouble(section, "memLength");
-    } catch (exception &e) {
-
-    }
-    if (0.0 != memLength) {
-        weight = std::exp(-7.0/memLength); // exp(-7) ~= 0.001
-    }
-}
 
 template<class Problem>
 rateMix<Problem>::Param::Param(const ptree &root) : weight(0.)

@@ -8,10 +8,8 @@
 #ifndef EXPONENTIAL_H_
 #define EXPONENTIAL_H_
 
-#include "annealer.h"
 #include "aState.h"
 #include "dynDebug.h"
-#include <libxml/tree.h>
 #include <boost/property_tree/ptree.hpp>
 using boost::property_tree::ptree;
 
@@ -25,11 +23,9 @@ public:
         double alpha;
         debugStatus st;
         const char *outname;
-        Param(xmlNode *root, debugStatus st=ignore, const char *outname=NULL);
         Param(const ptree &root, debugStatus st=ignore, const char *outname=NULL);
     };
     exponential(const Param &param);
-    // exponential(xmlNode *root);
     ~exponential();
     void initStats(aState state);
     //double getInitS();
@@ -55,7 +51,6 @@ private:
     unsigned step_cnt;
     //int init_loop;
     //double init_S;
-    // xmlNode *xmlsection;
 };
 
 #endif /* EXPONENTIAL_H_ */

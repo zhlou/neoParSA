@@ -27,12 +27,6 @@ bool rejCountP::frozen(const aState& state) const
 
 }
 
-rejCountP::Param::Param(xmlNode* root,const MPIState &mpiState, debugStatus st,
-                        const char* name):
-        serParam(root, st, name), mpi(mpiState)
-{
-}
-
 rejCountP::Param::Param(const ptree &root, const MPIState &mpiState, debugStatus st,
                         const char *name):
         serParam(root, st, name), mpi(mpiState)

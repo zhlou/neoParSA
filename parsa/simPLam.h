@@ -13,7 +13,6 @@
 #define SIMPLAM_H_
 
 #include <mpi.h>
-#include <libxml/tree.h>
 #include <boost/property_tree/ptree.hpp>
 using boost::property_tree::ptree;
 
@@ -41,7 +40,6 @@ private:
 public:
     class Param {
     public:
-        Param(xmlNode *root, debugStatus in_st=ignore, const char *name=NULL);
         Param(const ptree &root, debugStatus in_st=ignore, const char *name=NULL);
         int proc_tau;
         double lambda;

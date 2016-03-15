@@ -18,7 +18,6 @@
 #define STATICLAM_H
 
 #include <vector>
-#include <libxml/tree.h>
 #include <boost/property_tree/ptree.hpp>
 using boost::property_tree::ptree;
 
@@ -53,7 +52,6 @@ public:
         double minRate;
         int adjustAlpha;
         const char *filename;
-        Param(xmlNode *root, debugStatus in_st=ignore, const char *logname=NULL);
         Param(const ptree &root, debugStatus in_st=ignore, const char *logname=NULL);
     };
     staticLam(Param &param);

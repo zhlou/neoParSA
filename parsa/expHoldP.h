@@ -17,8 +17,6 @@ public:
     class Param{
     public:
         expHold::Param param;
-        Param(xmlNode *root, debugStatus in_st=ignore, const char*name=NULL):
-            param(root, in_st, name) {}
         Param(const ptree &root, debugStatus in_st=ignore, const char *name=NULL):
             param(root, in_st, name) {}
     };

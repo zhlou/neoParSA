@@ -7,20 +7,11 @@
 
 #include "tempCount.h"
 
-#include "xmlUtils.h"
 
 tempCount::~tempCount() {
     // TODO Auto-generated destructor stub
 }
 
-tempCount::Param::Param(xmlNode* root, debugStatus in_st, const char* in_name)
-{
-    st = in_st;
-    debugname = in_name;
-    xmlNode *xmlsection = getSectionByName(root, "tempCount");
-    target_s = 1.0/getPropDouble(xmlsection, "target");
-    max_steps = getPropInt(xmlsection, "max_steps");
-}
 
 tempCount::Param::Param(const ptree &root, debugStatus in_st, const char *in_name):
         st(in_st), debugname(in_name)

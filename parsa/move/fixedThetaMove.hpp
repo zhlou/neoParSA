@@ -14,27 +14,6 @@ const char *fixedThetaMove<Problem>::name = "fixedThetaMove";
 
 
 
-template<class Problem>
-fixedThetaMove<Problem>::fixedThetaMove(Problem & problem,
-                                        unirandom& rnd,
-                                        xmlNode* root):
-        problem(problem), rnd(rnd), nparams(problem.getDimension()),
-        index(0),counter(0)
-{
-    xmlNode *section = getSectionByName(root, "fixedThetaMove");
-    if (section == NULL)
-        throw std::runtime_error("Failed to find section fixedThetaMove");
-    target = getPropDouble(section, "target");
-    try {
-        logInterval = getPropInt(section, "interval");
-    } catch (std::exception &e) {
-        logInterval = 100;
-    }
-    accumTheta = 0.0;
-    accumAccept = 0;
-    energy = problem.get_score();
-    prev_energy = energy;
-}
 
 template<class Problem>
 fixedThetaMove<Problem>::fixedThetaMove(Problem &in_problem, unirandom &in_rnd,
@@ -117,12 +96,9 @@ void fixedThetaMove<Problem>::procStats()
 
 
 template<class Problem>
-void fixedThetaMove<Problem>::writeState(xmlNodePtr docroot) const
+void fixedThetaMove<Problem>::writeState(ptree &root) const
 {
-    xmlNodePtr moveNode = xmlNewChild(docroot, NULL, BAD_CAST"moveSize", NULL);
-    char *paramNumString = NULL;
-    char *thetaString = NULL;
-    xmlNodePtr paramIter = NULL;
+    ptree node;
     /* for now fixedThetaMove only has one theta
     int i;
     for (i = 0; i < nparams; ++i) {
@@ -136,25 +112,9 @@ void fixedThetaMove<Problem>::writeState(xmlNodePtr docroot) const
 
     }
     */
-    paramIter = xmlNewChild(moveNode, NULL, BAD_CAST "param", BAD_CAST "0");
-    asprintf(&thetaString, "%.15g", target);
-    xmlNewProp(paramIter, BAD_CAST "theta", BAD_CAST thetaString);
-    free(thetaString);
-}
-
-template<class Problem>
-void fixedThetaMove<Problem>::writeState(ptree &root) const
-{
-    ptree node;
     ptree &param = node.put("param", 0);
     param.put("<xmlattr>.theta", target);
     root.put_child("moveSize", node);
-}
-
-template<class Problem>
-void fixedThetaMove<Problem>::readState(xmlNodePtr )
-{
-    // doing nothing
 }
 
 template<class Problem>

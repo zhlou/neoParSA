@@ -8,7 +8,6 @@
 #ifndef MIXONCE_H
 #define	MIXONCE_H
 
-#include <libxml/tree.h>
 #include <boost/property_tree/ptree.hpp>
 using boost::property_tree::ptree;
 
@@ -27,7 +26,6 @@ public:
         int interval;
         bool useBest;
         Param(double target) : target_s(target), interval(1), useBest(true) {}
-        Param(xmlNode *root);
         Param(const ptree &root);
     };
     mixOnce(Problem &problem, const MPIState &mpiState,

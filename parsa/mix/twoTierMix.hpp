@@ -8,16 +8,6 @@
 #ifndef TWOTIERMIX_HPP_
 #define TWOTIERMIX_HPP_
 
-#include "xmlUtils.h"
-
-template <class Problem>
-twoTierMix<Problem>::Param::Param(xmlNode *docroot)
-{
-    xmlNode *section = getSectionByName(docroot, "twoTierMix");
-    partSize = getPropInt(section, "partSize");
-    mixFreq = getPropInt(section, "mixFreq");
-    globalFreq = getPropInt(section, "globalFreq");
-}
 
 template <class Problem>
 twoTierMix<Problem>::Param::Param(const ptree &root)

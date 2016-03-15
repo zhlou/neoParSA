@@ -8,7 +8,6 @@
 #ifndef PERIODBEST_H_
 #define PERIODBEST_H_
 
-#include <libxml/tree.h>
 #include <boost/property_tree/ptree.hpp>
 using boost::property_tree::ptree;
 
@@ -36,7 +35,6 @@ public:
     class Param {
     public:
         unsigned frequency;
-        Param(xmlNode *docroot);
         Param(const ptree &root);
     };
     periodBest(Problem &problem, MPIState const&mpiState,

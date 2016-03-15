@@ -14,25 +14,6 @@ template <class Problem>
 const char * mixOnce<Problem>::name = "mixOnce";
 
 template <class Problem>
-mixOnce<Problem>::Param::Param(xmlNode* root) : interval(1), useBest(true)
-{
-    xmlNode *section = getSectionByName(root, "mixOnce");
-    target_s = 1./getPropDouble(section, "target");
-    try {
-        interval = getPropInt(section, "interval");
-    } catch (const std::exception &e) {
-
-    }
-    try {
-        useBest = getPropInt(section, "useBest");
-    } catch (const std::exception &e)
-    {
-
-    }
-
-}
-
-template <class Problem>
 mixOnce<Problem>::Param::Param(const ptree &root)
 {
     const ptree &sec_attr = root.get_child("mixOnce.<xmlattr>");

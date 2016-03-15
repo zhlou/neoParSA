@@ -8,7 +8,6 @@
 #ifndef PLSA_H_
 #define PLSA_H_
 #include <mpi.h>
-#include <libxml/tree.h>
 #include <boost/property_tree/ptree.hpp>
 using boost::property_tree::ptree;
 
@@ -21,11 +20,9 @@ public:
     class Param {
     public:
         lam::Param lamParam;
-        Param(xmlNode *root, debugStatus st=ignore, const char *outname=NULL);
         Param(const ptree &root, debugStatus st=ignore, const char *outname=NULL);
     };
     plsa(Param param, const MPIState &mpiState);
-    // plsa(xmlNode *root, const MPIState &mpiState);
     ~plsa();
     static const char *name;
     //bool frozen(aState state);

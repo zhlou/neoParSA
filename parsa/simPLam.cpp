@@ -9,22 +9,10 @@
 #include <exception>
 #include <stdexcept>
 #include "simPLam.h"
-#include "xmlUtils.h"
 
 
 const char * simPLam::name = "simPLam";
 
-simPLam::Param::Param(xmlNode* root, debugStatus in_st, const char* name) :
-        st(in_st),
-        outname(name)
-{
-    xmlNode *xmlsection = getSectionByName(root, "simPLam");
-    if (xmlsection == NULL)
-        throw std::runtime_error(std::string("Error: fail to find section simPLam"));
-    proc_tau = getPropInt(xmlsection,"tau");
-    lambda = getPropDouble(xmlsection, "lambda");
-
-}
 
 simPLam::Param::Param(const ptree &root, debugStatus in_st, const char *name) :
         st(in_st), outname(name)

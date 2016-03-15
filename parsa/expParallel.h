@@ -21,7 +21,6 @@ public:
     {
     public:
         exponential::Param serParam;
-        Param(xmlNode *root);
         Param(const ptree &root);
     };
     static const char *name;

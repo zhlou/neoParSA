@@ -5,7 +5,6 @@
  *      Author: zhlou
  */
 
-#include "xmlUtils.h"
 #include <limits>
 #include <exception>
 using namespace std;
@@ -13,15 +12,6 @@ using namespace std;
 
 template <class Problem>
 const char * intervalMix<Problem>::name = "intervalMix";
-/*
-template<class Problem>
-intervalMix<Problem>::intervalMix(Problem &in_problem, const MPIState &mpiState,
-                                  unirandom& in_rand, xmlNode *docroot) :
-        mix(in_problem, mpiState, in_rand), root(docroot),
-        interval(readInterval(root)), tau_count(0)
-{
-}
-*/
 
 template<class Problem>
 intervalMix<Problem>::intervalMix(Problem &in_problem, const MPIState &mpiState,
@@ -62,19 +52,6 @@ inline int readInterval(xmlNode *root)
     return getPropInt(section, "interval");
 }
 */
-
-template <class Problem>
-intervalMix<Problem>::Param::Param(xmlNode *root)
-{
-    xmlNode *section = getSectionByName(root, "mix");
-    interval = getPropInt(section, "interval");
-    reportNAdopt = 0;
-    try {
-        reportNAdopt = getPropInt(section, "reportNAdopt");
-    } catch (std::exception &e) {
-        // ignore
-    }
-}
 
 template <class Problem>
 intervalMix<Problem>::Param::Param(const ptree &root)

@@ -11,7 +11,6 @@
 #include <cmath>
 #include <ctime>
 #include <stdexcept>
-#include "xmlUtils.h"
 
 #include <boost/property_tree/xml_parser.hpp>
 #include <boost/format.hpp>
@@ -20,21 +19,6 @@ using namespace std;
 /*
  * When the constructor is called, all other parts should already be set up.
  */
-template<class Problem, class Schedule, class FrozenCnd, template<class> class Move>
-annealer<Problem, Schedule, FrozenCnd, Move>::annealer(Problem &problem,
-        unirandom& in_rand, typename Schedule::Param scheParam,
-        typename FrozenCnd::Param frozenParam,
-        xmlNode *root) :
-        problem(problem),
-        rand(in_rand)
-{
-    initState(root);
-    cooling = new Schedule(scheParam);
-    move = new Move<Problem>(problem, in_rand, root);
-    frozen = new FrozenCnd(frozenParam);
-    state.energy = move->get_score();
-    tlaps = -1;
-}
 
 template<class Problem, class Schedule, class FrozenCnd, template<class> class Move>
 annealer<Problem, Schedule, FrozenCnd, Move>::annealer(Problem &problem,
@@ -55,20 +39,6 @@ annealer<Problem, Schedule, FrozenCnd, Move>::annealer(Problem &problem,
  * This construtor is used only by derived class that have there own way
  * of generating cooling schedule and move scheme
  */
-template<class Problem, class Schedule, class FrozenCnd, template<class> class Move>
-annealer<Problem, Schedule, FrozenCnd, Move>::annealer(Problem &problem,
-        unirandom& in_rand,
-        xmlNode *root) :
-        problem(problem),
-        rand(in_rand)
-{
-    initState(root);
-    cooling = NULL;
-    move = NULL;
-    frozen = NULL;
-    tlaps = -1;
-}
-
 
 template<class Problem, class Schedule, class FrozenCnd, template<class> class Move>
 annealer<Problem, Schedule, FrozenCnd, Move>::annealer(Problem &problem,
@@ -169,20 +139,6 @@ double annealer<Problem, Schedule, FrozenCnd, Move>::initMovesOnly()
 }
 
 template<class Problem, class Schedule, class FrozenCnd, template<class > class Move>
-void annealer<Problem, Schedule, FrozenCnd, Move>::writeResultData(xmlNode* result) {
-    std::ostringstream s_energy, s_step, s_time;
-    s_energy << state.energy;
-    s_step << state.step_cnt;
-    s_time << tlaps;
-    xmlNewProp(result, (const xmlChar*) ("final_energy"),
-               (const xmlChar*) (s_energy.str().c_str()));
-    xmlNewProp(result, (const xmlChar*) ("max_count"),
-               (const xmlChar*) (s_step.str().c_str()));
-    xmlNewProp(result, (const xmlChar*) ("time"),
-               (const xmlChar*) (s_time.str().c_str()));
-}
-
-template<class Problem, class Schedule, class FrozenCnd, template<class > class Move>
 void annealer<Problem, Schedule, FrozenCnd, Move>::writeResultData(ptree &result) const
 {
     std::ostringstream s_energy, s_step, s_time;
@@ -194,16 +150,6 @@ void annealer<Problem, Schedule, FrozenCnd, Move>::writeResultData(ptree &result
     result.put("<xmlattr>.time", s_time.str());
 
 }
-
-template<class Problem, class Schedule, class FrozenCnd, template<class > class Move>
-void annealer<Problem, Schedule, FrozenCnd, Move>::writeMethodText(xmlNode *method)
-{
-    xmlNewProp(method, (const xmlChar*)"cooling-schedule",
-               (const xmlChar*)Schedule::name);
-    xmlNewProp(method, (const xmlChar*)"move-generation",
-               (const xmlChar*)Move<Problem>::name);
-}
-
 
 template<class Problem, class Schedule, class FrozenCnd, template<class > class Move>
 void annealer<Problem, Schedule, FrozenCnd, Move>::writeMethodText(ptree &method) const
@@ -227,26 +173,6 @@ void annealer<Problem, Schedule, FrozenCnd, Move>::ptreeGetResult(ptree &pt)
 }
 
 template<class Problem, class Schedule, class FrozenCnd, template<class > class Move>
-void annealer<Problem, Schedule, FrozenCnd, Move>::writeResult(xmlNode *xmlroot)
-{
-    xmlNode *result = getSectionByName(xmlroot, "annealing_result");
-    if (result != NULL) {
-        xmlUnlinkNode(result);
-        xmlFreeNode(result);
-    }
-    result = xmlNewChild(xmlroot, NULL, (const xmlChar *)"annealing_result",
-                         NULL);
-    writeResultData(result);
-    xmlNode *method = getSectionByName(xmlroot, "method");
-    if (method != NULL) {
-        xmlUnlinkNode(method);
-        xmlFreeNode(method);
-    }
-    method = xmlNewChild(xmlroot, NULL, (const xmlChar *)"method", NULL);
-    writeMethodText(method);
-}
-
-template<class Problem, class Schedule, class FrozenCnd, template<class > class Move>
 void annealer<Problem, Schedule, FrozenCnd, Move>::writeResult(ptree &root) const
 {
     ptree result, method;
@@ -255,20 +181,6 @@ void annealer<Problem, Schedule, FrozenCnd, Move>::writeResult(ptree &root) cons
     root.put_child("annealing_result", result);
     root.put_child("annealing_method", method);
 
-}
-template<class Problem, class Schedule, class FrozenCnd, template<class > class Move>
-void annealer<Problem, Schedule, FrozenCnd, Move>::initState(xmlNode* root)
-{
-    xmlNode* xmlsection = getSectionByName(root, "annealer_input");
-    if (xmlsection == NULL) {
-        throw runtime_error(
-                string("Error: fail to find section annealer_input"));
-    }
-    initS = 1.0 / getPropDouble(xmlsection, "init_T");
-    initLoop = getPropInt(xmlsection, "init_loop");
-    state.s = initS;
-    is_init = false;
-    state.step_cnt = 0;
 }
 
 template<class Problem, class Schedule, class FrozenCnd, template<class > class Move>
@@ -306,6 +218,7 @@ bool annealer<Problem, Schedule, FrozenCnd, Move>::step()
     return flag;
 }
 
+/*
 template<class Problem, class Schedule, class FrozenCnd, template<class> class Move>
 void annealer<Problem, Schedule, FrozenCnd, Move>::saveUnifiedInitState(const char* filename)
 {
@@ -347,6 +260,7 @@ void annealer<Problem, Schedule, FrozenCnd, Move>::saveUnifiedInitState(const ch
     free(initAccRatioString);
     free(xmlName);
 }
+*/
 
 template<class Problem, class Schedule, class FrozenCnd, template<class> class Move>
 void annealer<Problem, Schedule, FrozenCnd, Move>
@@ -375,6 +289,7 @@ void annealer<Problem, Schedule, FrozenCnd, Move>
 
 }
 
+/*
 template<class Problem, class Schedule, class FrozenCnd, template<class> class Move>
 double annealer<Problem, Schedule, FrozenCnd, Move>::readUnifiedInitState(const char* filename)
 {
@@ -414,6 +329,7 @@ double annealer<Problem, Schedule, FrozenCnd, Move>::readUnifiedInitState(const 
     is_init = true;
     return state.energy;
 }
+*/
 
 template<class Problem, class Schedule, class FrozenCnd, template<class> class Move>
 double annealer<Problem, Schedule, FrozenCnd, Move>::readUnifiedInitState(const std::string &prefix)

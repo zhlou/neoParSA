@@ -8,7 +8,6 @@
 #ifndef PULSEBCAST_H_
 #define PULSEBCAST_H_
 
-#include <libxml/tree.h>
 #include <boost/property_tree/ptree.hpp>
 using boost::property_tree::ptree;
 
@@ -33,7 +32,6 @@ public:
     class Param {
     public:
         unsigned frequency;
-        Param(xmlNode *root);
         Param(const ptree &root);
     };
     pulseBcast(Problem &problem, const MPIState &mpiState,

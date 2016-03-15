@@ -8,14 +8,6 @@ template <class Problem>
 const char *parallelFBMove<Problem>::name = "parallelFeedbackMove";
 
 template<class Problem>
-parallelFBMove<Problem>::parallelFBMove(Problem& in_problem,
-        unirandom& in_rnd, xmlNode* root,
-        const MPIState &mpiState) :
-        feedbackMove<Problem>(in_problem, in_rnd, root), mpi(mpiState)
-{
-}
-
-template<class Problem>
 parallelFBMove<Problem>::parallelFBMove(Problem &in_problem,
         unirandom &in_rnd, const ptree &root, const MPIState &mpiState) :
         feedbackMove<Problem>(in_problem, in_rnd, root), mpi(mpiState)
@@ -59,18 +51,6 @@ void parallelFBMove<Problem>::collectMoveStats()
             feedbackMove<Problem>::nparams, MPI_LONG, MPI_SUM, mpi.comm);
     MPI_Allreduce(MPI_IN_PLACE, feedbackMove<Problem>::moves,
             feedbackMove<Problem>::nparams, MPI_LONG, MPI_SUM, mpi.comm);
-}
-
-template<class Problem>
-void parallelFBMove<Problem>::readState(xmlNodePtr docroot)
-{
-    feedbackMove<Problem>::readState(docroot);
-    MPI_Allreduce(MPI_IN_PLACE, feedbackMove<Problem>::theta_bars,
-            feedbackMove<Problem>::nparams,
-            MPI_DOUBLE, MPI_SUM, mpi.comm);
-    for (int i = 0; i < feedbackMove<Problem>::nparams; ++i) {
-        feedbackMove<Problem>::theta_bars[i] /= mpi.nnodes;
-    }
 }
 
 template<class Problem>

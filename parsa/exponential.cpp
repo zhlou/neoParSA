@@ -13,27 +13,6 @@
 using namespace std;
 const char *exponential::name = "exponential";
 
-exponential::Param::Param(xmlNode* root, debugStatus in_st, const char *name):
-        st(in_st), outname(name)
-{
-    xmlNode *xmlsection = getSectionByName(root, "exponential");
-
-    if (xmlsection == NULL) {
-        throw runtime_error(string("Error: fail to find section exponential"));
-    }
-    //init_S = 1.0 / getPropDouble(xmlsection, "init_T");
-    alpha = getPropDouble(xmlsection, "alpha");
-    max_rej = getPropInt(xmlsection, "max_rej");
-    segLength = 100;
-    try {
-        segLength = getPropInt(xmlsection, "log_freq");
-    } catch (const std::exception &e) {
-
-    }
-    //init_loop = getPropInt(xmlsection, "init_loop");
-    //reject_cnt = 0;
-
-}
 
 exponential::Param::Param(const ptree &root, debugStatus in_st, const char *name):
         st(in_st), outname(name)

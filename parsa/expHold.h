@@ -11,7 +11,6 @@
 #include "aState.h"
 #include "dynDebug.h"
 #include "onePassMeanVar.h"
-#include <libxml/tree.h>
 
 #include <boost/property_tree/ptree.hpp>
 using boost::property_tree::ptree;
@@ -32,7 +31,6 @@ public:
         double alpha;
         debugStatus st;
         const char *outname;
-        Param(xmlNode *root, debugStatus in_st=ignore, const char *name=NULL);
         Param(const ptree &root, debugStatus in_st=ignore, const char *name=NULL);
     };
     expHold(Param param) : segLength(param.segLength), target_s(param.target_s),

@@ -2,41 +2,12 @@
 #include <stdexcept>
 #include <string>
 #include <cmath>
-#include "xmlUtils.h"
 #include "utils/vectorUtils.h"
 
 #include "staticLam.h"
 
 const char * staticLam::name = "staticLam";
 
-staticLam::Param::Param(xmlNode *root, debugStatus in_st, const char *name) :
-        st(in_st), logname(name)
-{
-    xmlNode *section = getSectionByName(root, "staticLam");
-    segLength = 100;
-    try {
-        segLength = getPropInt(section, "segLength");
-    } catch (const std::exception &e) {
-        // ignored
-    }
-    adjustAlpha=0;
-    try {
-        adjustAlpha = getPropInt(section, "adjustAlpha");
-    } catch (const std::exception &e) {
-        // ignored
-    }
-    lambda = getPropDouble(section, "lambda");
-    minRate = 1e-15;
-    try {
-        minRate = getPropDouble(section, "minRate");
-    } catch (const std::exception &e) {
-        // ignored
-    }
-    filename = (const char *)xmlGetProp(section, (xmlChar *)"filename");
-    if (NULL == filename) {
-        throw std::runtime_error("Error: fail to find filename in staticLam");
-    }
-}
 
 staticLam::Param::Param(const ptree &root, debugStatus in_st, const char *name):
         st(in_st), logname(name)

@@ -1,7 +1,6 @@
 #ifndef ANNEALER_H
 #define ANNEALER_H
 
-#include <libxml/parser.h>
 #include <boost/property_tree/ptree.hpp>
 using boost::property_tree::ptree;
 #include "unirandom.h"
@@ -50,9 +49,6 @@ class annealer
 {
 public:
     annealer(Problem &problem, unirandom& in_rand,
-             typename Schedule::Param scheParam,
-             typename FrozenCnd::Param frozenParam, xmlNode *root);
-    annealer(Problem &problem, unirandom& in_rand,
             typename Schedule::Param scheParam,
             typename FrozenCnd::Param frozenParam,
             const ptree &root);
@@ -63,12 +59,9 @@ public:
     // fixed T moves with no stats updated for schedule. move part is involved
     // hence likely updated.
     double fixedTMoves(double S, long steps);
-    void saveUnifiedInitState(const char * filename);
     void saveUnifiedInitState(const std::string &statePrefix);
-    double readUnifiedInitState(const char * filename);
     double readUnifiedInitState(const std::string &filename);
     virtual void ptreeGetResult(ptree &pt);
-    void writeResult(xmlNode *xmlroot);
     void writeResult(ptree &root) const;
     void setStepLog(debugStatus st, const char* outname=NULL)
     {debugOut.setDebug(st, outname); debugOut.precision(16);}
@@ -83,7 +76,6 @@ protected:
     FrozenCnd *frozen;
     Move<Problem> *move;
     unirandom& rand;
-    // xmlNode *xmlroot;
     aState state;
     int initLoop;
     double initS;
@@ -94,16 +86,12 @@ protected:
     double initVar;
     double initAccRatio;
 
-    annealer(Problem &problem, unirandom& in_rand, xmlNode *root);
     annealer(Problem &problem, unirandom& in_rand, const ptree &root);
     virtual void updateStats(aState &state) {cooling->updateStats(state);}
 
     bool step();
-    void initState(xmlNode* root);
     void initState(const ptree &root);
-    virtual void writeResultData(xmlNode* result);
     virtual void writeResultData(ptree &result) const;
-    virtual void writeMethodText(xmlNode* method);
     virtual void writeMethodText(ptree &method) const;
 };
 

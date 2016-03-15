@@ -13,14 +13,6 @@ template<class Problem>
 const char *adaptMix<Problem>::name = "adaptiveMixing";
 
 template<class Problem>
-adaptMix<Problem>::Param::Param(xmlNode *root)
-{
-    xmlNode *section = getSectionByName(root, "mix");
-    adaptCoef = getPropDouble(section, "adaptcoef");
-
-}
-
-template<class Problem>
 adaptMix<Problem>::Param::Param(const ptree &root)
 {
     const ptree &section = root.get_child("mix");

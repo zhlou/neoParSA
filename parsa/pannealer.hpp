@@ -5,25 +5,6 @@
  *      Author: zhlou
  */
 #include "annealer.h"
-template <class Problem, class Schedule, class FrozenCnd,
-          template<class> class Move, template<class> class PopBased>
-pannealer<Problem, Schedule, FrozenCnd, Move, PopBased>
-        ::pannealer(Problem &problem, unirandom& in_rand,
-                    typename Schedule::Param scheParam,
-                    typename FrozenCnd::Param frozenParam,
-                    const typename PopBased<Problem>::Param &popParam,
-                    xmlNode *root,
-                    const MPIState &mpiState) :
-          annealer<Problem, Schedule, FrozenCnd, Move>::annealer(problem, in_rand, root),
-          mpi(mpiState), pop(problem, mpiState, in_rand, popParam)
-{
-    // this pointer is necessary because otherwise the lookup to parent members
-    // may fail depending on compilers
-    this->cooling = new Schedule(scheParam, mpiState);
-    this->move = new Move<Problem>(problem, in_rand, root, mpiState);
-    this->state.energy = this->move->get_score();
-    this->frozen = new FrozenCnd(frozenParam, mpiState);
-}
 
 template <class Problem, class Schedule, class FrozenCnd,
           template<class> class Move, template<class> class PopBased>
@@ -76,17 +57,6 @@ void pannealer<Problem, Schedule, FrozenCnd, Move, PopBased>::updateStats(aState
     annealer<Problem, Schedule, FrozenCnd, Move>::updateStats(state);
     mixState ms = pop.Mix(state);
     this->move->processMix(ms, state);
-
-}
-
-template <class Problem, class Schedule, class FrozenCnd,
-          template<class> class Move, template<class> class PopBased>
-void pannealer<Problem, Schedule, FrozenCnd, Move,
-               PopBased>::writeMethodText(xmlNode* method)
-{
-    annealer<Problem, Schedule, FrozenCnd, Move>::writeMethodText(method);
-    xmlNewProp(method, (const xmlChar*)"mixing",
-               (const xmlChar*)PopBased<Problem>::name);
 
 }
 

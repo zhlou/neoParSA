@@ -8,7 +8,6 @@
 #ifndef FIXEDTHETAMOVE_H_
 #define FIXEDTHETAMOVE_H_
 
-#include <libxml/parser.h>
 #include <boost/property_tree/ptree.hpp>
 using boost::property_tree::ptree;
 
@@ -19,7 +18,6 @@ template <class Problem>
 class fixedThetaMove
 {
 public:
-    fixedThetaMove(Problem &in_problem, unirandom& in_rnd, xmlNode *root);
     fixedThetaMove(Problem &in_problem, unirandom& in_rnd, const ptree &root);
     ~fixedThetaMove();
     static const char *name;
@@ -27,9 +25,7 @@ public:
     double propose(double s = 0);
     void accept();
     void reject();
-    void writeState(xmlNodePtr docroot) const;
     void writeState(ptree &root) const;
-    void readState(xmlNodePtr docroot);
     void readState(const ptree &root);
     double forceUpdateEnergy() {return energy = problem.get_score();}
     void setDebug(debugStatus st, const char *outname=NULL)

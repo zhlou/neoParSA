@@ -10,7 +10,6 @@
 
 #include <vector>
 
-#include <libxml/tree.h>
 #include <boost/property_tree/ptree.hpp>
 using boost::property_tree::ptree;
 
@@ -34,7 +33,6 @@ public:
         const char *outname;
         debugStatus st;
         unsigned segLength;
-        Param(xmlNode *root, debugStatus in_st=ignore, const char *logname=NULL);
         Param(const ptree &root, debugStatus in_st=ignore, const char *logname=NULL);
     };
     staticCool(Param &param);
