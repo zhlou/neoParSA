@@ -26,7 +26,7 @@ add_executable(fly_simPLam-fbMix fly_simPLam-fbMix.cpp ${FLY_COMMON})
 add_executable(fly_pEH-fbMix fly_pEH-fbMix.cpp ${FLY_COMMON})
 
 foreach(bin ${BINARIES})
-	target_link_libraries(${bin} parsa ${LIBXML2_LIBRARIES} ${GSL_LIBRARIES})
+	target_link_libraries(${bin} parsa ${GSL_LIBRARIES})
 endforeach()
 foreach(mpibin ${MPIBINARIES})
 	target_link_libraries(${mpibin} ${MPI_C_LIBRARIES})

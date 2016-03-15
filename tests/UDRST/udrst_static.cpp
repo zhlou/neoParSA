@@ -13,7 +13,6 @@
 #include <unistd.h>
 #include <libgen.h>
 #include <getopt.h>
-#include <libxml/parser.h>
 
 #include "annealer.h"
 #include "move/feedbackMove.h"

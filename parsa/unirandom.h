@@ -7,7 +7,6 @@
 
 #ifndef UNIRANDOM_H_
 #define UNIRANDOM_H_
-#include <libxml/tree.h>
 #include <boost/property_tree/ptree.hpp>
 using boost::property_tree::ptree;
 

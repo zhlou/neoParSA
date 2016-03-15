@@ -47,7 +47,7 @@ add_executable(transcpp_pEF-st-twoTier transcpp_pEF-st-twoTier.cpp ${TRANSC_COMM
 add_executable(transcppPWLS transcppPWLS.cpp ${TRANSC_COMMON})
 
 foreach(bin ${BINARIES})
-	target_link_libraries(${bin} parsa ${LIBXML2_LIBRARIES} ${BOOST_LIBRARIES})
+	target_link_libraries(${bin} parsa ${BOOST_LIBRARIES})
     #target_link_libraries(${bin} parsa ${BOOST_LIBRARIES})
 endforeach()
 foreach(mpibin ${MPIBINARIES})

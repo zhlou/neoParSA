@@ -1,6 +1,6 @@
 set(RST_COMMON rastrigin.cpp)
 set(MPIBINARIES psolve_rst rst_pEH-mix rst_pEH-best rst_simPLam rst_pEH-fbMix)
-set(BINARIES ${MPIBINARIES} 
+set(BINARIES ${MPIBINARIES}
              rst_scramble solve_rst test_rst rst_expHold rst_lam rst_eH-fixedTheta
              rstWLS)
 
@@ -18,7 +18,7 @@ add_executable(rst_eH-fixedTheta rst_eH-fixedTheta.cpp ${RST_COMMON})
 add_executable(rstWLS rstWLS.cpp ${RST_COMMON})
 
 foreach(bin ${BINARIES})
-	target_link_libraries(${bin} parsa ${LIBXML2_LIBRARIES})
+	target_link_libraries(${bin} parsa)
 endforeach()
 foreach(mpibin ${MPIBINARIES})
 	target_link_libraries(${mpibin} ${MPI_C_LIBRARIES})

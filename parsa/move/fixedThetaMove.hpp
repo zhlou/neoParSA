@@ -5,7 +5,6 @@
  *      Author: zhlou
  */
 
-#include "xmlUtils.h"
 #include <exception>
 #include <stdexcept>
 

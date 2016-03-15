@@ -6,7 +6,6 @@
  */
 
 #include "expHold.h"
-#include "xmlUtils.h"
 #include <exception>
 #include <stdexcept>
 

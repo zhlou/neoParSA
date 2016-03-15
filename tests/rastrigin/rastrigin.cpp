@@ -7,7 +7,6 @@
 #include <limits>
 #include "rastrigin.h"
 #include "unirandom.h"
-#include "xmlUtils.h"
 #include <string.h>
 #include <boost/format.hpp>
 // #include <omp.h>

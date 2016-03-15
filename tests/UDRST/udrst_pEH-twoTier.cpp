@@ -13,7 +13,6 @@
 
 #include <unistd.h>
 #include <libgen.h>
-#include <libxml/parser.h>
 #include <mpi.h>
 
 #include <boost/property_tree/xml_parser.hpp>

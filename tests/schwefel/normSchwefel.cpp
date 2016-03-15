@@ -17,7 +17,6 @@
 
 
 #include "unirandom.h"
-#include "xmlUtils.h"
 
 const double normSchwefel::VAR_MAX = 512.0;
 const double normSchwefel::VAR_MIN = -512.0;

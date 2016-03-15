@@ -8,7 +8,6 @@
 #ifndef MIXONCE_HPP
 #define	MIXONCE_HPP
 
-#include "xmlUtils.h"
 
 template <class Problem>
 const char * mixOnce<Problem>::name = "mixOnce";
