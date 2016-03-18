@@ -32,8 +32,9 @@ scheduleThetaMove<Problem>::scheduleThetaMove(Problem &in_problem, unirandom &in
 }
 
 template<class Problem>
-double scheduleThetaMove<Problem>::propose(double s)
+double scheduleThetaMove<Problem>::propose(const aState &state)
 {
+    const double s = state.s;
     ++ index;
     if (index == nparams) {
         index = 0;

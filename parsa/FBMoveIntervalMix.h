@@ -41,7 +41,7 @@ public:
             unirandom &in_rnd, const Param &param);
     ~FBMoveIntervalMix();
     double get_score() { return energy;}
-    double propose(double s = 0);
+    double propose(const aState &);
     void accept();
     void reject();
     mixState Mix(aState &state);

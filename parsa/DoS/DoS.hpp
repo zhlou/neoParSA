@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   DoS.hpp
  * Author: zhlou
  *
@@ -9,9 +9,10 @@
 #define	DOS_HPP
 
 #include <cmath>
+#include "aState.h"
 
 template <class Problem, template<class> class Move, class Estimator>
-DoS<Problem, Move, Estimator>::DoS(Problem& problem, Move<Problem>& move, unirandom& in_rand, Param& param) : 
+DoS<Problem, Move, Estimator>::DoS(Problem& problem, Move<Problem>& move, unirandom& in_rand, Param& param) :
         problem(problem),
         move(move),
         rnd(in_rand),
@@ -29,9 +30,11 @@ void DoS<Problem, Move, Estimator>::estimate()
     double Vold = estm.getV(energy);
     double Vnew = Vold;
     double energyNew = energy;
+    aState state; // used in propose so we can use temperature dependent move control
+    state.s = 0;
     double crit = 0.0, delta = 0.0;
     for (long i = 0; i < nSteps; ++i) {
-        energyNew = energy + move.propose();
+        energyNew = energy + move.propose(state);
         Vold = estm.getV(energy);
         Vnew = estm.getV(energyNew);
         delta = Vold - Vnew;
@@ -48,4 +51,3 @@ void DoS<Problem, Move, Estimator>::estimate()
 }
 
 #endif	/* DOS_HPP */
-

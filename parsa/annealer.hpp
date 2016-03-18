@@ -199,7 +199,7 @@ bool annealer<Problem, Schedule, FrozenCnd, Move>::step()
 {
     double delta, crit, ran_n;
     bool flag;
-    delta = move->propose(state.s);
+    delta = move->propose(state);
     state.proposed = state.energy + delta;
     // cout << state.energy + delta << "@" << state.step_cnt << endl;
     crit = std::exp(-state.s * delta);

@@ -13,6 +13,7 @@ using boost::property_tree::ptree;
 
 #include "unirandom.h"
 #include "dynDebug.h"
+#include "aState.h"
 
 template <class Problem>
 class fixedThetaMove
@@ -22,7 +23,7 @@ public:
     ~fixedThetaMove();
     static const char *name;
     double get_score(){return energy;}
-    double propose(double s = 0);
+    double propose(const aState &);
     void accept();
     void reject();
     void writeState(ptree &root) const;

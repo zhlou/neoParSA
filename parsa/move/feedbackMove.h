@@ -33,7 +33,7 @@ public:
     feedbackMove(Problem &in_problem, unirandom& in_rnd, const ptree &root);
     virtual ~feedbackMove();
     double get_score();
-    double propose(double s = 0);
+    double propose(const aState &);
     void accept();
     void reject();
     virtual void doMix(aState &){}; // do nothing in base class

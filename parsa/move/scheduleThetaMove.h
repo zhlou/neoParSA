@@ -18,7 +18,7 @@ public:
     scheduleThetaMove(Problem &in_problem, unirandom &in_rnd, const ptree &root);
     virtual ~scheduleThetaMove() {}
     double get_score(){return energy;}
-    double propose(double s);
+    double propose(const aState &state);
     void accept();
     void reject();
     void setDebug(debugStatus st, const char*outname=NULL)

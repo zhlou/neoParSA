@@ -75,7 +75,7 @@ FBMoveIntervalMix<Problem>::~FBMoveIntervalMix()
 }
 
 template<class Problem>
-double FBMoveIntervalMix<Problem>::propose(double)
+double FBMoveIntervalMix<Problem>::propose(const aState &)
 {
     index++;
     index %= nparams;
