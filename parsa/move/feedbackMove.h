@@ -36,7 +36,6 @@ public:
     double propose(const aState &);
     void accept();
     void reject();
-    virtual void doMix(aState &){}; // do nothing in base class
     static const char *name;
     void setDebug(debugStatus st, const char*outname=NULL)
     {debugOut.setDebug(st, outname);}
