@@ -48,3 +48,6 @@ private:
     unsigned long interval; // should be const
     double target; // should be const
 }
+
+#include "tempFeedback.hpp"
+#endif
