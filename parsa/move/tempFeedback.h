@@ -29,7 +29,7 @@ public:
     double forceUpdateEnergy(){return energy = problem.get_score();}
 protected:
     virtual void collectMoveStats(){}; // do nothing in base class
-    void move_control();
+    void move_control(double);
     size_t nparams;
     std::vector<unsigned long> success;
     std::vector<unsigned long> moves;

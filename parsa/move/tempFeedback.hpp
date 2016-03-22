@@ -2,6 +2,7 @@
 #define TEMPFEEDBACK_HPP
 
 #include <limits>
+#include <cmath>
 
 template<class Problem>
 const char *tempFeedback<Problem>::name = "tempFeedback";
@@ -14,6 +15,7 @@ tempFeedback<Problem>::tempFeedback(Problem &in_problem, unirandom &in_rnd,
         moves(nparams, 0),
         theta_bars(nparams, 1.0),
         temp_coef(nparams, 0.0),
+        last_s(nparams, 0.0),
         theta_mins(nparams, 0.),
         theta_maxs(nparams, std::numeric_limits<double>::max()),
         problem(in_problem),
@@ -24,6 +26,8 @@ tempFeedback<Problem>::tempFeedback(Problem &in_problem, unirandom &in_rnd,
     const ptree &sec_attr = root.get_child("tempMove.<xmlattr>");
     proportion_gain = sec_attr.get<double>("proportion_gain"); // TODO: find a good default value
     integral_gain = sec_attr.get<double>("integral_gain"); // TODO: find a good default value
+    target = sec_attr.get<double>("target", 0.44);
+    interval = sec_attr.get<unsigned long>("interval", 100);
     boost::optional<double> initTheta = sec_attr.get_optional<double>("init_theta_bar");
     if (initTheta) {
         for (int i = 0;  i < nparams; ++i) {
@@ -50,10 +54,10 @@ double tempFeedback<Problem>::propose(const aState &state)
     if (index == nparams) {
         index = 0;
         ++sweep;
-        if (sweep == 0) {
+        if (sweep == interval) {
             sweep = 0;
             collectMoveStats();
-            move_control();
+            move_control(state.s);
         }
     }
     prev_energy = energy;
@@ -78,11 +82,12 @@ void tempFeedback<Problem>::reject()
 }
 
 template<class Problem>
-void tempFeedback<Problem>::move_control()
+void tempFeedback<Problem>::move_control(double s)
 {
-    debugOut << sweep;
+    debugOut << s;
     for (int i = 0; i < nparams; ++i) {
         double acc_ratio = (double)success[i] / (double) moves[i];
+        debugOut << "\t" << acc_ratio;
         double delta_rho = acc_ratio - target;
         temp_coef[i] += integral_gain * delta_rho;
         double lt = std::log(theta_bars[i]);
@@ -95,7 +100,16 @@ void tempFeedback<Problem>::move_control()
             t = theta_maxs[i];
         }
         theta_bars[i] = t;
+        success[i] = 0;
+        moves[i] = 0;
     }
+    if (!debugOut.isIgnore()){
+        for (int i = 0; i < nparams; ++i) {
+            debugOut << "\t" << theta_bars[i];
+        }
+    }
+
+    debugOut << endl;
 }
 
 template<class Problem>
