@@ -38,12 +38,12 @@ protected:
     std::vector<double> last_s;
     std::vector<double> theta_mins;
     std::vector<double> theta_maxs;
+    double energy;
+    double prev_energy;
 private:
     Problem &problem;
     unirandom &rnd;
     dynDebug debugOut;
-    double energy;
-    double prev_energy;
     double prev_s;
     size_t index;
     double proportion_gain; // should be const
