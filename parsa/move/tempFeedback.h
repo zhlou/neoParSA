@@ -40,12 +40,13 @@ protected:
     std::vector<double> theta_maxs;
     double energy;
     double prev_energy;
+    size_t index;
+    size_t step_cnt;
 private:
     Problem &problem;
     unirandom &rnd;
     dynDebug debugOut;
     double prev_s;
-    size_t index;
     double proportion_gain; // should be const
     double integral_gain; // should be const
     unsigned long sweep;

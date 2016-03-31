@@ -19,7 +19,7 @@ tempFeedback<Problem>::tempFeedback(Problem &in_problem, unirandom &in_rnd,
         theta_mins(nparams, 0.),
         theta_maxs(nparams, std::numeric_limits<double>::max()),
         problem(in_problem),
-        rnd(in_rnd), index(-1), sweep(0)
+        rnd(in_rnd), index(0), step_cnt(0), sweep(0)
 {
     energy = problem.get_score();
     prev_energy = energy;
@@ -50,9 +50,11 @@ tempFeedback<Problem>::tempFeedback(Problem &in_problem, unirandom &in_rnd,
 template <class Problem>
 double tempFeedback<Problem>::propose(const aState &state)
 {
-    index ++;
     if (index == nparams) {
         index = 0;
+    }
+    if (step_cnt == nparams) {
+        step_cnt = 0;
         ++sweep;
         if (sweep == interval) {
             sweep = 0;
@@ -72,6 +74,8 @@ template<class Problem>
 void tempFeedback<Problem>::accept()
 {
     ++ success[index];
+    index ++;
+    step_cnt ++;
 }
 
 template<class Problem>
@@ -79,6 +83,8 @@ void tempFeedback<Problem>::reject()
 {
     problem.restoreMove(index);
     energy = prev_energy;
+    index ++;
+    step_cnt ++;
 }
 
 template<class Problem>
