@@ -9,6 +9,9 @@ parallelTempMove<Problem>::parallelTempMove(Problem &in_problem,
         unirandom &in_rnd, const ptree &root, const MPIState &mpiState) :
         tempFeedback<Problem>(in_problem, in_rnd, root), mpi(mpiState)
 {
+    bool use_rank = root.get<bool>("tempMove.<xmlattr>.use_rank", false);
+    if (use_rank)
+        this->index = (mpi.rank % (this->nparams));
 
 }
 
