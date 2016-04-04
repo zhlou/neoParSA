@@ -50,7 +50,7 @@ add_executable(transcpp_pEF-twoTier transcpp_pEF-twoTier.cpp ${TRANSC_COMMON})
 add_executable(transcpp_pEF-st-twoTier transcpp_pEF-st-twoTier.cpp ${TRANSC_COMMON})
 add_executable(transcppPWLS transcppPWLS.cpp ${TRANSC_COMMON})
 add_executable(transcpp_tempMove_pEF-mix transcpp_tempMove_pEF-mix.cpp ${TRANSC_COMMON})
-add_executable(transcpp_tempMove_pEF-fbMix transcpp_tempMove_pEF-mix.cpp ${TRANSC_COMMON})
+add_executable(transcpp_tempMove_pEF-fbMix transcpp_tempMove_pEF-fbMix.cpp ${TRANSC_COMMON})
 
 foreach(bin ${BINARIES})
 	target_link_libraries(${bin} parsa ${BOOST_LIBRARIES})
