@@ -6,6 +6,7 @@ set(TRANSC_COMMON competition.cpp sequence.cpp score.cpp coeffects.cpp
                   quenching.cpp)
 set(MPIBINARIES transcpp_pEF-mix
                 transcpp_tempMove_pEF-mix
+                transcpp_tempMove_pEF-fbMix
                 transcpp_pEF-st-mix
                 transcpp_pEF-fbMix
                 transcpp_pEF-st-fbMix
@@ -49,6 +50,7 @@ add_executable(transcpp_pEF-twoTier transcpp_pEF-twoTier.cpp ${TRANSC_COMMON})
 add_executable(transcpp_pEF-st-twoTier transcpp_pEF-st-twoTier.cpp ${TRANSC_COMMON})
 add_executable(transcppPWLS transcppPWLS.cpp ${TRANSC_COMMON})
 add_executable(transcpp_tempMove_pEF-mix transcpp_tempMove_pEF-mix.cpp ${TRANSC_COMMON})
+add_executable(transcpp_tempMove_pEF-fbMix transcpp_tempMove_pEF-mix.cpp ${TRANSC_COMMON})
 
 foreach(bin ${BINARIES})
 	target_link_libraries(${bin} parsa ${BOOST_LIBRARIES})
