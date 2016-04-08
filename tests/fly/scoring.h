@@ -157,6 +157,7 @@ private:
 
     SearchSpace *ReadLimits(FILE *fp);
     void InitHistory(FILE *fp);
+    void InitExternalInputs(FILE *fp);
     void DoInterp(DataTable *interp_dat, InterpObject *interp_res,
                   int num_genes);
     void GetInterp(FILE *fp, char *title, int num_genes,

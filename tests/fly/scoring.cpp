@@ -254,12 +254,8 @@ scoring::scoring(FILE *fp, zygotic &zy, int flags, int ndigits, double step, dou
         InitHistory(fp);
     else {
         polations = NULL;
-        extinp_polations = NULL;
     }
-
-
-
-
+    InitExternalInputs(fp);
 
 }
 
@@ -658,7 +654,7 @@ void scoring::InitHistory(FILE *fp)
                                genotypes to set
                                the interp_dat,
                                bias_dat tables */
-    int nalleles = TheMaternal.GetNAlleles();
+    // int nalleles = TheMaternal.GetNAlleles();
 
 
 
@@ -729,6 +725,37 @@ void scoring::InitHistory(FILE *fp)
     return;
 
 }
+
+void scoring::InitExternalInputs(FILE *fp)
+{
+	int 			  i,ii;
+	DataTable  		  **temp_table;
+	Slist			  *curr;
+
+	if ( !(temp_table=(DataTable **)calloc(1, sizeof(DataTable *))) )
+		error("InitExternalInputs: could not allocate temp_table struct");
+
+
+	if ( !(extinp_polations=(InterpObject *)calloc(nalleles,
+			sizeof(InterpObject))) )
+		error("InitExternalInputs: could not allocate extinp_polations struct");
+
+
+	if (defs.egenes > 0) {
+
+		for(curr=TheMaternal.GetGenotypes(), i=0; curr; curr=curr->next, i++) {
+
+			GetInterp(fp, curr->ext_section, defs.egenes, temp_table);
+
+			DoInterp(*temp_table, extinp_polations+i, defs.egenes);
+			FreeFacts(*temp_table);
+
+
+		}
+	}
+	free(temp_table);
+}
+
 void scoring::GetInterp(FILE *fp, char *title, int num_genes,
                                         DataTable **interp_tables)
 {
