@@ -198,12 +198,17 @@ public:
      ***************************************************************************/
     int GetStartLinIndex(double t);
 
+    void Go_Forward(double *output, double *input, int output_ind,
+                    int input_ind, int num_genes);
+    void Go_Backward(double *output, double *input, int output_ind,
+                     int input_ind, int num_genes);
     int Index2StartLin(int index) {return full_lin_start[index];}
     int Index2NNuc(int index){ return full_nnucs[index]; }
     int GetNAlleles() const {return nalleles;}
     Slist *GetGenotypes() const {return genotypes;}
     double *Get_Theta_Discons(int *theta_discon_size);
     DataTable *List2Interp(Dlist *inlist, int num_genes);
+
 };
 
 

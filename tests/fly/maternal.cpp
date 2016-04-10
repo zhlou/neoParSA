@@ -1374,3 +1374,132 @@ DataTable *maternal::List2Interp(Dlist *inlist, int num_genes)
 
   return D;
 }
+
+void maternal::Go_Forward(double *output, double *input, int output_ind, int
+input_ind, int num_genes)
+{
+
+    double *y;
+    int output_lin, input_lin, size, newsize;
+    int k, ap, i, j, ii;
+
+    output_lin = Index2StartLin(output_ind);
+    newsize = Index2NNuc(output_ind)*num_genes;
+
+/*  printf("output lineage start, indices:%d, %d, %d\n",output_lin,output_ind,input_ind);*/
+
+    if (output_ind < input_ind - 1)
+    {
+        size = Index2NNuc(output_ind+1)*num_genes;
+        y = (double *) calloc(size, sizeof(double));
+/*      printf("Passing on to another fwd with targets %d %d %d\n",size,output_ind+1,input_ind);*/
+        Go_Forward(y,input,output_ind+1,input_ind,num_genes);
+    } else if  (output_ind == input_ind - 1)
+    {
+        size = Index2NNuc(input_ind)*num_genes;
+        y = (double *) calloc(size, sizeof(double));
+/*      printf("Goin' to do the tranfer:%d %d\n",size,newsize);*/
+        y = (double *)memcpy(y,input,size*sizeof(double));
+    } else if (output_ind == input_ind) {
+        output = (double *)memcpy(output,input,newsize*sizeof(double));
+        return;
+    }
+    else error("You are trying to go from nnucs %d to %d!",
+               Index2NNuc(input_ind),
+               Index2NNuc(output_ind));
+
+
+      for (j=0; j < size; j++) {
+
+    k  = j % num_genes;     /* k: index of gene k in current nucleus */
+    ap = j / num_genes;      /* ap: rel. nucleus position on AP axis */
+
+/* evaluate ii: index of anterior daughter nucleus */
+
+    if ( output_lin % 2 )
+      ii = 2 * ap * num_genes + k - num_genes;
+    else
+      ii = 2 * ap * num_genes + k;
+
+/* skip the first most anterior daughter nucleus in case output_lin is odd */
+
+        if ( ii >= 0 )
+      output[ii] = y[j];
+
+/* the second daughter only exists if it is still within the region */
+
+    if ( ii + num_genes < newsize )
+      output[ii+num_genes] =  y[j];
+      }
+
+    free(y);
+
+    return;
+}
+
+
+void maternal::Go_Backward(double *output, double *input, int output_ind, int
+input_ind, int num_genes)
+{
+
+    double *y;
+    int output_lin, input_lin, size, newsize;
+    int k, ap, i, j, ii;
+
+    output_lin = Index2StartLin(output_ind);
+    input_lin  = Index2StartLin(input_ind);
+    newsize = Index2NNuc(output_ind)*num_genes;
+
+/*  printf("output lineage start, indices:%d, %d, %d\n",output_lin,output_ind,input_ind);*/
+
+    if (output_ind > input_ind + 1)
+    {
+        size = Index2NNuc(output_ind-1)*num_genes;
+        y = (double *) calloc(size, sizeof(double));
+/*      printf("Passing on to another bkd with targets %d %d %d\n",size,output_ind-1,input_ind);*/
+        Go_Backward(y,input,output_ind-1,input_ind,num_genes);
+        input_lin  = Index2StartLin(output_ind-1);
+    } else if  (output_ind == input_ind + 1 )
+    {
+        size = Index2NNuc(input_ind)*num_genes;
+        y = (double *) calloc(size, sizeof(double));
+/*      printf("Goin' to do the tranfer\n");*/
+        memcpy(y,input,size*sizeof(double));
+    } else if (output_ind == input_ind){
+        memcpy(output,input,newsize*sizeof(double));
+        return;
+    }
+    else error("You are trying to go from nnucs %d to %d!",
+               Index2NNuc(input_ind),
+               Index2NNuc(output_ind));
+
+      for (j=0; j < newsize; j++) {
+
+    k  = j % num_genes;     /* k: index of gene k in current nucleus */
+    ap = j / num_genes;      /* ap: rel. nucleus position on AP axis */
+
+/* evaluate ii: index of anterior daughter nucleus */
+
+    if ( input_lin % 2 )
+      ii = 2 * ap * num_genes + k - num_genes;
+    else
+      ii = 2 * ap * num_genes + k;
+
+/* skip the first most anterior daughter nucleus in case output_lin is odd */
+
+    if (ii < 0)
+        output[j] = y[ii + num_genes];
+
+    if (( ii >= 0 ) && (ii + num_genes < size))
+        output[j] = .5*(y[ii] + y[ii+num_genes]);
+
+    if (ii + num_genes >= size)
+        output[j] = y[ii];
+
+      }
+
+    free(y);
+
+    return;
+}
+

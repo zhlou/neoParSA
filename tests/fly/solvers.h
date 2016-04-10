@@ -250,16 +250,11 @@ public:
     void ps(double *vin, double *vout, double tin, double tout,
             double stephint, double accuracy, int n, FILE *slog);
     void resetSolver();
-    void SetHistoryInterp(InterpObject interp_info);
-    void SetExternalInputInterp(InterpObject interp_info);
-    void Go_Forward(double *output, double *input, int output_ind,
-                    int input_ind, int num_genes);
-    void Go_Backward(double *output, double *input, int output_ind,
-                     int input_ind, int num_genes);
-    void ExternalInputs(double t, double t_size, double *yd, int n);
+    void SetHistoryInterp(InterpObject interp_info, InterpObject extinp_info);
+
     void DivideHistory(double t1, double t2);
 private:
-    InterpObject hist_interp_object, extinp_interp_object;
+    InterpObject hist_interp_object;
     EqParms *lp;
     double maxdel, mindel;
     int    numdel;  /* delay parameters used by DCERk32, y_delayed */

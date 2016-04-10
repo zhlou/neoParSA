@@ -3887,7 +3887,7 @@ double ech, double *d1, double *d2, double *d3, double *d4, int n)
 
 }
 
-void SoDe::SetHistoryInterp(InterpObject interp_info)
+void SoDe::SetHistoryInterp(InterpObject interp_info, InterpObject extinp_info)
 {
 
     hist_interp_object.fact_discons     = interp_info.fact_discons;
@@ -3900,7 +3900,7 @@ void SoDe::SetHistoryInterp(InterpObject interp_info)
     int i;
 
     fact_discons_size = hist_interp_object.fact_discons_size +
-                                extinp_interp_object.fact_discons_size;
+                                extinp_info.fact_discons_size;
 
     fact_discons = (double *) calloc(fact_discons_size,
                                                 sizeof(double));
@@ -3908,26 +3908,16 @@ void SoDe::SetHistoryInterp(InterpObject interp_info)
     for (i = 0; i < hist_interp_object.fact_discons_size; i++)
         fact_discons[i] = hist_interp_object.fact_discons[i];
 
-    for (i = 0; i < extinp_interp_object.fact_discons_size; i++)
+    for (i = 0; i < extinp_info.fact_discons_size; i++)
         fact_discons[i+hist_interp_object.fact_discons_size]
-                            = extinp_interp_object.fact_discons[i];
+                            = extinp_info.fact_discons[i];
 
     qsort((void *) fact_discons, fact_discons_size,
             sizeof(double),(int (*) (const void*,const void*)) compare);
 
 }
 
-void SoDe::SetExternalInputInterp(InterpObject interp_info)
-{
 
-    extinp_interp_object.fact_discons   = interp_info.fact_discons;
-    extinp_interp_object.fact_discons_size= interp_info.fact_discons_size;
-    extinp_interp_object.func               = interp_info.func;
-    extinp_interp_object.slope              = interp_info.slope;
-    extinp_interp_object.maxsize            = interp_info.maxsize;
-    extinp_interp_object.maxtime            = interp_info.maxtime;
-
-}
 
 void SoDe::History(double t, double t_size, double *yd, int n)
 {
@@ -3968,11 +3958,11 @@ void SoDe::History(double t, double t_size, double *yd, int n)
     }
 
     if (n >= hist_interp_object.maxsize)
-        Go_Forward(yd, blug, TheMaternal.GetStartLinIndex(t_size),
+    	TheMaternal.Go_Forward(yd, blug, TheMaternal.GetStartLinIndex(t_size),
                    TheMaternal.GetStartLinIndex(hist_interp_object.maxtime),
                    defs.ngenes);
     else
-        Go_Backward(yd, blug, TheMaternal.GetStartLinIndex(t_size),
+    	TheMaternal.Go_Backward(yd, blug, TheMaternal.GetStartLinIndex(t_size),
                     TheMaternal.GetStartLinIndex(hist_interp_object.maxtime),
                     defs.ngenes);
     free(blug);
@@ -3980,56 +3970,7 @@ void SoDe::History(double t, double t_size, double *yd, int n)
     return;
 }
 
-void SoDe::ExternalInputs(double t, double t_size, double *yd, int n)
-{
 
-    int j,k;
-    double *blug;
-    double t_interp, t_diff;
-
-/*  printf("Going from %d to %d, time:%f time for size:%f\n",maxsize,n,t,t_size);*/
-
-    blug = (double *) calloc(extinp_interp_object.maxsize,
-                                                sizeof(double));
-
-    k = -1;
-    do {
-            k++;
-
-    } while ( (k < extinp_interp_object.slope.size ) &&
-                        (t > extinp_interp_object.slope.array[k].time));
-    if (k == 0)
-        t_interp = extinp_interp_object.slope.array[k].time;
-    else {
-
-        k--;
-        t_interp = t;
-
-    }
-
-    t_diff = t_interp - extinp_interp_object.slope.array[k].time;
-
-    for (j=0; j < extinp_interp_object.maxsize; j++)
-    {
-
-        blug[j] = extinp_interp_object.func.array[k].state.array[j]
-                + extinp_interp_object.slope.array[k].state.array[j]
-                *t_diff;
-
-    }
-
-    if (n >= extinp_interp_object.maxsize)
-        Go_Forward(yd, blug, TheMaternal.GetStartLinIndex(t_size),
-                   TheMaternal.GetStartLinIndex(extinp_interp_object.maxtime),
-                   defs.egenes);
-    else
-        Go_Backward(yd, blug, TheMaternal.GetStartLinIndex(t_size),
-                    TheMaternal.GetStartLinIndex(extinp_interp_object.maxtime),
-                    defs.egenes);
-    free(blug);
-
-    return;
-}
 
 void SoDe::DivideHistory(double t1, double t2)
 {
@@ -4044,7 +3985,7 @@ void SoDe::DivideHistory(double t1, double t2)
 
             blug = (double *) calloc(size, sizeof(double));
 
-            Go_Forward(blug, vdonne[i], TheMaternal.GetStartLinIndex(t2),
+            TheMaternal.Go_Forward(blug, vdonne[i], TheMaternal.GetStartLinIndex(t2),
                        TheMaternal.GetStartLinIndex(t1),
                        defs.ngenes);
 
@@ -4053,7 +3994,7 @@ void SoDe::DivideHistory(double t1, double t2)
 
             blug = (double *) calloc(size, sizeof(double));
 
-            Go_Forward(blug, derivv1[i], TheMaternal.GetStartLinIndex(t2),
+            TheMaternal.Go_Forward(blug, derivv1[i], TheMaternal.GetStartLinIndex(t2),
                        TheMaternal.GetStartLinIndex(t1),
                        defs.ngenes);
 
@@ -4062,7 +4003,7 @@ void SoDe::DivideHistory(double t1, double t2)
 
             blug = (double *) calloc(size, sizeof(double));
 
-            Go_Forward(blug, derivv2[i], TheMaternal.GetStartLinIndex(t2),
+            TheMaternal.Go_Forward(blug, derivv2[i], TheMaternal.GetStartLinIndex(t2),
                        TheMaternal.GetStartLinIndex(t1),
                        defs.ngenes);
 
@@ -4071,7 +4012,7 @@ void SoDe::DivideHistory(double t1, double t2)
 
             blug = (double *) calloc(size, sizeof(double));
 
-            Go_Forward(blug, derivv3[i], TheMaternal.GetStartLinIndex(t2),
+            TheMaternal.Go_Forward(blug, derivv3[i], TheMaternal.GetStartLinIndex(t2),
                        TheMaternal.GetStartLinIndex(t1),
                        defs.ngenes);
 
@@ -4080,7 +4021,7 @@ void SoDe::DivideHistory(double t1, double t2)
 
             blug = (double *) calloc(size, sizeof(double));
 
-            Go_Forward(blug, derivv4[i], TheMaternal.GetStartLinIndex(t2),
+            TheMaternal.Go_Forward(blug, derivv4[i], TheMaternal.GetStartLinIndex(t2),
                        TheMaternal.GetStartLinIndex(t1),
                        defs.ngenes);
 
@@ -4091,133 +4032,7 @@ void SoDe::DivideHistory(double t1, double t2)
 
 }
 
-void SoDe::Go_Forward(double *output, double *input, int output_ind, int
-input_ind, int num_genes)
-{
 
-    double *y;
-    int output_lin, input_lin, size, newsize;
-    int k, ap, i, j, ii;
-
-    output_lin = TheMaternal.Index2StartLin(output_ind);
-    newsize = TheMaternal.Index2NNuc(output_ind)*num_genes;
-
-/*  printf("output lineage start, indices:%d, %d, %d\n",output_lin,output_ind,input_ind);*/
-
-    if (output_ind < input_ind - 1)
-    {
-        size = TheMaternal.Index2NNuc(output_ind+1)*num_genes;
-        y = (double *) calloc(size, sizeof(double));
-/*      printf("Passing on to another fwd with targets %d %d %d\n",size,output_ind+1,input_ind);*/
-        Go_Forward(y,input,output_ind+1,input_ind,num_genes);
-    } else if  (output_ind == input_ind - 1)
-    {
-        size = TheMaternal.Index2NNuc(input_ind)*num_genes;
-        y = (double *) calloc(size, sizeof(double));
-/*      printf("Goin' to do the tranfer:%d %d\n",size,newsize);*/
-        y = (double *)memcpy(y,input,size*sizeof(double));
-    } else if (output_ind == input_ind) {
-        output = (double *)memcpy(output,input,newsize*sizeof(double));
-        return;
-    }
-    else error("You are trying to go from nnucs %d to %d!",
-               TheMaternal.Index2NNuc(input_ind),
-               TheMaternal.Index2NNuc(output_ind));
-
-
-      for (j=0; j < size; j++) {
-
-    k  = j % num_genes;     /* k: index of gene k in current nucleus */
-    ap = j / num_genes;      /* ap: rel. nucleus position on AP axis */
-
-/* evaluate ii: index of anterior daughter nucleus */
-
-    if ( output_lin % 2 )
-      ii = 2 * ap * num_genes + k - num_genes;
-    else
-      ii = 2 * ap * num_genes + k;
-
-/* skip the first most anterior daughter nucleus in case output_lin is odd */
-
-        if ( ii >= 0 )
-      output[ii] = y[j];
-
-/* the second daughter only exists if it is still within the region */
-
-    if ( ii + num_genes < newsize )
-      output[ii+num_genes] =  y[j];
-      }
-
-    free(y);
-
-    return;
-}
-
-
-void SoDe::Go_Backward(double *output, double *input, int output_ind, int
-input_ind, int num_genes)
-{
-
-    double *y;
-    int output_lin, input_lin, size, newsize;
-    int k, ap, i, j, ii;
-
-    output_lin = TheMaternal.Index2StartLin(output_ind);
-    input_lin  = TheMaternal.Index2StartLin(input_ind);
-    newsize = TheMaternal.Index2NNuc(output_ind)*num_genes;
-
-/*  printf("output lineage start, indices:%d, %d, %d\n",output_lin,output_ind,input_ind);*/
-
-    if (output_ind > input_ind + 1)
-    {
-        size = TheMaternal.Index2NNuc(output_ind-1)*num_genes;
-        y = (double *) calloc(size, sizeof(double));
-/*      printf("Passing on to another bkd with targets %d %d %d\n",size,output_ind-1,input_ind);*/
-        Go_Backward(y,input,output_ind-1,input_ind,num_genes);
-        input_lin  = TheMaternal.Index2StartLin(output_ind-1);
-    } else if  (output_ind == input_ind + 1 )
-    {
-        size = TheMaternal.Index2NNuc(input_ind)*num_genes;
-        y = (double *) calloc(size, sizeof(double));
-/*      printf("Goin' to do the tranfer\n");*/
-        memcpy(y,input,size*sizeof(double));
-    } else if (output_ind == input_ind){
-        memcpy(output,input,newsize*sizeof(double));
-        return;
-    }
-    else error("You are trying to go from nnucs %d to %d!",
-               TheMaternal.Index2NNuc(input_ind),
-               TheMaternal.Index2NNuc(output_ind));
-
-      for (j=0; j < newsize; j++) {
-
-    k  = j % num_genes;     /* k: index of gene k in current nucleus */
-    ap = j / num_genes;      /* ap: rel. nucleus position on AP axis */
-
-/* evaluate ii: index of anterior daughter nucleus */
-
-    if ( input_lin % 2 )
-      ii = 2 * ap * num_genes + k - num_genes;
-    else
-      ii = 2 * ap * num_genes + k;
-
-/* skip the first most anterior daughter nucleus in case output_lin is odd */
-
-    if (ii < 0)
-        output[j] = y[ii + num_genes];
-
-    if (( ii >= 0 ) && (ii + num_genes < size))
-        output[j] = .5*(y[ii] + y[ii+num_genes]);
-
-    if (ii + num_genes >= size)
-        output[j] = y[ii];
-
-      }
-
-    free(y);
-
-    return;
-}
 
 solver *SolverFactory(zygotic &zygote, int debug, const char *name)
 {

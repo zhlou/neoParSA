@@ -176,6 +176,7 @@ private:
 
     void FreeMutant(void);
 
+    InterpObject extinp_interp_object;
 
 
 public:
@@ -229,6 +230,9 @@ public:
 
     void PrintParameters(FILE *fp, EqParms *p, const char *title, int ndigits);
 
+    void SetExternalInputInterp(InterpObject interp_info);
+
+    void ExternalInputs(double t, double t_size, double *yd, int n);
 };
 
 #endif /* ZYGOTIC_H_ */

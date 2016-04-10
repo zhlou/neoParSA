@@ -832,12 +832,12 @@ num_genes)
 */
         if (interp_res->func.array[i].state.size >=
                                         Nptrfacts.array[i].state.size)
-            delay_solver->Go_Forward(interp_res->func.array[i].state.array,
+            TheMaternal.Go_Forward(interp_res->func.array[i].state.array,
                 Nptrfacts.array[i].state.array,
                 TheMaternal.GetStartLinIndex(interp_res->func.array[i].time),
                 TheMaternal.GetStartLinIndex(Nptrfacts.array[i].time), num_genes);
         else
-            delay_solver->Go_Backward(interp_res->func.array[i].state.array,
+            TheMaternal.Go_Backward(interp_res->func.array[i].state.array,
                 Nptrfacts.array[i].state.array,
                 TheMaternal.GetStartLinIndex(interp_res->func.array[i].time),
                 TheMaternal.GetStartLinIndex(Nptrfacts.array[i].time), num_genes);
@@ -1073,16 +1073,12 @@ double scoring::Score(void)
 
     /* this loop runs the model and sums squared differences for all genotypes */
 
-    InterpObject dummy_polations; // to make Blastoderm happy
+
     for ( i=0; i<nalleles; i++) {
-        if (delay_solver)
-            answer = Zygote.Blastoderm(i, facttype[i].genotype, polations[i],
+        answer = Zygote.Blastoderm(i, facttype[i].genotype, polations[i],
                                        extinp_polations[i],tt[i].ptr.times,
                                        stepsize, accuracy, slogptr);
-        else
-            answer = Zygote.Blastoderm(i, facttype[i].genotype, dummy_polations,
-                                       dummy_polations,tt[i].ptr.times,
-                                       stepsize, accuracy, slogptr);
+
         if ( debug ) {
             sprintf(debugfile, "%s.%s.pout", filename, facttype[i].genotype);
             fp = fopen(debugfile, "w");

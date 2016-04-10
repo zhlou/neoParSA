@@ -472,13 +472,15 @@ void zygotic::p_deriv(double* v, double t, double* vdot, int n)
      * allocate v_ext or populate it with external input
      * concentrations */
 
+    if (defs.egenes > 0) {
+    	v_ext = (double *) calloc(m * defs.egenes, sizeof(double));
+    	ExternalInputs(t, t, v_ext, m * defs.egenes);
+    }
+
     SoDe *delay_solver = NULL;
     if (typeid(*solve) == typeid(SoDe)){
         delay_solver = dynamic_cast<SoDe *>(solve);
-        if (defs.egenes > 0) {
-            v_ext = (double *) calloc(m * defs.egenes, sizeof(double));
-            delay_solver->ExternalInputs(t, t, v_ext, m * defs.egenes);
-        }
+
     }
 
 
@@ -1372,11 +1374,10 @@ NArrPtr zygotic::Blastoderm(int in_genindex, char *genotype,
   genindex = in_genindex;
 
 
-
+  if (defs.egenes > 0)
+	  SetExternalInputInterp(extinp_interrp);
   if (delay_solver) {
-      if (defs.egenes > 0)
-            delay_solver->SetExternalInputInterp(extinp_interrp);
-      delay_solver->SetHistoryInterp(hist_interrp);
+      delay_solver->SetHistoryInterp(hist_interrp, extinp_interrp);
   }
 
 /* Blastoderm() first checks if tabtimes has the same size as in the pre-  *
@@ -1781,7 +1782,7 @@ void zygotic::d_deriv(double *v, double **vd, double t, double *vdot, int n)
         for (i = 0; i < defs.ngenes; i++) {
 
             v_ext[i] = (double *) calloc(m*defs.egenes, sizeof(double));
-            delay_solver->ExternalInputs(t - lparm.tau[i], t, v_ext[i], m*defs.egenes);
+            ExternalInputs(t - lparm.tau[i], t, v_ext[i], m*defs.egenes);
         }
     }
 
@@ -2247,4 +2248,65 @@ void zygotic::PrintParameters(FILE *fp, EqParms *p, const char *title, int ndigi
 
 }
 
+void zygotic::SetExternalInputInterp(InterpObject interp_info)
+{
 
+    extinp_interp_object.fact_discons   = interp_info.fact_discons;
+    extinp_interp_object.fact_discons_size= interp_info.fact_discons_size;
+    extinp_interp_object.func               = interp_info.func;
+    extinp_interp_object.slope              = interp_info.slope;
+    extinp_interp_object.maxsize            = interp_info.maxsize;
+    extinp_interp_object.maxtime            = interp_info.maxtime;
+
+}
+
+void zygotic::ExternalInputs(double t, double t_size, double *yd, int n)
+{
+
+    int j,k;
+    double *blug;
+    double t_interp, t_diff;
+
+/*  printf("Going from %d to %d, time:%f time for size:%f\n",maxsize,n,t,t_size);*/
+
+    blug = (double *) calloc(extinp_interp_object.maxsize,
+                                                sizeof(double));
+
+    k = -1;
+    do {
+            k++;
+
+    } while ( (k < extinp_interp_object.slope.size ) &&
+                        (t > extinp_interp_object.slope.array[k].time));
+    if (k == 0)
+        t_interp = extinp_interp_object.slope.array[k].time;
+    else {
+
+        k--;
+        t_interp = t;
+
+    }
+
+    t_diff = t_interp - extinp_interp_object.slope.array[k].time;
+
+    for (j=0; j < extinp_interp_object.maxsize; j++)
+    {
+
+        blug[j] = extinp_interp_object.func.array[k].state.array[j]
+                + extinp_interp_object.slope.array[k].state.array[j]
+                *t_diff;
+
+    }
+
+    if (n >= extinp_interp_object.maxsize)
+        TheMaternal.Go_Forward(yd, blug, TheMaternal.GetStartLinIndex(t_size),
+                   TheMaternal.GetStartLinIndex(extinp_interp_object.maxtime),
+                   defs.egenes);
+    else
+        TheMaternal.Go_Backward(yd, blug, TheMaternal.GetStartLinIndex(t_size),
+                    TheMaternal.GetStartLinIndex(extinp_interp_object.maxtime),
+                    defs.egenes);
+    free(blug);
+
+    return;
+}
