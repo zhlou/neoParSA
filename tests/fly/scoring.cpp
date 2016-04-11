@@ -1074,10 +1074,19 @@ double scoring::Score(void)
     /* this loop runs the model and sums squared differences for all genotypes */
 
 
+    InterpObject dummy_polations; // to make Blastoderm happy
+
     for ( i=0; i<nalleles; i++) {
-        answer = Zygote.Blastoderm(i, facttype[i].genotype, polations[i],
-                                       extinp_polations[i],tt[i].ptr.times,
-                                       stepsize, accuracy, slogptr);
+    	if (delay_solver)
+    		answer = Zygote.Blastoderm(i, facttype[i].genotype, polations[i],
+    				extinp_polations[i],tt[i].ptr.times,
+					stepsize, accuracy, slogptr);
+    	else
+    		answer = Zygote.Blastoderm(i, facttype[i].genotype, dummy_polations,
+    				extinp_polations[i],tt[i].ptr.times,
+					stepsize, accuracy, slogptr);
+
+
 
         if ( debug ) {
             sprintf(debugfile, "%s.%s.pout", filename, facttype[i].genotype);
