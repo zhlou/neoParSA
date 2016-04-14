@@ -260,7 +260,7 @@ void feedbackMove<Problem>::writeState(ptree &root) const
 {
     ptree node;
     for (int i = 0; i < nparams; ++i) {
-        ptree &param = node.put("param", i);
+        ptree &param = node.add("param", i);
         param.put("<xmlattr>.theta", theta_bars[i]);
     }
     root.put_child("moveSize", node);
