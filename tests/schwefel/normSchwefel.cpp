@@ -79,7 +79,8 @@ normSchwefel::normSchwefel(ptree &root, unirandom &in_rnd,
                            std::string secName) :
         rnd(in_rnd)
 {
-    ptree &sec_attr = root.get_child(secName);
+    ptree &sec = root.get_child(secName);
+    ptree &sec_attr =  sec.get_child("<xmlattr>");
     dim = sec_attr.get<int>("dim");
     vars = new double[dim];
     for (int i = 0; i < dim; i++) {
