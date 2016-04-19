@@ -3,6 +3,12 @@
 `neoParSA` is a highly modularized parallel and serial simulated annealing library in C++.
 It is designed to be both easy to use and easy to extend.
 
+## Contents
+
+1. [Dependencies](#1-dependencies)
+2. [Build](#2-build)
+3. [Usage](#3-usage)
+
 ## 1. Dependencies
 ### MPI
 `neoParSA` library proper requires an implementation of MPI version 2.0 or above.
