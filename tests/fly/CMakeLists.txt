@@ -6,6 +6,7 @@ set(FLY_COMMON DataLists.cpp flyData.cpp maternal.cpp scoring.cpp solvers.cpp
 set(MPIBINARIES
     fly_sa-mpi
     fly_pEF-mix
+    fly_pEF-fbMix
     fly_expHold-mpi
     fly_expHold-IndMove
     fly_expHold-theta
@@ -42,6 +43,8 @@ add_executable(fly_simPLam fly_simPLam.cpp ${FLY_COMMON})
 add_executable(fly_simPLam-fbMix fly_simPLam-fbMix.cpp ${FLY_COMMON})
 add_executable(fly_pEH-fbMix fly_pEH-fbMix.cpp ${FLY_COMMON})
 add_executable(fly_pEF-mix fly_pEF-mix.cpp ${FLY_COMMON})
+add_executable(fly_pEF-fbMix fly_pEF-fbMix.cpp ${FLY_COMMON})
+
 
 foreach(bin ${BINARIES})
 	target_link_libraries(${bin} parsa ${GSL_LIBRARIES})
