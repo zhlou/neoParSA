@@ -23,7 +23,8 @@ set(BINARIES ${MPIBINARIES}
     fly_sa
     fly_pulse
     fly_expHold
-    fly_expFrozen)
+    fly_expFrozen
+    fly_expFrozen-tm)
 
 add_executable(printscore printscore.cpp ${FLY_COMMON})
 add_executable(scramble scramble.cpp ${FLY_COMMON})
@@ -31,6 +32,7 @@ add_executable(fly_sa fly_sa.cpp ${FLY_COMMON})
 add_executable(fly_pulse fly_pulse.cpp ${FLY_COMMON})
 add_executable(fly_expHold fly_expHold.cpp ${FLY_COMMON})
 add_executable(fly_expFrozen fly_expFrozen.cpp ${FLY_COMMON})
+add_executable(fly_expFrozen-tm fly_expFrozen-tm.cpp ${FLY_COMMON})
 add_executable(fly_sa-mpi fly_sa-mpi.cpp ${FLY_COMMON})
 add_executable(fly_expHold-mpi fly_expHold-mpi.cpp ${FLY_COMMON})
 add_executable(fly_expHold-IndMove fly_expHold-IndMove.cpp ${FLY_COMMON})
