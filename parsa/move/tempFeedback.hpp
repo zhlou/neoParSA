@@ -91,11 +91,15 @@ template<class Problem>
 void tempFeedback<Problem>::move_control(double s)
 {
     debugOut << s;
+    double lnDs = 0.0;
+    if (0 != last_control_s) {
+        lnDs = std::log(s) - std::log(last_control_s);
+    }
     for (int i = 0; i < nparams; ++i) {
         double acc_ratio = (double)success[i] / (double) moves[i];
         debugOut << "\t" << acc_ratio;
         double delta_rho = acc_ratio - target;
-        temp_coef[i] += integral_gain * delta_rho;
+        temp_coef[i] += integral_gain * delta_rho * lnDs;
         double lt = std::log(theta_bars[i]);
         lt += proportion_gain * delta_rho;
         double t = std::exp(lt);
@@ -109,6 +113,7 @@ void tempFeedback<Problem>::move_control(double s)
         success[i] = 0;
         moves[i] = 0;
     }
+    last_control_s = s;
     if (!debugOut.isIgnore()){
         for (int i = 0; i < nparams; ++i) {
             debugOut << "\t" << theta_bars[i];

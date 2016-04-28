@@ -40,6 +40,7 @@ protected:
     std::vector<double> theta_maxs;
     double energy;
     double prev_energy;
+    double last_control_s;
     size_t index;
     size_t step_cnt;
 private:
