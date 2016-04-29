@@ -18,6 +18,7 @@ tempFeedback<Problem>::tempFeedback(Problem &in_problem, unirandom &in_rnd,
         last_s(nparams, 0.0),
         theta_mins(nparams, 0.),
         theta_maxs(nparams, std::numeric_limits<double>::max()),
+        last_control_s(0.0),
         problem(in_problem),
         rnd(in_rnd), index(0), step_cnt(0), sweep(0)
 {
