@@ -61,3 +61,20 @@ To make the library and all the test problems, do
     $ make
 
 ## 3. Usage
+`neoParSA` requires the problem to be optimized to be enclosed in a class
+with the following member methods:
+
+```c++
+size_t getDimension();
+double get_score();
+void generateMove(int index, double theta);
+void restoreMove(int index);
+```
+
+For parallel versions, it needs three more:
+
+```c++
+size_t getStateSize();
+void serialize(void *buf);
+void deserialize(void const *buf);
+```
