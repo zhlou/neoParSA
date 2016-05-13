@@ -18,6 +18,8 @@ set(MPIBINARIES
     fly_simPLam-fbMix
     fly_pEH-fbMix
     fly_pwls
+    fly_pEF-tm-mix
+    fly_pEF-tm-fbMix
 )
 set(BINARIES ${MPIBINARIES}
     printscore
@@ -51,6 +53,9 @@ add_executable(fly_pEF-mix fly_pEF-mix.cpp ${FLY_COMMON})
 add_executable(fly_pEF-fbMix fly_pEF-fbMix.cpp ${FLY_COMMON})
 add_executable(fly_wls fly_wls.cpp ${FLY_COMMON})
 add_executable(fly_pwls fly_pwls.cpp ${FLY_COMMON})
+add_executable(fly_pEF-tm-mix fly_pEF-tm-mix.cpp ${FLY_COMMON})
+add_executable(fly_pEF-tm-fbMix fly_pEF-tm-fbMix.cpp ${FLY_COMMON})
+
 
 
 foreach(bin ${BINARIES})
