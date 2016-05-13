@@ -16,7 +16,9 @@ set(MPIBINARIES
     fly_expHold-amix
 	fly_simPLam
     fly_simPLam-fbMix
-    fly_pEH-fbMix)
+    fly_pEH-fbMix
+    fly_pwls
+)
 set(BINARIES ${MPIBINARIES}
     printscore
     scramble
@@ -24,7 +26,8 @@ set(BINARIES ${MPIBINARIES}
     fly_pulse
     fly_expHold
     fly_expFrozen
-    fly_expFrozen-tm)
+    fly_expFrozen-tm
+    fly_wls)
 
 add_executable(printscore printscore.cpp ${FLY_COMMON})
 add_executable(scramble scramble.cpp ${FLY_COMMON})
@@ -46,6 +49,8 @@ add_executable(fly_simPLam-fbMix fly_simPLam-fbMix.cpp ${FLY_COMMON})
 add_executable(fly_pEH-fbMix fly_pEH-fbMix.cpp ${FLY_COMMON})
 add_executable(fly_pEF-mix fly_pEF-mix.cpp ${FLY_COMMON})
 add_executable(fly_pEF-fbMix fly_pEF-fbMix.cpp ${FLY_COMMON})
+add_executable(fly_wls fly_wls.cpp ${FLY_COMMON})
+add_executable(fly_pwls fly_pwls.cpp ${FLY_COMMON})
 
 
 foreach(bin ${BINARIES})
