@@ -29,6 +29,7 @@ public:
     double laplace(double theta);
     double lognormal(double mean, double var);
     double exponential(double theta);
+    double cauchy(double gamma); // symmetric cauchy
     virtual void setSeed(unsigned int newSeed)
     {
         seed = newSeed;

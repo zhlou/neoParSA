@@ -13,6 +13,7 @@
 #include <cmath>
 
 using namespace std;
+const double PI = 3.141592653589793;
 
 unirandom::unirandom() : phase(0)
 {
@@ -80,6 +81,10 @@ double unirandom::lognormal(double mean, double var)
     return std::exp(randn(mu, sigma));
 }
 
+double unirandom::cauchy(double gamma)
+{
+    return gamma * std::tan(PI * (random() - 0.5));
+}
 
 void unirand48::initFromSeed()
 {
