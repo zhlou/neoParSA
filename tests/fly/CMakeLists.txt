@@ -20,6 +20,7 @@ set(MPIBINARIES
     fly_pwls
     fly_pEF-tm-mix
     fly_pEF-tm-fbMix
+    fly_cauchy_pEF-mix
 )
 set(BINARIES ${MPIBINARIES}
     printscore
@@ -58,6 +59,7 @@ add_executable(fly_pwls fly_pwls.cpp ${FLY_COMMON})
 add_executable(fly_pEF-tm-mix fly_pEF-tm-mix.cpp ${FLY_COMMON})
 add_executable(fly_pEF-tm-fbMix fly_pEF-tm-fbMix.cpp ${FLY_COMMON})
 add_executable(fly_cauchy_expFrozen fly_cauchy_expFrozen.cpp ${FLY_COMMON})
+add_executable(fly_cauchy_pEF-mix fly_cauchy_pEF-mix.cpp ${FLY_COMMON})
 
 
 
