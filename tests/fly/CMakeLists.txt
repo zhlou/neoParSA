@@ -29,7 +29,9 @@ set(BINARIES ${MPIBINARIES}
     fly_expHold
     fly_expFrozen
     fly_expFrozen-tm
-    fly_wls)
+    fly_cauchy_expFrozen
+    fly_wls
+)
 
 add_executable(printscore printscore.cpp ${FLY_COMMON})
 add_executable(scramble scramble.cpp ${FLY_COMMON})
@@ -55,6 +57,7 @@ add_executable(fly_wls fly_wls.cpp ${FLY_COMMON})
 add_executable(fly_pwls fly_pwls.cpp ${FLY_COMMON})
 add_executable(fly_pEF-tm-mix fly_pEF-tm-mix.cpp ${FLY_COMMON})
 add_executable(fly_pEF-tm-fbMix fly_pEF-tm-fbMix.cpp ${FLY_COMMON})
+add_executable(fly_cauchy_expFrozen fly_cauchy_expFrozen.cpp ${FLY_COMMON})
 
 
 
